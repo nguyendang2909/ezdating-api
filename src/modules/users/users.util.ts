@@ -35,15 +35,10 @@ export class UsersUtil {
     if (!findResult) {
       throw new NotFoundException('User not found!');
     }
-
     return findResult;
   }
 
-  public async findOneById(
-    id: string,
-    findOneUserByIdDto: FindOneUserByIdDto,
-    currentUserId: string,
-  ) {
+  public async findOneById(id: string, findOneUserByIdDto: FindOneUserByIdDto) {
     const { f } = findOneUserByIdDto;
     const findResult = await this.userRepository.findOne({
       where: {
@@ -51,20 +46,14 @@ export class UsersUtil {
       },
       select: EntityFactory.getSelectFieldsAsObj(_.uniq(f.concat('status'))),
     });
-
     return findResult;
   }
 
   public async findOneOrFailById(
     id: string,
     findOneUserByIdDto: FindOneUserByIdDto,
-    currentUserId: string,
   ) {
-    const findResult = await this.findOneById(
-      id,
-      findOneUserByIdDto,
-      currentUserId,
-    );
+    const findResult = await this.findOneById(id, findOneUserByIdDto);
     if (!findResult) {
       throw new BadRequestException('User not found!');
     }
@@ -75,7 +64,6 @@ export class UsersUtil {
         errorCode: 'USER_BANNED',
       });
     }
-
     return findResult;
   }
 }
