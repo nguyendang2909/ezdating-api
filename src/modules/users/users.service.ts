@@ -13,7 +13,7 @@ import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
 import { FindOneUserDto } from './dto/is-exist-user.dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { User } from './entities/user.entity';
-import { EUserStatus } from './users.enum';
+import { EUserStatus } from './users.constant';
 
 @Injectable()
 export class UsersService {
@@ -114,9 +114,9 @@ export class UsersService {
     updateMyProfileDto: UpdateMyProfileDto,
     currentUserId: string,
   ) {
-    const { birthDate, gender } = updateMyProfileDto;
+    const { birthDay, gender } = updateMyProfileDto;
     const updateOptions = {
-      ...(birthDate ? { birthDate } : {}),
+      ...(birthDay ? { birthDay } : {}),
       ...(gender ? { gender } : {}),
     };
     const updateResult = await this.userRepository.update(

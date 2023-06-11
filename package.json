@@ -18,7 +18,13 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "migrate:latest": "knex --knexfile ./knexfile.ts migrate:latest",
+    "migrate:rollback": "knex --knexfile ./knexfile.ts migrate:rollback",
+    "migrate:redo": "yarn migrate:rollback && yarn migrate:latest",
+    "migrate:make": "knex --knexfile ./knexfile.ts migrate:make -x ts",
+    "lint:fix": "eslint --fix --ext ts .",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@joi/date": "^2.1.0",
@@ -39,6 +45,7 @@
     "firebase-admin": "^11.8.0",
     "helmet": "^6.1.5",
     "joi": "^17.9.2",
+    "knex": "^2.4.2",
     "moment": "^2.29.4",
     "nest-winston": "^1.9.1",
     "nestjs-joi": "^1.9.0",

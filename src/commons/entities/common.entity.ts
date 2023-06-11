@@ -4,9 +4,9 @@ import { BaseEntity } from './base.entity';
 
 @Entity()
 export class CommonEntity extends BaseEntity {
-  @Column({ type: 'uuid', nullable: false })
+  @Column({ name: 'created_by', type: 'uuid', nullable: false })
   createdBy!: string;
 
-  @Column({ type: 'uuid', nullable: false })
+  @Column({ name: 'updated_by', type: 'uuid', nullable: false })
   updatedBy!: string;
 }

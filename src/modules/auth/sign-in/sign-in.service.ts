@@ -7,7 +7,7 @@ import {
 
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { UsersAuthUtil } from '../../users/auth-users.util';
-import { EUserStatus } from '../../users/users.enum';
+import { EUserStatus } from '../../users/users.constant';
 import { SignInData } from '../auth.type';
 import { SignInWithPhoneNumberDto } from '../dto/sign-in-with-phone-number.dto';
 import { SignInWithPhoneNumberAndPasswordDto } from '../dto/sign-in-with-phone-number-and-password.dto';

@@ -48,6 +48,10 @@ mkdir -p .cert
 
 mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem "localhost"
 
+# Migration
+npx knex migrate:make create_users_table
+
 # Deploy
 docker-compose -f deployment.development.yml up -d
 yarn dev
+

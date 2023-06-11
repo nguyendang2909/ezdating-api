@@ -13,3 +13,11 @@ export enum EUserStatus {
   banned = 'banned',
   activated = 'activated',
 }
+
+export enum EUserLookingFor {
+  lover = 'lover',
+  friend = 'friend',
+  partner = 'partner',
+  longTerm = 'longTerm',
+  oneNightStand = 'oneNightStand',
+}

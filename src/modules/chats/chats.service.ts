@@ -3,7 +3,7 @@ import { Socket } from 'socket.io';
 
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { UsersAuthUtil } from '../users/auth-users.util';
-import { EUserStatus } from '../users/users.enum';
+import { EUserStatus } from '../users/users.constant';
 import { UsersUtil } from '../users/users.util';
 import { SendChatMessageDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';

@@ -16,9 +16,9 @@ import { JwtAuthGuard } from './guards/jwt.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
+import { EncryptionsModule } from './modules/encryptions/encryptions.module';
 import { RoomsModule } from './modules/rooms/rooms.module';
 import { UsersModule } from './modules/users/users.module';
-import { EncryptionsModule } from './modules/encryptions/encryptions.module';
 
 @Module({
   imports: [

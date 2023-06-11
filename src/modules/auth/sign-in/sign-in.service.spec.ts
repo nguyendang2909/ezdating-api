@@ -4,7 +4,7 @@ import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
 
 import { AuthUsersService } from '../../users/auth-users.util';
 import { User } from '../../users/entities/user.entity';
-import { ERole, EUserStatus } from '../../users/users.enum';
+import { ERole, EUserStatus } from '../../users/users.constant';
 import { SignInWithPhoneNumberDto } from '../dto/sign-in-with-phone-number.dto';
 import { EncryptionsService } from '../encryptions.service';
 import { FirebaseService } from '../firebase.service';

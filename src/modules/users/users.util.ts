@@ -11,7 +11,7 @@ import { EntityFactory } from '../../commons/lib/entity-factory';
 import { EntityFindOneOptions } from '../../commons/types/find-options.type';
 import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
 import { User } from './entities/user.entity';
-import { EUserStatus } from './users.enum';
+import { EUserStatus } from './users.constant';
 
 @Injectable()
 export class UsersUtil {
