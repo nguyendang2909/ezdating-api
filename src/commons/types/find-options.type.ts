@@ -11,3 +11,10 @@ export type EntityFindOneOptions<T> = Omit<
   select: FindOptionsSelect<T>;
   where: FindOptionsWhere<T>[] | FindOptionsWhere<T>;
 };
+
+export type EntityFindOneByIdOptions<T> = Omit<
+  FindOneOptions<T>,
+  'select' | 'where'
+> & {
+  select: FindOptionsSelect<T>;
+};

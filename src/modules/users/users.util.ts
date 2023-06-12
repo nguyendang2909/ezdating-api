@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
-import { Repository } from 'typeorm';
+import { FindOneOptions, FindOptionsSelect, Repository } from 'typeorm';
 
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { EntityFindOneOptions } from '../../commons/types/find-options.type';
@@ -65,5 +65,18 @@ export class UsersUtil {
       });
     }
     return findResult;
+  }
+
+  public async findOneByIdAndValidate(
+    id: string,
+    options: Omit<FindOneOptions<User>, 'select' | 'where'> & {
+      select: FindOptionsSelect<User> & { status: true };
+    },
+  ): Promise<User | null> {
+    const user = await this.userRepository.findOne(options);
+    if (!user || user.status === EUserStatus.banned) {
+      return null;
+    }
+    return user;
   }
 }
