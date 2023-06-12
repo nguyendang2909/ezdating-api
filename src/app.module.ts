@@ -17,6 +17,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
+import { MatchesModule } from './modules/matches/matches.module';
 import { RoomsModule } from './modules/rooms/rooms.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -108,6 +109,7 @@ import { UsersModule } from './modules/users/users.module';
     RoomsModule,
     ContactsModule,
     EncryptionsModule,
+    MatchesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

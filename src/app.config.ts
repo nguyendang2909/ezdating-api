@@ -1,4 +1,4 @@
 export const AppConfig = {
-  APP_NAME: 'vMessage',
+  APP_NAME: 'EZDating',
   PUBLIC_ENDPOINT_METADATA: 'isPublic',
 };
