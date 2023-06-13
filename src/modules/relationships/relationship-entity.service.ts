@@ -16,8 +16,12 @@ export class RelationshipEntity {
     private readonly repository: Repository<Relationship>,
   ) {}
 
-  public async saveOne(entity: Relationship) {
-    return await this.repository.save(entity);
+  public async saveOne(entity: Partial<Relationship>, currentUserId: string) {
+    return await this.repository.save({
+      ...entity,
+      createdBy: currentUserId,
+      updatedBy: currentUserId,
+    });
   }
 
   public async findOne(
@@ -49,8 +53,15 @@ export class RelationshipEntity {
     });
   }
 
-  public async updateOne(id: string, partialEntity: Partial<Relationship>) {
-    return await this.repository.update(id, partialEntity);
+  public async updateOne(
+    id: string,
+    partialEntity: Partial<Relationship>,
+    currentUserId: string,
+  ) {
+    return await this.repository.update(id, {
+      ...partialEntity,
+      updatedBy: currentUserId,
+    });
   }
 
   public async deleteOne(id: string) {
