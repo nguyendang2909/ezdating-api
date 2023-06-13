@@ -22,7 +22,7 @@ export class UpdateMyProfileDto {
   gender: EGender;
 
   @ApiPropertyOptional({ type: String })
-  @JoiSchema(Joi.string().max(500).optional())
+  @JoiSchema(Joi.string().max(500).allow(null, '').optional())
   introduce?: string;
 
   @ApiPropertyOptional({ type: String })
