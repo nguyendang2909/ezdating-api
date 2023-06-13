@@ -70,6 +70,7 @@ export class RelationshipsService {
       await this.relationshipEntity.updateOne(
         existRelationshipId,
         updateRelationshipEntity,
+        currentUserId,
       );
 
       return { ...existRelationship, ...updateRelationshipEntity };
