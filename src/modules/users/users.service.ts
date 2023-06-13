@@ -111,14 +111,11 @@ export class UsersService {
   }
 
   public async updateProfile(
-    updateMyProfileDto: UpdateMyProfileDto,
+    payload: UpdateMyProfileDto,
     currentUserId: string,
   ) {
-    const { birthDay, gender } = updateMyProfileDto;
-    const updateOptions = {
-      ...(birthDay ? { birthDay } : {}),
-      ...(gender ? { gender } : {}),
-    };
+    const { ...updateDto } = payload;
+    const updateOptions = { ...updateDto };
     const updateResult = await this.userRepository.update(
       { id: currentUserId },
       updateOptions,

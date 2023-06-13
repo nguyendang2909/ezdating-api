@@ -21,10 +21,15 @@ export class UpdateMyProfileDto {
   )
   gender: EGender;
 
+  @ApiPropertyOptional({ type: String })
+  @JoiSchema(Joi.string().max(500).optional())
+  introduce?: string;
+
+  @ApiPropertyOptional({ type: String })
+  @JoiSchema(Joi.string().max(100).optional())
   nickname?: string;
 
   country?: string;
 
   city?: string;
-  
 }
