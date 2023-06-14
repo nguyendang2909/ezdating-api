@@ -86,4 +86,8 @@ export class UserEntity {
   public async findMany(options: EntityFindManyOptions<User>) {
     return await this.userRepository.find(options);
   }
+
+  public isUserOne(userId: string, userIds: string[]): boolean {
+    return userId === userIds[0];
+  }
 }

@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { Repository } from 'typeorm';
 
 import {
+  EntityFindManyOptions,
   EntityFindOneByIdOptions,
   EntityFindOneOptions,
 } from '../../commons/types/find-options.type';
@@ -22,6 +23,10 @@ export class RelationshipEntity {
       createdBy: currentUserId,
       updatedBy: currentUserId,
     });
+  }
+
+  public async findMany(options: EntityFindManyOptions<Relationship>) {
+    return await this.repository.find({ ...options, take: 20 });
   }
 
   public async findOne(

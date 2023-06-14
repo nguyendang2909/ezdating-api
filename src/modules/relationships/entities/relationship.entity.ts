@@ -5,7 +5,7 @@ import { User } from '../../users/entities/user.entity';
 
 export class Relationship extends CommonEntity {
   @ManyToOne(() => User, { nullable: false })
-  @JoinColumn({ name: 'user_two' })
+  @JoinColumn({ name: 'user_one' })
   userOne!: User;
 
   @ManyToOne(() => User, { nullable: false })
