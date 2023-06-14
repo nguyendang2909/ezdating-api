@@ -13,6 +13,7 @@ import { CurrentUserId } from '../../commons/decorators/current-user-id.decorato
 import { FindMyProfileDto } from './dto/find-my-profile.dto';
 import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
 import { FindOneUserDto } from './dto/is-exist-user.dto';
+import { FindManyUsersDto } from './dto/is-exist-user.dto copy';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UsersService } from './users.service';
 
@@ -21,6 +22,17 @@ import { UsersService } from './users.service';
 @ApiBearerAuth('JWT')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get('/')
+  private async findMany(
+    @Query() queryParams: FindManyUsersDto,
+    @CurrentUserId() currentUserId: string,
+  ) {
+    return {
+      type: 'users',
+      data: await this.usersService.findMany(queryParams, currentUserId),
+    };
+  }
 
   @Get('/search')
   private async findOne(

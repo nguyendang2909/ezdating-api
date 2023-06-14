@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { User } from '../users/entities/user.entity';
-import { UsersUtil } from '../users/users.util';
+import { UserEntity } from '../users/users-entity.service';
 import { SendLikeRelationshipDto } from './dto/create-relationship.dto';
 import { UpdateRelationshipDto } from './dto/update-relationship.dto';
 import { Relationship } from './entities/relationship.entity';
@@ -11,7 +11,7 @@ import { RelationshipEntity } from './relationship-entity.service';
 export class RelationshipsService {
   constructor(
     private readonly relationshipEntity: RelationshipEntity,
-    private readonly userEntity: UsersUtil,
+    private readonly userEntity: UserEntity,
   ) {}
 
   public async sendLike(

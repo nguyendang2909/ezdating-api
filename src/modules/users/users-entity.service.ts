@@ -8,13 +8,16 @@ import _ from 'lodash';
 import { FindOneOptions, FindOptionsSelect, Repository } from 'typeorm';
 
 import { EntityFactory } from '../../commons/lib/entity-factory';
-import { EntityFindOneOptions } from '../../commons/types/find-options.type';
+import {
+  EntityFindManyOptions,
+  EntityFindOneOptions,
+} from '../../commons/types/find-options.type';
 import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
 import { User } from './entities/user.entity';
 import { EUserStatus } from './users.constant';
 
 @Injectable()
-export class UsersUtil {
+export class UserEntity {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
@@ -78,5 +81,9 @@ export class UsersUtil {
       return null;
     }
     return user;
+  }
+
+  public async findMany(options: EntityFindManyOptions<User>) {
+    return await this.userRepository.find(options);
   }
 }

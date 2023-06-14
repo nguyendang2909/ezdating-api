@@ -1,4 +1,9 @@
-import { FindOneOptions, FindOptionsSelect, FindOptionsWhere } from 'typeorm';
+import {
+  FindManyOptions,
+  FindOneOptions,
+  FindOptionsSelect,
+  FindOptionsWhere,
+} from 'typeorm';
 
 export type FindOptions = {
   selects: string[];
@@ -17,4 +22,12 @@ export type EntityFindOneByIdOptions<T> = Omit<
   'select' | 'where'
 > & {
   select: FindOptionsSelect<T>;
+};
+
+export type EntityFindManyOptions<T> = Omit<
+  FindManyOptions<T>,
+  'skip' | 'take' | 'select' | 'where'
+> & {
+  select: FindOptionsSelect<T>;
+  where: FindOptionsWhere<T>[] | FindOptionsWhere<T>;
 };

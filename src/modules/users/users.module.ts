@@ -6,12 +6,12 @@ import { UsersAuthUtil } from './auth-users.util';
 import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { UsersUtil } from './users.util';
+import { UserEntity } from './users-entity.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), EncryptionsModule],
-  exports: [UsersUtil, UsersAuthUtil],
+  exports: [UserEntity, UsersAuthUtil],
   controllers: [UsersController],
-  providers: [UsersService, UsersUtil, UsersAuthUtil],
+  providers: [UsersService, UserEntity, UsersAuthUtil],
 })
 export class UsersModule {}

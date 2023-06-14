@@ -5,21 +5,48 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { FindMyProfileDto } from './dto/find-my-profile.dto';
 import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
 import { FindOneUserDto } from './dto/is-exist-user.dto';
+import { FindManyUsersDto } from './dto/is-exist-user.dto copy';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { User } from './entities/user.entity';
 import { EUserStatus } from './users.constant';
+import { UserEntity } from './users-entity.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private readonly userEntity: UserEntity,
   ) {}
+
+  public async findMany(
+    queryParams: FindManyUsersDto,
+    currentUserId: string,
+  ): Promise<User[]> {
+    const { f } = queryParams;
+    const findResult = await this.userEntity.findMany({
+      where: {
+        id: Not(currentUserId),
+        haveBasicInfo: true,
+        status: EUserStatus.activated,
+      },
+      select: {
+        id: true,
+        email: true,
+        gender: true,
+        introduce: true,
+        lookingFor: true,
+        nickname: true,
+        phoneNumber: true,
+      },
+    });
+    return findResult;
+  }
 
   public async findOne(
     findOneUserDto: FindOneUserDto,
