@@ -18,6 +18,6 @@ export enum EUserLookingFor {
   lover = 'lover',
   friend = 'friend',
   partner = 'partner',
-  longTerm = 'longTerm',
+  marriage = 'marriage',
   oneNightStand = 'oneNightStand',
 }
