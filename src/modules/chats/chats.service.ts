@@ -1,11 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
+import { RoomEntity } from '../rooms/rooms.entity';
 import { UsersAuthUtil } from '../users/auth-users.util';
 import { EUserStatus } from '../users/users.constant';
 import { UserEntity } from '../users/users-entity.service';
-import { SendChatMessageDto } from './dto/create-chat.dto';
+import { SendChatMessageDto } from './dto/send-chat-message.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 
 @Injectable()
@@ -14,13 +16,35 @@ export class ChatsService {
     private readonly encryptionsUtil: EncryptionsUtil,
     private readonly userEntity: UserEntity,
     private readonly usersAuthUtil: UsersAuthUtil,
+    private readonly roomEntity: RoomEntity,
   ) {}
 
   private readonly logger = new Logger(ChatsService.name);
 
-  sendMessage(sendChatMessageDto: SendChatMessageDto) {
-    return 'This action adds a new chat';
+  public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
+    const { roomId, targetUserId } = payload;
+    if (roomId) {
+      return await this.sendMessageByRoomId(roomId, socket);
+    }
+    return await this.sendMessageByTargetUserId(targetUserId, socket);
   }
+
+  private async sendMessageByRoomId(roomId: string, socket: Socket) {
+    const existRoom = await this.roomEntity.findOneById(roomId, {
+      select: { id: true },
+    });
+    if (!existRoom) {
+      throw new WsException({
+        errorCode: 'ROOM_NOT_FOUND',
+        message: 'Room not found!',
+      });
+    }
+  }
+
+  public async sendMessageByTargetUserId(
+    targetUserId: string,
+    socket: Socket,
+  ) {}
 
   findAll() {
     return `This action returns all chats`;
@@ -39,23 +63,31 @@ export class ChatsService {
   }
 
   public async handleConnection(socket: Socket) {
-    console.log(socket.handshake);
-    const { authorization } = socket.handshake.headers;
-    const token = authorization?.split(' ')[1];
-    console.log(token);
-    if (token) {
-      const decodedToken = this.encryptionsUtil.verifyJwt(token);
-      const user = await this.usersAuthUtil.findOneById(decodedToken.id);
-      if (user && user.status !== EUserStatus.banned) {
-        socket.handshake.user = user;
-        socket.join(user.id);
-        this.logger.log(`Socket connected: ${socket.id}`);
-        return;
+    try {
+      const { authorization } = socket.handshake.headers;
+      const token = authorization?.split(' ')[1];
+      if (token) {
+        const decodedToken = this.encryptionsUtil.verifyJwt(token);
+        const user = await this.usersAuthUtil.findOneById(decodedToken.id);
+        if (user && user.status !== EUserStatus.banned) {
+          socket.handshake.user = user;
+          socket.join(user.id);
+          this.logger.log(`Socket connected: ${socket.id}`);
+          return;
+        }
       }
+
+      throw new Error('Invalid credentials!');
+    } catch (err) {
+      throw new WsException({
+        statusCode: 401,
+        errorCode: 'UNAUTHORIZED',
+        message: 'Invalid credentials!',
+      });
     }
+  }
 
-    // throw new WsException('Unauthorized');
-
-    socket.disconnect();
+  private getCurrentUserIdFromSocket(socket: Socket) {
+    return socket.handshake.user.id;
   }
 }
