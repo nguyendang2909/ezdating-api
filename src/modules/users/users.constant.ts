@@ -7,6 +7,7 @@ export enum ERole {
 export enum EGender {
   male = 'male',
   female = 'female',
+  lgbt = 'lgbt',
 }
 
 export enum EUserStatus {
