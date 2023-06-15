@@ -22,23 +22,46 @@ export class ChatsService {
   private readonly logger = new Logger(ChatsService.name);
 
   public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
-    const { roomId, targetUserId } = payload;
+    const { roomId, targetUserId, text } = payload;
+    if (!text) {
+      throw new WsException({
+        errorCode: 'MESSAGE_CONTENT_NOT_FOUND',
+        message: 'Message content not found',
+      });
+    }
     if (roomId) {
-      return await this.sendMessageByRoomId(roomId, socket);
+      return await this.sendMessageByRoomId(roomId, payload, socket);
     }
     return await this.sendMessageByTargetUserId(targetUserId, socket);
   }
 
-  private async sendMessageByRoomId(roomId: string, socket: Socket) {
-    const existRoom = await this.roomEntity.findOneById(roomId, {
-      select: { id: true },
-    });
+  private async sendMessageByRoomId(
+    roomId: string,
+    payload: SendChatMessageDto,
+    socket: Socket,
+  ) {
+    const currentUserId = this.getCurrentUserIdFromSocket(socket);
+    const existRoom = await this.roomEntity.findOneByIdAndUserId(
+      roomId,
+      currentUserId,
+      {
+        select: {
+          id: true,
+        },
+      },
+    );
     if (!existRoom) {
       throw new WsException({
         errorCode: 'ROOM_NOT_FOUND',
         message: 'Room not found!',
       });
     }
+    const { userIds } = existRoom;
+    if (!userIds || userIds.length !== 2) {
+      throw new WsException({ errorCode: 'USER_NOT_FOUND' });
+    }
+    // await this
+    // await socket.emit(currentUserId, payload);
   }
 
   public async sendMessageByTargetUserId(

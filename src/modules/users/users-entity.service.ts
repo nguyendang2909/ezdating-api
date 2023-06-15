@@ -87,7 +87,11 @@ export class UserEntity {
     return await this.userRepository.find(options);
   }
 
-  public isUserOne(userId: string, userIds: string[]): boolean {
+  public isUserOneByIds(userId: string, userIds: string[]): boolean {
     return userId === userIds[0];
+  }
+
+  public isUserOneByEntities(userId: string, entities: User[]) {
+    return userId === entities[0]?.id;
   }
 }

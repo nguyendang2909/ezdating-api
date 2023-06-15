@@ -58,7 +58,7 @@ export class RelationshipsService {
       if (!existRelationshipId) {
         throw new BadRequestException();
       }
-      if (this.userEntity.isUserOne(currentUserId, userIds)) {
+      if (this.userEntity.isUserOneByIds(currentUserId, userIds)) {
         if (likeOne === true) {
           throw new BadRequestException();
         }
@@ -132,7 +132,7 @@ export class RelationshipsService {
     if (!existRelationshipId) {
       throw new BadRequestException();
     }
-    const updateOptions = this.userEntity.isUserOne(currentUserId, userIds)
+    const updateOptions = this.userEntity.isUserOneByIds(currentUserId, userIds)
       ? { likeOne: false }
       : { likeTwo: false };
     await this.relationshipEntity.updateOne(

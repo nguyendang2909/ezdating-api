@@ -3,6 +3,7 @@ import Joi from 'joi';
 export class SendChatMessageDto {
   roomId: string;
   targetUserId: string;
+  text?: string;
 }
 
 export const SendChatMessageSchema = Joi.object({
@@ -12,6 +13,7 @@ export const SendChatMessageSchema = Joi.object({
     otherwise: Joi.forbidden(),
   }),
   targetUserId: Joi.string().guid().optional(),
+  text: Joi.string().guid().optional(),
 }).options({
   allowUnknown: false,
   abortEarly: true,

@@ -20,6 +20,7 @@ import { EncryptionsModule } from './modules/encryptions/encryptions.module';
 import { RoomsModule } from './modules/rooms/rooms.module';
 import { UsersModule } from './modules/users/users.module';
 import { RelationshipsModule } from './modules/relationships/relationships.module';
+import { MessagesModule } from './modules/messages/messages.module';
 
 @Module({
   imports: [
@@ -110,6 +111,7 @@ import { RelationshipsModule } from './modules/relationships/relationships.modul
     ContactsModule,
     EncryptionsModule,
     RelationshipsModule,
+    MessagesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

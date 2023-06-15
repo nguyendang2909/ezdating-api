@@ -1,9 +1,8 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
-import { Repository } from 'typeorm';
+import { ArrayContains, Repository } from 'typeorm';
 
 import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
-import { Relationship } from '../relationships/entities/relationship.entity';
 import { CreateRoomDto } from './dto/join-room.dto';
 import { Room } from './entities/room.entity';
 
@@ -24,11 +23,22 @@ export class RoomEntity {
 
   public async findOneById(
     id: string,
-    options: EntityFindOneByIdOptions<Relationship>,
+    options: EntityFindOneByIdOptions<Room>,
   ) {
     return await this.repository.findOne({
       ...options,
       where: { id },
+    });
+  }
+
+  public async findOneByIdAndUserId(
+    roomId: string,
+    userId: string,
+    options: EntityFindOneByIdOptions<Room>,
+  ) {
+    return await this.repository.findOne({
+      ...options,
+      where: { id: roomId, userIds: ArrayContains([userId]) },
     });
   }
 }
