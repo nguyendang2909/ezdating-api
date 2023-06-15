@@ -11,8 +11,8 @@ import {
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
-  @Column({ name: 'birth_day', nullable: true, type: 'timestamp' })
-  birthDay?: Date | string;
+  @Column({ name: 'birthday', nullable: true, type: 'timestamp' })
+  birthday?: Date | string;
 
   @Column({ name: 'email', length: 100, nullable: true, type: 'varchar' })
   email?: string;

@@ -3,15 +3,15 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import Joi from 'joi';
 import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 
-import { EGender } from '../users.constant';
+import { EGender, EUserLookingFor } from '../users.constant';
 
 const JoiExtendDate = Joi.extend(JoiDate);
 
-@JoiSchemaOptions({ stripUnknown: true })
+@JoiSchemaOptions({})
 export class UpdateMyProfileDto {
   @ApiPropertyOptional({ type: String })
   @JoiSchema(JoiExtendDate.date().format('YYYY-MM-DD').optional().raw())
-  birthDay: string;
+  birthday: string;
 
   @ApiPropertyOptional({ type: String })
   @JoiSchema(
@@ -28,6 +28,14 @@ export class UpdateMyProfileDto {
   @ApiPropertyOptional({ type: String })
   @JoiSchema(Joi.string().max(100).optional())
   nickname?: string;
+
+  @ApiPropertyOptional({ type: String, enum: EUserLookingFor })
+  @JoiSchema(
+    Joi.string()
+      .valid(...Object.values(EUserLookingFor))
+      .optional(),
+  )
+  lookingFor?: EUserLookingFor;
 
   country?: string;
 
