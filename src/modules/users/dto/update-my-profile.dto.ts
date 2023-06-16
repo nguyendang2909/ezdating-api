@@ -3,7 +3,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import Joi from 'joi';
 import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 
-import { EGender, EUserLookingFor } from '../users.constant';
+import { EUserGender, EUserLookingFor } from '../users.constant';
 
 const JoiExtendDate = Joi.extend(JoiDate);
 
@@ -16,10 +16,10 @@ export class UpdateMyProfileDto {
   @ApiPropertyOptional({ type: String })
   @JoiSchema(
     Joi.string()
-      .valid(...Object.values(EGender))
+      .valid(...Object.values(EUserGender))
       .optional(),
   )
-  gender: EGender;
+  gender: EUserGender;
 
   @ApiPropertyOptional({ type: String })
   @JoiSchema(Joi.string().max(500).allow(null, '').optional())

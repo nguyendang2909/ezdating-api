@@ -3,9 +3,9 @@ import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../../commons/entities/base.entity';
 import { EntityFactory } from '../../../commons/lib/entity-factory';
 import {
-  EGender,
-  ERole,
+  EUserGender,
   EUserLookingFor,
+  EUserRole,
   EUserStatus,
 } from '../users.constant';
 
@@ -17,8 +17,8 @@ export class User extends BaseEntity {
   @Column({ name: 'email', length: 100, nullable: true, type: 'varchar' })
   email?: string;
 
-  @Column({ name: 'gender', enum: EGender, nullable: true, type: 'enum' })
-  gender?: string;
+  @Column({ name: 'gender', enum: EUserGender, nullable: true, type: 'enum' })
+  gender?: EUserGender;
 
   @Column({ name: 'introduce', type: 'varchar', nullable: true, length: 500 })
   introduce?: string;
@@ -55,12 +55,12 @@ export class User extends BaseEntity {
 
   @Column({
     name: 'role',
-    default: ERole.member,
-    enum: ERole,
+    default: EUserRole.member,
+    enum: EUserRole,
     nullable: false,
     type: 'enum',
   })
-  role!: ERole;
+  role!: EUserRole;
 
   @Column({
     name: 'status',

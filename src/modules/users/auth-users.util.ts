@@ -16,7 +16,7 @@ import {
 } from '../auth/auth.type';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { User, userEntityName } from './entities/user.entity';
-import { ERole, EUserStatus } from './users.constant';
+import { EUserRole, EUserStatus } from './users.constant';
 
 @Injectable()
 export class UsersAuthUtil {
@@ -41,7 +41,7 @@ export class UsersAuthUtil {
           phoneNumber,
           password: this.encryptionsUtil.hash(process.env.ADMIN_PASSWORD),
           nickname: 'Quynh',
-          role: ERole.admin,
+          role: EUserRole.admin,
           status: EUserStatus.activated,
         });
 

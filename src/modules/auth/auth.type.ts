@@ -1,9 +1,9 @@
-import { ERole } from '../users/users.constant';
+import { EUserRole } from '../users/users.constant';
 
 export type AuthJwtPayload = {
   sub: string;
   id: string;
-  role: ERole;
+  role: EUserRole;
   iat: number;
   exp: number;
 };
@@ -11,7 +11,7 @@ export type AuthJwtPayload = {
 export type AuthJwtSignPayload = {
   sub: string;
   id: string;
-  role: ERole;
+  role: EUserRole;
 };
 
 export type FindOneAuthUserConditions = {

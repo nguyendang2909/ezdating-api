@@ -1,10 +1,10 @@
-export enum ERole {
+export enum EUserRole {
   admin = 'admin',
   manager = 'manager',
   member = 'member',
 }
 
-export enum EGender {
+export enum EUserGender {
   male = 'male',
   female = 'female',
   lgbt = 'lgbt',
