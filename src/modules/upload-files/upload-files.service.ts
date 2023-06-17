@@ -52,14 +52,12 @@ export class UploadFilesService {
     return createResult;
   }
 
-  public async findAllUploadFiles(
-    queryParams: FindManyUploadFilesDto,
-    userId: string,
-  ) {
-    const { f, cursor, ...findDto } = queryParams;
+  public async findMany(queryParams: FindManyUploadFilesDto, userId: string) {
+    const { f, targetUserId, cursor, ...findDto } = queryParams;
     return await this.uploadFileEntity.findMany({
       where: {
         ...findDto,
+        ...(targetUserId ? { user: new User({ id: targetUserId }) } : {}),
       },
       select: f,
     });

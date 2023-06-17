@@ -2,9 +2,11 @@ import {
   BadRequestException,
   Controller,
   Delete,
+  Get,
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -15,6 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { AppConfig } from '../../app.config';
 import { UserId } from '../../commons/decorators/current-user-id.decorator';
+import { FindManyUploadFilesDto } from './dto/find-many-upload-files.dto';
 import { UploadFilesService } from './upload-files.service';
 
 @Controller('/upload-files')
@@ -73,10 +76,13 @@ export class UploadFilesController {
     };
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.uploadFilesService.findAll();
-  // }
+  @Get()
+  findMany(
+    @Query() queryParams: FindManyUploadFilesDto,
+    @UserId() userId: string,
+  ) {
+    return this.uploadFilesService.findMany(queryParams, userId);
+  }
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {

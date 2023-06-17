@@ -26,7 +26,7 @@ export class UploadFile extends CommonEntity {
 
   @Column({
     name: 'share',
-    type: 'smallint',
+    type: 'varchar',
     nullable: false,
     enum: EUploadFileShare,
     default: EUploadFileShare.public,

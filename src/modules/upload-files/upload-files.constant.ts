@@ -1,11 +1,11 @@
 export const LIMIT_UPLOADED_PHOTOS = 6;
 
 export enum EUploadFileType {
-  photo,
-  video,
+  photo = 'photo',
+  video = 'video',
 }
 
 export enum EUploadFileShare {
-  private,
-  public,
+  public = 'public',
+  Private = 'private',
 }
