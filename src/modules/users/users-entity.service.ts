@@ -9,9 +9,9 @@ import { FindOneOptions, FindOptionsSelect, Repository } from 'typeorm';
 
 import {
   EntityFindManyOptions,
+  EntityFindOneByIdOptions,
   EntityFindOneOptions,
 } from '../../commons/types/find-options.type';
-import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
 import { User } from './entities/user.entity';
 import { EUserStatus } from './users.constant';
 
@@ -50,22 +50,24 @@ export class UserEntity {
     return findResult;
   }
 
-  public async findOneById(id: string, findOneUserByIdDto: FindOneUserByIdDto) {
-    const { f } = findOneUserByIdDto;
-    const findResult = await this.userRepository.findOne({
-      where: {
-        id,
-      },
-      select: f,
+  public async findOneById(
+    id: string,
+    findOptions: EntityFindOneByIdOptions<User>,
+  ) {
+    if (!id) {
+      return null;
+    }
+    return await this.userRepository.findOne({
+      ...findOptions,
+      where: { id },
     });
-    return findResult;
   }
 
   public async findOneOrFailById(
     id: string,
-    findOneUserByIdDto: FindOneUserByIdDto,
+    findOptions: EntityFindOneByIdOptions<User>,
   ) {
-    const findResult = await this.findOneById(id, findOneUserByIdDto);
+    const findResult = await this.findOneById(id, findOptions);
     if (!findResult) {
       throw new BadRequestException('User not found!');
     }

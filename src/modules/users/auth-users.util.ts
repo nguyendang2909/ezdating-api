@@ -1,9 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
-import { User, userEntityName } from './entities/user.entity';
+import { User } from './entities/user.entity';
 import { EUserRole, EUserStatus } from './users.constant';
 
 @Injectable()
@@ -74,22 +74,22 @@ export class UsersAuthUtil {
   //   return findResult;
   // }
 
-  public async findOneById(id: string): Promise<User | null> {
-    return await this.userRepository.findOne({ where: { id } });
-  }
+  // public async findOneById(id: string): Promise<User | null> {
+  //   return await this.userRepository.findOne({ where: { id } });
+  // }
 
-  public async findOneOrFailById(id: string): Promise<Partial<User>> {
-    const findResult = await this.findOneById(id);
-    if (!findResult) {
-      throw new NotFoundException('User not found!');
-    }
+  // public async findOneOrFailById(id: string): Promise<Partial<User>> {
+  //   const findResult = await this.findOneById(id);
+  //   if (!findResult) {
+  //     throw new NotFoundException('User not found!');
+  //   }
 
-    return findResult;
-  }
+  //   return findResult;
+  // }
 
-  private findQuery(): SelectQueryBuilder<User> {
-    return this.userRepository
-      .createQueryBuilder(userEntityName)
-      .select(`${userEntityName}.id`);
-  }
+  // private findQuery(): SelectQueryBuilder<User> {
+  //   return this.userRepository
+  //     .createQueryBuilder(userEntityName)
+  //     .select(`${userEntityName}.id`);
+  // }
 }

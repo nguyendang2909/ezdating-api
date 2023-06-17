@@ -27,7 +27,9 @@ export class ContactsService {
     currentUserId: string,
   ): Promise<{ success: boolean }> {
     const { targetUserId } = requestFriendDto;
-    await this.userEntity.findOneOrFailById(targetUserId, { f: ['id'] });
+    await this.userEntity.findOneOrFailById(targetUserId, {
+      select: { id: true, status: true },
+    });
     const currentUser = new User({ id: currentUserId });
     const targetUser = new User({ id: targetUserId });
     const existContact = await this.contactRepository.findOne({

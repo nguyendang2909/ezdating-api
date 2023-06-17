@@ -5,14 +5,14 @@ import _ from 'lodash';
 import { Socket } from 'socket.io';
 
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
-import { UsersAuthUtil } from '../../users/auth-users.util';
+import { UserEntity } from '../../users/users-entity.service';
 
 @Injectable()
 export class WsAuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly encryptionsUtil: EncryptionsUtil,
-    private readonly authUsersService: UsersAuthUtil,
+    private readonly userEntity: UserEntity,
   ) {}
 
   async canActivate(context: ExecutionContext) {
@@ -28,7 +28,12 @@ export class WsAuthGuard implements CanActivate {
       throw new WsException({ status: 401, message: 'Unauthorized' });
     }
     const decoded = this.encryptionsUtil.verifyJwt(token);
-    const user = await this.authUsersService.findOneById(decoded.id);
+    const user = await this.userEntity.findOneById(decoded.id, {
+      select: {
+        id: true,
+        status: true,
+      },
+    });
     if (!user) {
       throw new WsException({
         status: 404,

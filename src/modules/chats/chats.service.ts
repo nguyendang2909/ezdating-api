@@ -91,7 +91,9 @@ export class ChatsService {
       const token = authorization?.split(' ')[1];
       if (token) {
         const decodedToken = this.encryptionsUtil.verifyJwt(token);
-        const user = await this.usersAuthUtil.findOneById(decodedToken.id);
+        const user = await this.userEntity.findOneById(decodedToken.id, {
+          select: { id: true, status: true },
+        });
         if (user && user.status !== EUserStatus.banned) {
           socket.handshake.user = user;
           socket.join(user.id);
