@@ -31,3 +31,10 @@ export type EntityFindManyOptions<T> = Omit<
   select: FindOptionsSelect<T>;
   where: FindOptionsWhere<T>[] | FindOptionsWhere<T>;
 };
+
+export type EntityCountOptions<T> = Omit<
+  FindManyOptions<T>,
+  'skip' | 'take' | 'select' | 'where'
+> & {
+  where: FindOptionsWhere<T>[] | FindOptionsWhere<T>;
+};

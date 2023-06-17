@@ -113,7 +113,7 @@ export class CustomReturnFieldsInterceptor<T>
   ): Observable<Response<T>> {
     const req = context.switchToHttp().getRequest();
     if (req.query.f) {
-      req.query.f = req.query.f.split(',');
+      req.query.f = JSON.parse(req.query.f);
     }
     const requestLogger = {
       body: req.body,

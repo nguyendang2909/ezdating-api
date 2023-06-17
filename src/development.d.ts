@@ -24,10 +24,10 @@ declare global {
       FIREBASE_CLIENT_EMAIL: string;
       FIREBASE_PRIVATE_KEY: string;
 
-      // // AWS
-      // AWS_ACCESS_KEY_ID: string;
-      // AWS_SECRET_ACCESS_KEY: string;
-      // AWS_BUCKET_NAME: string;
+      // AWS
+      AWS_ACCESS_KEY_ID: string;
+      AWS_SECRET_ACCESS_KEY: string;
+      AWS_BUCKET_NAME: string;
 
       // Auth
       JWT_SECRET_KEY: string;

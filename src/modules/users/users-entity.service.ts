@@ -7,7 +7,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
 import { FindOneOptions, FindOptionsSelect, Repository } from 'typeorm';
 
-import { EntityFactory } from '../../commons/lib/entity-factory';
 import {
   EntityFindManyOptions,
   EntityFindOneOptions,
@@ -47,7 +46,7 @@ export class UserEntity {
       where: {
         id,
       },
-      select: EntityFactory.getSelectFieldsAsObj(_.uniq(f.concat('status'))),
+      select: f,
     });
     return findResult;
   }

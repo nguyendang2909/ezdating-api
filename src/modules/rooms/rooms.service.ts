@@ -38,7 +38,7 @@ export class RoomsService {
         ...(cursor ? { id: MoreThan(cursor) } : {}),
       },
       take: 20,
-      select: EntityFactory.getSelectFieldsAsObj(f),
+      select: f,
     });
 
     return {
@@ -60,7 +60,7 @@ export class RoomsService {
         id,
         userIds: currentUserId,
       },
-      select: EntityFactory.getSelectFieldsAsObj(f),
+      select: f,
     });
 
     return findResult;

@@ -17,10 +17,11 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
+import { MessagesModule } from './modules/messages/messages.module';
+import { RelationshipsModule } from './modules/relationships/relationships.module';
 import { RoomsModule } from './modules/rooms/rooms.module';
 import { UsersModule } from './modules/users/users.module';
-import { RelationshipsModule } from './modules/relationships/relationships.module';
-import { MessagesModule } from './modules/messages/messages.module';
+import { UploadFilesModule } from './modules/upload-files/upload-files.module';
 
 @Module({
   imports: [
@@ -112,6 +113,7 @@ import { MessagesModule } from './modules/messages/messages.module';
     EncryptionsModule,
     RelationshipsModule,
     MessagesModule,
+    UploadFilesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

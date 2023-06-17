@@ -121,7 +121,7 @@ export class ContactsService {
         updatedAt: -1,
       },
       take: 50,
-      select: EntityFactory.getSelectFieldsAsObj(f),
+      select: f,
     });
 
     return {

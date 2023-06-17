@@ -4,10 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import _ from 'lodash';
 import { Not, Repository } from 'typeorm';
 
-import { EntityFactory } from '../../commons/lib/entity-factory';
 import { FindMyProfileDto } from './dto/find-my-profile.dto';
 import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
 import { FindOneUserDto } from './dto/is-exist-user.dto';
@@ -64,7 +62,7 @@ export class UsersService {
       where: {
         ...(phoneNumber ? { phoneNumber } : {}),
       },
-      select: EntityFactory.getSelectFieldsAsObj(f),
+      select: f,
     });
 
     return findResult;
@@ -92,7 +90,7 @@ export class UsersService {
       where: {
         id,
       },
-      select: EntityFactory.getSelectFieldsAsObj(_.uniq(f.concat('status'))),
+      select: f,
     });
 
     return findResult;
@@ -131,7 +129,7 @@ export class UsersService {
       where: {
         id: currentUserId,
       },
-      select: EntityFactory.getSelectFieldsAsObj(f),
+      select: f,
     });
 
     return user;
