@@ -52,16 +52,20 @@ export class UploadFilesService {
     return createResult;
   }
 
-  public async findAllPhotos(
+  public async findAllUploadFiles(
     queryParams: FindManyUploadFilesDto,
     userId: string,
   ) {
-    const { f, ...findDto } = queryParams;
+    const { f, cursor, ...findDto } = queryParams;
     return await this.uploadFileEntity.findMany({
       where: {
         ...findDto,
       },
       select: f,
     });
+  }
+
+  public async remove(id: string, userId: string) {
+    await this.uploadFileEntity.deleteOne(id, userId);
   }
 }

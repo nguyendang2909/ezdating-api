@@ -1,6 +1,6 @@
 import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 
-import { CurrentUserId } from '../../commons/decorators/current-user-id.decorator';
+import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { FindManyRoomsDto } from './dto/find-many-room.dto';
 import { FindOneRoomByIdDto } from './dto/find-one-room-by-id.dto';
 import { RoomsService } from './rooms.service';
@@ -17,7 +17,7 @@ export class RoomsController {
   @Get()
   private async findMany(
     @Query() findManyRoomsDto: FindManyRoomsDto,
-    @CurrentUserId() currentUserId: string,
+    @UserId() currentUserId: string,
   ) {
     return this.roomsService.findMany(findManyRoomsDto, currentUserId);
   }
@@ -26,7 +26,7 @@ export class RoomsController {
   findOneById(
     @Param('id', ParseUUIDPipe) id: string,
     @Query() findOneRoomByIdDto: FindOneRoomByIdDto,
-    @CurrentUserId() currentUserId: string,
+    @UserId() currentUserId: string,
   ) {
     return this.roomsService.findOneOrFailById(
       id,

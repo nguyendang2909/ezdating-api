@@ -9,6 +9,7 @@ import {
   EntityFindOneByIdOptions,
   EntityFindOneOptions,
 } from '../../commons/types/find-options.type';
+import { User } from '../users/entities/user.entity';
 import { UploadFile } from './entities/upload-file.entity';
 
 @Injectable()
@@ -74,7 +75,10 @@ export class UploadFileEntity {
     });
   }
 
-  public async deleteOne(id: string) {
-    return await this.repository.softDelete(id);
+  public async deleteOne(id: string, userId: string) {
+    return await this.repository.softDelete({
+      id,
+      user: new User({ id: userId }),
+    });
   }
 }

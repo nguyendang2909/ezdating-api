@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { CurrentUserId } from '../../commons/decorators/current-user-id.decorator';
+import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { FindMyProfileDto } from './dto/find-my-profile.dto';
 import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
 import { FindOneUserDto } from './dto/is-exist-user.dto';
@@ -26,7 +26,7 @@ export class UsersController {
   @Get('/')
   private async findMany(
     @Query() queryParams: FindManyUsersDto,
-    @CurrentUserId() currentUserId: string,
+    @UserId() currentUserId: string,
   ) {
     return {
       type: 'users',
@@ -37,7 +37,7 @@ export class UsersController {
   @Get('/search')
   private async findOne(
     @Query() findOneUserDto: FindOneUserDto,
-    @CurrentUserId() currentUserId: string,
+    @UserId() currentUserId: string,
   ) {
     return {
       type: 'user',
@@ -51,7 +51,7 @@ export class UsersController {
   @Get('/profile')
   private async getProfile(
     @Query() findMyProfileDto: FindMyProfileDto,
-    @CurrentUserId() currentUserId: string,
+    @UserId() currentUserId: string,
   ) {
     return {
       type: 'profile',
@@ -63,7 +63,7 @@ export class UsersController {
   private async findOneById(
     @Param('id', ParseUUIDPipe) id: string,
     @Query() findOneUserByIdDto: FindOneUserByIdDto,
-    @CurrentUserId() currentUserId: string,
+    @UserId() currentUserId: string,
   ) {
     return {
       type: 'profile',
@@ -78,7 +78,7 @@ export class UsersController {
   @Patch('/profile')
   private async updateProfile(
     @Body() updateMyProfileDto: UpdateMyProfileDto,
-    @CurrentUserId() currentUserId: string,
+    @UserId() currentUserId: string,
   ) {
     return {
       type: 'updateProfile',

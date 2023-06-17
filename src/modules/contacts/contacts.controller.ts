@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
-import { CurrentUserId } from '../../commons/decorators/current-user-id.decorator';
+import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { ContactsService } from './contacts.service';
 import { RequestFriendDto } from './dto/create-contact.dto';
 import { FindManyContactsDto } from './dto/find-many-contacts.dto';
@@ -25,7 +25,7 @@ export class ContactsController {
   @Post()
   private async requestFriend(
     @Body() requestFriendDto: RequestFriendDto,
-    @CurrentUserId() currentUserId: string,
+    @UserId() currentUserId: string,
   ) {
     return {
       type: 'requestFriend',
@@ -39,7 +39,7 @@ export class ContactsController {
   @Get()
   private async findMany(
     @Query() findManyContactsDto: FindManyContactsDto,
-    @CurrentUserId() currentUserId: string,
+    @UserId() currentUserId: string,
   ) {
     return {
       type: 'findManyContacts',
@@ -54,7 +54,7 @@ export class ContactsController {
   private async findOne(
     @Param('id', ParseUUIDPipe) id: string,
     @Query() findOneContactByIdDto: FindOneContactByIdDto,
-    @CurrentUserId() currentUserId: string,
+    @UserId() currentUserId: string,
   ) {
     return {
       type: 'contact',
@@ -70,7 +70,7 @@ export class ContactsController {
   private async updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateContactStatusDto: UpdateContactStatusDto,
-    @CurrentUserId() currentUserId: string,
+    @UserId() currentUserId: string,
   ) {
     return {
       type: 'updateContact',

@@ -8,7 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 
-import { CurrentUserId } from '../../commons/decorators/current-user-id.decorator';
+import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { CancelLikeRelationshipDto } from './dto/cancel-like-relationship.dto';
 import { SendLikeRelationshipDto } from './dto/create-relationship.dto';
 import { UpdateRelationshipDto } from './dto/update-relationship.dto';
@@ -21,7 +21,7 @@ export class RelationshipsController {
   @Post()
   private async sendLike(
     @Body() payload: SendLikeRelationshipDto,
-    @CurrentUserId() currentUserId: string,
+    @UserId() currentUserId: string,
   ) {
     return {
       type: 'sendLikeRelationship',
@@ -31,7 +31,7 @@ export class RelationshipsController {
 
   private async cancelLike(
     @Body() payload: CancelLikeRelationshipDto,
-    @CurrentUserId() currentUserId: string,
+    @UserId() currentUserId: string,
   ) {
     return {
       type: 'cancelLikeRelationship',
