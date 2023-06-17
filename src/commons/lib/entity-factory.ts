@@ -1,8 +1,4 @@
 import _ from 'lodash';
-import { SelectQueryBuilder } from 'typeorm';
-
-import { BaseEntity } from '../entities/base.entity';
-import { FindOptions } from '../types/find-options.type';
 
 export class EntityFactory {
   public static getEntityName(Entity: Record<string, any>): string {
@@ -27,30 +23,6 @@ export class EntityFactory {
     const skip = take * (pageAsNumber - 1);
 
     return { take, skip };
-  }
-
-  public static getFindQueryByOptions<T extends BaseEntity>(
-    query: SelectQueryBuilder<T>,
-    entity: new (obj: any) => T,
-    findOptions: FindOptions,
-  ): SelectQueryBuilder<T> {
-    const { selects } = findOptions;
-
-    const entityName = this.getEntityName(entity);
-
-    const addSelects = this.getSelectFields(selects, entityName);
-
-    query = query.addSelect(addSelects);
-
-    return query;
-  }
-
-  public static getSelectFields(fields: string[], entityName: string) {
-    return fields.map((field) => `${entityName}.${field}`);
-  }
-
-  public static getSelectFieldsAsObj<T extends string[]>(fields: T) {
-    return fields.reduce((a, v) => ({ ...a, [v]: true }), {});
   }
 
   public static encodeCursor(str: string): string {

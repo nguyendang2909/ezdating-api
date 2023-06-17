@@ -21,6 +21,16 @@ export class UserEntity {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
+  public async saveOne(entity: Partial<User>): Promise<Partial<User>> {
+    const { phoneNumber } = entity;
+    if (!phoneNumber) {
+      throw new BadRequestException('Phone number does not exist!');
+    }
+    const user = this.userRepository.create({ phoneNumber });
+
+    return await this.userRepository.save(user);
+  }
+
   public async findOne(
     options: EntityFindOneOptions<User>,
   ): Promise<Partial<User> | null> {

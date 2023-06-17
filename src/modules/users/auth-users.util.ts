@@ -1,19 +1,7 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import _ from 'lodash';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 
-import { EntityFactory } from '../../commons/lib/entity-factory';
-import { FindOptions } from '../../commons/types/find-options.type';
-import {
-  CreateUserPayload,
-  FindOneAuthUserConditions,
-} from '../auth/auth.type';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { User, userEntityName } from './entities/user.entity';
 import { EUserRole, EUserStatus } from './users.constant';
@@ -52,51 +40,39 @@ export class UsersAuthUtil {
     }
   }
 
-  public async create(
-    createUserPayload: CreateUserPayload,
-  ): Promise<Partial<User>> {
-    const { phoneNumber } = createUserPayload;
-    if (!phoneNumber) {
-      throw new BadRequestException('Phone number does not exist!');
-    }
-    const user = this.userRepository.create({ phoneNumber });
+  // public async findOne(
+  //   findOneAuthUserConditions: FindOneAuthUserConditions,
+  //   findOptions: FindOptions,
+  // ): Promise<Partial<User> | null> {
+  //   if (_.isEmpty(findOneAuthUserConditions)) {
+  //     return null;
+  //   }
+  //   const { phoneNumber } = findOneAuthUserConditions;
+  //   let query = this.findQuery();
+  //   if (phoneNumber) {
+  //     query = query.andWhere(`${userEntityName}.phoneNumber = :phoneNumber`, {
+  //       phoneNumber,
+  //     });
+  //   }
+  //   query = EntityFactory.getFindQueryByOptions(query, User, findOptions);
 
-    return await this.userRepository.save(user);
-  }
+  //   return await query.getOne();
+  // }
 
-  public async findOne(
-    findOneAuthUserConditions: FindOneAuthUserConditions,
-    findOptions: FindOptions,
-  ): Promise<Partial<User> | null> {
-    if (_.isEmpty(findOneAuthUserConditions)) {
-      return null;
-    }
-    const { phoneNumber } = findOneAuthUserConditions;
-    let query = this.findQuery();
-    if (phoneNumber) {
-      query = query.andWhere(`${userEntityName}.phoneNumber = :phoneNumber`, {
-        phoneNumber,
-      });
-    }
-    query = EntityFactory.getFindQueryByOptions(query, User, findOptions);
+  // public async findOneOrFail(
+  //   findOneAuthUserConditions: FindOneAuthUserConditions,
+  //   findOptions: FindOptions,
+  // ): Promise<Partial<User>> {
+  //   const findResult = await this.findOne(
+  //     findOneAuthUserConditions,
+  //     findOptions,
+  //   );
+  //   if (!findResult) {
+  //     throw new NotFoundException('User not found!');
+  //   }
 
-    return await query.getOne();
-  }
-
-  public async findOneOrFail(
-    findOneAuthUserConditions: FindOneAuthUserConditions,
-    findOptions: FindOptions,
-  ): Promise<Partial<User>> {
-    const findResult = await this.findOne(
-      findOneAuthUserConditions,
-      findOptions,
-    );
-    if (!findResult) {
-      throw new NotFoundException('User not found!');
-    }
-
-    return findResult;
-  }
+  //   return findResult;
+  // }
 
   public async findOneById(id: string): Promise<User | null> {
     return await this.userRepository.findOne({ where: { id } });
