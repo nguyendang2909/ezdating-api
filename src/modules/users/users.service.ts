@@ -125,11 +125,15 @@ export class UsersService {
     currentUserId: string,
   ) {
     const { f } = findMyProfileDto;
+
     const user = await this.userRepository.findOne({
       where: {
         id: currentUserId,
       },
       select: f,
+      relations: {
+        ...(f.uploadFiles ? { uploadFiles: true } : {}),
+      },
     });
 
     return user;

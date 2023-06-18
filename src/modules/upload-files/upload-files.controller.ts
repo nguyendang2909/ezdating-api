@@ -18,8 +18,8 @@ import { AppConfig } from '../../app.config';
 import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { FindManyUploadFilesDto } from './dto/find-many-upload-files.dto';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
-import { EUploadFileShare } from './upload-files.constant';
 import { UploadFilesService } from './upload-files.service';
+import { EUploadFileShare } from './upload-files.constant';
 
 @Controller('/upload-files')
 @ApiTags('upload-files')

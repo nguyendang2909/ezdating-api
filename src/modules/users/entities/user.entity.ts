@@ -1,7 +1,8 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 import { BaseEntity } from '../../../commons/entities/base.entity';
 import { EntityFactory } from '../../../commons/lib/entity-factory';
+import { UploadFile } from '../../upload-files/entities/upload-file.entity';
 import {
   EUserGender,
   EUserLookingFor,
@@ -52,6 +53,9 @@ export class User extends BaseEntity {
     type: 'varchar',
   })
   phoneNumber?: string;
+
+  @OneToMany(() => UploadFile, (file) => file.user)
+  uploadFiles: UploadFile[];
 
   @Column({
     name: 'role',

@@ -12,7 +12,7 @@ export class UploadFile extends CommonEntity {
   @Column({ name: 'location', type: 'varchar', nullable: false })
   location?: string;
 
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => User, (user) => user.uploadFiles, { nullable: false })
   @JoinColumn({ name: 'user_id' })
   user?: User;
 
