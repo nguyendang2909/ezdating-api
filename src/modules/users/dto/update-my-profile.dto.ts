@@ -3,11 +3,12 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import Joi from 'joi';
 import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 
+import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 import { EUserGender, EUserLookingFor } from '../users.constant';
 
 const JoiExtendDate = Joi.extend(JoiDate);
 
-@JoiSchemaOptions({})
+@JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
 export class UpdateMyProfileDto {
   @ApiPropertyOptional({ type: String })
   @JoiSchema(JoiExtendDate.date().format('YYYY-MM-DD').optional().raw())
