@@ -45,7 +45,7 @@ export class UploadFilesController {
           );
         }
 
-        file.filename = `${uuidv4()}${path.extname(file.originalname)}`;
+        // file.filename = `${uuidv4()}${path.extname(file.originalname)}`;
         cb(null, true);
       },
       // storage: diskStorage({

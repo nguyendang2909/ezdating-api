@@ -1,5 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { S3 } from 'aws-sdk';
+import sharp from 'sharp';
+import { v4 as uuidv4 } from 'uuid';
 
 import { User } from '../users/entities/user.entity';
 import { FindManyUploadFilesDto } from './dto/find-many-upload-files.dto';
@@ -32,11 +34,15 @@ export class UploadFilesService {
         message: 'You can only upload 6 photos!',
       });
     }
+    const fileBufferWithSharp = await sharp(file.buffer)
+      .resize(640, 860)
+      .toFormat('webp')
+      .toBuffer();
     const photo = await this.s3
       .upload({
         Bucket: this.awsBucketName,
-        Key: `photos/${file.filename}`,
-        Body: file.buffer,
+        Key: `photos/${uuidv4()}.webp`,
+        Body: fileBufferWithSharp,
         ACL: 'public-read',
       })
       .promise();
