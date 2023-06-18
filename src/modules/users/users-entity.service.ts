@@ -65,7 +65,9 @@ export class UserEntity {
 
   public async findOneOrFailById(
     id: string,
-    findOptions: EntityFindOneByIdOptions<User>,
+    findOptions: Omit<FindOneOptions<User>, 'select' | 'where'> & {
+      select: FindOptionsSelect<User> & { status: true };
+    },
   ) {
     const findResult = await this.findOneById(id, findOptions);
     if (!findResult) {

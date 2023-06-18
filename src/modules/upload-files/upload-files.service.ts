@@ -4,6 +4,7 @@ import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 
 import { User } from '../users/entities/user.entity';
+import { UserEntity } from '../users/users-entity.service';
 import { FindManyUploadFilesDto } from './dto/find-many-upload-files.dto';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
 import { UploadFileEntity } from './upload-file-entity.service';
@@ -15,7 +16,10 @@ import {
 
 @Injectable()
 export class UploadFilesService {
-  constructor(private readonly uploadFileEntity: UploadFileEntity) {}
+  constructor(
+    private readonly uploadFileEntity: UploadFileEntity,
+    private readonly userEntity: UserEntity,
+  ) {}
   private readonly s3 = new S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -63,6 +67,7 @@ export class UploadFilesService {
       },
       userId,
     );
+
     return createResult;
   }
 
