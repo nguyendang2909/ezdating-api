@@ -5,8 +5,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { User } from '../users/entities/user.entity';
 import { FindManyUploadFilesDto } from './dto/find-many-upload-files.dto';
+import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
 import { UploadFileEntity } from './upload-file-entity.service';
 import {
+  EUploadFileShare,
   EUploadFileType,
   LIMIT_UPLOADED_PHOTOS,
 } from './upload-files.constant';
@@ -22,7 +24,12 @@ export class UploadFilesService {
 
   private readonly awsBucketName = process.env.AWS_BUCKET_NAME;
 
-  public async uploadPhoto(file: Express.Multer.File, userId: string) {
+  public async uploadPhoto(
+    file: Express.Multer.File,
+    payload: UploadPhotoDtoDto,
+    userId: string,
+  ) {
+    const { share } = payload;
     const numberUploadedPhotos = await this.uploadFileEntity.count({
       where: {
         user: new User({ id: userId }),
@@ -43,7 +50,7 @@ export class UploadFilesService {
         Bucket: this.awsBucketName,
         Key: `photos/${uuidv4()}.webp`,
         Body: fileBufferWithSharp,
-        ACL: 'public-read',
+        ACL: share === EUploadFileShare.public ? 'public-read' : 'private',
       })
       .promise();
     const createResult = await this.uploadFileEntity.saveOne(
@@ -52,6 +59,7 @@ export class UploadFilesService {
         key: photo.Key,
         type: EUploadFileType.photo,
         location: photo.Location,
+        share,
       },
       userId,
     );

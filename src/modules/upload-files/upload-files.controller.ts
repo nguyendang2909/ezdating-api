@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Delete,
   Get,
@@ -12,12 +13,12 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
 
 import { AppConfig } from '../../app.config';
 import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { FindManyUploadFilesDto } from './dto/find-many-upload-files.dto';
+import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
+import { EUploadFileShare } from './upload-files.constant';
 import { UploadFilesService } from './upload-files.service';
 
 @Controller('/upload-files')
@@ -62,6 +63,7 @@ export class UploadFilesController {
   )
   private async uploadPhoto(
     @UserId() userId: string,
+    @Body() payload: UploadPhotoDtoDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
     if (!file) {
@@ -70,9 +72,13 @@ export class UploadFilesController {
         message: 'File not found!',
       });
     }
+    const { share } = payload;
+    if (!share || !Object.values(EUploadFileShare).includes(share)) {
+      throw new BadRequestException();
+    }
     return {
       type: 'uploadPhoto',
-      data: await this.uploadFilesService.uploadPhoto(file, userId),
+      data: await this.uploadFilesService.uploadPhoto(file, { share }, userId),
     };
   }
 
