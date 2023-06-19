@@ -6,7 +6,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { User } from '../users/entities/user.entity';
 import { UserEntity } from '../users/users-entity.service';
 import { FindManyUploadFilesDto } from './dto/find-many-upload-files.dto';
+import { FindOneUploadFileByIdDto } from './dto/find-one-upload-file-by-id.dto';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
+import { UploadFile } from './entities/upload-file.entity';
 import { UploadFileEntity } from './upload-file-entity.service';
 import {
   EUploadFileShare,
@@ -80,6 +82,39 @@ export class UploadFilesService {
       },
       select: f,
     });
+  }
+
+  public async findOneById(
+    id: string,
+    queryParams: FindOneUploadFileByIdDto,
+    userId: string,
+  ): Promise<Partial<UploadFile> | null> {
+    const { f } = queryParams;
+    return await this.uploadFileEntity.findOne({
+      where: [
+        { id, user: new User({ id: userId }) },
+        {
+          id,
+          share: EUploadFileShare.public,
+        },
+      ],
+      select: f,
+    });
+  }
+
+  public async findOneOrFailById(
+    id: string,
+    queryParams: FindOneUploadFileByIdDto,
+    userId: string,
+  ): Promise<Partial<UploadFile>> {
+    const findResult = await this.findOneById(id, queryParams, userId);
+    if (!findResult) {
+      throw new BadRequestException({
+        errorCode: 'FILE_DOES_NOT_EXIST',
+        message: 'File does not exist!',
+      });
+    }
+    return findResult;
   }
 
   public async remove(id: string, userId: string) {

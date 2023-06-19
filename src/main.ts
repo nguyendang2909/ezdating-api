@@ -33,12 +33,6 @@ async function bootstrap() {
     origin: true,
     credentials: true,
   });
-  // app.useGlobalPipes(
-  //   new ValidationPipe({
-  //     transform: true,
-  //     whitelist: true,
-  //   }),
-  // );
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new CustomReturnFieldsInterceptor());
   if (NODE_ENV === 'development') {

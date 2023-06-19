@@ -17,9 +17,10 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AppConfig } from '../../app.config';
 import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { FindManyUploadFilesDto } from './dto/find-many-upload-files.dto';
+import { FindOneUploadFileByIdDto } from './dto/find-one-upload-file-by-id.dto';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
-import { UploadFilesService } from './upload-files.service';
 import { EUploadFileShare } from './upload-files.constant';
+import { UploadFilesService } from './upload-files.service';
 
 @Controller('/upload-files')
 @ApiTags('upload-files')
@@ -83,13 +84,27 @@ export class UploadFilesController {
   }
 
   @Get()
-  findMany(
+  private async findMany(
     @Query() queryParams: FindManyUploadFilesDto,
     @UserId() userId: string,
   ) {
-    return this.uploadFilesService.findMany(queryParams, userId);
+    return {
+      type: 'uploadFiles',
+      data: await this.uploadFilesService.findMany(queryParams, userId),
+    };
   }
 
+  @Get('/:id')
+  findOneById(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() queryParams: FindOneUploadFileByIdDto,
+    @UserId() userId: string,
+  ) {
+    return {
+      type: 'uploadFile',
+      data: this.uploadFilesService.findOneOrFailById(id, queryParams, userId),
+    };
+  }
   // @Get(':id')
   // findOne(@Param('id') id: string) {
   //   return this.uploadFilesService.findOne(+id);
