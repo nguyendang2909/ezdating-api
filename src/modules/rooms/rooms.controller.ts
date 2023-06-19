@@ -1,4 +1,11 @@
-import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 
 import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { FindManyRoomsDto } from './dto/find-many-room.dto';
@@ -8,6 +15,9 @@ import { RoomsService } from './rooms.service';
 @Controller('rooms')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
+
+  @Post()
+  private async joinRoom() {}
 
   // @Post()
   // create(@Body() createRoomDto: CreateRoomDto) {

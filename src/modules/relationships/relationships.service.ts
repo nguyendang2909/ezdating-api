@@ -188,8 +188,4 @@ export class RelationshipsService {
   update(id: number, updateRelationshipDto: UpdateRelationshipDto) {
     return `This action updates a #${id} relationship`;
   }
-
-  remove(id: number) {
-    return `This action removes a #${id} relationship`;
-  }
 }

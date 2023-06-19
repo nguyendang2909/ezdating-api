@@ -1,12 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import _ from 'lodash';
 import { MoreThan, Repository } from 'typeorm';
 
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { FindManyRoomsDto } from './dto/find-many-room.dto';
 import { FindOneRoomByIdDto } from './dto/find-one-room-by-id.dto';
-import { CreateRoomDto } from './dto/join-room.dto';
+import { JoinRoomDto } from './dto/join-room.dto';
 import { Room } from './entities/room.entity';
 
 @Injectable()
@@ -15,17 +14,25 @@ export class RoomsService {
     @InjectRepository(Room) private readonly roomRepository: Repository<Room>,
   ) {}
 
-  public async create(createRoomDto: CreateRoomDto, currentUserId: string) {
-    const { userIds } = createRoomDto;
-    const uniqueUserIds = _.union(userIds, currentUserId).sort();
-    const createResult = await this.roomRepository.save({
-      userIds: uniqueUserIds,
-      createdBy: currentUserId,
-      updatedBy: currentUserId,
-    });
-
-    return createResult;
+  public async joiRoom(payload: JoinRoomDto, userId: string) {
+    const { roomId, targetUserId } = payload;
+    // if (roomId) {
+    //   return await this.sendMessageByRoomId(roomId, payload, userId);
+    // }
+    // return await this.sendMessageByTargetUserId(targetUserId, userId);
   }
+
+  // public async create(createRoomDto: CreateRoomDto, currentUserId: string) {
+  //   const { userIds } = createRoomDto;
+  //   const uniqueUserIds = _.union(userIds, currentUserId).sort();
+  //   const createResult = await this.roomRepository.save({
+  //     userIds: uniqueUserIds,
+  //     createdBy: currentUserId,
+  //     updatedBy: currentUserId,
+  //   });
+
+  //   return createResult;
+  // }
 
   public async findMany(
     findManyRoomsDto: FindManyRoomsDto,

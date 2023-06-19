@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 
 import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { CancelLikeRelationshipDto } from './dto/cancel-like-relationship.dto';
@@ -55,10 +47,5 @@ export class RelationshipsController {
     @Body() updateRelationshipDto: UpdateRelationshipDto,
   ) {
     return this.relationshipsService.update(+id, updateRelationshipDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.relationshipsService.remove(+id);
   }
 }

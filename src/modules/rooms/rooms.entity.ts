@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { ArrayContains, Repository } from 'typeorm';
 
 import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
-import { CreateRoomDto } from './dto/join-room.dto';
 import { Room } from './entities/room.entity';
 
 export class RoomEntity {
@@ -11,13 +10,12 @@ export class RoomEntity {
     @InjectRepository(Room) private readonly repository: Repository<Room>,
   ) {}
 
-  public async create(createRoomDto: CreateRoomDto, currentUserId: string) {
-    const { userIds } = createRoomDto;
+  public async create(entity: Partial<Room>, currentUserId: string) {
+    const { userIds } = entity;
     const uniqueUserIds = _.union(userIds, currentUserId).sort();
     const createResult = await this.repository.save({
       userIds: uniqueUserIds,
     });
-
     return createResult;
   }
 
