@@ -12,7 +12,7 @@ const JoiExtendDate = Joi.extend(JoiDate);
 export class UpdateMyProfileDto {
   @ApiPropertyOptional({ type: String })
   @JoiSchema(JoiExtendDate.date().format('YYYY-MM-DD').optional().raw())
-  birthday: string;
+  birthday?: string;
 
   @ApiPropertyOptional({ type: String })
   @JoiSchema(
@@ -20,7 +20,7 @@ export class UpdateMyProfileDto {
       .valid(...Object.values(EUserGender))
       .optional(),
   )
-  gender: EUserGender;
+  gender?: EUserGender;
 
   @ApiPropertyOptional({ type: String })
   @JoiSchema(Joi.string().max(500).allow(null, '').optional())
