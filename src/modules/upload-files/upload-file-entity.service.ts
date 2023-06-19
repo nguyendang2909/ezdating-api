@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 
 import {
   EntityCountOptions,
@@ -9,7 +9,6 @@ import {
   EntityFindOneByIdOptions,
   EntityFindOneOptions,
 } from '../../commons/types/find-options.type';
-import { User } from '../users/entities/user.entity';
 import { UploadFile } from './entities/upload-file.entity';
 
 @Injectable()
@@ -75,10 +74,7 @@ export class UploadFileEntity {
     });
   }
 
-  public async deleteOne(id: string, userId: string) {
-    return await this.repository.softDelete({
-      id,
-      user: new User({ id: userId }),
-    });
+  public async deleteOne(options: FindOptionsWhere<UploadFile>) {
+    return await this.repository.softDelete(options);
   }
 }

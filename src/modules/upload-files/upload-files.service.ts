@@ -83,6 +83,10 @@ export class UploadFilesService {
   }
 
   public async remove(id: string, userId: string) {
-    await this.uploadFileEntity.deleteOne(id, userId);
+    await this.uploadFileEntity.deleteOne({
+      id,
+      user: new User({ id: userId }),
+    });
+    return { success: true };
   }
 }
