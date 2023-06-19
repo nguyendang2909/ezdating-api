@@ -2,7 +2,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
 import { ArrayContains, Repository } from 'typeorm';
 
-import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
+import {
+  EntityFindManyOptions,
+  EntityFindOneByIdOptions,
+  EntityFindOneOptions,
+} from '../../commons/types/find-options.type';
+import { Relationship } from '../relationships/entities/relationship.entity';
 import { Room } from './entities/room.entity';
 
 export class RoomEntity {
@@ -17,6 +22,19 @@ export class RoomEntity {
       userIds: uniqueUserIds,
     });
     return createResult;
+  }
+
+  public async findMany(options: EntityFindManyOptions<Relationship>) {
+    return await this.repository.find({ ...options, take: 20 });
+  }
+
+  public async findOne(
+    options: EntityFindOneOptions<Room>,
+  ): Promise<Partial<Room> | null> {
+    if (_.isEmpty(options.where)) {
+      return null;
+    }
+    return await this.repository.findOne(options);
   }
 
   public async findOneById(

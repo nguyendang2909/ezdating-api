@@ -1,5 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { LessThan } from 'typeorm';
 
+import { EntityFactory } from '../../commons/lib/entity-factory';
 import { User } from '../users/entities/user.entity';
 import { UserEntity } from '../users/users-entity.service';
 import { CancelLikeRelationshipDto } from './dto/cancel-like-relationship.dto';
@@ -147,37 +149,39 @@ export class RelationshipsService {
     queryParams: FindMatchedRelationshipsDto,
     currentUserId: string,
   ) {
+    const { f, cursor } = queryParams;
     const currentUser = new User({ id: currentUserId });
     const findResult = await this.relationshipEntity.findMany({
       where: [
         {
+          ...(cursor ? { id: LessThan(cursor) } : {}),
           likeOne: true,
           likeTwo: true,
           userOne: currentUser,
         },
         {
+          ...(cursor ? { id: LessThan(cursor) } : {}),
           likeOne: true,
           likeTwo: true,
           userTwo: currentUser,
         },
       ],
-      select: {
-        id: true,
-        likeOne: true,
-        likeTwo: true,
-        userOne: {
-          id: true,
-        },
-        userTwo: {
-          id: true,
-        },
+      select: f,
+      order: {
+        id: 'DESC',
       },
     });
 
-    return findResult;
+    return {
+      data: findResult,
+      pagination: {
+        cursor: EntityFactory.getCursor(findResult),
+      },
+    };
   }
 
   findAll() {
+    //   ...(cursor ? { id: MoreThan(cursor) } : {}),
     return `This action returns all relationships`;
   }
 

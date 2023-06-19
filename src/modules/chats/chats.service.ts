@@ -3,7 +3,7 @@ import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
-import { RoomEntity } from '../rooms/rooms.entity';
+import { RoomEntity } from '../rooms/room-entity.service';
 import { UsersAuthUtil } from '../users/auth-users.util';
 import { EUserStatus } from '../users/users.constant';
 import { UserEntity } from '../users/users-entity.service';

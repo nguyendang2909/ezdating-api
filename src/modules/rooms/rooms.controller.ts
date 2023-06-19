@@ -1,15 +1,7 @@
-import {
-  Controller,
-  Get,
-  Param,
-  ParseUUIDPipe,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Post, Query } from '@nestjs/common';
 
 import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { FindManyRoomsDto } from './dto/find-many-room.dto';
-import { FindOneRoomByIdDto } from './dto/find-one-room-by-id.dto';
 import { RoomsService } from './rooms.service';
 
 @Controller('rooms')
@@ -29,21 +21,21 @@ export class RoomsController {
     @Query() findManyRoomsDto: FindManyRoomsDto,
     @UserId() currentUserId: string,
   ) {
-    return this.roomsService.findMany(findManyRoomsDto, currentUserId);
+    // return this.roomsService.findMany(findManyRoomsDto, currentUserId);
   }
 
-  @Get(':id')
-  findOneById(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Query() findOneRoomByIdDto: FindOneRoomByIdDto,
-    @UserId() currentUserId: string,
-  ) {
-    return this.roomsService.findOneOrFailById(
-      id,
-      findOneRoomByIdDto,
-      currentUserId,
-    );
-  }
+  // @Get(':id')
+  // findOneById(
+  //   @Param('id', ParseUUIDPipe) id: string,
+  //   @Query() findOneRoomByIdDto: FindOneRoomByIdDto,
+  //   @UserId() currentUserId: string,
+  // ) {
+  //   return this.roomsService.findOneOrFailById(
+  //     id,
+  //     findOneRoomByIdDto,
+  //     currentUserId,
+  //   );
+  // }
 
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {

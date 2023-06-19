@@ -33,15 +33,7 @@ export class UsersService {
         haveBasicInfo: true,
         status: EUserStatus.activated,
       },
-      select: {
-        id: true,
-        email: true,
-        gender: true,
-        introduce: true,
-        lookingFor: true,
-        nickname: true,
-        phoneNumber: true,
-      },
+      select: f,
     });
     return findResult;
   }
