@@ -4,12 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
+import { And, LessThan, Not, Repository } from 'typeorm';
 
+import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
 import { FindMyProfileDto } from './dto/find-my-profile.dto';
 import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
 import { FindOneUserDto } from './dto/is-exist-user.dto';
-import { FindManyUsersDto } from './dto/is-exist-user.dto copy';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { User } from './entities/user.entity';
 import { EUserStatus } from './users.constant';
@@ -22,20 +22,52 @@ export class UsersService {
     private readonly userEntity: UserEntity,
   ) {}
 
-  public async findMany(
-    queryParams: FindManyUsersDto,
+  public async findManyDating(
+    queryParams: FindManyDatingUsersDto,
     currentUserId: string,
-  ): Promise<User[]> {
-    const { f } = queryParams;
+  ): Promise<{ data: User[] }> {
+    const { f, cursor } = queryParams;
+    const whereId = cursor
+      ? And(Not(currentUserId), LessThan(cursor))
+      : Not(currentUserId);
     const findResult = await this.userEntity.findMany({
       where: {
-        id: Not(currentUserId),
+        id: whereId,
         haveBasicInfo: true,
         status: EUserStatus.activated,
       },
       select: f,
     });
-    return findResult;
+    // const data = this.repository.find({
+    //   where: {
+    //   id: Raw(alias => ${alias} < ${id} and ${alias} in (${ids})),
+    //   },
+    //   });
+    return { data: findResult };
+  }
+
+  public async findManyNearby(
+    queryParams: FindManyDatingUsersDto,
+    currentUserId: string,
+  ): Promise<{ data: User[] }> {
+    const { f, cursor } = queryParams;
+    const whereId = cursor
+      ? And(Not(currentUserId), LessThan(cursor))
+      : Not(currentUserId);
+    const findResult = await this.userEntity.findMany({
+      where: {
+        id: whereId,
+        haveBasicInfo: true,
+        status: EUserStatus.activated,
+      },
+      select: f,
+    });
+    // const data = this.repository.find({
+    //   where: {
+    //   id: Raw(alias => ${alias} < ${id} and ${alias} in (${ids})),
+    //   },
+    //   });
+    return { data: findResult };
   }
 
   public async findOne(
