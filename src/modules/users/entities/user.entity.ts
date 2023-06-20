@@ -1,4 +1,4 @@
-import { Column, Entity, Index, OneToMany, Point } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 import { BaseEntity } from '../../../commons/entities/base.entity';
 import { EntityFactory } from '../../../commons/lib/entity-factory';
@@ -10,7 +10,7 @@ import {
   EUserStatus,
 } from '../users.constant';
 
-@Entity({ name: 'users' })
+@Entity({ name: 'user' })
 export class User extends BaseEntity {
   @Column({ name: 'birthday', nullable: true, type: 'timestamp' })
   birthday?: Date | string;
@@ -24,14 +24,14 @@ export class User extends BaseEntity {
   @Column({ name: 'introduce', type: 'varchar', nullable: true, length: 500 })
   introduce?: string;
 
-  @Index({ spatial: true })
-  @Column({
-    type: 'geography',
-    spatialFeatureType: 'Point',
-    srid: 4326,
-    nullable: true,
-  })
-  location?: Point;
+  // @Index({ spatial: true })
+  // @Column({
+  //   type: 'geography',
+  //   spatialFeatureType: 'Point',
+  //   srid: 4326,
+  //   nullable: true,
+  // })
+  // location?: Point;
 
   @Column({
     name: 'looking_for',

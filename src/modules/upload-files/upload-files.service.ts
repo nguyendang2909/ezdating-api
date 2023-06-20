@@ -74,10 +74,11 @@ export class UploadFilesService {
   }
 
   public async findMany(queryParams: FindManyUploadFilesDto, userId: string) {
-    const { f, targetUserId, cursor, ...findDto } = queryParams;
+    const { f, targetUserId, share, type, cursor, ...findDto } = queryParams;
     return await this.uploadFileEntity.findMany({
       where: {
-        ...findDto,
+        share,
+        type,
         ...(targetUserId ? { user: new User({ id: targetUserId }) } : {}),
       },
       select: f,
