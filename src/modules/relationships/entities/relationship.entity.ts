@@ -2,6 +2,10 @@ import { Column, JoinColumn, ManyToOne } from 'typeorm';
 
 import { CommonEntity } from '../../../commons/entities/common.entity';
 import { User } from '../../users/entities/user.entity';
+import {
+  ORelationshipUserStatus,
+  RelationshipUserStatus,
+} from '../relationships.constant';
 
 export class Relationship extends CommonEntity {
   @ManyToOne(() => User, { nullable: false })
@@ -13,18 +17,32 @@ export class Relationship extends CommonEntity {
   userTwo!: User;
 
   @Column({
-    name: 'like_one',
-    nullable: false,
+    name: 'user_one_status',
+    nullable: true,
     type: 'varchar',
-    default: false,
+    enum: ORelationshipUserStatus,
   })
-  likeOne?: boolean;
+  userOneStatus?: RelationshipUserStatus;
 
   @Column({
-    name: 'like_two',
-    nullable: false,
-    type: 'boolean',
-    default: false,
+    name: 'user_one_status',
+    nullable: true,
+    type: 'smallint',
+    enum: ORelationshipUserStatus,
   })
-  likeTwo?: boolean;
+  userTwoStatus?: RelationshipUserStatus;
+
+  @Column({
+    name: 'can_user_chat',
+    nullable: true,
+    type: 'boolean',
+  })
+  canUserOneChat?: boolean;
+
+  @Column({
+    name: 'can_user_chat',
+    nullable: true,
+    type: 'boolean',
+  })
+  canUserTwoChat?: boolean;
 }

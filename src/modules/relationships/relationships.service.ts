@@ -10,6 +10,7 @@ import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dt
 import { UpdateRelationshipDto } from './dto/update-relationship.dto';
 import { Relationship } from './entities/relationship.entity';
 import { RelationshipEntity } from './relationship-entity.service';
+import { ORelationshipUserStatus } from './relationships.constant';
 
 @Injectable()
 export class RelationshipsService {
@@ -155,14 +156,14 @@ export class RelationshipsService {
       where: [
         {
           ...(cursor ? { id: LessThan(cursor) } : {}),
-          likeOne: true,
-          likeTwo: true,
+          userOneStatus: ORelationshipUserStatus.like,
+          userTwoStatus: ORelationshipUserStatus.like,
           userOne: currentUser,
         },
         {
           ...(cursor ? { id: LessThan(cursor) } : {}),
-          likeOne: true,
-          likeTwo: true,
+          userOneStatus: ORelationshipUserStatus.like,
+          userTwoStatus: ORelationshipUserStatus.unlike,
           userTwo: currentUser,
         },
       ],
