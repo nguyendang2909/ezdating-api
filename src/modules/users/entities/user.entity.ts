@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 
 import { BaseEntity } from '../../../commons/entities/base.entity';
 import { EntityFactory } from '../../../commons/lib/entity-factory';
@@ -24,14 +24,15 @@ export class User extends BaseEntity {
   @Column({ name: 'introduce', type: 'varchar', nullable: true, length: 500 })
   introduce?: string;
 
-  // @Index({ spatial: true })
-  // @Column({
-  //   type: 'geography',
-  //   spatialFeatureType: 'Point',
-  //   srid: 4326,
-  //   nullable: true,
-  // })
-  // location?: Point;
+  @Index({ spatial: true })
+  @Column({
+    name: 'location',
+    type: 'geography',
+    spatialFeatureType: 'Point',
+    srid: 4326,
+    nullable: true,
+  })
+  location?: string;
 
   @Column({
     name: 'looking_for',
