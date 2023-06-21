@@ -1,8 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column } from 'typeorm';
 
 import { BaseEntity } from './base.entity';
 
-@Entity()
 export class CommonEntity extends BaseEntity {
   @Column({ name: 'created_by', type: 'uuid', nullable: false })
   createdBy!: string;

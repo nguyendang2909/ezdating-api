@@ -17,7 +17,7 @@ export class UsersAuthUtil {
 
   private async onApplicationBootstrap() {
     try {
-      const phoneNumber = '+84971016191';
+      const phoneNumber = '+84971016192';
       const existAdminUser = await this.userRepository.findOne({
         where: {
           phoneNumber,

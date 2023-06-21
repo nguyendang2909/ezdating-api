@@ -51,36 +51,38 @@ export class RelationshipsService {
         userTwo: {
           id: true,
         },
-        likeOne: true,
-        likeTwo: true,
+        userOneStatus: true,
+        userTwoStatus: true,
       },
     });
     if (existRelationship) {
-      const { likeOne, likeTwo, id: existRelationshipId } = existRelationship;
+      const {
+        userOneStatus,
+        userTwoStatus,
+        id: existRelationshipId,
+      } = existRelationship;
       const updateRelationshipEntity: Partial<Relationship> = {};
       if (!existRelationshipId) {
         throw new BadRequestException();
       }
       if (this.userEntity.isUserOneByIds(currentUserId, userIds)) {
-        if (likeOne === true) {
+        if (userOneStatus === ORelationshipUserStatus.like) {
           throw new BadRequestException();
         }
-        updateRelationshipEntity.likeOne = true;
+        updateRelationshipEntity.userOneStatus = ORelationshipUserStatus.like;
       } else {
-        if (likeTwo === true) {
+        if (userTwoStatus === ORelationshipUserStatus.like) {
           throw new BadRequestException();
         }
-        updateRelationshipEntity.likeTwo = true;
+        updateRelationshipEntity.userTwoStatus = ORelationshipUserStatus.like;
       }
       await this.relationshipEntity.updateOne(
         existRelationshipId,
         updateRelationshipEntity,
         currentUserId,
       );
-
       return { ...existRelationship, ...updateRelationshipEntity };
     }
-
     return await this.relationshipEntity.saveOne(
       {
         userOne,
@@ -122,8 +124,8 @@ export class RelationshipsService {
         userTwo: {
           id: true,
         },
-        likeOne: true,
-        likeTwo: true,
+        userOneStatus: true,
+        userTwoStatus: true,
       },
     });
     if (!existRelationship) {
@@ -136,8 +138,8 @@ export class RelationshipsService {
       throw new BadRequestException();
     }
     const updateOptions = this.userEntity.isUserOneByIds(currentUserId, userIds)
-      ? { likeOne: false }
-      : { likeTwo: false };
+      ? { userOneStatus: ORelationshipUserStatus.cancel }
+      : { userTwoStatus: ORelationshipUserStatus.cancel };
     await this.relationshipEntity.updateOne(
       existRelationshipId,
       updateOptions,

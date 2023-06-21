@@ -27,7 +27,7 @@ export class Relationship extends CommonEntity {
   @Column({
     name: 'user_one_status',
     nullable: true,
-    type: 'smallint',
+    type: 'varchar',
     enum: ORelationshipUserStatus,
   })
   userTwoStatus?: RelationshipUserStatus;
