@@ -7,10 +7,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { And, LessThan, Not, Repository } from 'typeorm';
 
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
-import { FindMyProfileDto } from './dto/find-my-profile.dto';
 import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
 import { FindOneUserDto } from './dto/is-exist-user.dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
+import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
 import { User } from './entities/user.entity';
 import { EUserStatus } from './users.constant';
 import { UserEntity } from './users-entity.service';
@@ -26,7 +26,7 @@ export class UsersService {
     queryParams: FindManyDatingUsersDto,
     currentUserId: string,
   ): Promise<{ data: User[] }> {
-    const { f, cursor } = queryParams;
+    const { cursor } = queryParams;
     const whereId = cursor
       ? And(Not(currentUserId), LessThan(cursor))
       : Not(currentUserId);
@@ -36,7 +36,9 @@ export class UsersService {
         haveBasicInfo: true,
         status: EUserStatus.activated,
       },
-      select: f,
+      select: {
+        id: true,
+      },
     });
     // const data = this.repository.find({
     //   where: {
@@ -50,7 +52,7 @@ export class UsersService {
     queryParams: FindManyDatingUsersDto,
     currentUserId: string,
   ): Promise<{ data: User[] }> {
-    const { f, cursor } = queryParams;
+    const { cursor } = queryParams;
     const whereId = cursor
       ? And(Not(currentUserId), LessThan(cursor))
       : Not(currentUserId);
@@ -60,7 +62,9 @@ export class UsersService {
         haveBasicInfo: true,
         status: EUserStatus.activated,
       },
-      select: f,
+      select: {
+        id: true,
+      },
     });
     // const data = this.repository.find({
     //   where: {
@@ -74,7 +78,6 @@ export class UsersService {
     findOneUserDto: FindOneUserDto,
     currentUserId: string,
   ): Promise<Partial<User> | null> {
-    const { f } = findOneUserDto;
     let phoneNumber = findOneUserDto.phoneNumber;
     if (!phoneNumber) {
       return null;
@@ -86,7 +89,9 @@ export class UsersService {
       where: {
         ...(phoneNumber ? { phoneNumber } : {}),
       },
-      select: f,
+      select: {
+        id: true,
+      },
     });
 
     return findResult;
@@ -109,12 +114,13 @@ export class UsersService {
     findOneUserByIdDto: FindOneUserByIdDto,
     currentUserId: string,
   ) {
-    const { f } = findOneUserByIdDto;
     const findResult = await this.userRepository.findOne({
       where: {
         id,
       },
-      select: f,
+      select: {
+        id: true,
+      },
     });
 
     return findResult;
@@ -144,19 +150,31 @@ export class UsersService {
     return findResult;
   }
 
-  public async getProfile(
-    findMyProfileDto: FindMyProfileDto,
-    currentUserId: string,
-  ) {
-    const { f } = findMyProfileDto;
-
+  public async getProfile(currentUserId: string) {
     const user = await this.userRepository.findOne({
       where: {
         id: currentUserId,
       },
-      select: f,
+      select: {
+        id: true,
+        birthday: true,
+        email: true,
+        gender: true,
+        introduce: true,
+        location: true,
+        lookingFor: true,
+        haveBasicInfo: true,
+        nickname: true,
+        password: true,
+        phoneNumber: true,
+        uploadFiles: true,
+        role: true,
+        status: true,
+        createdBy: true,
+        updatedBy: true,
+      },
       relations: {
-        ...(f.uploadFiles ? { uploadFiles: true } : {}),
+        uploadFiles: true,
       },
     });
 
@@ -173,6 +191,21 @@ export class UsersService {
       { id: currentUserId },
       updateOptions,
     );
+
+    return Boolean(updateResult.affected);
+  }
+
+  public async updateProfileBasicInfo(
+    payload: UpdateMyProfileBasicInfoDto,
+    currentUserId: string,
+  ) {
+    const { ...updateDto } = payload;
+    const updateOptions = { ...updateDto };
+    const updateResult = await this.userRepository.update(
+      { id: currentUserId },
+      updateOptions,
+    );
+
     return Boolean(updateResult.affected);
   }
 

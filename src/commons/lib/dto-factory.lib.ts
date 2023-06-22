@@ -2,7 +2,6 @@ import { Type } from '@nestjs/common';
 import { IntersectionType } from '@nestjs/swagger';
 
 import { CreateOneDto } from '../dto/create-one.dto';
-import { FindDto } from '../dto/find.dto';
 import { FindManyDto } from '../dto/find-many.dto';
 import { FindManyCursorDto } from '../dto/find-many-cursor.dto';
 import { FindManyPaginationDto } from '../dto/find-many-pagination.dto';
@@ -23,10 +22,6 @@ export class DtoFactory {
 
   public static findManyByCursor<A>(obj: Type<A>) {
     return IntersectionType(obj, FindManyCursorDto);
-  }
-
-  public static findOneById<A>(obj: Type<A>) {
-    return IntersectionType(obj, FindDto);
   }
 
   public static updateOne<A>(obj: Type<A>) {

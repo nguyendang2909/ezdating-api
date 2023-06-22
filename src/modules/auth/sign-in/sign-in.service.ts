@@ -34,7 +34,7 @@ export class SignInService {
       where: {
         phoneNumber,
       },
-      select: { status: true, role: true },
+      select: { id: true, status: true, role: true },
     });
     if (user) {
       const { status } = user;
@@ -47,9 +47,6 @@ export class SignInService {
       });
     }
     const { id, role } = user;
-    if (!id || !role) {
-      throw new BadRequestException('User is not correct!');
-    }
 
     return {
       accessToken: this.encryptionsUtil.signJwt({
@@ -78,7 +75,7 @@ export class SignInService {
         role: true,
       },
     });
-    if (!userId || !userPassword || !userRole) {
+    if (!userPassword) {
       throw new BadRequestException('Try login with OTP!');
     }
     const isMatchPassword = this.encryptionsUtil.isMatchWithHashedKey(
@@ -86,9 +83,10 @@ export class SignInService {
       userPassword,
     );
     if (!isMatchPassword) {
-      throw new UnauthorizedException(
-        'Phone number or password is not correct!',
-      );
+      throw new UnauthorizedException({
+        errorCode: 'PASSWORD_IS_NOT_CORRECT',
+        message: 'Phone number or password is not correct!',
+      });
     }
 
     return {

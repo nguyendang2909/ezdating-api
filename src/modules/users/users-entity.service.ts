@@ -21,7 +21,7 @@ export class UserEntity {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
-  public async saveOne(entity: Partial<User>): Promise<Partial<User>> {
+  public async saveOne(entity: Partial<User>): Promise<User> {
     const { phoneNumber } = entity;
     if (!phoneNumber) {
       throw new BadRequestException('Phone number does not exist!');
@@ -33,7 +33,7 @@ export class UserEntity {
 
   public async findOne(
     options: EntityFindOneOptions<User>,
-  ): Promise<Partial<User> | null> {
+  ): Promise<User | null> {
     if (_.isEmpty(options.where)) {
       return null;
     }
@@ -42,7 +42,7 @@ export class UserEntity {
 
   public async findOneOrFail(
     options: EntityFindOneOptions<User>,
-  ): Promise<Partial<User>> {
+  ): Promise<User> {
     const findResult = await this.findOne(options);
     if (!findResult) {
       throw new NotFoundException('User not found!');

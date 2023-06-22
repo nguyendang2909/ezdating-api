@@ -74,14 +74,16 @@ export class UploadFilesService {
   }
 
   public async findMany(queryParams: FindManyUploadFilesDto, userId: string) {
-    const { f, targetUserId, share, type, cursor, ...findDto } = queryParams;
+    const { targetUserId, share, type, cursor, ...findDto } = queryParams;
     return await this.uploadFileEntity.findMany({
       where: {
         share,
         type,
         ...(targetUserId ? { user: new User({ id: targetUserId }) } : {}),
       },
-      select: f,
+      select: {
+        id: true,
+      },
     });
   }
 
@@ -90,7 +92,6 @@ export class UploadFilesService {
     queryParams: FindOneUploadFileByIdDto,
     userId: string,
   ): Promise<Partial<UploadFile> | null> {
-    const { f } = queryParams;
     return await this.uploadFileEntity.findOne({
       where: [
         { id, user: new User({ id: userId }) },
@@ -99,7 +100,9 @@ export class UploadFilesService {
           share: EUploadFileShare.public,
         },
       ],
-      select: f,
+      select: {
+        id: true,
+      },
     });
   }
 

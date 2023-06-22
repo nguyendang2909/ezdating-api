@@ -152,7 +152,7 @@ export class RelationshipsService {
     queryParams: FindMatchedRelationshipsDto,
     currentUserId: string,
   ) {
-    const { f, cursor } = queryParams;
+    const { cursor } = queryParams;
     const currentUser = new User({ id: currentUserId });
     const findResult = await this.relationshipEntity.findMany({
       where: [
@@ -169,7 +169,9 @@ export class RelationshipsService {
           userTwo: currentUser,
         },
       ],
-      select: f,
+      select: {
+        id: true,
+      },
       order: {
         id: 'DESC',
       },
