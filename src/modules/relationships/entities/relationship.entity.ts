@@ -32,6 +32,9 @@ export class Relationship extends CommonEntity {
   })
   userTwoStatus?: RelationshipUserStatus;
 
+  @Column({ name: 'status_at', type: 'date', nullable: true })
+  statusAt: Date;
+
   @Column({
     name: 'can_user_chat',
     nullable: true,
