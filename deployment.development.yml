@@ -1,15 +1,15 @@
 version: '3.8'
 services:
-  db:
+  postgresql:
     container_name: ezd_postgres
     build:
       context: .
       dockerfile: Dockerfile-db
     restart: always
     environment:
-      POSTGRES_USER: ezdating
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: ezdating
+      POSTGRES_USER: ":${POSTGRES_USER}"
+      POSTGRES_PASSWORD: ":${POSTGRES_PASS}"
+      POSTGRES_DB: ":${POSTGRES_DB_NAME}"
     ports:
       - "5432:5432"
     volumes: 
@@ -23,5 +23,7 @@ services:
     volumes: 
       - ~/Documents/docker/ezd_redis/data:/data
 volumes:
-  db:
+  postgresql:
+    driver: local
+  redis:
     driver: local

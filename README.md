@@ -52,6 +52,5 @@ mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem "localhost"
 npx knex migrate:make create_users_table
 
 # Deploy
-docker-compose -f deployment.development.yml up -d
+docker-compose --env-file ./.env.development -f deployment.development.yml up -d
 yarn dev
-
