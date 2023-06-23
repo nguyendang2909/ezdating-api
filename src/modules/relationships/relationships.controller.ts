@@ -10,7 +10,7 @@ import {
 
 import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { CancelLikeRelationshipDto } from './dto/cancel-like-relationship.dto';
-import { SendLikeRelationshipDto } from './dto/create-relationship.dto';
+import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
 import { UpdateRelationshipDto } from './dto/update-relationship.dto';
 import { RelationshipsService } from './relationships.service';
@@ -19,14 +19,14 @@ import { RelationshipsService } from './relationships.service';
 export class RelationshipsController {
   constructor(private readonly relationshipsService: RelationshipsService) {}
 
-  @Post()
-  public async sendLike(
-    @Body() payload: SendLikeRelationshipDto,
+  @Post('/status')
+  public async sendStatus(
+    @Body() payload: SendRelationshipStatusDto,
     @UserId() currentUserId: string,
   ) {
     return {
-      type: 'sendLikeRelationship',
-      data: await this.relationshipsService.sendLike(payload, currentUserId),
+      type: 'sendRelationshipStatus',
+      data: await this.relationshipsService.sendStatus(payload, currentUserId),
     };
   }
 

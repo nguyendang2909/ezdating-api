@@ -3,8 +3,8 @@ import { Column, JoinColumn, ManyToOne } from 'typeorm';
 import { CommonEntity } from '../../../commons/entities/common.entity';
 import { User } from '../../users/entities/user.entity';
 import {
-  ORelationshipUserStatus,
   RelationshipUserStatus,
+  RelationshipUserStatusObj,
 } from '../relationships.constant';
 
 export class Relationship extends CommonEntity {
@@ -20,7 +20,7 @@ export class Relationship extends CommonEntity {
     name: 'user_one_status',
     nullable: true,
     type: 'varchar',
-    enum: ORelationshipUserStatus,
+    enum: RelationshipUserStatusObj,
   })
   userOneStatus?: RelationshipUserStatus;
 
@@ -28,7 +28,7 @@ export class Relationship extends CommonEntity {
     name: 'user_one_status',
     nullable: true,
     type: 'varchar',
-    enum: ORelationshipUserStatus,
+    enum: RelationshipUserStatusObj,
   })
   userTwoStatus?: RelationshipUserStatus;
 

@@ -31,7 +31,7 @@ export class RelationshipEntity {
 
   public async findOne(
     options: EntityFindOneOptions<Relationship>,
-  ): Promise<Partial<Relationship> | null> {
+  ): Promise<Relationship | null> {
     if (_.isEmpty(options.where)) {
       return null;
     }

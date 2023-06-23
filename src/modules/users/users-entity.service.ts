@@ -71,7 +71,10 @@ export class UserEntity {
   ) {
     const findResult = await this.findOneById(id, findOptions);
     if (!findResult) {
-      throw new BadRequestException('User not found!');
+      throw new BadRequestException({
+        errorCode: 'USER_DOES_NOT_EXIST',
+        message: "User doesn't exist!",
+      });
     }
     const { status } = findResult;
     if (!status || status === EUserStatus.banned) {

@@ -1,16 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import moment from 'moment';
 import { LessThan } from 'typeorm';
 
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { User } from '../users/entities/user.entity';
 import { UserEntity } from '../users/users-entity.service';
 import { CancelLikeRelationshipDto } from './dto/cancel-like-relationship.dto';
-import { SendLikeRelationshipDto } from './dto/create-relationship.dto';
+import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
 import { UpdateRelationshipDto } from './dto/update-relationship.dto';
 import { Relationship } from './entities/relationship.entity';
 import { RelationshipEntity } from './relationship-entity.service';
-import { ORelationshipUserStatus } from './relationships.constant';
+import { RelationshipUserStatusObj } from './relationships.constant';
 
 @Injectable()
 export class RelationshipsService {
@@ -19,32 +20,28 @@ export class RelationshipsService {
     private readonly userEntity: UserEntity,
   ) {}
 
-  public async sendLike(
-    payload: SendLikeRelationshipDto,
-    currentUserId: string,
-  ) {
-    const { targetUserId } = payload;
-    if (currentUserId === targetUserId) {
-      throw new BadRequestException({ errorCode: 'CONFLICT_USER' });
+  public async sendStatus(payload: SendRelationshipStatusDto, userId: string) {
+    const { targetUserId, status } = payload;
+    if (userId === targetUserId) {
+      throw new BadRequestException({
+        errorCode: 'CONFLICT_USER',
+        message: 'You cannot send status yourself!',
+      });
     }
-    const existTargetUser = await this.userEntity.findOneByIdAndValidate(
-      targetUserId,
-      {
-        select: { id: true, status: true },
-      },
-    );
-    if (!existTargetUser) {
-      throw new BadRequestException();
-    }
-    const userIds = [targetUserId, currentUserId].sort();
+    await this.userEntity.findOneOrFailById(targetUserId, {
+      select: { id: true, status: true },
+    });
+    const userIds = [targetUserId, userId].sort();
     const userOne = new User({ id: userIds[0] });
     const userTwo = new User({ id: userIds[1] });
+    const isUserOne = this.userEntity.isUserOneByIds(userId, userIds);
     const existRelationship = await this.relationshipEntity.findOne({
       where: {
         userOne,
         userTwo,
       },
       select: {
+        id: true,
         userOne: {
           id: true,
         },
@@ -55,41 +52,52 @@ export class RelationshipsService {
         userTwoStatus: true,
       },
     });
-    if (existRelationship) {
-      const {
-        userOneStatus,
-        userTwoStatus,
-        id: existRelationshipId,
-      } = existRelationship;
-      const updateRelationshipEntity: Partial<Relationship> = {};
-      if (!existRelationshipId) {
+    if (!existRelationship) {
+      return await this.relationshipEntity.saveOne(
+        {
+          userOne,
+          userTwo,
+          ...(isUserOne
+            ? { userOneStatus: status }
+            : { userTwoStatus: status }),
+        },
+        userId,
+      );
+    }
+    const {
+      userOneStatus,
+      userTwoStatus,
+      id: relationshipId,
+    } = existRelationship;
+    if (status === (isUserOne ? userOneStatus : userTwoStatus)) {
+      throw new BadRequestException({
+        errorCode: 'CONFLICT_RELATIONSHIP_STATUS',
+        message: 'You already sent this status!',
+      });
+    }
+    const updateRelationshipEntity: Partial<Relationship> = {};
+    if (status === RelationshipUserStatusObj.like) {
+      updateRelationshipEntity.statusAt = moment().toDate();
+    }
+    if (isUserOne) {
+      if (userOneStatus === status) {
+      }
+      updateRelationshipEntity.userOneStatus = status;
+      if (status === RelationshipUserStatusObj.like) {
+        updateRelationshipEntity.statusAt = moment().toDate();
+      }
+    } else {
+      if (userTwoStatus === RelationshipUserStatusObj.like) {
         throw new BadRequestException();
       }
-      if (this.userEntity.isUserOneByIds(currentUserId, userIds)) {
-        if (userOneStatus === ORelationshipUserStatus.like) {
-          throw new BadRequestException();
-        }
-        updateRelationshipEntity.userOneStatus = ORelationshipUserStatus.like;
-      } else {
-        if (userTwoStatus === ORelationshipUserStatus.like) {
-          throw new BadRequestException();
-        }
-        updateRelationshipEntity.userTwoStatus = ORelationshipUserStatus.like;
-      }
-      await this.relationshipEntity.updateOne(
-        existRelationshipId,
-        updateRelationshipEntity,
-        currentUserId,
-      );
-      return { ...existRelationship, ...updateRelationshipEntity };
+      updateRelationshipEntity.userTwoStatus = RelationshipUserStatusObj.like;
     }
-    return await this.relationshipEntity.saveOne(
-      {
-        userOne,
-        userTwo,
-      },
+    await this.relationshipEntity.updateOne(
+      existRelationshipId,
+      updateRelationshipEntity,
       currentUserId,
     );
+    return { ...existRelationship, ...updateRelationshipEntity };
   }
 
   public async cancelLike(
@@ -138,8 +146,8 @@ export class RelationshipsService {
       throw new BadRequestException();
     }
     const updateOptions = this.userEntity.isUserOneByIds(currentUserId, userIds)
-      ? { userOneStatus: ORelationshipUserStatus.cancel }
-      : { userTwoStatus: ORelationshipUserStatus.cancel };
+      ? { userOneStatus: RelationshipUserStatusObj.cancel }
+      : { userTwoStatus: RelationshipUserStatusObj.cancel };
     await this.relationshipEntity.updateOne(
       existRelationshipId,
       updateOptions,
@@ -158,14 +166,14 @@ export class RelationshipsService {
       where: [
         {
           ...(cursor ? { id: LessThan(cursor) } : {}),
-          userOneStatus: ORelationshipUserStatus.like,
-          userTwoStatus: ORelationshipUserStatus.like,
+          userOneStatus: RelationshipUserStatusObj.like,
+          userTwoStatus: RelationshipUserStatusObj.like,
           userOne: currentUser,
         },
         {
           ...(cursor ? { id: LessThan(cursor) } : {}),
-          userOneStatus: ORelationshipUserStatus.like,
-          userTwoStatus: ORelationshipUserStatus.unlike,
+          userOneStatus: RelationshipUserStatusObj.like,
+          userTwoStatus: RelationshipUserStatusObj.unlike,
           userTwo: currentUser,
         },
       ],
