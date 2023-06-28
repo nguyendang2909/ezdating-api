@@ -3,8 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { And, LessThan, Not, Repository } from 'typeorm';
+import _ from 'lodash';
+import { And, LessThan, Not } from 'typeorm';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
 import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
@@ -17,10 +18,7 @@ import { UserEntity } from './users-entity.service';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(User) private readonly userRepository: Repository<User>,
-    private readonly userEntity: UserEntity,
-  ) {}
+  constructor(private readonly userEntity: UserEntity) {}
 
   public async findManyDating(
     queryParams: FindManyDatingUsersDto,
@@ -85,7 +83,7 @@ export class UsersService {
     if (!phoneNumber.startsWith('+')) {
       phoneNumber = `+${phoneNumber.trim()}`;
     }
-    const findResult = await this.userRepository.findOne({
+    const findResult = await this.userEntity.findOne({
       where: {
         ...(phoneNumber ? { phoneNumber } : {}),
       },
@@ -114,12 +112,9 @@ export class UsersService {
     findOneUserByIdDto: FindOneUserByIdDto,
     currentUserId: string,
   ) {
-    const findResult = await this.userRepository.findOne({
+    const findResult = await this.userEntity.findOne({
       where: {
         id,
-      },
-      select: {
-        id: true,
       },
     });
 
@@ -151,34 +146,16 @@ export class UsersService {
   }
 
   public async getProfile(currentUserId: string) {
-    const user = await this.userRepository.findOne({
+    const user = await this.userEntity.findOneOrFail({
       where: {
         id: currentUserId,
-      },
-      select: {
-        id: true,
-        birthday: true,
-        email: true,
-        gender: true,
-        introduce: true,
-        location: true,
-        lookingFor: true,
-        haveBasicInfo: true,
-        nickname: true,
-        password: true,
-        phoneNumber: true,
-        uploadFiles: true,
-        role: true,
-        status: true,
-        createdBy: true,
-        updatedBy: true,
       },
       relations: {
         uploadFiles: true,
       },
     });
 
-    return user;
+    return _.omit<User>(user, ['password']);
   }
 
   public async updateProfile(
@@ -186,8 +163,10 @@ export class UsersService {
     currentUserId: string,
   ) {
     const { ...updateDto } = payload;
-    const updateOptions = { ...updateDto };
-    const updateResult = await this.userRepository.update(
+    const updateOptions: QueryDeepPartialEntity<User> = {
+      ...updateDto,
+    };
+    const updateResult = await this.userEntity.updateOne(
       { id: currentUserId },
       updateOptions,
     );
@@ -200,24 +179,15 @@ export class UsersService {
     currentUserId: string,
   ) {
     const { ...updateDto } = payload;
-    const updateOptions = { ...updateDto };
-    const updateResult = await this.userRepository.update(
+    const updateOptions: QueryDeepPartialEntity<User> = {
+      ...updateDto,
+      haveBasicInfo: true,
+    };
+    const updateResult = await this.userEntity.updateOne(
       { id: currentUserId },
       updateOptions,
     );
 
     return Boolean(updateResult.affected);
   }
-
-  // private findQuery(): SelectQueryBuilder<User> {
-  //   return this.userRepository
-  //     .createQueryBuilder(userEntityName)
-  //     .select(`${userEntityName}.id`);
-  // }
-
-  // private selectFields(fields: string[]) {
-  //   return EntityFactory.getSelectFields(fields, userEntityName).filter(
-  //     (item) => item !== 'password',
-  //   );
-  // }
 }

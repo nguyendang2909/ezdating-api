@@ -104,7 +104,10 @@ export class UsersController {
   ) {
     return {
       type: 'updateProfileBasicInfo',
-      data: await this.usersService.updateProfile(payload, currentUserId),
+      data: await this.usersService.updateProfileBasicInfo(
+        payload,
+        currentUserId,
+      ),
     };
   }
 }

@@ -20,6 +20,8 @@ import { MessagesModule } from './modules/messages/messages.module';
 import { RelationshipsModule } from './modules/relationships/relationships.module';
 import { UploadFilesModule } from './modules/upload-files/upload-files.module';
 import { UsersModule } from './modules/users/users.module';
+import { CountriesModule } from './modules/countries/countries.module';
+import { StatesModule } from './modules/states/states.module';
 
 @Module({
   imports: [
@@ -110,6 +112,8 @@ import { UsersModule } from './modules/users/users.module';
     RelationshipsModule,
     MessagesModule,
     UploadFilesModule,
+    CountriesModule,
+    StatesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
