@@ -1,18 +1,9 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 
 import { UserId } from '../../commons/decorators/current-user-id.decorator';
-import { CancelLikeRelationshipDto } from './dto/cancel-like-relationship.dto';
 import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
+import { FindManyRoomsDto } from './dto/find-many-rooms.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
-import { UpdateRelationshipDto } from './dto/update-relationship.dto';
 import { RelationshipsService } from './relationships.service';
 
 @Controller('relationships')
@@ -30,16 +21,6 @@ export class RelationshipsController {
     };
   }
 
-  public async cancelLike(
-    @Body() payload: CancelLikeRelationshipDto,
-    @UserId() currentUserId: string,
-  ) {
-    return {
-      type: 'cancelLikeRelationship',
-      data: await this.relationshipsService.cancelLike(payload, currentUserId),
-    };
-  }
-
   @Get('/matched')
   public async findMatched(
     @Query() queryParams: FindMatchedRelationshipsDto,
@@ -51,21 +32,14 @@ export class RelationshipsController {
     };
   }
 
-  @Get()
-  findAll() {
-    return this.relationshipsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.relationshipsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateRelationshipDto: UpdateRelationshipDto,
+  @Get('/rooms')
+  public async findManyRooms(
+    queryParams: FindManyRoomsDto,
+    @UserId() userId: string,
   ) {
-    return this.relationshipsService.update(+id, updateRelationshipDto);
+    return {
+      type: 'findRooms',
+      data: await this.relationshipsService.findManyRooms(queryParams, userId),
+    };
   }
 }

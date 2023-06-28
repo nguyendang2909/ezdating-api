@@ -9,6 +9,7 @@ import { RelationshipsService } from './relationships.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Relationship]), UsersModule],
+  exports: [RelationshipEntity],
   controllers: [RelationshipsController],
   providers: [RelationshipsService, RelationshipEntity],
 })

@@ -3,7 +3,7 @@ import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
-import { RoomEntity } from '../rooms/room-entity.service';
+import { RelationshipEntity } from '../relationships/relationship-entity.service';
 import { UsersAuthUtil } from '../users/auth-users.util';
 import { EUserStatus } from '../users/users.constant';
 import { UserEntity } from '../users/users-entity.service';
@@ -16,7 +16,7 @@ export class ChatsService {
     private readonly encryptionsUtil: EncryptionsUtil,
     private readonly userEntity: UserEntity,
     private readonly usersAuthUtil: UsersAuthUtil,
-    private readonly roomEntity: RoomEntity,
+    private readonly relationshipEntity: RelationshipEntity,
   ) {}
 
   private readonly logger = new Logger(ChatsService.name);
@@ -41,25 +41,25 @@ export class ChatsService {
     socket: Socket,
   ) {
     const currentUserId = this.getCurrentUserIdFromSocket(socket);
-    const existRoom = await this.roomEntity.findOneByIdAndUserId(
-      roomId,
-      currentUserId,
-      {
-        select: {
-          id: true,
-        },
-      },
-    );
-    if (!existRoom) {
-      throw new WsException({
-        errorCode: 'ROOM_NOT_FOUND',
-        message: 'Room not found!',
-      });
-    }
-    const { userIds } = existRoom;
-    if (!userIds || userIds.length !== 2) {
-      throw new WsException({ errorCode: 'USER_NOT_FOUND' });
-    }
+    // const existRoom = await this.relationshipEntity.findOne(
+    //   roomId,
+    //   currentUserId,
+    //   {
+    //     select: {
+    //       id: true,
+    //     },
+    //   },
+    // );
+    // if (!existRoom) {
+    //   throw new WsException({
+    //     errorCode: 'ROOM_NOT_FOUND',
+    //     message: 'Room not found!',
+    //   });
+    // }
+    // const { userIds } = existRoom;
+    // if (!userIds || userIds.length !== 2) {
+    //   throw new WsException({ errorCode: 'USER_NOT_FOUND' });
+    // }
     // await this
     // await socket.emit(currentUserId, payload);
   }

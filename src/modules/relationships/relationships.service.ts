@@ -1,14 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import moment from 'moment';
-import { LessThan } from 'typeorm';
+import { IsNull, LessThan, Not } from 'typeorm';
 
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { User } from '../users/entities/user.entity';
 import { UserEntity } from '../users/users-entity.service';
 import { CancelLikeRelationshipDto } from './dto/cancel-like-relationship.dto';
 import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
+import { FindManyRoomsDto } from './dto/find-many-rooms.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
-import { UpdateRelationshipDto } from './dto/update-relationship.dto';
 import { Relationship } from './entities/relationship.entity';
 import { RelationshipEntity } from './relationship-entity.service';
 import { RelationshipUserStatusObj } from './relationships.constant';
@@ -93,9 +93,9 @@ export class RelationshipsService {
       updateRelationshipEntity.userTwoStatus = RelationshipUserStatusObj.like;
     }
     await this.relationshipEntity.updateOne(
-      existRelationshipId,
+      relationshipId,
       updateRelationshipEntity,
-      currentUserId,
+      userId,
     );
     return { ...existRelationship, ...updateRelationshipEntity };
   }
@@ -162,27 +162,28 @@ export class RelationshipsService {
   ) {
     const { cursor } = queryParams;
     const currentUser = new User({ id: currentUserId });
+    const lastStatusAt = cursor
+      ? new Date(EntityFactory.decodeCursor(cursor))
+      : undefined;
     const findResult = await this.relationshipEntity.findMany({
       where: [
         {
-          ...(cursor ? { id: LessThan(cursor) } : {}),
+          ...(lastStatusAt ? { createdAt: LessThan(lastStatusAt) } : {}),
           userOneStatus: RelationshipUserStatusObj.like,
           userTwoStatus: RelationshipUserStatusObj.like,
           userOne: currentUser,
         },
         {
-          ...(cursor ? { id: LessThan(cursor) } : {}),
+          ...(lastStatusAt ? { createdAt: LessThan(lastStatusAt) } : {}),
           userOneStatus: RelationshipUserStatusObj.like,
-          userTwoStatus: RelationshipUserStatusObj.unlike,
+          userTwoStatus: RelationshipUserStatusObj.like,
           userTwo: currentUser,
         },
       ],
-      select: {
-        id: true,
-      },
       order: {
-        id: 'DESC',
+        statusAt: 'DESC',
       },
+      take: 20,
     });
 
     return {
@@ -193,16 +194,56 @@ export class RelationshipsService {
     };
   }
 
-  findAll() {
-    //   ...(cursor ? { id: MoreThan(cursor) } : {}),
-    return `This action returns all relationships`;
-  }
+  public async findManyRooms(queryParams: FindManyRoomsDto, userId: string) {
+    const { cursor } = queryParams;
+    const currentUser = new User({ id: userId });
+    const lastMessageAt = cursor
+      ? new Date(EntityFactory.decodeCursor(cursor))
+      : undefined;
+    const findResult = await this.relationshipEntity.findMany({
+      where: [
+        {
+          ...(lastMessageAt
+            ? { createdAt: LessThan(lastMessageAt) }
+            : { lastMessage: Not(IsNull()) }),
+          userOne: currentUser,
+          userOneStatus: RelationshipUserStatusObj.like,
+          userTwoStatus: RelationshipUserStatusObj.like,
+        },
+        {
+          ...(lastMessageAt
+            ? { createdAt: LessThan(lastMessageAt) }
+            : { lastMessage: Not(IsNull()) }),
+          userTwo: currentUser,
+          userOneStatus: RelationshipUserStatusObj.like,
+          userTwoStatus: RelationshipUserStatusObj.like,
+        },
+        {
+          ...(lastMessageAt
+            ? { createdAt: LessThan(lastMessageAt) }
+            : { lastMessage: Not(IsNull()) }),
+          userOne: currentUser,
+          canUserOneChat: true,
+        },
+        {
+          ...(lastMessageAt
+            ? { createdAt: LessThan(lastMessageAt) }
+            : { lastMessage: Not(IsNull()) }),
+          userOne: currentUser,
+          canUserTwoChat: true,
+        },
+      ],
+      order: {
+        lastMessageAt: 'DESC',
+      },
+      take: 20,
+    });
 
-  findOne(id: number) {
-    return `This action returns a #${id} relationship`;
-  }
-
-  update(id: number, updateRelationshipDto: UpdateRelationshipDto) {
-    return `This action updates a #${id} relationship`;
+    return {
+      data: findResult,
+      pagination: {
+        cursor: EntityFactory.getCursor(findResult, 'lastMessageAt'),
+      },
+    };
   }
 }

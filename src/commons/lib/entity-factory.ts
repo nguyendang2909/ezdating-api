@@ -33,8 +33,12 @@ export class EntityFactory {
     return Buffer.from(str, 'base64').toString('utf-8');
   }
 
-  public static getCursor<T extends { id?: string }[]>(arr: T): string | null {
-    const cursorAsString = _.last(arr)?.id;
+  public static getCursor<T extends Record<string, any>[]>(
+    arr: T,
+    field?: string,
+  ): string | null {
+    const lastElement = _.last(arr) || {};
+    const cursorAsString = field ? lastElement[field] : lastElement.createdAt;
     if (cursorAsString) {
       return this.encodeCursor(cursorAsString);
     }

@@ -1,10 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 
 import {
-  EntityFindManyOptions,
   EntityFindOneByIdOptions,
   EntityFindOneOptions,
 } from '../../commons/types/find-options.type';
@@ -25,7 +24,7 @@ export class RelationshipEntity {
     });
   }
 
-  public async findMany(options: EntityFindManyOptions<Relationship>) {
+  public async findMany(options: FindManyOptions<Relationship>) {
     return await this.repository.find({ ...options, take: 20 });
   }
 
@@ -61,11 +60,11 @@ export class RelationshipEntity {
   public async updateOne(
     id: string,
     partialEntity: Partial<Relationship>,
-    currentUserId: string,
+    userId: string,
   ) {
     return await this.repository.update(id, {
       ...partialEntity,
-      updatedBy: currentUserId,
+      updatedBy: userId,
     });
   }
 

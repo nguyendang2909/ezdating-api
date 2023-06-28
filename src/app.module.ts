@@ -18,7 +18,6 @@ import { ChatsModule } from './modules/chats/chats.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { RelationshipsModule } from './modules/relationships/relationships.module';
-import { RoomsModule } from './modules/rooms/rooms.module';
 import { UploadFilesModule } from './modules/upload-files/upload-files.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -107,7 +106,6 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     UsersModule,
     ChatsModule,
-    RoomsModule,
     EncryptionsModule,
     RelationshipsModule,
     MessagesModule,

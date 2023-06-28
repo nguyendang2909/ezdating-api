@@ -19,7 +19,7 @@ export class Relationship extends CommonEntity {
   @Column({
     name: 'user_one_status',
     nullable: true,
-    type: 'varchar',
+    type: 'enum',
     enum: RelationshipUserStatusObj,
   })
   userOneStatus?: RelationshipUserStatus;
@@ -27,7 +27,7 @@ export class Relationship extends CommonEntity {
   @Column({
     name: 'user_one_status',
     nullable: true,
-    type: 'varchar',
+    type: 'enum',
     enum: RelationshipUserStatusObj,
   })
   userTwoStatus?: RelationshipUserStatus;
@@ -48,4 +48,18 @@ export class Relationship extends CommonEntity {
     type: 'boolean',
   })
   canUserTwoChat?: boolean;
+
+  @Column({
+    name: 'last_message',
+    nullable: true,
+    type: 'text',
+  })
+  lastMessage?: string;
+
+  @Column({
+    name: 'last_message_at',
+    nullable: true,
+    type: 'datetime',
+  })
+  lastMessageAt?: string;
 }
