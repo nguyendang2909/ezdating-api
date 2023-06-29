@@ -1,9 +1,95 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import Axios from 'axios';
+
+import { StateEntity } from '../states/state-entity.service';
+import { StateOfStatesResponse, StateResponse } from '../states/states.type';
+import { CountryOfCountriesResponse } from './countries.type';
+import { CountryEntity } from './country-entity.service';
+import { Country } from './entities/country.entity';
 
 @Injectable()
 export class CountriesService {
-  constructor() {}
+  constructor(
+    private readonly stateEntity: StateEntity,
+    private readonly countryEntity: CountryEntity,
+  ) {}
+
+  private readonly logger = new Logger(CountriesService.name);
+
+  // async onApplicationBootstrap() {
+  //   try {
+  //     const { data: countries } =
+  //       await this.locationsService.get<CountriesResponse>('/v1/countries');
+  //     await async.eachLimit(countries, 3, async (country) => {
+  //       await this.migrateCountry(country);
+  //       const { data: states } =
+  //         await this.locationsService.get<StatesResponse>(
+  //           `/v1/countries/${country.iso2}/states`,
+  //         );
+  //       await async.eachLimit(states, 3, async (state) => {
+  //         await this.migrateState(state, country);
+  //       });
+  //     });
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
+
+  // private async migrateCountry(country: CountryOfCountriesResponse) {
+  //   try {
+  //     const { data: countryData } =
+  //       await this.locationsService.get<CountryResponse>(
+  //         `/v1/countries/${country.iso2}`,
+  //       );
+  //     await this.countryEntity.saveOne({
+  //       id: countryData.id,
+  //       name: countryData.name,
+  //       iso3: countryData.iso3,
+  //       numericCode: countryData.numeric_code,
+  //       iso2: countryData.iso2,
+  //       phoneCode: countryData.phonecode,
+  //       capital: countryData.capital,
+  //       currency: countryData.currency,
+  //       currency_name: countryData.currency_name,
+  //       currencySymbol: countryData.currency_symbol,
+  //       tld: countryData.tld,
+  //       native: countryData.native,
+  //       region: countryData.region,
+  //       subregion: countryData.subregion,
+  //       translations: countryData.translations,
+  //       latitude: countryData.latitude,
+  //       longitude: countryData.longitude,
+  //       emoji: countryData.emoji,
+  //       emojiU: countryData.emojiU,
+  //     });
+  //   } catch (err) {
+  //     this.logger.error(err);
+  //   }
+  // }
+
+  private async migrateState(
+    state: StateOfStatesResponse,
+    country: CountryOfCountriesResponse,
+  ) {
+    try {
+      const { data: stateData } =
+        await this.locationsService.get<StateResponse>(
+          `/v1/countries/${country.iso2}/states/${state.iso2}`,
+        );
+      await this.stateEntity.saveOne({
+        id: stateData.id,
+        name: stateData.name,
+        country: new Country({ id: country.id }),
+        countryCode: stateData.country_code,
+        iso2: stateData.iso2,
+        type: stateData.type,
+        latitude: stateData.latitude,
+        longitude: stateData.longitude,
+      });
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
 
   private readonly locationsService = Axios.create({
     baseURL: 'https://api.countrystatecity.in/',
@@ -13,19 +99,22 @@ export class CountriesService {
   });
 
   public async findAll() {
-    const { data } = await this.locationsService.get('/v1/countries');
-    return data;
+    return await this.countryEntity.findAll({});
   }
 
-  public async findOne(iso2: string) {
-    const { data } = await this.locationsService.get(`/v1/countries/${iso2}`);
-    return data;
+  public async findOneOrFail(iso2: string) {
+    return await this.countryEntity.findOneOrFail({
+      where: {
+        iso2,
+      },
+    });
   }
 
-  public async findAllStatesByCountryIso2(iso2: string) {
-    const { data } = await this.locationsService.get(
-      `/v1/countries/${iso2}/states`,
-    );
-    return data;
+  public async findCountryAndStates(iso2: string) {
+    return await this.stateEntity.findAll({
+      where: {
+        countryCode: iso2,
+      },
+    });
   }
 }

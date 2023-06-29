@@ -1,5 +1,5 @@
 import JoiDate from '@joi/date';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import Joi from 'joi';
 import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 
@@ -10,11 +10,11 @@ const JoiExtendDate = Joi.extend(JoiDate);
 
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
 export class UpdateMyProfileBasicInfoDto {
-  @ApiPropertyOptional({ type: String })
+  @ApiProperty({ type: String })
   @JoiSchema(JoiExtendDate.date().format('YYYY-MM-DD').required().raw())
   birthday!: string;
 
-  @ApiPropertyOptional({ type: String })
+  @ApiProperty({ type: String })
   @JoiSchema(
     Joi.string()
       .valid(...Object.values(EUserGender))
@@ -22,15 +22,15 @@ export class UpdateMyProfileBasicInfoDto {
   )
   gender!: EUserGender;
 
-  @ApiPropertyOptional({ type: String })
+  @ApiProperty({ type: String })
   @JoiSchema(Joi.string().max(500).allow(null, '').optional())
   introduce?: string;
 
-  @ApiPropertyOptional({ type: String })
+  @ApiProperty({ type: String })
   @JoiSchema(Joi.string().max(100).required())
   nickname!: string;
 
-  @ApiPropertyOptional({ type: String, enum: EUserLookingFor })
+  @ApiProperty({ type: String, enum: EUserLookingFor })
   @JoiSchema(
     Joi.string()
       .valid(...Object.values(EUserLookingFor))
@@ -38,7 +38,11 @@ export class UpdateMyProfileBasicInfoDto {
   )
   lookingFor!: EUserLookingFor;
 
-  country?: string;
+  @ApiProperty({ type: String })
+  @JoiSchema(Joi.string().length(2).required())
+  country!: string;
 
-  city?: string;
+  @ApiProperty({ type: String })
+  @JoiSchema(Joi.string().required())
+  city!: string;
 }
