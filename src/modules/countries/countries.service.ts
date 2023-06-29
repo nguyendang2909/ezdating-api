@@ -13,22 +13,19 @@ export class CountriesService {
   });
 
   public async findAll() {
-    const data = await this.locationsService.get('/v1/countries');
-
-    return data.data;
+    const { data } = await this.locationsService.get('/v1/countries');
+    return data;
   }
 
   public async findOne(iso2: string) {
-    const data = await this.locationsService.get(`/v1/countries/${iso2}`);
-
-    return data.data;
+    const { data } = await this.locationsService.get(`/v1/countries/${iso2}`);
+    return data;
   }
 
   public async findAllStatesByCountryIso2(iso2: string) {
-    const data = await this.locationsService.get(
+    const { data } = await this.locationsService.get(
       `/v1/countries/${iso2}/states`,
     );
-
-    return data.data;
+    return data;
   }
 }

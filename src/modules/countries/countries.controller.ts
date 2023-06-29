@@ -16,16 +16,21 @@ export class CountriesController {
 
   @IsPublicEndpoint()
   @Get(':id/states')
-  findAllStatesByCountryI(@Param() params: FindOneCountryParamsDto) {
+  public async findAllStatesByCountryI(
+    @Param() params: FindOneCountryParamsDto,
+  ) {
     return {
       type: 'states',
-      data: this.countriesService.findAllStatesByCountryIso2(params.id),
+      data: await this.countriesService.findAllStatesByCountryIso2(params.id),
     };
   }
 
   @IsPublicEndpoint()
   @Get(':id')
-  async findOne(@Param() params: FindOneCountryParamsDto) {
-    return await this.countriesService.findOne(params.id);
+  public async findOne(@Param() params: FindOneCountryParamsDto) {
+    return {
+      type: 'states',
+      data: await this.countriesService.findOne(params.id),
+    };
   }
 }
