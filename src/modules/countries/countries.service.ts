@@ -1,26 +1,34 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCountryDto } from './dto/create-country.dto';
-import { UpdateCountryDto } from './dto/update-country.dto';
+import Axios from 'axios';
 
 @Injectable()
 export class CountriesService {
-  create(createCountryDto: CreateCountryDto) {
-    return 'This action adds a new country';
+  constructor() {}
+
+  private readonly locationsService = Axios.create({
+    baseURL: 'https://api.countrystatecity.in/',
+    headers: {
+      'X-CSCAPI-KEY': process.env.COUNTRY_STATE_CITY_API_KEY,
+    },
+  });
+
+  public async findAll() {
+    const data = await this.locationsService.get('/v1/countries');
+
+    return data.data;
   }
 
-  findAll() {
-    return `This action returns all countries`;
+  public async findOne(iso2: string) {
+    const data = await this.locationsService.get(`/v1/countries/${iso2}`);
+
+    return data.data;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} country`;
-  }
+  public async findAllStatesByCountryIso2(iso2: string) {
+    const data = await this.locationsService.get(
+      `/v1/countries/${iso2}/states`,
+    );
 
-  update(id: number, updateCountryDto: UpdateCountryDto) {
-    return `This action updates a #${id} country`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} country`;
+    return data.data;
   }
 }

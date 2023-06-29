@@ -32,6 +32,9 @@ declare global {
       // Auth
       JWT_SECRET_KEY: string;
       HASH_SECRET_KEY: string;
+
+      // Country states city
+      COUNTRY_STATE_CITY_API_KEY: string;
     }
   }
 }

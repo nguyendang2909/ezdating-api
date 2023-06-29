@@ -2,6 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 
 import { IsPublicEndpoint } from '../../commons/decorators/is-public.endpoint';
 import { CountriesService } from './countries.service';
+import { FindOneCountryParamsDto } from './dto/find-one-country-params.dto';
 
 @Controller('countries')
 export class CountriesController {
@@ -9,13 +10,22 @@ export class CountriesController {
 
   @IsPublicEndpoint()
   @Get()
-  findAll() {
-    return this.countriesService.findAll();
+  public async findAll() {
+    return { type: 'countries', data: await this.countriesService.findAll() };
+  }
+
+  @IsPublicEndpoint()
+  @Get(':id/states')
+  findAllStatesByCountryI(@Param() params: FindOneCountryParamsDto) {
+    return {
+      type: 'states',
+      data: this.countriesService.findAllStatesByCountryIso2(params.id),
+    };
   }
 
   @IsPublicEndpoint()
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.countriesService.findOne(+id);
+  async findOne(@Param() params: FindOneCountryParamsDto) {
+    return await this.countriesService.findOne(params.id);
   }
 }
