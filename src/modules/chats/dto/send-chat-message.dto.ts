@@ -18,3 +18,16 @@ export const SendChatMessageSchema = Joi.object({
   allowUnknown: false,
   abortEarly: true,
 });
+
+// export const SendChatMessageSchema = Joi.object({
+//   roomId: Joi.string().guid().when('targetUserId', {
+//     not: Joi.exist(),
+//     then: Joi.required(),
+//     otherwise: Joi.forbidden(),
+//   }),
+//   targetUserId: Joi.string().guid().optional(),
+//   text: Joi.string().guid().optional(),
+// }).options({
+//   allowUnknown: false,
+//   abortEarly: true,
+// });

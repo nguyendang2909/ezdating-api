@@ -1,7 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import moment from 'moment';
 import { IsNull, LessThan, Not } from 'typeorm';
 
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { User } from '../users/entities/user.entity';
 import { UserEntity } from '../users/users-entity.service';
@@ -230,28 +235,17 @@ export class RelationshipsService {
     };
   }
 
-  public async findOneRoom(id: string, userId: string) {
-    const user = new User({ id: userId });
-    return await this.relationshipEntity.findOne({
-      where: [
-        {
-          id,
-          userOneStatus: RelationshipUserStatuses.like,
-          userTwoStatus: RelationshipUserStatuses.like,
-        },
-        {
-          id,
-          userOne: user,
-          userTwoStatus: Not(RelationshipUserStatuses.block),
-          canUserOneChat: true,
-        },
-        {
-          id,
-          userTwo: user,
-          userOneStatus: Not(RelationshipUserStatuses.block),
-          canUserTwoChat: true,
-        },
-      ],
-    });
+  public async findOneRoomById(id: string, userId: string) {
+    const findResult = await this.relationshipEntity.findOneRoomById(
+      id,
+      userId,
+    );
+    if (!findResult) {
+      throw new NotFoundException({
+        errorCode: HttpErrorCodes.ROOM_DOES_NOT_EXIST,
+        message: 'Room does not exist!',
+      });
+    }
+    return findResult;
   }
 }
