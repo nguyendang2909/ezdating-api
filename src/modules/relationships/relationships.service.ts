@@ -11,7 +11,7 @@ import { FindManyRoomsDto } from './dto/find-many-rooms.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
 import { Relationship } from './entities/relationship.entity';
 import { RelationshipEntity } from './relationship-entity.service';
-import { RelationshipUserStatusObj } from './relationships.constant';
+import { RelationshipUserStatuses } from './relationships.constant';
 
 @Injectable()
 export class RelationshipsService {
@@ -22,15 +22,8 @@ export class RelationshipsService {
 
   public async sendStatus(payload: SendRelationshipStatusDto, userId: string) {
     const { targetUserId, status } = payload;
-    if (userId === targetUserId) {
-      throw new BadRequestException({
-        errorCode: 'CONFLICT_USER',
-        message: 'You cannot send status yourself!',
-      });
-    }
-    await this.userEntity.findOneOrFailById(targetUserId, {
-      select: { id: true, status: true },
-    });
+    this.userEntity.validateYourSelf(userId, targetUserId);
+    await this.userEntity.findOneOrFailById(targetUserId);
     const userIds = [targetUserId, userId].sort();
     const userOne = new User({ id: userIds[0] });
     const userTwo = new User({ id: userIds[1] });
@@ -39,17 +32,6 @@ export class RelationshipsService {
       where: {
         userOne,
         userTwo,
-      },
-      select: {
-        id: true,
-        userOne: {
-          id: true,
-        },
-        userTwo: {
-          id: true,
-        },
-        userOneStatus: true,
-        userTwoStatus: true,
       },
     });
     if (!existRelationship) {
@@ -64,36 +46,25 @@ export class RelationshipsService {
         userId,
       );
     }
-    const {
-      userOneStatus,
-      userTwoStatus,
-      id: relationshipId,
-    } = existRelationship;
-    if (status === (isUserOne ? userOneStatus : userTwoStatus)) {
-      throw new BadRequestException({
-        errorCode: 'CONFLICT_RELATIONSHIP_STATUS',
-        message: 'You already sent this status!',
-      });
-    }
-    const updateRelationshipEntity: Partial<Relationship> = {};
-    if (status === RelationshipUserStatusObj.like) {
-      updateRelationshipEntity.statusAt = moment().toDate();
-    }
+    this.relationshipEntity.validateBlocked(existRelationship, isUserOne);
+    this.relationshipEntity.validateConflictSendStatus(
+      status,
+      existRelationship,
+      isUserOne,
+    );
+    const now = moment().toDate();
+    const updateRelationshipEntity: Partial<Relationship> = {
+      statusAt: now,
+    };
     if (isUserOne) {
-      if (userOneStatus === status) {
-      }
       updateRelationshipEntity.userOneStatus = status;
-      if (status === RelationshipUserStatusObj.like) {
-        updateRelationshipEntity.statusAt = moment().toDate();
-      }
+      updateRelationshipEntity.userOneStatusAt = now;
     } else {
-      if (userTwoStatus === RelationshipUserStatusObj.like) {
-        throw new BadRequestException();
-      }
-      updateRelationshipEntity.userTwoStatus = RelationshipUserStatusObj.like;
+      updateRelationshipEntity.userTwoStatus = status;
+      updateRelationshipEntity.userTwoStatusAt = now;
     }
-    await this.relationshipEntity.updateOne(
-      relationshipId,
+    await this.relationshipEntity.updateOneById(
+      existRelationship.id,
       updateRelationshipEntity,
       userId,
     );
@@ -108,52 +79,24 @@ export class RelationshipsService {
     if (currentUserId === targetUserId) {
       throw new BadRequestException({ errorCode: 'CONFLICT_USER' });
     }
-    const existTargetUser = await this.userEntity.findOneByIdAndValidate(
-      targetUserId,
-      {
-        select: { id: true, status: true },
-      },
-    );
-    if (!existTargetUser) {
-      throw new BadRequestException();
-    }
+    await this.userEntity.findOneOrFailById(targetUserId);
     const userIds = [targetUserId, currentUserId].sort();
     const userOne = new User({ id: userIds[0] });
     const userTwo = new User({ id: userIds[1] });
-    const existRelationship = await this.relationshipEntity.findOne({
+    const existRelationship = await this.relationshipEntity.findOneOrFail({
       where: {
         userOne,
         userTwo,
       },
-      select: {
-        userOne: {
-          id: true,
-        },
-        userTwo: {
-          id: true,
-        },
-        userOneStatus: true,
-        userTwoStatus: true,
-      },
     });
-    if (!existRelationship) {
-      throw new BadRequestException({
-        errorCode: 'RELATIONSHIP_DOES_NOT_EXIST',
-      });
-    }
-    const { id: existRelationshipId } = existRelationship;
-    if (!existRelationshipId) {
-      throw new BadRequestException();
-    }
     const updateOptions = this.userEntity.isUserOneByIds(currentUserId, userIds)
-      ? { userOneStatus: RelationshipUserStatusObj.cancel }
-      : { userTwoStatus: RelationshipUserStatusObj.cancel };
-    await this.relationshipEntity.updateOne(
-      existRelationshipId,
+      ? { userOneStatus: RelationshipUserStatuses.cancel }
+      : { userTwoStatus: RelationshipUserStatuses.cancel };
+    return await this.relationshipEntity.updateOneById(
+      existRelationship.id,
       updateOptions,
       currentUserId,
     );
-    return { success: true };
   }
 
   public async findMatched(
@@ -169,14 +112,52 @@ export class RelationshipsService {
       where: [
         {
           ...(lastStatusAt ? { createdAt: LessThan(lastStatusAt) } : {}),
-          userOneStatus: RelationshipUserStatusObj.like,
-          userTwoStatus: RelationshipUserStatusObj.like,
+          userOneStatus: RelationshipUserStatuses.like,
+          userTwoStatus: RelationshipUserStatuses.like,
           userOne: currentUser,
         },
         {
           ...(lastStatusAt ? { createdAt: LessThan(lastStatusAt) } : {}),
-          userOneStatus: RelationshipUserStatusObj.like,
-          userTwoStatus: RelationshipUserStatusObj.like,
+          userOneStatus: RelationshipUserStatuses.like,
+          userTwoStatus: RelationshipUserStatuses.like,
+          userTwo: currentUser,
+        },
+      ],
+      order: {
+        statusAt: 'DESC',
+      },
+      take: 20,
+    });
+
+    return {
+      data: findResult,
+      pagination: {
+        cursor: EntityFactory.getCursor(findResult),
+      },
+    };
+  }
+
+  public async findUsersLikeMe(
+    queryParams: FindMatchedRelationshipsDto,
+    currentUserId: string,
+  ) {
+    const { cursor } = queryParams;
+    const currentUser = new User({ id: currentUserId });
+    const lastStatusAt = cursor
+      ? new Date(EntityFactory.decodeCursor(cursor))
+      : undefined;
+    const findResult = await this.relationshipEntity.findMany({
+      where: [
+        {
+          ...(lastStatusAt ? { createdAt: LessThan(lastStatusAt) } : {}),
+          userOneStatus: Not(RelationshipUserStatuses.like),
+          userTwoStatus: RelationshipUserStatuses.like,
+          userOne: currentUser,
+        },
+        {
+          ...(lastStatusAt ? { createdAt: LessThan(lastStatusAt) } : {}),
+          userOneStatus: RelationshipUserStatuses.like,
+          userTwoStatus: Not(RelationshipUserStatuses.like),
           userTwo: currentUser,
         },
       ],
@@ -207,29 +188,31 @@ export class RelationshipsService {
             ? { createdAt: LessThan(lastMessageAt) }
             : { lastMessage: Not(IsNull()) }),
           userOne: currentUser,
-          userOneStatus: RelationshipUserStatusObj.like,
-          userTwoStatus: RelationshipUserStatusObj.like,
+          userOneStatus: RelationshipUserStatuses.like,
+          userTwoStatus: RelationshipUserStatuses.like,
         },
         {
           ...(lastMessageAt
             ? { createdAt: LessThan(lastMessageAt) }
             : { lastMessage: Not(IsNull()) }),
           userTwo: currentUser,
-          userOneStatus: RelationshipUserStatusObj.like,
-          userTwoStatus: RelationshipUserStatusObj.like,
+          userOneStatus: RelationshipUserStatuses.like,
+          userTwoStatus: RelationshipUserStatuses.like,
         },
         {
           ...(lastMessageAt
             ? { createdAt: LessThan(lastMessageAt) }
             : { lastMessage: Not(IsNull()) }),
           userOne: currentUser,
+          userTwoStatus: Not(RelationshipUserStatuses.block),
           canUserOneChat: true,
         },
         {
           ...(lastMessageAt
             ? { createdAt: LessThan(lastMessageAt) }
             : { lastMessage: Not(IsNull()) }),
-          userOne: currentUser,
+          userTwo: currentUser,
+          userOneStatus: Not(RelationshipUserStatuses.block),
           canUserTwoChat: true,
         },
       ],
@@ -245,5 +228,30 @@ export class RelationshipsService {
         cursor: EntityFactory.getCursor(findResult, 'lastMessageAt'),
       },
     };
+  }
+
+  public async findOneRoom(id: string, userId: string) {
+    const user = new User({ id: userId });
+    return await this.relationshipEntity.findOne({
+      where: [
+        {
+          id,
+          userOneStatus: RelationshipUserStatuses.like,
+          userTwoStatus: RelationshipUserStatuses.like,
+        },
+        {
+          id,
+          userOne: user,
+          userTwoStatus: Not(RelationshipUserStatuses.block),
+          canUserOneChat: true,
+        },
+        {
+          id,
+          userTwo: user,
+          userOneStatus: Not(RelationshipUserStatuses.block),
+          canUserTwoChat: true,
+        },
+      ],
+    });
   }
 }

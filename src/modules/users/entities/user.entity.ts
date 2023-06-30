@@ -4,10 +4,14 @@ import { BaseEntity } from '../../../commons/entities/base.entity';
 import { EntityFactory } from '../../../commons/lib/entity-factory';
 import { UploadFile } from '../../upload-files/entities/upload-file.entity';
 import {
-  EUserGender,
-  EUserLookingFor,
-  EUserRole,
-  EUserStatus,
+  UserGender,
+  UserGenders,
+  UserLookingFor,
+  UserLookingFors,
+  UserRole,
+  UserRoles,
+  UserStatus,
+  UserStatuses,
 } from '../users.constant';
 
 @Entity({ name: 'user' })
@@ -18,8 +22,8 @@ export class User extends BaseEntity {
   @Column({ name: 'email', length: 100, nullable: true, type: 'varchar' })
   email?: string;
 
-  @Column({ name: 'gender', enum: EUserGender, nullable: true, type: 'enum' })
-  gender?: EUserGender;
+  @Column({ name: 'gender', enum: UserGenders, nullable: true, type: 'enum' })
+  gender?: UserGender;
 
   @Column({ name: 'introduce', type: 'varchar', nullable: true, length: 500 })
   introduce?: string;
@@ -37,10 +41,10 @@ export class User extends BaseEntity {
   @Column({
     name: 'looking_for',
     type: 'enum',
-    enum: EUserLookingFor,
+    enum: UserLookingFors,
     nullable: true,
   })
-  lookingFor?: EUserLookingFor;
+  lookingFor?: UserLookingFor;
 
   @Column({
     name: 'have_basic_info',
@@ -69,21 +73,21 @@ export class User extends BaseEntity {
 
   @Column({
     name: 'role',
-    default: EUserRole.member,
-    enum: EUserRole,
+    default: UserRoles.member,
+    enum: UserRoles,
     nullable: false,
     type: 'enum',
   })
-  role!: EUserRole;
+  role!: UserRole;
 
   @Column({
     name: 'status',
-    default: EUserStatus.activated,
-    enum: EUserStatus,
+    default: UserStatuses.activated,
+    enum: UserStatuses,
     nullable: false,
     type: 'enum',
   })
-  status!: EUserStatus;
+  status!: UserStatus;
 
   @Column({ name: 'created_by', type: 'uuid', nullable: true })
   createdBy?: string;

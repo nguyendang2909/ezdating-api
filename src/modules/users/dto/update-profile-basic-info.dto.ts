@@ -4,7 +4,12 @@ import Joi from 'joi';
 import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 
 import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
-import { EUserGender, EUserLookingFor } from '../users.constant';
+import {
+  UserGender,
+  UserGenders,
+  UserLookingFor,
+  UserLookingFors,
+} from '../users.constant';
 
 const JoiExtendDate = Joi.extend(JoiDate);
 
@@ -17,10 +22,10 @@ export class UpdateMyProfileBasicInfoDto {
   @ApiProperty({ type: String })
   @JoiSchema(
     Joi.string()
-      .valid(...Object.values(EUserGender))
+      .valid(...Object.values(UserGenders))
       .required(),
   )
-  gender!: EUserGender;
+  gender!: UserGender;
 
   @ApiProperty({ type: String })
   @JoiSchema(Joi.string().max(500).allow(null, '').optional())
@@ -30,13 +35,13 @@ export class UpdateMyProfileBasicInfoDto {
   @JoiSchema(Joi.string().max(100).required())
   nickname!: string;
 
-  @ApiProperty({ type: String, enum: EUserLookingFor })
+  @ApiProperty({ type: String, enum: UserLookingFors })
   @JoiSchema(
     Joi.string()
-      .valid(...Object.values(EUserLookingFor))
+      .valid(...Object.values(UserLookingFors))
       .required(),
   )
-  lookingFor!: EUserLookingFor;
+  lookingFor!: UserLookingFor;
 
   @ApiProperty({ type: String })
   @JoiSchema(Joi.string().length(2).required())

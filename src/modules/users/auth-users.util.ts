@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { User } from './entities/user.entity';
-import { EUserRole, EUserStatus } from './users.constant';
+import { UserRoles, UserStatuses } from './users.constant';
 
 @Injectable()
 export class UsersAuthUtil {
@@ -29,8 +29,8 @@ export class UsersAuthUtil {
           phoneNumber,
           password: this.encryptionsUtil.hash(process.env.ADMIN_PASSWORD),
           nickname: 'Quynh',
-          role: EUserRole.admin,
-          status: EUserStatus.activated,
+          role: UserRoles.admin,
+          status: UserStatuses.activated,
         });
 
         await this.userRepository.save(adminUser);

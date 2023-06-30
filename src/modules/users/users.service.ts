@@ -13,7 +13,7 @@ import { FindOneUserDto } from './dto/is-exist-user.dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
 import { User } from './entities/user.entity';
-import { EUserStatus } from './users.constant';
+import { UserStatuses } from './users.constant';
 import { UserEntity } from './users-entity.service';
 
 @Injectable()
@@ -32,7 +32,7 @@ export class UsersService {
       where: {
         id: whereId,
         haveBasicInfo: true,
-        status: EUserStatus.activated,
+        status: UserStatuses.activated,
       },
       select: {
         id: true,
@@ -58,7 +58,7 @@ export class UsersService {
       where: {
         id: whereId,
         haveBasicInfo: true,
-        status: EUserStatus.activated,
+        status: UserStatuses.activated,
       },
       select: {
         id: true,
@@ -135,7 +135,7 @@ export class UsersService {
       throw new BadRequestException('User not found!');
     }
     const { status } = findResult;
-    if (!status || status === EUserStatus.banned) {
+    if (!status || status === UserStatuses.banned) {
       throw new BadRequestException({
         message: 'User has been banned',
         errorCode: 'USER_BANNED',
@@ -166,12 +166,7 @@ export class UsersService {
     const updateOptions: QueryDeepPartialEntity<User> = {
       ...updateDto,
     };
-    const updateResult = await this.userEntity.updateOne(
-      { id: currentUserId },
-      updateOptions,
-    );
-
-    return Boolean(updateResult.affected);
+    return await this.userEntity.updateOneById(currentUserId, updateOptions);
   }
 
   public async updateProfileBasicInfo(
@@ -183,11 +178,12 @@ export class UsersService {
       ...updateDto,
       haveBasicInfo: true,
     };
-    const updateResult = await this.userEntity.updateOne(
-      { id: currentUserId },
-      updateOptions,
-    );
+    return await this.userEntity.updateOneById(currentUserId, updateOptions);
+  }
 
-    return Boolean(updateResult.affected);
+  public async deactivate(userId: string) {
+    return await this.userEntity.updateOneById(userId, {
+      status: UserStatuses.activated,
+    });
   }
 }

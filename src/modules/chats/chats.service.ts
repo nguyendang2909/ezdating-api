@@ -5,7 +5,7 @@ import { Socket } from 'socket.io';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { RelationshipEntity } from '../relationships/relationship-entity.service';
 import { UsersAuthUtil } from '../users/auth-users.util';
-import { EUserStatus } from '../users/users.constant';
+import { UserStatuses } from '../users/users.constant';
 import { UserEntity } from '../users/users-entity.service';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
@@ -91,10 +91,8 @@ export class ChatsService {
       const token = authorization?.split(' ')[1];
       if (token) {
         const decodedToken = this.encryptionsUtil.verifyJwt(token);
-        const user = await this.userEntity.findOneById(decodedToken.id, {
-          select: { id: true, status: true },
-        });
-        if (user && user.status !== EUserStatus.banned) {
+        const user = await this.userEntity.findOneById(decodedToken.id);
+        if (user && user.status && user.status !== UserStatuses.banned) {
           socket.handshake.user = user;
           socket.join(user.id);
           this.logger.log(`Socket connected: ${socket.id}`);

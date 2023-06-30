@@ -4,7 +4,7 @@ import { CommonEntity } from '../../../commons/entities/common.entity';
 import { User } from '../../users/entities/user.entity';
 import {
   RelationshipUserStatus,
-  RelationshipUserStatusObj,
+  RelationshipUserStatuses,
 } from '../relationships.constant';
 
 export class Relationship extends CommonEntity {
@@ -20,7 +20,7 @@ export class Relationship extends CommonEntity {
     name: 'user_one_status',
     nullable: true,
     type: 'enum',
-    enum: RelationshipUserStatusObj,
+    enum: RelationshipUserStatuses,
   })
   userOneStatus?: RelationshipUserStatus;
 
@@ -28,12 +28,18 @@ export class Relationship extends CommonEntity {
     name: 'user_one_status',
     nullable: true,
     type: 'enum',
-    enum: RelationshipUserStatusObj,
+    enum: RelationshipUserStatuses,
   })
   userTwoStatus?: RelationshipUserStatus;
 
   @Column({ name: 'status_at', type: 'date', nullable: true })
   statusAt: Date;
+
+  @Column({ name: 'user_one_status_at', type: 'date', nullable: true })
+  userOneStatusAt: Date;
+
+  @Column({ name: 'user_two_status_at', type: 'date', nullable: true })
+  userTwoStatusAt: Date;
 
   @Column({
     name: 'can_user_chat',

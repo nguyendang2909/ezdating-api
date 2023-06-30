@@ -14,7 +14,9 @@ export class BaseEntity {
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt?: Date;
+}
 
+export class BaseEntityWithDelete extends BaseEntity {
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt?: Date;
 }

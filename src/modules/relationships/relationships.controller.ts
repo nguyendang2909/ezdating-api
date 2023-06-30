@@ -4,6 +4,7 @@ import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
 import { FindManyRoomsDto } from './dto/find-many-rooms.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
+import { FindUsersLikeMeDto } from './dto/find-user-like-me.dto';
 import { RelationshipsService } from './relationships.service';
 
 @Controller('relationships')
@@ -29,6 +30,17 @@ export class RelationshipsController {
     return {
       type: 'matchedRelationships',
       ...(await this.relationshipsService.findMatched(queryParams, userId)),
+    };
+  }
+
+  @Get('/like-me')
+  findUsersLikeMe(
+    @Query() queryParams: FindUsersLikeMeDto,
+    @UserId() userId: string,
+  ) {
+    return {
+      type: 'usersLikeMe',
+      data: this.relationshipsService.findUsersLikeMe(queryParams, userId),
     };
   }
 

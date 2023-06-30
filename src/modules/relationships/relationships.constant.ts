@@ -1,8 +1,9 @@
-export const RelationshipUserStatusObj = {
+export const RelationshipUserStatuses = {
   like: 'like',
   unlike: 'unlike',
   cancel: 'cancel',
+  block: 'block',
 } as const;
 
 export type RelationshipUserStatus =
-  (typeof RelationshipUserStatusObj)[keyof typeof RelationshipUserStatusObj];
+  (typeof RelationshipUserStatuses)[keyof typeof RelationshipUserStatuses];

@@ -1,13 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
-import {
-  EntityFindOneByIdOptions,
-  EntityFindOneOptions,
-} from '../../commons/types/find-options.type';
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
 import { Relationship } from './entities/relationship.entity';
+import {
+  RelationshipUserStatus,
+  RelationshipUserStatuses,
+} from './relationships.constant';
 
 @Injectable()
 export class RelationshipEntity {
@@ -29,7 +35,7 @@ export class RelationshipEntity {
   }
 
   public async findOne(
-    options: EntityFindOneOptions<Relationship>,
+    options: FindOneOptions<Relationship>,
   ): Promise<Relationship | null> {
     if (_.isEmpty(options.where)) {
       return null;
@@ -38,11 +44,14 @@ export class RelationshipEntity {
   }
 
   public async findOneOrFail(
-    options: EntityFindOneOptions<Relationship>,
-  ): Promise<Partial<Relationship>> {
+    options: FindOneOptions<Relationship>,
+  ): Promise<Relationship> {
     const findResult = await this.findOne(options);
     if (!findResult) {
-      throw new NotFoundException('User not found!');
+      throw new NotFoundException({
+        errorCode: HttpErrorCodes.RELATIONSHIP_DOES_NOT_EXIST,
+        message: 'Relationship does not exist!',
+      });
     }
     return findResult;
   }
@@ -57,18 +66,46 @@ export class RelationshipEntity {
     });
   }
 
-  public async updateOne(
+  public async updateOneById(
     id: string,
     partialEntity: Partial<Relationship>,
     userId: string,
   ) {
-    return await this.repository.update(id, {
+    const updateResult = await this.repository.update(id, {
       ...partialEntity,
       updatedBy: userId,
     });
+
+    return !!updateResult.affected;
   }
 
   public async deleteOne(id: string) {
     return await this.repository.softDelete(id);
+  }
+
+  validateBlocked(entity: Relationship, isUserOne: boolean) {
+    if (
+      isUserOne
+        ? entity.userTwoStatus === RelationshipUserStatuses.block
+        : entity.userOneStatus !== RelationshipUserStatuses.block
+    ) {
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.USER_DOES_NOT_EXIST,
+        message: 'User does not exist!',
+      });
+    }
+  }
+
+  validateConflictSendStatus(
+    status: RelationshipUserStatus,
+    entity: Relationship,
+    isUserOne: boolean,
+  ) {
+    if (status === (isUserOne ? entity.userOneStatus : entity.userTwoStatus)) {
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.CONFLICT_RELATIONSHIP_STATUS,
+        message: 'You already sent this status!',
+      });
+    }
   }
 }

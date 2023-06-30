@@ -4,7 +4,7 @@ import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 import {
   RelationshipUserStatus,
-  RelationshipUserStatusObj,
+  RelationshipUserStatuses,
 } from '../relationships.constant';
 
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
@@ -14,7 +14,7 @@ export class SendRelationshipStatusDto {
 
   @JoiSchema(
     Joi.string()
-      .valid(...Object.values(RelationshipUserStatusObj))
+      .valid(...Object.values(RelationshipUserStatuses))
       .required(),
   )
   status: RelationshipUserStatus;

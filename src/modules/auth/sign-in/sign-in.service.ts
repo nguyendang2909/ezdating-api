@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
-import { EUserStatus } from '../../users/users.constant';
+import { UserStatuses } from '../../users/users.constant';
 import { UserEntity } from '../../users/users-entity.service';
 import { SignInData } from '../auth.type';
 import { SignInWithPhoneNumberDto } from '../dto/sign-in-with-phone-number.dto';
@@ -38,7 +38,7 @@ export class SignInService {
     });
     if (user) {
       const { status } = user;
-      if (status === EUserStatus.banned) {
+      if (status === UserStatuses.banned) {
         throw new ForbiddenException('You have been banned!');
       }
     } else {

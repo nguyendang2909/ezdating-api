@@ -1,24 +1,33 @@
-export enum EUserRole {
-  admin = 'admin',
-  manager = 'manager',
-  member = 'member',
-}
+export const UserRoles = {
+  admin: 'admin',
+  manager: 'manager',
+  member: 'member',
+};
 
-export enum EUserGender {
-  male = 'male',
-  female = 'female',
-  lgbt = 'lgbt',
-}
+export type UserRole = (typeof UserRoles)[keyof typeof UserRoles];
 
-export enum EUserStatus {
-  banned = 'banned',
-  activated = 'activated',
-}
+export const UserGenders = {
+  male: 'male',
+  female: 'female',
+  lgbt: 'lgbt',
+};
+export type UserGender = (typeof UserGenders)[keyof typeof UserGenders];
 
-export enum EUserLookingFor {
-  lover = 'lover',
-  friend = 'friend',
-  partner = 'partner',
-  marriage = 'marriage',
-  oneNightStand = 'oneNightStand',
-}
+export const UserStatuses = {
+  banned: 'banned',
+  activated: 'activated',
+  deactivate: 'deactivate',
+};
+
+export type UserStatus = (typeof UserStatuses)[keyof typeof UserStatuses];
+
+export const UserLookingFors = {
+  lover: 'lover',
+  friend: 'friend',
+  partner: 'partner',
+  marriage: 'marriage',
+  oneNightStand: 'oneNightStand',
+};
+
+export type UserLookingFor =
+  (typeof UserLookingFors)[keyof typeof UserLookingFors];

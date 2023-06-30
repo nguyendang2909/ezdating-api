@@ -1,20 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
-import {
-  FindOneOptions,
-  FindOptionsSelect,
-  FindOptionsWhere,
-  Repository,
-} from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
-import {
-  EntityFindManyOptions,
-  EntityFindOneByIdOptions,
-} from '../../commons/types/find-options.type';
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { EntityFindManyOptions } from '../../commons/types/find-options.type';
 import { User } from './entities/user.entity';
-import { EUserStatus } from './users.constant';
+import { UserStatuses } from './users.constant';
 
 @Injectable()
 export class UserEntity {
@@ -48,7 +41,7 @@ export class UserEntity {
       });
     }
     const { status } = findResult;
-    if (!status || status === EUserStatus.banned) {
+    if (!status || status === UserStatuses.banned) {
       throw new BadRequestException({
         message: 'User has been banned',
         errorCode: 'USER_BANNED',
@@ -57,71 +50,65 @@ export class UserEntity {
     return findResult;
   }
 
-  public async findOneById(
-    id: string,
-    findOptions: EntityFindOneByIdOptions<User>,
-  ) {
+  public async findOneById(id: string) {
     if (!id) {
       return null;
     }
-    return await this.userRepository.findOne({
-      ...findOptions,
-      where: { id },
-    });
+    return await this.userRepository.findOne({ where: { id } });
   }
 
-  public async findOneOrFailById(
-    id: string,
-    findOptions: Omit<FindOneOptions<User>, 'select' | 'where'> & {
-      select: FindOptionsSelect<User> & { status: true };
-    },
-  ) {
-    const findResult = await this.findOneById(id, findOptions);
+  public async findOneOrFailById(id: string) {
+    const findResult = await this.findOneById(id);
     if (!findResult) {
       throw new BadRequestException({
-        errorCode: 'USER_DOES_NOT_EXIST',
+        errorCode: HttpErrorCodes.USER_DOES_NOT_EXIST,
         message: "User doesn't exist!",
       });
     }
     const { status } = findResult;
-    if (!status || status === EUserStatus.banned) {
+    if (!status || status === UserStatuses.banned) {
       throw new BadRequestException({
         message: 'User has been banned',
-        errorCode: 'USER_BANNED',
+        errorCode: HttpErrorCodes.USER_HAS_BEEN_BANNED,
       });
     }
     return findResult;
   }
 
-  public async findOneByIdAndValidate(
-    id: string,
-    options: Omit<FindOneOptions<User>, 'select' | 'where'> & {
-      select: FindOptionsSelect<User> & { status: true };
-    },
-  ): Promise<User | null> {
-    const user = await this.userRepository.findOne(options);
-    if (!user || user.status === EUserStatus.banned) {
-      return null;
-    }
-    return user;
-  }
+  // public async isActivatedById(id: string): Promise<User | null> {
+  //   const user = await this.userRepository.findOne({ where: { id } });
+  //   if (!user || user.status === UserStatusObj.banned) {
+  //     return null;
+  //   }
+  //   return user;
+  // }
 
-  public async findMany(options: EntityFindManyOptions<User>) {
+  public async findMany(options: EntityFindManyOptions<User>): Promise<User[]> {
     return await this.userRepository.find(options);
   }
 
-  public async updateOne(
-    findOptions: FindOptionsWhere<User>,
+  public async updateOneById(
+    id: string,
     updateOptions: QueryDeepPartialEntity<User>,
-  ) {
-    return await this.userRepository.update(findOptions, updateOptions);
+  ): Promise<boolean> {
+    const updateResult = await this.userRepository.update(id, updateOptions);
+    return !!updateResult.affected;
   }
 
   public isUserOneByIds(userId: string, userIds: string[]): boolean {
     return userId === userIds[0];
   }
 
-  public isUserOneByEntities(userId: string, entities: User[]) {
+  public isUserOneByEntities(userId: string, entities: User[]): boolean {
     return userId === entities[0]?.id;
+  }
+
+  public validateYourSelf(userId: string, targetUserId: string) {
+    if (userId === targetUserId) {
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.CONFLICT_USER,
+        message: 'You cannot send status yourself!',
+      });
+    }
   }
 }
