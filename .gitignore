@@ -42,3 +42,6 @@ lerna-debug.log*
 
 #Certificate
 .cert
+
+#Log
+log
