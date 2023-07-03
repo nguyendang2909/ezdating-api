@@ -19,7 +19,7 @@ import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { FindManyUploadFilesDto } from './dto/find-many-upload-files.dto';
 import { FindOneUploadFileByIdDto } from './dto/find-one-upload-file-by-id.dto';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
-import { EUploadFileShare } from './upload-files.constant';
+import { UploadFileShares } from './upload-files.constant';
 import { UploadFilesService } from './upload-files.service';
 
 @Controller('/upload-files')
@@ -74,7 +74,7 @@ export class UploadFilesController {
       });
     }
     const { share } = payload;
-    if (!share || !Object.values(EUploadFileShare).includes(share)) {
+    if (!share || !Object.values(UploadFileShares).includes(share)) {
       throw new BadRequestException();
     }
     return {

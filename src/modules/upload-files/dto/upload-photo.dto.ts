@@ -1,5 +1,5 @@
-import { EUploadFileShare } from '../upload-files.constant';
+import { UploadFileShare } from '../upload-files.constant';
 
 export class UploadPhotoDtoDto {
-  share?: EUploadFileShare;
+  share?: UploadFileShare;
 }

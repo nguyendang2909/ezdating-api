@@ -11,9 +11,9 @@ import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
 import { UploadFile } from './entities/upload-file.entity';
 import { UploadFileEntity } from './upload-file-entity.service';
 import {
-  EUploadFileShare,
-  EUploadFileType,
   LIMIT_UPLOADED_PHOTOS,
+  UploadFileShares,
+  UploadFileTypes,
 } from './upload-files.constant';
 
 @Injectable()
@@ -56,14 +56,14 @@ export class UploadFilesService {
         Bucket: this.awsBucketName,
         Key: `photos/${uuidv4()}.webp`,
         Body: fileBufferWithSharp,
-        ACL: share === EUploadFileShare.public ? 'public-read' : 'private',
+        ACL: share === UploadFileShares.public ? 'public-read' : 'private',
       })
       .promise();
     const createResult = await this.uploadFileEntity.saveOne(
       {
         user: new User({ id: userId }),
         key: photo.Key,
-        type: EUploadFileType.photo,
+        type: UploadFileTypes.photo,
         location: photo.Location,
         share,
       },
@@ -97,7 +97,7 @@ export class UploadFilesService {
         { id, user: new User({ id: userId }) },
         {
           id,
-          share: EUploadFileShare.public,
+          share: UploadFileShares.public,
         },
       ],
       select: {
