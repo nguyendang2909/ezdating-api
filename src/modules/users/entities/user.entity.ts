@@ -1,7 +1,16 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 
 import { BaseEntity } from '../../../commons/entities/base.entity';
 import { EntityFactory } from '../../../commons/lib/entity-factory';
+import { Country } from '../../countries/entities/country.entity';
+import { State } from '../../states/entities/state.entity';
 import { UploadFile } from '../../upload-files/entities/upload-file.entity';
 import {
   UserGender,
@@ -18,6 +27,14 @@ import {
 export class User extends BaseEntity {
   @Column({ name: 'birthday', nullable: true, type: 'timestamp' })
   birthday?: Date | string;
+
+  @ManyToOne(() => State, { nullable: true })
+  @JoinColumn({ name: 'state_id' })
+  state?: State;
+
+  @ManyToOne(() => Country)
+  @JoinColumn({ name: 'country_id' })
+  countryId?: string;
 
   @Column({ name: 'email', length: 100, nullable: true, type: 'varchar' })
   email?: string;

@@ -23,7 +23,7 @@ export class Country {
   @Column({ name: 'numeric_code', type: 'varchar', nullable: true })
   numericCode: string;
 
-  @Column({ name: 'iso2', type: 'varchar', nullable: true })
+  @Column({ name: 'iso2', type: 'varchar', nullable: false, unique: true })
   iso2: string;
 
   @Column({ name: 'phonecode', type: 'varchar', nullable: true })

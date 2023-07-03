@@ -23,7 +23,7 @@ export class UsersService {
   public async findManyDating(
     queryParams: FindManyDatingUsersDto,
     currentUserId: string,
-  ): Promise<{ data: User[] }> {
+  ) {
     const { cursor } = queryParams;
     const whereId = cursor
       ? And(Not(currentUserId), LessThan(cursor))
@@ -34,16 +34,25 @@ export class UsersService {
         haveBasicInfo: true,
         status: UserStatuses.activated,
       },
+      relations: ['state', 'state.country'],
       select: {
         id: true,
+        birthday: true,
+        gender: true,
+        introduce: true,
+        location: true,
+        nickname: true,
+        state: {
+          id: true,
+          country: {
+            id: true,
+          },
+        },
       },
+      order: {},
     });
-    // const data = this.repository.find({
-    //   where: {
-    //   id: Raw(alias => ${alias} < ${id} and ${alias} in (${ids})),
-    //   },
-    //   });
-    return { data: findResult };
+
+    return { data: findResult, pagination: { cursor: {} } };
   }
 
   public async findManyNearby(
@@ -173,9 +182,10 @@ export class UsersService {
     payload: UpdateMyProfileBasicInfoDto,
     currentUserId: string,
   ) {
-    const { ...updateDto } = payload;
+    const { stateId, ...updateDto } = payload;
     const updateOptions: QueryDeepPartialEntity<User> = {
       ...updateDto,
+      state: { id: stateId },
       haveBasicInfo: true,
     };
     return await this.userEntity.updateOneById(currentUserId, updateOptions);

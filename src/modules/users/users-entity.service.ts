@@ -1,11 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
-import { FindOneOptions, Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
-import { EntityFindManyOptions } from '../../commons/types/find-options.type';
 import { User } from './entities/user.entity';
 import { UserStatuses } from './users.constant';
 
@@ -75,6 +78,22 @@ export class UserEntity {
     return findResult;
   }
 
+  public async findOneAndValidateBasicInfoById(id: string) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id: id,
+        status: UserStatuses.activated,
+        haveBasicInfo: true,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException({
+        errorCode: HttpErrorCodes.USER_DOES_NOT_EXIST,
+        message: 'User does not exist!',
+      });
+    }
+  }
+
   // public async isActivatedById(id: string): Promise<User | null> {
   //   const user = await this.userRepository.findOne({ where: { id } });
   //   if (!user || user.status === UserStatusObj.banned) {
@@ -83,7 +102,7 @@ export class UserEntity {
   //   return user;
   // }
 
-  public async findMany(options: EntityFindManyOptions<User>): Promise<User[]> {
+  public async findMany(options: FindManyOptions<User>): Promise<User[]> {
     return await this.userRepository.find(options);
   }
 

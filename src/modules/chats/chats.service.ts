@@ -4,7 +4,6 @@ import { Socket } from 'socket.io';
 
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { RelationshipEntity } from '../relationships/relationship-entity.service';
-import { UsersAuthUtil } from '../users/auth-users.util';
 import { UserStatuses } from '../users/users.constant';
 import { UserEntity } from '../users/users-entity.service';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
@@ -15,25 +14,26 @@ export class ChatsService {
   constructor(
     private readonly encryptionsUtil: EncryptionsUtil,
     private readonly userEntity: UserEntity,
-    private readonly usersAuthUtil: UsersAuthUtil,
     private readonly relationshipEntity: RelationshipEntity,
   ) {}
 
   private readonly logger = new Logger(ChatsService.name);
 
-  public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
-    const { roomId, targetUserId, text } = payload;
-    if (!text) {
-      throw new WsException({
-        errorCode: 'MESSAGE_CONTENT_NOT_FOUND',
-        message: 'Message content not found',
-      });
-    }
-    if (roomId) {
-      return await this.sendMessageByRoomId(roomId, payload, socket);
-    }
-    return await this.sendMessageByTargetUserId(targetUserId, socket);
-  }
+  public async sendMessage(payload: SendChatMessageDto, socket: Socket) {}
+
+  // public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
+  //   const { roomId, targetUserId, text } = payload;
+  //   if (!text) {
+  //     throw new WsException({
+  //       errorCode: 'MESSAGE_CONTENT_NOT_FOUND',
+  //       message: 'Message content not found',
+  //     });
+  //   }
+  //   if (roomId) {
+  //     return await this.sendMessageByRoomId(roomId, payload, socket);
+  //   }
+  //   return await this.sendMessageByTargetUserId(targetUserId, socket);
+  // }
 
   private async sendMessageByRoomId(
     roomId: string,

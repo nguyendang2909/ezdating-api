@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import moment from 'moment';
 import { IsNull, LessThan, Not } from 'typeorm';
 
@@ -10,7 +6,6 @@ import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { User } from '../users/entities/user.entity';
 import { UserEntity } from '../users/users-entity.service';
-import { CancelLikeRelationshipDto } from './dto/cancel-like-relationship.dto';
 import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
 import { FindManyRoomsDto } from './dto/find-many-rooms.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
@@ -28,22 +23,24 @@ export class RelationshipsService {
   public async sendStatus(payload: SendRelationshipStatusDto, userId: string) {
     const { targetUserId, status } = payload;
     this.userEntity.validateYourSelf(userId, targetUserId);
-    await this.userEntity.findOneOrFailById(targetUserId);
+    await this.userEntity.findOneAndValidateBasicInfoById(targetUserId);
     const userIds = [targetUserId, userId].sort();
+    const relationshipId = userIds.join('');
     const userOne = new User({ id: userIds[0] });
     const userTwo = new User({ id: userIds[1] });
     const isUserOne = this.userEntity.isUserOneByIds(userId, userIds);
     const existRelationship = await this.relationshipEntity.findOne({
       where: {
-        userOne,
-        userTwo,
+        id: relationshipId,
       },
     });
+    const now = moment().toDate();
     if (!existRelationship) {
       return await this.relationshipEntity.saveOne(
         {
           userOne,
           userTwo,
+          statusAt: now,
           ...(isUserOne
             ? { userOneStatus: status }
             : { userTwoStatus: status }),
@@ -57,51 +54,24 @@ export class RelationshipsService {
       existRelationship,
       isUserOne,
     );
-    const now = moment().toDate();
     const updateRelationshipEntity: Partial<Relationship> = {
       statusAt: now,
+      ...(isUserOne
+        ? {
+            userOneStatus: status,
+            userOneStatusAt: now,
+          }
+        : {
+            userTwoStatus: status,
+            userTwoStatusAt: now,
+          }),
     };
-    if (isUserOne) {
-      updateRelationshipEntity.userOneStatus = status;
-      updateRelationshipEntity.userOneStatusAt = now;
-    } else {
-      updateRelationshipEntity.userTwoStatus = status;
-      updateRelationshipEntity.userTwoStatusAt = now;
-    }
     await this.relationshipEntity.updateOneById(
       existRelationship.id,
       updateRelationshipEntity,
       userId,
     );
     return { ...existRelationship, ...updateRelationshipEntity };
-  }
-
-  public async cancelLike(
-    payload: CancelLikeRelationshipDto,
-    currentUserId: string,
-  ) {
-    const { targetUserId } = payload;
-    if (currentUserId === targetUserId) {
-      throw new BadRequestException({ errorCode: 'CONFLICT_USER' });
-    }
-    await this.userEntity.findOneOrFailById(targetUserId);
-    const userIds = [targetUserId, currentUserId].sort();
-    const userOne = new User({ id: userIds[0] });
-    const userTwo = new User({ id: userIds[1] });
-    const existRelationship = await this.relationshipEntity.findOneOrFail({
-      where: {
-        userOne,
-        userTwo,
-      },
-    });
-    const updateOptions = this.userEntity.isUserOneByIds(currentUserId, userIds)
-      ? { userOneStatus: RelationshipUserStatuses.cancel }
-      : { userTwoStatus: RelationshipUserStatuses.cancel };
-    return await this.relationshipEntity.updateOneById(
-      existRelationship.id,
-      updateOptions,
-      currentUserId,
-    );
   }
 
   public async findMatched(

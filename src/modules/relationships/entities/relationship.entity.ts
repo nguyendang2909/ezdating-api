@@ -1,4 +1,11 @@
-import { Column, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 import { CommonEntity } from '../../../commons/entities/common.entity';
 import { User } from '../../users/entities/user.entity';
@@ -8,6 +15,9 @@ import {
 } from '../relationships.constant';
 
 export class Relationship extends CommonEntity {
+  @PrimaryColumn('varchar')
+  id!: string;
+
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'user_one' })
   userOne!: User;
@@ -68,4 +78,16 @@ export class Relationship extends CommonEntity {
     type: 'datetime',
   })
   lastMessageAt?: string;
+
+  @CreateDateColumn({ name: 'created_at', nullable: false })
+  createdAt?: Date;
+
+  @UpdateDateColumn({ name: 'updated_at', nullable: true })
+  updatedAt?: Date;
+
+  @Column({ name: 'created_by', type: 'uuid', nullable: false })
+  createdBy!: string;
+
+  @Column({ name: 'updated_by', type: 'uuid', nullable: true })
+  updatedBy?: string;
 }

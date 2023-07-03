@@ -44,10 +44,6 @@ export class UpdateMyProfileBasicInfoDto {
   lookingFor!: UserLookingFor;
 
   @ApiProperty({ type: String })
-  @JoiSchema(Joi.string().length(2).required())
-  country!: string;
-
-  @ApiProperty({ type: String })
-  @JoiSchema(Joi.string().required())
-  city!: string;
+  @JoiSchema(Joi.number().required())
+  stateId!: number;
 }
