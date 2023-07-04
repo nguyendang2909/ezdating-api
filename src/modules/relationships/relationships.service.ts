@@ -24,8 +24,8 @@ export class RelationshipsService {
     const { targetUserId, status } = payload;
     this.userEntity.validateYourSelf(userId, targetUserId);
     await this.userEntity.findOneAndValidateBasicInfoById(targetUserId);
-    const userIds = [targetUserId, userId].sort();
-    const relationshipId = userIds.join('');
+    const userIds = [userId, targetUserId].sort();
+    const relationshipId = userIds.join('_');
     const userOne = new User({ id: userIds[0] });
     const userTwo = new User({ id: userIds[1] });
     const isUserOne = this.userEntity.isUserOneByIds(userId, userIds);
@@ -38,6 +38,7 @@ export class RelationshipsService {
     if (!existRelationship) {
       return await this.relationshipEntity.saveOne(
         {
+          id: relationshipId,
           userOne,
           userTwo,
           statusAt: now,
@@ -90,18 +91,31 @@ export class RelationshipsService {
           userOneStatus: RelationshipUserStatuses.like,
           userTwoStatus: RelationshipUserStatuses.like,
           userOne: currentUser,
+          lastMessage: IsNull(),
         },
         {
           ...(lastStatusAt ? { createdAt: LessThan(lastStatusAt) } : {}),
           userOneStatus: RelationshipUserStatuses.like,
           userTwoStatus: RelationshipUserStatuses.like,
           userTwo: currentUser,
+          lastMessage: IsNull(),
         },
       ],
       order: {
         statusAt: 'DESC',
       },
+      relations: ['userOne', 'userTwo'],
       take: 20,
+      select: {
+        userOne: {
+          id: true,
+          nickname: true,
+        },
+        userTwo: {
+          id: true,
+          nickname: true,
+        },
+      },
     });
 
     return {

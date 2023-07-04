@@ -10,12 +10,12 @@ import {
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
 export class SendRelationshipStatusDto {
   @JoiSchema(Joi.string().guid().required())
-  targetUserId: string;
+  targetUserId!: string;
 
   @JoiSchema(
     Joi.string()
       .valid(...Object.values(RelationshipUserStatuses))
       .required(),
   )
-  status: RelationshipUserStatus;
+  status!: RelationshipUserStatus;
 }

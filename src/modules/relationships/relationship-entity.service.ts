@@ -113,7 +113,7 @@ export class RelationshipEntity {
     if (
       isUserOne
         ? entity.userTwoStatus === RelationshipUserStatuses.block
-        : entity.userOneStatus !== RelationshipUserStatuses.block
+        : entity.userOneStatus === RelationshipUserStatuses.block
     ) {
       throw new BadRequestException({
         errorCode: HttpErrorCodes.USER_DOES_NOT_EXIST,
@@ -133,5 +133,13 @@ export class RelationshipEntity {
         message: 'You already sent this status!',
       });
     }
+  }
+
+  getIdFromSortedUserIds(userIds: string[]) {
+    return userIds.join('_');
+  }
+
+  getIdFromUnsortedUserIds(userIds: string[]) {
+    return userIds.sort().join('_');
   }
 }

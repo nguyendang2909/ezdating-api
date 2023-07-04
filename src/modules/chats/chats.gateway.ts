@@ -33,7 +33,7 @@ export class ChatsGateway
 
   private readonly logger = new Logger(ChatsGateway.name);
 
-  @SubscribeMessage('sendMessage')
+  @SubscribeMessage('sendMsg')
   @UseGuards(WsAuthGuard)
   @UsePipes(new WsValidationPipe(SendChatMessageSchema))
   create(socket: Socket, payload: SendChatMessageDto) {

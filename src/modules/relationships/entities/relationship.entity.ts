@@ -1,20 +1,21 @@
 import {
   Column,
   CreateDateColumn,
+  Entity,
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-import { CommonEntity } from '../../../commons/entities/common.entity';
 import { User } from '../../users/entities/user.entity';
 import {
   RelationshipUserStatus,
   RelationshipUserStatuses,
 } from '../relationships.constant';
 
-export class Relationship extends CommonEntity {
+@Entity({ name: 'relationship' })
+export class Relationship {
   @PrimaryColumn('varchar')
   id!: string;
 
@@ -35,7 +36,7 @@ export class Relationship extends CommonEntity {
   userOneStatus?: RelationshipUserStatus;
 
   @Column({
-    name: 'user_one_status',
+    name: 'user_two_status',
     nullable: true,
     type: 'enum',
     enum: RelationshipUserStatuses,
@@ -52,14 +53,14 @@ export class Relationship extends CommonEntity {
   userTwoStatusAt: Date;
 
   @Column({
-    name: 'can_user_chat',
+    name: 'can_user_one_chat',
     nullable: true,
     type: 'boolean',
   })
   canUserOneChat?: boolean;
 
   @Column({
-    name: 'can_user_chat',
+    name: 'can_user_two_chat',
     nullable: true,
     type: 'boolean',
   })
@@ -75,7 +76,7 @@ export class Relationship extends CommonEntity {
   @Column({
     name: 'last_message_at',
     nullable: true,
-    type: 'datetime',
+    type: 'date',
   })
   lastMessageAt?: string;
 

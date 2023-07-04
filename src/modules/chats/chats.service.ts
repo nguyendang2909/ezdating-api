@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
@@ -19,7 +18,9 @@ export class ChatsService {
 
   private readonly logger = new Logger(ChatsService.name);
 
-  public async sendMessage(payload: SendChatMessageDto, socket: Socket) {}
+  public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
+    // const existRoom = this.relationshipEntity.findOne({});
+  }
 
   // public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
   //   const { roomId, targetUserId, text } = payload;
@@ -89,24 +90,25 @@ export class ChatsService {
     try {
       const { authorization } = socket.handshake.headers;
       const token = authorization?.split(' ')[1];
-      if (token) {
-        const decodedToken = this.encryptionsUtil.verifyJwt(token);
-        const user = await this.userEntity.findOneById(decodedToken.id);
-        if (user && user.status && user.status !== UserStatuses.banned) {
-          socket.handshake.user = user;
-          socket.join(user.id);
-          this.logger.log(`Socket connected: ${socket.id}`);
-          return;
-        }
-      }
+      if (!token) {
+        socket.disconnect();
 
-      throw new Error('Invalid credentials!');
+        return;
+      }
+      const decodedToken = this.encryptionsUtil.verifyJwt(token);
+      const user = await this.userEntity.findOneById(decodedToken.id);
+      if (!user || user.status === UserStatuses.banned) {
+        socket.disconnect();
+
+        return;
+      }
+      socket.handshake.user = user;
+      socket.join(user.id);
+      this.logger.log(`Socket connected: ${socket.id}`);
+
+      return;
     } catch (err) {
-      throw new WsException({
-        statusCode: 401,
-        errorCode: 'UNAUTHORIZED',
-        message: 'Invalid credentials!',
-      });
+      socket.disconnect();
     }
   }
 
