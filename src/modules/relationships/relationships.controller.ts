@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 
 import { UserId } from '../../commons/decorators/current-user-id.decorator';
+import { FindManyMessagesByRoomIdDto } from '../messages/dto/find-many-messages.dto';
 import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
 import { FindManyRoomsDto } from './dto/find-many-rooms.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
@@ -52,6 +53,22 @@ export class RelationshipsController {
     return {
       type: 'findRooms',
       data: await this.relationshipsService.findManyRooms(queryParams, userId),
+    };
+  }
+
+  @Get('/:id/messages')
+  public async findManyMessages(
+    @Param('id') id: string,
+    @Query() queryParams: FindManyMessagesByRoomIdDto,
+    @UserId() userId: string,
+  ) {
+    return {
+      type: 'messagesByRoom',
+      data: await this.relationshipsService.findManyMessagesByRoomId(
+        id,
+        queryParams,
+        userId,
+      ),
     };
   }
 }

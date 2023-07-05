@@ -11,18 +11,21 @@ export class Message extends CommonEntity {
   @Column({ nullable: false, type: 'uuid' })
   userId!: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   imageUrl?: string;
 
-  @Column({ array: true, type: 'uuid' })
+  @Column({ array: true, type: 'uuid', nullable: true })
   likeUserIds?: string[];
 
-  @Column({ array: true, type: 'uuid' })
+  @Column({ array: true, type: 'uuid', nullable: true })
   loveUserIds?: string[];
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   text?: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   videoUrl?: string;
+
+  @Column({ type: 'uuid', nullable: false })
+  uuid!: string;
 }

@@ -21,6 +21,7 @@ export class WsAuthGuard implements CanActivate {
     const authHeaders =
       client.handshake.headers.authorization ||
       client.handshake.headers.Authorization;
+
     if (!authHeaders || !_.isString(authHeaders)) {
       throw new WsException({ status: 401, message: 'Unauthorized' });
     }
@@ -29,6 +30,7 @@ export class WsAuthGuard implements CanActivate {
       throw new WsException({ status: 401, message: 'Unauthorized' });
     }
     const decoded = this.encryptionsUtil.verifyJwt(token);
+
     const user = await this.userEntity.findOneById(decoded.id);
     if (!user) {
       throw new WsException({
@@ -37,7 +39,7 @@ export class WsAuthGuard implements CanActivate {
         message: 'User does not exist!',
       });
     }
-    if (!user.status && user.status !== UserStatuses.banned) {
+    if (user.status === UserStatuses.banned) {
       throw new WsException({
         status: 403,
         errorCode: 'YOU_HAS_BEEN_BANNED',

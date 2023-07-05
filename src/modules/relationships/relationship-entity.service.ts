@@ -5,11 +5,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
-import { FindManyOptions, FindOneOptions, Not, Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
-import { User } from '../users/entities/user.entity';
 import { Relationship } from './entities/relationship.entity';
 import {
   RelationshipUserStatus,
@@ -57,30 +56,30 @@ export class RelationshipEntity {
     return findResult;
   }
 
-  public async findOneRoomById(id: string, userId: string) {
-    const user = new User({ id: userId });
-    return await this.repository.findOne({
-      where: [
-        {
-          id,
-          userOneStatus: RelationshipUserStatuses.like,
-          userTwoStatus: RelationshipUserStatuses.like,
-        },
-        {
-          id,
-          userOne: user,
-          userTwoStatus: Not(RelationshipUserStatuses.block),
-          canUserOneChat: true,
-        },
-        {
-          id,
-          userTwo: user,
-          userOneStatus: Not(RelationshipUserStatuses.block),
-          canUserTwoChat: true,
-        },
-      ],
-    });
-  }
+  // public async findOneRoomById(id: string, userId: string) {
+  //   const user = new User({ id: userId });
+  //   return await this.repository.findOne({
+  //     where: [
+  //       {
+  //         id,
+  //         userOneStatus: RelationshipUserStatuses.like,
+  //         userTwoStatus: RelationshipUserStatuses.like,
+  //       },
+  //       {
+  //         id,
+  //         userOne: user,
+  //         userTwoStatus: Not(RelationshipUserStatuses.block),
+  //         canUserOneChat: true,
+  //       },
+  //       {
+  //         id,
+  //         userTwo: user,
+  //         userOneStatus: Not(RelationshipUserStatuses.block),
+  //         canUserTwoChat: true,
+  //       },
+  //     ],
+  //   });
+  // }
 
   public async findOneById(
     id: string,
@@ -133,6 +132,10 @@ export class RelationshipEntity {
         message: 'You already sent this status!',
       });
     }
+  }
+
+  sortUserIds(userIdOne: string, userIdTwo: string): string[] {
+    return [userIdOne, userIdTwo].sort();
   }
 
   getIdFromSortedUserIds(userIds: string[]) {

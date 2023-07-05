@@ -1,5 +1,6 @@
-import { Logger, UseGuards, UsePipes } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -7,17 +8,17 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 import { ChatsService } from './chats.service';
+import { ChatsConnectionService } from './chats-connection.service ';
 import {
   SendChatMessageDto,
   SendChatMessageSchema,
 } from './dto/send-chat-message.dto';
-import { UpdateChatDto } from './dto/update-chat.dto';
 import { WsAuthGuard } from './guards/ws-auth.guard';
-import { WsValidationPipe } from './guards/ws-validation.pipe';
 
 @WebSocketGateway({
   namespace: '/chats',
@@ -27,7 +28,10 @@ import { WsValidationPipe } from './guards/ws-validation.pipe';
 export class ChatsGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
-  constructor(private readonly chatsService: ChatsService) {}
+  constructor(
+    private readonly chatsService: ChatsService,
+    private readonly chatsConnectionService: ChatsConnectionService,
+  ) {}
 
   @WebSocketServer() private readonly server!: Server;
 
@@ -35,38 +39,28 @@ export class ChatsGateway
 
   @SubscribeMessage('sendMsg')
   @UseGuards(WsAuthGuard)
-  @UsePipes(new WsValidationPipe(SendChatMessageSchema))
-  create(socket: Socket, payload: SendChatMessageDto) {
-    return this.chatsService.sendMessage(payload, socket);
-  }
-
-  @SubscribeMessage('findAllChats')
-  findAll() {
-    return this.chatsService.findAll();
-  }
-
-  @SubscribeMessage('findOneChat')
-  findOne(@MessageBody() id: number) {
-    return this.chatsService.findOne(id);
-  }
-
-  @SubscribeMessage('updateChat')
-  update(@MessageBody() updateChatDto: UpdateChatDto) {
-    return this.chatsService.update(updateChatDto.id, updateChatDto);
-  }
-
-  @SubscribeMessage('removeChat')
-  remove(@MessageBody() id: number) {
-    return this.chatsService.remove(id);
+  // @UsePipes(new WsValidationPipe(SendChatMessageSchema))
+  public async create(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() payload: SendChatMessageDto,
+  ) {
+    const { error } = SendChatMessageSchema.validate(payload);
+    if (error) {
+      this.logger.error(`Socket validation failed ${error}`);
+      throw new WsException('Validation failed');
+    }
+    return await this.chatsService.sendMessage(payload, socket);
   }
 
   public async handleConnection(socket: Socket) {
-    return await this.chatsService.handleConnection(socket);
+    return await this.chatsConnectionService.handleConnection(socket);
   }
 
   public async handleDisconnect(socket: Socket) {
     this.logger.log(`Socket disconnected: ${socket.id}`);
   }
 
-  public afterInit(server: any) {}
+  public afterInit() {
+    this.logger.log('Socket initialized');
+  }
 }
