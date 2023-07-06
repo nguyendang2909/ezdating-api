@@ -35,6 +35,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         errorCode: 'USER_BANNED',
       });
     }
+    await this.userEntity.updateOneById(user.id, {
+      lastActivatedAt: new Date(),
+    });
 
     return user;
   }

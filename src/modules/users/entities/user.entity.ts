@@ -25,8 +25,8 @@ import {
 
 @Entity({ name: 'user' })
 export class User extends BaseEntity {
-  @Column({ name: 'birthday', nullable: true, type: 'timestamp' })
-  birthday?: Date | string;
+  @Column({ name: 'birthday', nullable: true, type: 'date' })
+  birthday?: string;
 
   @ManyToOne(() => State, { nullable: true })
   @JoinColumn({ name: 'state_id' })
@@ -105,6 +105,14 @@ export class User extends BaseEntity {
     type: 'enum',
   })
   status!: UserStatus;
+
+  @Column({
+    name: 'last_active_at',
+    type: 'timestamp',
+    default: new Date(),
+    nullable: false,
+  })
+  lastActivatedAt!: Date;
 
   @Column({ name: 'created_by', type: 'uuid', nullable: true })
   createdBy?: string;

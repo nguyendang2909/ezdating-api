@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
+import moment from 'moment';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
@@ -129,5 +130,14 @@ export class UserEntity {
         message: 'You cannot send status yourself!',
       });
     }
+  }
+
+  public convertInRelationship(user: User) {
+    // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
+    const { birthday, password, email, phoneNumber, ...userPart } = user;
+    return {
+      ...userPart,
+      ...(birthday ? { age: moment().diff(birthday, 'years') } : {}),
+    };
   }
 }

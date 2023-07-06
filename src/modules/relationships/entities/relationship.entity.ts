@@ -43,13 +43,13 @@ export class Relationship {
   })
   userTwoStatus?: RelationshipUserStatus;
 
-  @Column({ name: 'status_at', type: 'date', nullable: true })
+  @Column({ name: 'status_at', type: 'timestamp', nullable: true })
   statusAt: Date;
 
-  @Column({ name: 'user_one_status_at', type: 'date', nullable: true })
+  @Column({ name: 'user_one_status_at', type: 'timestamp', nullable: true })
   userOneStatusAt: Date;
 
-  @Column({ name: 'user_two_status_at', type: 'date', nullable: true })
+  @Column({ name: 'user_two_status_at', type: 'timestamp', nullable: true })
   userTwoStatusAt: Date;
 
   @Column({
@@ -76,7 +76,7 @@ export class Relationship {
   @Column({
     name: 'last_message_at',
     nullable: true,
-    type: 'date',
+    type: 'timestamp',
   })
   lastMessageAt?: Date;
 

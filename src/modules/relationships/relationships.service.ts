@@ -210,11 +210,34 @@ export class RelationshipsService {
       order: {
         lastMessageAt: 'DESC',
       },
+      relations: [
+        'userOne',
+        'userOne.uploadFiles',
+        'userTwo',
+        'userTwo.uploadFiles',
+      ],
       take: 20,
     });
 
+    const formatFindResult = findResult.map((item) => {
+      const { userOne, userTwo, ...partItem } = item;
+      return {
+        ...partItem,
+        ...(userOne
+          ? {
+              userOne: this.userEntity.convertInRelationship(userOne),
+            }
+          : {}),
+        ...(userTwo
+          ? {
+              userTwo: this.userEntity.convertInRelationship(userTwo),
+            }
+          : {}),
+      };
+    });
+
     return {
-      data: findResult,
+      data: formatFindResult,
       pagination: {
         cursor: EntityFactory.getCursor(findResult, 'lastMessageAt'),
       },
