@@ -78,7 +78,7 @@ export class Relationship {
     nullable: true,
     type: 'date',
   })
-  lastMessageAt?: string;
+  lastMessageAt?: Date;
 
   @CreateDateColumn({ name: 'created_at', nullable: false })
   createdAt?: Date;
