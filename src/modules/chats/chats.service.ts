@@ -30,9 +30,10 @@ export class ChatsService {
     );
     const relationshipId =
       this.relationshipEntity.getIdFromSortedUserIds(userIds);
-    const existRelationship = this.relationshipEntity.findOne({
-      where: { id: relationshipId },
-    });
+    const existRelationship = this.relationshipEntity.findOneRoomById(
+      relationshipId,
+      currentUserId,
+    );
     if (!existRelationship) {
       socket.emit('error', {
         errorCode: HttpErrorCodes.RELATIONSHIP_DOES_NOT_EXIST,
@@ -41,7 +42,8 @@ export class ChatsService {
     }
     const message = await this.messageEntity.saveOne(
       {
-        userId: currentUserId,
+        user: { id: currentUserId },
+        relationship: { id: relationshipId },
         text,
         uuid,
       },

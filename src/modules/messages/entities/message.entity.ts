@@ -1,6 +1,8 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 
 import { CommonEntity } from '../../../commons/entities/common.entity';
+import { Relationship } from '../../relationships/entities/relationship.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity()
 export class Message extends CommonEntity {
@@ -8,8 +10,11 @@ export class Message extends CommonEntity {
   @JoinColumn()
   replyMessage?: Message;
 
-  @Column({ nullable: false, type: 'uuid' })
-  userId!: string;
+  @ManyToOne(() => Relationship, { nullable: false })
+  relationship: Partial<Relationship>;
+
+  @ManyToOne(() => User, { nullable: false })
+  user: Partial<User>;
 
   @Column({ type: 'varchar', nullable: true })
   imageUrl?: string;

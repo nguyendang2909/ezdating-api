@@ -4,6 +4,7 @@ import { IsNull, LessThan, Not } from 'typeorm';
 
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { FindManyMessagesByRoomIdDto } from '../messages/dto/find-many-messages.dto';
+import { MessageEntity } from '../messages/message-entity.service';
 import { User } from '../users/entities/user.entity';
 import { UserEntity } from '../users/users-entity.service';
 import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
@@ -18,6 +19,7 @@ export class RelationshipsService {
   constructor(
     private readonly relationshipEntity: RelationshipEntity,
     private readonly userEntity: UserEntity,
+    private readonly messageEntity: MessageEntity,
   ) {}
 
   public async sendStatus(payload: SendRelationshipStatusDto, userId: string) {
@@ -121,7 +123,7 @@ export class RelationshipsService {
     return {
       data: findResult,
       pagination: {
-        cursor: EntityFactory.getCursor(findResult),
+        cursor: EntityFactory.getCursor(findResult, 'statusAt'),
       },
     };
   }
@@ -222,50 +224,24 @@ export class RelationshipsService {
   public async findManyMessagesByRoomId(
     id: string,
     queryParams: FindManyMessagesByRoomIdDto,
-    userId: string,
+    user: User,
   ) {
+    await this.relationshipEntity.findOneRoomOrFailById(id, user.id);
     const { cursor } = queryParams;
-    const currentUser = new User({ id: userId });
-    const lastMessageAt = cursor
+    const lastCreatedAt = cursor
       ? new Date(EntityFactory.decodeCursor(cursor))
       : undefined;
-    const findResult = await this.relationshipEntity.findMany({
-      where: [
-        {
-          ...(lastMessageAt
-            ? { createdAt: LessThan(lastMessageAt) }
-            : { lastMessage: Not(IsNull()) }),
-          userOne: currentUser,
-          userOneStatus: RelationshipUserStatuses.like,
-          userTwoStatus: RelationshipUserStatuses.like,
-        },
-        {
-          ...(lastMessageAt
-            ? { createdAt: LessThan(lastMessageAt) }
-            : { lastMessage: Not(IsNull()) }),
-          userTwo: currentUser,
-          userOneStatus: RelationshipUserStatuses.like,
-          userTwoStatus: RelationshipUserStatuses.like,
-        },
-        {
-          ...(lastMessageAt
-            ? { createdAt: LessThan(lastMessageAt) }
-            : { lastMessage: Not(IsNull()) }),
-          userOne: currentUser,
-          userTwoStatus: Not(RelationshipUserStatuses.block),
-          canUserOneChat: true,
-        },
-        {
-          ...(lastMessageAt
-            ? { createdAt: LessThan(lastMessageAt) }
-            : { lastMessage: Not(IsNull()) }),
-          userTwo: currentUser,
-          userOneStatus: Not(RelationshipUserStatuses.block),
-          canUserTwoChat: true,
-        },
-      ],
+    const findResult = await this.messageEntity.findMany({
+      where: {
+        relationship: { id },
+        ...(lastCreatedAt
+          ? {
+              createdAt: LessThan(lastCreatedAt),
+            }
+          : {}),
+      },
       order: {
-        lastMessageAt: 'DESC',
+        createdAt: 'DESC',
       },
       take: 20,
     });
@@ -273,7 +249,7 @@ export class RelationshipsService {
     return {
       data: findResult,
       pagination: {
-        cursor: EntityFactory.getCursor(findResult, 'lastMessageAt'),
+        cursor: EntityFactory.getCursor(findResult, 'createdAt'),
       },
     };
   }
