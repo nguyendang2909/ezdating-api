@@ -12,7 +12,7 @@ import { EncryptionsUtil } from './encryptions.util';
         return {
           secret: configService.get<string>('JWT_SECRET_KEY'),
           signOptions: {
-            expiresIn: '60d',
+            expiresIn: '10m',
           },
         };
       },

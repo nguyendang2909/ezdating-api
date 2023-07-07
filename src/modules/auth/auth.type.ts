@@ -14,6 +14,16 @@ export type AuthJwtSignPayload = {
   role: UserRole;
 };
 
+export type AuthRefreshTokenSignPayload = {
+  sub: string;
+  id: string;
+};
+
+export type AuthRefreshTokenPayload = {
+  sub: string;
+  id: string;
+};
+
 export type FindOneAuthUserConditions = {
   phoneNumber?: string;
 };
@@ -24,4 +34,5 @@ export type CreateUserPayload = {
 
 export type SignInData = {
   accessToken: string;
+  refreshToken: string;
 };

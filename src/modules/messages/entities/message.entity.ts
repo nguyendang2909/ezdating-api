@@ -11,6 +11,7 @@ export class Message extends CommonEntity {
   replyMessage?: Message;
 
   @ManyToOne(() => Relationship, { nullable: false })
+  @JoinColumn({ name: 'relationship' })
   relationship: Partial<Relationship>;
 
   @ManyToOne(() => User, { nullable: false })

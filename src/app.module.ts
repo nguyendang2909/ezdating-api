@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import Joi from 'joi';
 import {
   utilities as nestWinstonModuleUtilities,
   WinstonModule,
@@ -13,21 +14,51 @@ import winston from 'winston';
 
 import { AppConfig } from './app.config';
 import { JwtAuthGuard } from './guards/jwt.guard';
+import { LoggedDevicesModule } from './logged-devices/logged-devices.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { CountriesModule } from './modules/countries/countries.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { RelationshipsModule } from './modules/relationships/relationships.module';
+import { StatesModule } from './modules/states/states.module';
 import { UploadFilesModule } from './modules/upload-files/upload-files.module';
 import { UsersModule } from './modules/users/users.module';
-import { StatesModule } from './modules/states/states.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: `.env.${process.env.NODE_ENV}`,
       isGlobal: true,
+      validationSchema: Joi.object({
+        // Node env
+        NODE_ENV: Joi.string().required(),
+        // App
+        API_PORT: Joi.number().required(),
+        //  Database
+        POSTGRES_DB_HOST: Joi.string().required(),
+        POSTGRES_DB_PORT: Joi.string().required(),
+        POSTGRES_DB_NAME: Joi.string().required(),
+        POSTGRES_USER: Joi.string().required(),
+        POSTGRES_PASS: Joi.string().required(),
+        // Google
+        GOOGLE_CLIENT_ID: Joi.string().required(),
+        GOOGLE_CLIENT_SECRET: Joi.string().required(),
+        // Firebase
+        FIREBASE_PROJECT_ID: Joi.string().required(),
+        FIREBASE_CLIENT_EMAIL: Joi.string().required(),
+        FIREBASE_PRIVATE_KEY: Joi.string().required(),
+        // AWS
+        AWS_ACCESS_KEY_ID: Joi.string().required(),
+        AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+        AWS_BUCKET_NAME: Joi.string().required(),
+        // Auth
+        JWT_SECRET_KEY: Joi.string().required(),
+        JWT_REFRESH_TOKEN_SECRET_KEY: Joi.string().required(),
+        HASH_SECRET_KEY: Joi.string().required(),
+        // Country states city
+        COUNTRY_STATE_CITY_API_KEY: Joi.string().required(),
+      }),
     }),
     WinstonModule.forRoot({
       transports: [
@@ -114,6 +145,7 @@ import { StatesModule } from './modules/states/states.module';
     UploadFilesModule,
     CountriesModule,
     StatesModule,
+    LoggedDevicesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

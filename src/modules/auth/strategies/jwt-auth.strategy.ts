@@ -1,12 +1,7 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-import { UserStatuses } from '../../users/users.constant';
 import { UserEntity } from '../../users/users-entity.service';
 import { AuthJwtPayload } from '../auth.type';
 
@@ -21,20 +16,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(jwtPayload: AuthJwtPayload) {
-    const user = await this.userEntity.findOneById(jwtPayload.id);
-    if (!user) {
-      throw new BadRequestException({
-        errorCode: 'USER_DOES_NOT_EXIST',
-        message: "User doesn't exist!",
+    const user = await this.userEntity
+      .findOneOrFailById(jwtPayload.id)
+      .catch(() => {
+        throw new UnauthorizedException();
       });
-    }
-    const { status } = user;
-    if (!status || status === UserStatuses.banned) {
-      throw new ForbiddenException({
-        message: 'User has been banned',
-        errorCode: 'USER_BANNED',
-      });
-    }
+
     await this.userEntity.updateOneById(user.id, {
       lastActivatedAt: new Date(),
     });

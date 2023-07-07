@@ -3,9 +3,13 @@ import {
   ForbiddenException,
   Injectable,
   Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import moment from 'moment';
 
+import { HttpErrorCodes } from '../../../commons/erros/http-error-codes.constant';
+import { LoggedDeviceEntity } from '../../../logged-devices/logged-device-entity.service';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { User } from '../../users/entities/user.entity';
 import { UserRoles, UserStatuses } from '../../users/users.constant';
@@ -21,6 +25,7 @@ export class SignInService {
     private readonly encryptionsUtil: EncryptionsUtil,
     private readonly firebaseService: FirebaseService,
     private readonly userEntity: UserEntity,
+    private readonly loggedDeviceEntity: LoggedDeviceEntity,
   ) {}
 
   private readonly logger = new Logger(SignInService.name);
@@ -57,32 +62,59 @@ export class SignInService {
     const decoded = await this.firebaseService.decodeToken(token);
     const phoneNumber = decoded.phone_number;
     if (!phoneNumber) {
-      throw new BadRequestException('Token is invalid!');
+      throw new NotFoundException({
+        errorCode: HttpErrorCodes.USER_DOES_NOT_EXIST,
+        message: 'User does not exist!',
+      });
     }
     let user = await this.userEntity.findOne({
       where: {
         phoneNumber,
       },
-      select: { id: true, status: true, role: true },
     });
     if (user) {
       const { status } = user;
-      if (status === UserStatuses.banned) {
-        throw new ForbiddenException('You have been banned!');
+      if (!status || status === UserStatuses.banned) {
+        throw new ForbiddenException({
+          statusCode: HttpErrorCodes.USER_HAS_BEEN_BANNED,
+          message: 'You have been banned!',
+        });
       }
     } else {
       user = await this.userEntity.saveOne({
         phoneNumber,
       });
     }
-    const { id, role } = user;
+    const { id: userId, role } = user;
+    if (!userId || !role) {
+      throw new NotFoundException({
+        errorCode: HttpErrorCodes.USER_DOES_NOT_EXIST,
+        message: 'User does not exist!',
+      });
+    }
+    const accessToken = this.encryptionsUtil.signAccessToken({
+      sub: userId,
+      id: userId,
+      role,
+    });
+    const refreshToken = this.encryptionsUtil.signRefreshToken({
+      id: userId,
+      sub: userId,
+    });
+    await this.loggedDeviceEntity.saveOne(
+      {
+        user: {
+          id: userId,
+        },
+        refreshToken: refreshToken,
+        expiresIn: moment().add(100, 'days').toDate(),
+      },
+      userId,
+    );
 
     return {
-      accessToken: this.encryptionsUtil.signJwt({
-        sub: id,
-        id,
-        role,
-      }),
+      accessToken,
+      refreshToken,
     };
   }
 
@@ -112,13 +144,29 @@ export class SignInService {
         message: 'Phone number or password is not correct!',
       });
     }
+    const accessToken = this.encryptionsUtil.signAccessToken({
+      id: userId,
+      sub: userId,
+      role: userRole,
+    });
+    const refreshToken = this.encryptionsUtil.signRefreshToken({
+      id: userId,
+      sub: userId,
+    });
+    await this.loggedDeviceEntity.saveOne(
+      {
+        user: {
+          id: userId,
+        },
+        refreshToken: refreshToken,
+        expiresIn: moment().add(100, 'days').toDate(),
+      },
+      userId,
+    );
 
     return {
-      accessToken: this.encryptionsUtil.signJwt({
-        id: userId,
-        sub: userId,
-        role: userRole,
-      }),
+      accessToken,
+      refreshToken,
     };
   }
 }
