@@ -20,7 +20,7 @@ export class ConversationsController {
   ) {
     return {
       type: 'conversations',
-      data: await this.conversationsService.findManyRooms(queryParams, userId),
+      ...(await this.conversationsService.findManyRooms(queryParams, userId)),
     };
   }
 
@@ -32,11 +32,11 @@ export class ConversationsController {
   ) {
     return {
       type: 'messageByConversation',
-      data: await this.conversationsService.findManyMessagesByRoomId(
+      ...(await this.conversationsService.findManyMessagesByRoomId(
         id,
         queryParams,
         currentUser,
-      ),
+      )),
     };
   }
 }
