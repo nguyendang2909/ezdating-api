@@ -44,7 +44,7 @@ export class Relationship {
   userTwoStatus?: RelationshipUserStatus;
 
   @Column({ name: 'status_at', type: 'timestamp', nullable: true })
-  statusAt: Date;
+  statusAt?: Date;
 
   @Column({ name: 'user_one_status_at', type: 'timestamp', nullable: true })
   userOneStatusAt: Date;

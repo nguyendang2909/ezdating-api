@@ -4,4 +4,4 @@ import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validat
 import { FindManyCursorDto } from '../../../commons/dto/find-many-cursor.dto';
 
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
-export class FindManyRoomsDto extends FindManyCursorDto {}
+export class FindManyConversations extends FindManyCursorDto {}

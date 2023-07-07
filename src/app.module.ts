@@ -13,6 +13,7 @@ import path from 'path';
 import winston from 'winston';
 
 import { AppConfig } from './app.config';
+import { ConversationsModule } from './modules/conversations/conversations.module';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
@@ -143,6 +144,7 @@ import { UsersModule } from './modules/users/users.module';
     CountriesModule,
     StatesModule,
     LoggedDevicesModule,
+    ConversationsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
