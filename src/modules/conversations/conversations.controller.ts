@@ -19,7 +19,7 @@ export class ConversationsController {
     @UserId() userId: string,
   ) {
     return {
-      type: 'findRooms',
+      type: 'conversations',
       data: await this.conversationsService.findManyRooms(queryParams, userId),
     };
   }
@@ -31,7 +31,7 @@ export class ConversationsController {
     @CurrentUser() currentUser: User,
   ) {
     return {
-      type: 'messagesByRoom',
+      type: 'messageByConversation',
       data: await this.conversationsService.findManyMessagesByRoomId(
         id,
         queryParams,
