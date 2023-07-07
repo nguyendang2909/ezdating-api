@@ -23,7 +23,7 @@ export class ChatsConnectionService {
 
         return;
       }
-      const decodedToken = this.encryptionsUtil.verifyJwt(token);
+      const decodedToken = this.encryptionsUtil.verifyRefreshToken(token);
       const user = await this.userEntity.findOneById(decodedToken.id);
       if (!user || user.status === UserStatuses.banned) {
         socket.disconnect();

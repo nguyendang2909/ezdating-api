@@ -14,11 +14,11 @@ import winston from 'winston';
 
 import { AppConfig } from './app.config';
 import { JwtAuthGuard } from './guards/jwt.guard';
-import { LoggedDevicesModule } from './logged-devices/logged-devices.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { CountriesModule } from './modules/countries/countries.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
+import { LoggedDevicesModule } from './modules/logged-devices/logged-devices.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { RelationshipsModule } from './modules/relationships/relationships.module';
 import { StatesModule } from './modules/states/states.module';
@@ -41,9 +41,6 @@ import { UsersModule } from './modules/users/users.module';
         POSTGRES_DB_NAME: Joi.string().required(),
         POSTGRES_USER: Joi.string().required(),
         POSTGRES_PASS: Joi.string().required(),
-        // Google
-        GOOGLE_CLIENT_ID: Joi.string().required(),
-        GOOGLE_CLIENT_SECRET: Joi.string().required(),
         // Firebase
         FIREBASE_PROJECT_ID: Joi.string().required(),
         FIREBASE_CLIENT_EMAIL: Joi.string().required(),

@@ -5,7 +5,7 @@ import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
-export class RenewAccessTokenDto {
+export class RefreshTokenDto {
   @ApiProperty({ type: String })
   @JoiSchema(Joi.string().required())
   refreshToken!: string;

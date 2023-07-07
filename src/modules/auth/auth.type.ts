@@ -1,6 +1,6 @@
 import { UserRole } from '../users/users.constant';
 
-export type AuthJwtPayload = {
+export type AccessTokenPayload = {
   sub: string;
   id: string;
   role: UserRole;
@@ -8,18 +8,18 @@ export type AuthJwtPayload = {
   exp: number;
 };
 
-export type AuthJwtSignPayload = {
+export type AccessTokenSignPayload = {
   sub: string;
   id: string;
   role: UserRole;
 };
 
-export type AuthRefreshTokenSignPayload = {
+export type RefreshTokenSignPayload = {
   sub: string;
   id: string;
 };
 
-export type AuthRefreshTokenPayload = {
+export type RefreshTokenPayload = {
   sub: string;
   id: string;
 };

@@ -9,7 +9,7 @@ import {
 import moment from 'moment';
 
 import { HttpErrorCodes } from '../../../commons/erros/http-error-codes.constant';
-import { LoggedDeviceEntity } from '../../../logged-devices/logged-device-entity.service';
+import { LoggedDeviceEntity } from '../../logged-devices/logged-device-entity.service';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { User } from '../../users/entities/user.entity';
 import { UserRoles, UserStatuses } from '../../users/users.constant';

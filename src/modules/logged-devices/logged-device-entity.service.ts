@@ -9,7 +9,7 @@ import _ from 'lodash';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
-import { HttpErrorCodes } from '../commons/erros/http-error-codes.constant';
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { LoggedDevice } from './entities/logged-device.entity';
 
 @Injectable()
@@ -45,7 +45,7 @@ export class LoggedDeviceEntity {
     const findResult = await this.findOne(options);
     if (!findResult) {
       throw new UnauthorizedException({
-        errorCode: 'USER_DOES_NOT_EXIST',
+        errorCode: HttpErrorCodes.USER_DOES_NOT_EXIST,
         message: "User doesn't exist!",
       });
     }
@@ -95,8 +95,12 @@ export class LoggedDeviceEntity {
   public async updateOneById(
     id: string,
     updateOptions: QueryDeepPartialEntity<LoggedDevice>,
+    userId: string,
   ): Promise<boolean> {
-    const updateResult = await this.repository.update(id, updateOptions);
+    const updateResult = await this.repository.update(id, {
+      ...updateOptions,
+      updatedBy: userId,
+    });
     return !!updateResult.affected;
   }
 }

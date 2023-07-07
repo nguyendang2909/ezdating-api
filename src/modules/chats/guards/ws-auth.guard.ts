@@ -29,7 +29,7 @@ export class WsAuthGuard implements CanActivate {
     if (!token) {
       throw new WsException({ status: 401, message: 'Unauthorized' });
     }
-    const decoded = this.encryptionsUtil.verifyJwt(token);
+    const decoded = this.encryptionsUtil.verifyRefreshToken(token);
 
     const user = await this.userEntity.findOneById(decoded.id);
     if (!user) {

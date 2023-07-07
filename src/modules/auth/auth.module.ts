@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { LoggedDevicesModule } from '../../logged-devices/logged-devices.module';
+import { LoggedDevicesModule } from '../logged-devices/logged-devices.module';
 import { EncryptionsModule } from '../encryptions/encryptions.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';

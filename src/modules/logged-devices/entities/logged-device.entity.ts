@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
-import { CommonEntity } from '../../commons/entities/common.entity';
-import { User } from '../../modules/users/entities/user.entity';
+import { CommonEntity } from '../../../commons/entities/common.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity({ name: 'logged_device' })
 export class LoggedDevice extends CommonEntity {

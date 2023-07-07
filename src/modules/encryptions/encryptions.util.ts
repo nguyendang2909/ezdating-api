@@ -3,10 +3,9 @@ import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 
 import {
-  AuthJwtPayload,
-  AuthJwtSignPayload,
-  AuthRefreshTokenPayload,
-  AuthRefreshTokenSignPayload,
+  AccessTokenPayload,
+  AccessTokenSignPayload,
+  RefreshTokenPayload,
 } from '../auth/auth.type';
 
 @Injectable()
@@ -18,26 +17,29 @@ export class EncryptionsUtil {
 
   private hashSecretKey = process.env.HASH_SECRET_KEY;
 
-  public signAccessToken(authJwtPayload: AuthJwtSignPayload): string {
+  public signAccessToken(authJwtPayload: AccessTokenSignPayload): string {
     return this.jwtService.sign(authJwtPayload);
   }
 
-  public signRefreshToken(payload: AuthRefreshTokenPayload): string {
+  public signRefreshToken(payload: RefreshTokenPayload): string {
     return this.jwtService.sign(payload, {
       expiresIn: '100d',
       secret: this.REFRESH_TOKEN_SECRET_KEY,
     });
   }
 
-  public verifyJwt(jwt: string, options?: JwtVerifyOptions): AuthJwtPayload {
-    return this.jwtService.verify<AuthJwtPayload>(jwt, options);
+  public verifyAccessToken(
+    jwt: string,
+    options?: Omit<JwtVerifyOptions, 'secret'>,
+  ): AccessTokenPayload {
+    return this.jwtService.verify<AccessTokenPayload>(jwt, options);
   }
 
   public verifyRefreshToken(
     refreshToken: string,
     options?: Omit<JwtVerifyOptions, 'secret'>,
-  ): AuthRefreshTokenSignPayload {
-    return this.jwtService.verify<AuthRefreshTokenSignPayload>(refreshToken, {
+  ): RefreshTokenPayload {
+    return this.jwtService.verify<RefreshTokenPayload>(refreshToken, {
       ...(options ? options : {}),
       secret: this.REFRESH_TOKEN_SECRET_KEY,
     });
