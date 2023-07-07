@@ -9,11 +9,11 @@ import { User } from '../users/entities/user.entity';
 import { ConversationsService } from './conversations.service';
 import { FindManyConversations } from './dto/find-many-rooms.dto';
 
-@Controller('conversations')
+@Controller('/conversations')
 export class ConversationsController {
   constructor(private readonly conversationsService: ConversationsService) {}
 
-  @Get('/rooms')
+  @Get('/')
   public async findManyRooms(
     @Query() queryParams: FindManyConversations,
     @UserId() userId: string,
