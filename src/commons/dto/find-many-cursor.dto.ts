@@ -7,6 +7,6 @@ import { DEFAULT_VALIDATION_OPTIONS } from './default-validation-options';
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
 export class FindManyCursorDto {
   @ApiPropertyOptional({ type: String })
-  @JoiSchema(Joi.string().optional())
+  @JoiSchema(Joi.string().optional().allow(null))
   cursor?: string;
 }
