@@ -27,13 +27,10 @@ export class ConversationsController {
     @Query() queryParams: FindManyMessagesByConversationIdDto,
     @CurrentUser() currentUser: User,
   ) {
-    return {
-      type: 'messageByConversation',
-      ...(await this.conversationsService.findManyMessagesByConversationId(
-        id,
-        queryParams,
-        currentUser,
-      )),
-    };
+    return await this.conversationsService.findManyMessagesByConversationId(
+      id,
+      queryParams,
+      currentUser,
+    );
   }
 }

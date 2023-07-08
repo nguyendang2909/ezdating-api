@@ -58,6 +58,8 @@ export class ChatsService {
         {
           lastMessageAt: messageCreatedAt,
           lastMessage: text,
+          lastMessageBy: currentUserId,
+          lastMessageRead: false,
         },
         currentUserId,
       ),

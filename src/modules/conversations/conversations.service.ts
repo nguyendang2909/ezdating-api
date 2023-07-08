@@ -119,6 +119,8 @@ export class ConversationsService {
     });
 
     return {
+      type: 'messagesByConversation',
+      conversationId: id,
       data: findResult,
       pagination: {
         cursor: EntityFactory.getCursor(findResult, 'createdAt'),

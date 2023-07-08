@@ -80,6 +80,20 @@ export class Relationship {
   })
   lastMessageAt?: Date;
 
+  @Column({
+    name: 'last_message_by',
+    nullable: true,
+    type: 'uuid',
+  })
+  lastMessageBy?: string;
+
+  @Column({
+    name: 'last_message_read',
+    nullable: true,
+    type: 'boolean',
+  })
+  lastMessageRead?: boolean;
+
   @CreateDateColumn({ name: 'created_at', nullable: false })
   createdAt?: Date;
 
