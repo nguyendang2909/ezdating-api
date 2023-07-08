@@ -10,8 +10,11 @@ export class HealthController {
   @Post('/deploy')
   @RequireRoles([UserRoles.admin])
   create() {
-    execSync('git add .');
-    execSync('git commit -m "feat: deploy"');
+    execSync('git pull');
+    execSync('yarn');
+    execSync('yarn build');
+    execSync('pm2 restart server');
+
     return { health: 'ok' };
   }
 
