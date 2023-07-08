@@ -36,6 +36,9 @@ declare global {
 
       // Country states city
       COUNTRY_STATE_CITY_API_KEY: string;
+
+      // Github
+      GITHUB_WEBHOOK_SECRET_KEY: string;
     }
   }
 }

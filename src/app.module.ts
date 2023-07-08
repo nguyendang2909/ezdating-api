@@ -58,6 +58,8 @@ import { UsersModule } from './modules/users/users.module';
         HASH_SECRET_KEY: Joi.string().required(),
         // Country states city
         COUNTRY_STATE_CITY_API_KEY: Joi.string().required(),
+        // Github
+        GITHUB_WEBHOOK_SECRET_KEY: Joi.string().optional(),
       }),
     }),
     WinstonModule.forRoot({
