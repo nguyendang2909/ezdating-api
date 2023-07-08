@@ -6,19 +6,23 @@ import { User } from '../../users/entities/user.entity';
 
 @Entity()
 export class Message extends CommonEntity {
+  @Column({ name: 'audio', type: 'varchar', nullable: true })
+  audio?: string;
+
   @OneToOne(() => Message, { nullable: true })
-  @JoinColumn()
+  @JoinColumn({ name: 'reply_message' })
   replyMessage?: Message;
 
   @ManyToOne(() => Relationship, { nullable: false })
-  @JoinColumn({ name: 'relationship' })
+  @JoinColumn({ name: 'relationship_id' })
   relationship: Partial<Relationship>;
 
   @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: 'user_id' })
   user: Partial<User>;
 
   @Column({ type: 'varchar', nullable: true })
-  imageUrl?: string;
+  image?: string;
 
   @Column({ array: true, type: 'uuid', nullable: true })
   likeUserIds?: string[];
@@ -30,7 +34,7 @@ export class Message extends CommonEntity {
   text?: string;
 
   @Column({ type: 'varchar', nullable: true })
-  videoUrl?: string;
+  video?: string;
 
   @Column({ type: 'uuid', nullable: false })
   uuid!: string;
