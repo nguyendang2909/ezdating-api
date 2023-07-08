@@ -29,6 +29,7 @@ export class HealthController {
           execSync('git pull');
           execSync('yarn');
           execSync('yarn build');
+          execSync('git checkout yarn.lock');
           execSync('pm2 restart server');
         } catch (err) {
           this.logger.error(`Failed to deploy`, err);
