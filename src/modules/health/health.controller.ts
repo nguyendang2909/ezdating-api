@@ -10,7 +10,7 @@ export class HealthController {
   @IsPublicEndpoint()
   create(@Res() res: Response, @Body() body: unknown) {
     console.log(body);
-    res.status(200);
+    res.status(200).json({ success: true });
 
     execSync('git pull');
     execSync('yarn');
