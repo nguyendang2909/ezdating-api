@@ -31,7 +31,7 @@ export class ChatsService {
     );
     const relationshipId =
       this.relationshipEntity.getIdFromSortedUserIds(userIds);
-    const existRelationship = this.relationshipEntity.findOneRoomById(
+    const existRelationship = this.relationshipEntity.findOneConversationById(
       relationshipId,
       currentUserId,
     );

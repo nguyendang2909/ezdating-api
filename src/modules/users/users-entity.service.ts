@@ -134,10 +134,12 @@ export class UserEntity {
 
   public convertInRelationship(user: User) {
     // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
-    const { birthday, password, email, phoneNumber, ...userPart } = user;
+    const { birthday, password, email, phoneNumber, uploadFiles, ...userPart } =
+      user;
     return {
       ...userPart,
       ...(birthday ? { age: moment().diff(birthday, 'years') } : {}),
+      ...(uploadFiles ? { avatar: uploadFiles[0] } : {}),
     };
   }
 }

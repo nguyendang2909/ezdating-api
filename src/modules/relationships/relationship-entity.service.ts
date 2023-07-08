@@ -57,7 +57,7 @@ export class RelationshipEntity {
     return findResult;
   }
 
-  public async findOneRoomById(id: string, userId: string) {
+  public async findOneConversationById(id: string, userId: string) {
     const user = new User({ id: userId });
     return await this.repository.findOne({
       where: [
@@ -82,8 +82,8 @@ export class RelationshipEntity {
     });
   }
 
-  public async findOneRoomOrFailById(id: string, userId: string) {
-    const findResult = await this.findOneRoomById(id, userId);
+  public async findOneConversationOrFailById(id: string, userId: string) {
+    const findResult = await this.findOneConversationById(id, userId);
     if (!findResult) {
       throw new NotFoundException({
         errorCode: HttpErrorCodes.ROOM_DOES_NOT_EXIST,
@@ -157,5 +157,9 @@ export class RelationshipEntity {
 
   getIdFromUnsortedUserIds(userIds: string[]) {
     return userIds.sort().join('_');
+  }
+
+  getSortedUserIdsFromId(id: string): string[] {
+    return id.split('_');
   }
 }

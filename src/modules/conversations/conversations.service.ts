@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { IsNull, LessThan, Not } from 'typeorm';
 
 import { EntityFactory } from '../../commons/lib/entity-factory';
-import { FindManyMessagesByRoomIdDto } from '../messages/dto/find-many-messages.dto';
+import { FindManyMessagesByConversationIdDto } from '../messages/dto/find-many-messages.dto';
 import { MessageEntity } from '../messages/message-entity.service';
 import { RelationshipEntity } from '../relationships/relationship-entity.service';
 import { RelationshipUserStatuses } from '../relationships/relationships.constant';
 import { User } from '../users/entities/user.entity';
 import { UserEntity } from '../users/users-entity.service';
-import { FindManyConversations } from './dto/find-many-rooms.dto';
+import { FindManyConversations } from './dto/find-many-conversations.dto';
 
 @Injectable()
 export class ConversationsService {
@@ -17,10 +17,7 @@ export class ConversationsService {
     private readonly userEntity: UserEntity,
     private readonly messageEntity: MessageEntity,
   ) {}
-  public async findManyRooms(
-    queryParams: FindManyConversations,
-    userId: string,
-  ) {
+  public async findMany(queryParams: FindManyConversations, userId: string) {
     const { cursor } = queryParams;
     const currentUser = new User({ id: userId });
     const lastMessageAt = cursor
@@ -72,25 +69,23 @@ export class ConversationsService {
       ],
       take: 20,
     });
-
     const formatFindResult = findResult.map((item) => {
       const { userOne, userTwo, ...partItem } = item;
+      const sortedUserIds = this.relationshipEntity.getSortedUserIdsFromId(
+        item.id,
+      );
+      const isUserOne = this.userEntity.isUserOneByIds(userId, sortedUserIds);
+
       return {
         ...partItem,
-        ...(userOne
-          ? {
-              userOne: this.userEntity.convertInRelationship(userOne),
-            }
-          : {}),
-        ...(userTwo
-          ? {
-              userTwo: this.userEntity.convertInRelationship(userTwo),
-            }
-          : {}),
+        targetUser: isUserOne
+          ? this.userEntity.convertInRelationship(userOne)
+          : this.userEntity.convertInRelationship(userTwo),
       };
     });
 
     return {
+      type: 'conversations',
       data: formatFindResult,
       pagination: {
         cursor: EntityFactory.getCursor(findResult, 'lastMessageAt'),
@@ -98,12 +93,12 @@ export class ConversationsService {
     };
   }
 
-  public async findManyMessagesByRoomId(
+  public async findManyMessagesByConversationId(
     id: string,
-    queryParams: FindManyMessagesByRoomIdDto,
+    queryParams: FindManyMessagesByConversationIdDto,
     user: User,
   ) {
-    await this.relationshipEntity.findOneRoomOrFailById(id, user.id);
+    await this.relationshipEntity.findOneConversationOrFailById(id, user.id);
     const { cursor } = queryParams;
     const lastCreatedAt = cursor
       ? new Date(EntityFactory.decodeCursor(cursor))

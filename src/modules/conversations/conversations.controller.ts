@@ -4,35 +4,32 @@ import {
   CurrentUser,
   UserId,
 } from '../../commons/decorators/current-user-id.decorator';
-import { FindManyMessagesByRoomIdDto } from '../messages/dto/find-many-messages.dto';
+import { FindManyMessagesByConversationIdDto } from '../messages/dto/find-many-messages.dto';
 import { User } from '../users/entities/user.entity';
 import { ConversationsService } from './conversations.service';
-import { FindManyConversations } from './dto/find-many-rooms.dto';
+import { FindManyConversations } from './dto/find-many-conversations.dto';
 
 @Controller('/conversations')
 export class ConversationsController {
   constructor(private readonly conversationsService: ConversationsService) {}
 
   @Get('/')
-  public async findManyRooms(
+  public async findMany(
     @Query() queryParams: FindManyConversations,
     @UserId() userId: string,
   ) {
-    return {
-      type: 'conversations',
-      ...(await this.conversationsService.findManyRooms(queryParams, userId)),
-    };
+    return await this.conversationsService.findMany(queryParams, userId);
   }
 
   @Get('/:id/messages')
   public async findManyMessages(
     @Param('id') id: string,
-    @Query() queryParams: FindManyMessagesByRoomIdDto,
+    @Query() queryParams: FindManyMessagesByConversationIdDto,
     @CurrentUser() currentUser: User,
   ) {
     return {
       type: 'messageByConversation',
-      ...(await this.conversationsService.findManyMessagesByRoomId(
+      ...(await this.conversationsService.findManyMessagesByConversationId(
         id,
         queryParams,
         currentUser,
