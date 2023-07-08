@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { Cursors, PaginationCursors } from '../constants/paginations';
 
 export class EntityFactory {
   public static getEntityName(Entity: Record<string, any>): string {
@@ -29,20 +29,31 @@ export class EntityFactory {
     return Buffer.from(str, 'utf-8').toString('base64');
   }
 
-  public static decodeCursor(str: string): string {
-    return Buffer.from(str, 'base64').toString('utf-8');
+  public static extractCursor(
+    str?: string,
+  ): { type: string; value: string } | undefined {
+    if (!str) {
+      return;
+    }
+    const decoded = Buffer.from(str, 'base64').toString('utf-8');
+    const cursor = decoded.split('::');
+    return {
+      type: cursor[0] === Cursors.before ? Cursors.before : Cursors.after,
+      value: cursor[1],
+    };
   }
 
-  public static getCursor<T extends Record<string, any>[]>(
-    arr: T,
-    field?: string,
-  ): string | null {
-    const lastElement = _.last(arr) || {};
-    const cursorAsString = field ? lastElement[field] : lastElement.createdAt;
-    if (cursorAsString) {
-      return this.encodeCursor(cursorAsString);
+  public static getCursors(value?: string | Date): PaginationCursors {
+    if (value) {
+      return {
+        after: this.encodeCursor(`$after::${value.toString()}`),
+        before: this.encodeCursor(`before::${value.toString()}`),
+      };
     }
 
-    return null;
+    return {
+      after: null,
+      before: null,
+    };
   }
 }

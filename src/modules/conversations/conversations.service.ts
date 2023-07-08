@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { IsNull, LessThan, Not } from 'typeorm';
+import _ from 'lodash';
+import { IsNull, LessThan, MoreThan, Not } from 'typeorm';
 
+import { Cursors } from '../../commons/constants/paginations';
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { FindManyMessagesByConversationIdDto } from '../messages/dto/find-many-messages.dto';
 import { MessageEntity } from '../messages/message-entity.service';
@@ -20,39 +22,40 @@ export class ConversationsService {
   public async findMany(queryParams: FindManyConversations, userId: string) {
     const { cursor } = queryParams;
     const currentUser = new User({ id: userId });
-    const lastMessageAt = cursor
-      ? new Date(EntityFactory.decodeCursor(cursor))
+    const extractCursor = EntityFactory.extractCursor(cursor);
+    const lastMessageAt = extractCursor
+      ? new Date(extractCursor.value)
       : undefined;
+    const lastMessageAtQuery = lastMessageAt
+      ? {
+          createdAt:
+            extractCursor?.type === Cursors.before
+              ? MoreThan(lastMessageAt)
+              : LessThan(lastMessageAt),
+        }
+      : { lastMessage: Not(IsNull()) };
     const findResult = await this.relationshipEntity.findMany({
       where: [
         {
-          ...(lastMessageAt
-            ? { createdAt: LessThan(lastMessageAt) }
-            : { lastMessage: Not(IsNull()) }),
+          ...lastMessageAtQuery,
           userOne: currentUser,
           userOneStatus: RelationshipUserStatuses.like,
           userTwoStatus: RelationshipUserStatuses.like,
         },
         {
-          ...(lastMessageAt
-            ? { createdAt: LessThan(lastMessageAt) }
-            : { lastMessage: Not(IsNull()) }),
+          ...lastMessageAtQuery,
           userTwo: currentUser,
           userOneStatus: RelationshipUserStatuses.like,
           userTwoStatus: RelationshipUserStatuses.like,
         },
         {
-          ...(lastMessageAt
-            ? { createdAt: LessThan(lastMessageAt) }
-            : { lastMessage: Not(IsNull()) }),
+          ...lastMessageAtQuery,
           userOne: currentUser,
           userTwoStatus: Not(RelationshipUserStatuses.block),
           canUserOneChat: true,
         },
         {
-          ...(lastMessageAt
-            ? { createdAt: LessThan(lastMessageAt) }
-            : { lastMessage: Not(IsNull()) }),
+          ...lastMessageAtQuery,
           userTwo: currentUser,
           userOneStatus: Not(RelationshipUserStatuses.block),
           canUserTwoChat: true,
@@ -88,7 +91,9 @@ export class ConversationsService {
       type: 'conversations',
       data: formatFindResult,
       pagination: {
-        cursor: EntityFactory.getCursor(findResult, 'lastMessageAt'),
+        cursors: EntityFactory.getCursors(
+          _.last(formatFindResult)?.lastMessageAt,
+        ),
       },
     };
   }
@@ -100,15 +105,19 @@ export class ConversationsService {
   ) {
     await this.relationshipEntity.findOneConversationOrFailById(id, user.id);
     const { cursor } = queryParams;
-    const lastCreatedAt = cursor
-      ? new Date(EntityFactory.decodeCursor(cursor))
+    const extractCursor = EntityFactory.extractCursor(cursor);
+    const lastCreatedAt = extractCursor
+      ? new Date(extractCursor.value)
       : undefined;
     const findResult = await this.messageEntity.findMany({
       where: {
         relationship: { id },
         ...(lastCreatedAt
           ? {
-              createdAt: LessThan(lastCreatedAt),
+              createdAt:
+                extractCursor?.type === Cursors.after
+                  ? LessThan(lastCreatedAt)
+                  : MoreThan(lastCreatedAt),
             }
           : {}),
       },
@@ -123,7 +132,7 @@ export class ConversationsService {
       conversationId: id,
       data: findResult,
       pagination: {
-        cursor: EntityFactory.getCursor(findResult, 'createdAt'),
+        cursors: EntityFactory.getCursors(_.last(findResult)?.createdAt),
       },
     };
   }

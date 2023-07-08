@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import _ from 'lodash';
 import moment from 'moment';
-import { IsNull, LessThan, Not } from 'typeorm';
+import { IsNull, LessThan, MoreThan, Not } from 'typeorm';
 
+import { Cursors } from '../../commons/constants/paginations';
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { MessageEntity } from '../messages/message-entity.service';
 import { User } from '../users/entities/user.entity';
@@ -81,20 +83,29 @@ export class RelationshipsService {
   ) {
     const { cursor } = queryParams;
     const currentUser = new User({ id: currentUserId });
-    const lastStatusAt = cursor
-      ? new Date(EntityFactory.decodeCursor(cursor))
+    const extractCursor = EntityFactory.extractCursor(cursor);
+    const lastStatusAt = extractCursor
+      ? new Date(extractCursor.value)
       : undefined;
+    const lastStatusAtQuery = lastStatusAt
+      ? {
+          statusAt:
+            extractCursor?.type === Cursors.after
+              ? LessThan(lastStatusAt)
+              : MoreThan(lastStatusAt),
+        }
+      : {};
     const findResult = await this.relationshipEntity.findMany({
       where: [
         {
-          ...(lastStatusAt ? { createdAt: LessThan(lastStatusAt) } : {}),
+          ...lastStatusAtQuery,
           userOneStatus: RelationshipUserStatuses.like,
           userTwoStatus: RelationshipUserStatuses.like,
           userOne: currentUser,
           lastMessage: IsNull(),
         },
         {
-          ...(lastStatusAt ? { createdAt: LessThan(lastStatusAt) } : {}),
+          ...lastStatusAtQuery,
           userOneStatus: RelationshipUserStatuses.like,
           userTwoStatus: RelationshipUserStatuses.like,
           userTwo: currentUser,
@@ -121,7 +132,7 @@ export class RelationshipsService {
     return {
       data: findResult,
       pagination: {
-        cursor: EntityFactory.getCursor(findResult, 'statusAt'),
+        cursor: EntityFactory.getCursors(_.last(findResult)?.statusAt),
       },
     };
   }
@@ -132,19 +143,34 @@ export class RelationshipsService {
   ) {
     const { cursor } = queryParams;
     const currentUser = new User({ id: currentUserId });
-    const lastStatusAt = cursor
-      ? new Date(EntityFactory.decodeCursor(cursor))
+    const extractCursor = EntityFactory.extractCursor(cursor);
+    const lastStatusAt = extractCursor
+      ? new Date(extractCursor.value)
       : undefined;
     const findResult = await this.relationshipEntity.findMany({
       where: [
         {
-          ...(lastStatusAt ? { createdAt: LessThan(lastStatusAt) } : {}),
+          ...(lastStatusAt
+            ? {
+                userTwoStatus:
+                  extractCursor?.type === Cursors.after
+                    ? LessThan(lastStatusAt)
+                    : MoreThan(lastStatusAt),
+              }
+            : {}),
           userOneStatus: Not(RelationshipUserStatuses.like),
           userTwoStatus: RelationshipUserStatuses.like,
           userOne: currentUser,
         },
         {
-          ...(lastStatusAt ? { createdAt: LessThan(lastStatusAt) } : {}),
+          ...(lastStatusAt
+            ? {
+                userOneStatusAt:
+                  extractCursor?.type === Cursors.after
+                    ? LessThan(lastStatusAt)
+                    : MoreThan(lastStatusAt),
+              }
+            : {}),
           userOneStatus: RelationshipUserStatuses.like,
           userTwoStatus: Not(RelationshipUserStatuses.like),
           userTwo: currentUser,
@@ -159,7 +185,7 @@ export class RelationshipsService {
     return {
       data: findResult,
       pagination: {
-        cursor: EntityFactory.getCursor(findResult),
+        cursor: EntityFactory.getCursors(_.last(findResult)?.statusAt),
       },
     };
   }
