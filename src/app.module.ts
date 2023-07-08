@@ -13,12 +13,14 @@ import path from 'path';
 import winston from 'winston';
 
 import { AppConfig } from './app.config';
-import { ConversationsModule } from './modules/conversations/conversations.module';
 import { JwtAuthGuard } from './guards/jwt.guard';
+import { RolesGuard } from './guards/roles.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
+import { ConversationsModule } from './modules/conversations/conversations.module';
 import { CountriesModule } from './modules/countries/countries.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
+import { HealthModule } from './modules/health/health.module';
 import { LoggedDevicesModule } from './modules/logged-devices/logged-devices.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { RelationshipsModule } from './modules/relationships/relationships.module';
@@ -145,10 +147,12 @@ import { UsersModule } from './modules/users/users.module';
     StatesModule,
     LoggedDevicesModule,
     ConversationsModule,
+    HealthModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })
 export class AppModule {}
