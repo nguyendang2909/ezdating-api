@@ -10,7 +10,8 @@ export class HealthController {
   @Post('/deploy')
   @RequireRoles([UserRoles.admin])
   create() {
-    execSync('git add . && git commit -m "feat: update auto deploy"');
+    execSync('git add .');
+    execSync('git commit -m "feat: deploy"');
     return { health: 'ok' };
   }
 
