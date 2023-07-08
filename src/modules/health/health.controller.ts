@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res } from '@nestjs/common';
 import { execSync } from 'child_process';
 import { Response } from 'express';
 
@@ -8,7 +8,8 @@ import { IsPublicEndpoint } from '../../commons/decorators/is-public.endpoint';
 export class HealthController {
   @Post('/deploy')
   @IsPublicEndpoint()
-  create(@Res() res: Response) {
+  create(@Res() res: Response, @Body() body: unknown) {
+    console.log(body);
     res.status(200);
 
     execSync('git pull');
