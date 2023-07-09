@@ -25,6 +25,9 @@ import {
 
 @Entity({ name: 'user' })
 export class User extends BaseEntity {
+  @Column({ name: 'avatar', nullable: true, type: 'date' })
+  avatar?: string;
+
   @Column({ name: 'birthday', nullable: true, type: 'date' })
   birthday?: string;
 

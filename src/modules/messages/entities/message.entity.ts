@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 
 import { CommonEntity } from '../../../commons/entities/common.entity';
 import { Relationship } from '../../relationships/entities/relationship.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity()
 export class Message extends CommonEntity {
@@ -14,10 +15,11 @@ export class Message extends CommonEntity {
 
   @ManyToOne(() => Relationship, { nullable: false })
   @JoinColumn({ name: 'relationship_id' })
-  relationship: Partial<Relationship>;
+  relationship!: Partial<Relationship>;
 
-  @Column({ name: 'user_id', type: 'uuid', nullable: false })
-  userId: string;
+  @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: 'user_id' })
+  user!: Partial<User>;
 
   @Column({ type: 'varchar', nullable: true })
   image?: string;

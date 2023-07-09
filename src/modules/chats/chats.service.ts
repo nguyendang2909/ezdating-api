@@ -20,6 +20,7 @@ export class ChatsService {
 
   public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
     const { relationshipId, text, uuid } = payload;
+    const currentUser = socket.handshake.user;
     const currentUserId = socket.handshake.user.id;
     const existRelationship = this.relationshipEntity.findOneConversationById(
       relationshipId,
@@ -36,7 +37,7 @@ export class ChatsService {
     const [message] = await Promise.all([
       this.messageEntity.saveOne(
         {
-          userId: currentUserId,
+          user: { id: currentUserId },
           relationship: { id: relationshipId },
           text,
           uuid,
@@ -56,10 +57,18 @@ export class ChatsService {
       ),
     ]);
     socket.emit('updateMsg', message);
+    const formattedMessage = {
+      ...message,
+      user: {
+        id: currentUserId,
+        nickname: currentUser.nickname,
+        avatar: currentUser.avatar,
+      },
+    };
     const userIds = this.relationshipEntity.getUserIdsFromId(relationshipId);
     const targetUserId = this.userEntity.isUserOneByIds(currentUserId, userIds)
       ? userIds[1]
       : userIds[0];
-    socket.to([currentUserId, targetUserId]).emit('msg', message);
+    socket.to([currentUserId, targetUserId]).emit('msg', formattedMessage);
   }
 }

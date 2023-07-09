@@ -122,6 +122,14 @@ export class ConversationsService {
       order: {
         createdAt: 'DESC',
       },
+      relations: ['user'],
+      select: {
+        user: {
+          id: true,
+          nickname: true,
+          avatar: true,
+        },
+      },
       take: 20,
     });
 
