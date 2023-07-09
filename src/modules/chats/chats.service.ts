@@ -45,7 +45,7 @@ export class ChatsService {
     const [message] = await Promise.all([
       this.messageEntity.saveOne(
         {
-          user: { id: currentUserId },
+          userId: currentUserId,
           relationship: { id: relationshipId },
           text,
           uuid,
