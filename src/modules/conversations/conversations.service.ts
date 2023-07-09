@@ -82,8 +82,8 @@ export class ConversationsService {
       return {
         ...partItem,
         targetUser: isUserOne
-          ? this.userEntity.convertInRelationship(userOne)
-          : this.userEntity.convertInRelationship(userTwo),
+          ? this.userEntity.convertInRelationship(userTwo)
+          : this.userEntity.convertInRelationship(userOne),
       };
     });
 
