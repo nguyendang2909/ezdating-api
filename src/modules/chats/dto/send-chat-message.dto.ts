@@ -1,13 +1,13 @@
 import Joi from 'joi';
 
 export class SendChatMessageDto {
-  targetUserId: string;
+  relationshipId: string;
   text: string;
   uuid: string;
 }
 
 export const SendChatMessageSchema = Joi.object({
-  targetUserId: Joi.string().guid().optional(),
+  relationshipId: Joi.string().required(),
   text: Joi.string().required(),
   uuid: Joi.string().guid().required(),
 }).options({

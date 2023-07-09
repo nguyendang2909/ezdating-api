@@ -74,10 +74,8 @@ export class ConversationsService {
     });
     const formatFindResult = findResult.map((item) => {
       const { userOne, userTwo, ...partItem } = item;
-      const sortedUserIds = this.relationshipEntity.getSortedUserIdsFromId(
-        item.id,
-      );
-      const isUserOne = this.userEntity.isUserOneByIds(userId, sortedUserIds);
+      const userIds = this.relationshipEntity.getUserIdsFromId(item.id);
+      const isUserOne = this.userEntity.isUserOneByIds(userId, userIds);
 
       return {
         ...partItem,

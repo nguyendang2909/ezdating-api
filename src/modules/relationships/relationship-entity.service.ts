@@ -159,7 +159,7 @@ export class RelationshipEntity {
     return userIds.sort().join('_');
   }
 
-  getSortedUserIdsFromId(id: string): string[] {
-    return id.split('_').sort();
+  getUserIdsFromId(id: string): string[] {
+    return id.split('_');
   }
 }
