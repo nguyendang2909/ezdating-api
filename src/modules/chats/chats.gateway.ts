@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -18,7 +18,6 @@ import {
   SendChatMessageDto,
   SendChatMessageSchema,
 } from './dto/send-chat-message.dto';
-import { WsAuthGuard } from './guards/ws-auth.guard';
 
 @WebSocketGateway({
   namespace: '/chats',
@@ -38,9 +37,8 @@ export class ChatsGateway
   private readonly logger = new Logger(ChatsGateway.name);
 
   @SubscribeMessage('sendMsg')
-  @UseGuards(WsAuthGuard)
-  // @UsePipes(new WsValidationPipe(SendChatMessageSchema))
-  public async create(
+  // @UseGuards(WsAuthGuard)
+  public async sendMsg(
     @ConnectedSocket() socket: Socket,
     @MessageBody() payload: SendChatMessageDto,
   ) {
@@ -57,6 +55,7 @@ export class ChatsGateway
   }
 
   public async handleDisconnect(socket: Socket) {
+    socket.disconnect();
     this.logger.log(`Socket disconnected: ${socket.id}`);
   }
 

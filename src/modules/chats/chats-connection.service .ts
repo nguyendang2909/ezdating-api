@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import _ from 'lodash';
 import { Socket } from 'socket.io';
 
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
@@ -16,14 +17,13 @@ export class ChatsConnectionService {
 
   public async handleConnection(socket: Socket) {
     try {
-      const { authorization } = socket.handshake.headers;
-      const token = authorization?.split(' ')[1];
-      if (!token) {
+      const token = socket.handshake.query.token;
+      if (!token || !_.isString(token)) {
         socket.disconnect();
 
         return;
       }
-      const decodedToken = this.encryptionsUtil.verifyRefreshToken(token);
+      const decodedToken = this.encryptionsUtil.verifyAccessToken(token);
       const user = await this.userEntity.findOneById(decodedToken.id);
       if (!user || user.status === UserStatuses.banned) {
         socket.disconnect();

@@ -12,8 +12,8 @@ import {
 export class EncryptionsUtil {
   constructor(private readonly jwtService: JwtService) {}
 
-  private readonly REFRESH_TOKEN_SECRET_KEY =
-    process.env.REFRESH_TOKEN_SECRET_KEY;
+  private readonly JWT_REFRESH_TOKEN_SECRET_KEY =
+    process.env.JWT_REFRESH_TOKEN_SECRET_KEY;
 
   private hashSecretKey = process.env.HASH_SECRET_KEY;
 
@@ -24,7 +24,7 @@ export class EncryptionsUtil {
   public signRefreshToken(payload: RefreshTokenPayload): string {
     return this.jwtService.sign(payload, {
       expiresIn: '100d',
-      secret: this.REFRESH_TOKEN_SECRET_KEY,
+      secret: this.JWT_REFRESH_TOKEN_SECRET_KEY,
     });
   }
 
@@ -41,7 +41,7 @@ export class EncryptionsUtil {
   ): RefreshTokenPayload {
     return this.jwtService.verify<RefreshTokenPayload>(refreshToken, {
       ...(options ? options : {}),
-      secret: this.REFRESH_TOKEN_SECRET_KEY,
+      secret: this.JWT_REFRESH_TOKEN_SECRET_KEY,
     });
   }
 

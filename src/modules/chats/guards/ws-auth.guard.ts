@@ -18,19 +18,11 @@ export class WsAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext) {
     const client = context.switchToWs().getClient<Socket>();
-    const authHeaders =
-      client.handshake.headers.authorization ||
-      client.handshake.headers.Authorization;
-
-    if (!authHeaders || !_.isString(authHeaders)) {
+    const token = client.handshake.query.token;
+    if (!token || !_.isString(token)) {
       throw new WsException({ status: 401, message: 'Unauthorized' });
     }
-    const token = authHeaders.split(' ')[1];
-    if (!token) {
-      throw new WsException({ status: 401, message: 'Unauthorized' });
-    }
-    const decoded = this.encryptionsUtil.verifyRefreshToken(token);
-
+    const decoded = this.encryptionsUtil.verifyAccessToken(token);
     const user = await this.userEntity.findOneById(decoded.id);
     if (!user) {
       throw new WsException({
