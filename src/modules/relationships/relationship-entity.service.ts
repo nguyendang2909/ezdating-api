@@ -160,6 +160,6 @@ export class RelationshipEntity {
   }
 
   getSortedUserIdsFromId(id: string): string[] {
-    return id.split('_');
+    return id.split('_').sort();
   }
 }
