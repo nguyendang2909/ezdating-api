@@ -1,14 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
-import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
+import {
+  FindManyOptions,
+  FindOneOptions,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
 
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
-import {
-  EntityCountOptions,
-  EntityFindManyOptions,
-  EntityFindOneByIdOptions,
-} from '../../commons/types/find-options.type';
+import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
 import { UploadFile } from './entities/upload-file.entity';
 
 @Injectable()
@@ -26,12 +27,12 @@ export class UploadFileEntity {
     });
   }
 
-  public async findMany(options: EntityFindManyOptions<UploadFile>) {
-    return await this.repository.find({ ...options, take: 20 });
+  public async findMany(options: FindManyOptions<UploadFile>) {
+    return await this.repository.find({ ...options, take: 6 });
   }
 
-  public async count(options: EntityCountOptions<UploadFile>) {
-    return await this.repository.count({ ...options, take: 20 });
+  public async count(options: FindManyOptions<UploadFile>) {
+    return await this.repository.count({ ...options, take: 6 });
   }
 
   public async findOne(

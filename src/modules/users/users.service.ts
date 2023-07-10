@@ -190,6 +190,7 @@ export class UsersService {
     }
 
     const updateOptions: QueryDeepPartialEntity<User> = {
+      ...(avatarFileId ? { avatarFile: { id: avatarFileId } } : {}),
       ...updateDto,
     };
 

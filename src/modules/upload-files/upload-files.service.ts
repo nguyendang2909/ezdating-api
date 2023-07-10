@@ -59,6 +59,17 @@ export class UploadFilesService {
         ACL: share === UploadFileShares.public ? 'public-read' : 'private',
       })
       .promise();
+    const numberUploadedPhotosAgain = await this.uploadFileEntity.count({
+      where: {
+        user: new User({ id: userId }),
+      },
+    });
+    if (numberUploadedPhotosAgain >= LIMIT_UPLOADED_PHOTOS) {
+      throw new BadRequestException({
+        errorCode: 'LIMIT_UPLOADED_PHOTOS',
+        message: 'You can only upload 6 photos!',
+      });
+    }
     const createResult = await this.uploadFileEntity.saveOne(
       {
         user: new User({ id: userId }),

@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 
 import { BaseEntity } from '../../../commons/entities/base.entity';
@@ -27,6 +28,10 @@ import {
 export class User extends BaseEntity {
   @Column({ name: 'avatar', nullable: true, type: 'date' })
   avatar?: string;
+
+  @OneToOne(() => UploadFile, (file) => file.user, { nullable: true })
+  @JoinColumn({ name: 'avatar_file_id' })
+  avatarFile?: UploadFile;
 
   @Column({ name: 'birthday', nullable: true, type: 'date' })
   birthday?: string;
