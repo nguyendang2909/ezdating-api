@@ -1,4 +1,10 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Param,
+  Query,
+} from '@nestjs/common';
 
 import {
   CurrentUser,
@@ -32,5 +38,20 @@ export class ConversationsController {
       queryParams,
       currentUser,
     );
+  }
+
+  @Get('/:id')
+  public async findOneById(
+    @Param('id') id: string,
+    @CurrentUser() currentUser: User,
+  ) {
+    if (!id) {
+      throw new BadRequestException();
+    }
+
+    return {
+      type: 'conversation',
+      data: await this.conversationsService.findOneOrFailById(id, currentUser),
+    };
   }
 }

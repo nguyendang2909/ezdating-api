@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import _ from 'lodash';
-import { IsNull, LessThan, MoreThan, Not } from 'typeorm';
+import { And, IsNull, LessThan, MoreThan, Not } from 'typeorm';
 
 import { Cursors } from '../../commons/constants/paginations';
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { FindManyMessagesByConversationIdDto } from '../messages/dto/find-many-messages.dto';
 import { MessageEntity } from '../messages/message-entity.service';
@@ -19,6 +20,7 @@ export class ConversationsService {
     private readonly userEntity: UserEntity,
     private readonly messageEntity: MessageEntity,
   ) {}
+
   public async findMany(queryParams: FindManyConversations, userId: string) {
     const { cursor } = queryParams;
     const currentUser = new User({ id: userId });
@@ -28,37 +30,37 @@ export class ConversationsService {
       : undefined;
     const lastMessageAtQuery = lastMessageAt
       ? {
-          createdAt:
+          lastMessageAt:
             extractCursor?.type === Cursors.before
               ? MoreThan(lastMessageAt)
               : LessThan(lastMessageAt),
         }
-      : { lastMessage: Not(IsNull()) };
+      : { lastMessageAt: Not(IsNull()) };
     const findResult = await this.relationshipEntity.findMany({
       where: [
         {
           ...lastMessageAtQuery,
+          userOneStatus: And(
+            Not(RelationshipUserStatuses.block),
+            Not(RelationshipUserStatuses.cancel),
+          ),
+          userTwoStatus: And(
+            Not(RelationshipUserStatuses.block),
+            Not(RelationshipUserStatuses.cancel),
+          ),
           userOne: currentUser,
-          userOneStatus: RelationshipUserStatuses.like,
-          userTwoStatus: RelationshipUserStatuses.like,
         },
         {
           ...lastMessageAtQuery,
+          userOneStatus: And(
+            Not(RelationshipUserStatuses.block),
+            Not(RelationshipUserStatuses.cancel),
+          ),
+          userTwoStatus: And(
+            Not(RelationshipUserStatuses.block),
+            Not(RelationshipUserStatuses.cancel),
+          ),
           userTwo: currentUser,
-          userOneStatus: RelationshipUserStatuses.like,
-          userTwoStatus: RelationshipUserStatuses.like,
-        },
-        {
-          ...lastMessageAtQuery,
-          userOne: currentUser,
-          userTwoStatus: Not(RelationshipUserStatuses.block),
-          canUserOneChat: true,
-        },
-        {
-          ...lastMessageAtQuery,
-          userTwo: currentUser,
-          userOneStatus: Not(RelationshipUserStatuses.block),
-          canUserTwoChat: true,
         },
       ],
       order: {
@@ -96,12 +98,78 @@ export class ConversationsService {
     };
   }
 
+  public async findOneOrFailById(id: string, user: User) {
+    const currentUserObj = {
+      id: user.id,
+    };
+    const lastMessageQuery = { lastMessage: Not(IsNull()) };
+    const findResult = await this.relationshipEntity.findOne({
+      where: [
+        {
+          ...lastMessageQuery,
+          userOneStatus: And(
+            Not(RelationshipUserStatuses.block),
+            Not(RelationshipUserStatuses.cancel),
+          ),
+          userTwoStatus: And(
+            Not(RelationshipUserStatuses.block),
+            Not(RelationshipUserStatuses.cancel),
+          ),
+          userOne: currentUserObj,
+        },
+        {
+          ...lastMessageQuery,
+          userOneStatus: And(
+            Not(RelationshipUserStatuses.block),
+            Not(RelationshipUserStatuses.cancel),
+          ),
+          userTwoStatus: And(
+            Not(RelationshipUserStatuses.block),
+            Not(RelationshipUserStatuses.cancel),
+          ),
+          userTwo: currentUserObj,
+        },
+      ],
+      order: {
+        lastMessageAt: 'DESC',
+      },
+      relations: [
+        'userOne',
+        'userOne.uploadFiles',
+        'userTwo',
+        'userTwo.uploadFiles',
+      ],
+    });
+    if (!findResult) {
+      throw new NotFoundException({
+        errorCode: HttpErrorCodes.CONVERSATION_DOES_NOT_EXIST,
+        message: 'Conversation does not exist!',
+      });
+    }
+
+    const { userOne, userTwo, ...partConversation } = findResult;
+    const userIds = this.relationshipEntity.getUserIdsFromId(findResult.id);
+    const isUserOne = this.userEntity.isUserOneByIds(user.id, userIds);
+
+    const conversation = {
+      ...partConversation,
+      targetUser: isUserOne
+        ? this.userEntity.convertInRelationship(userTwo)
+        : this.userEntity.convertInRelationship(userOne),
+    };
+
+    return {
+      type: 'conversations',
+      data: conversation,
+    };
+  }
+
   public async findManyMessagesByConversationId(
     id: string,
     queryParams: FindManyMessagesByConversationIdDto,
     user: User,
   ) {
-    await this.relationshipEntity.findOneConversationOrFailById(id, user.id);
+    await this.findOneOrFailById(id, user);
     const { cursor } = queryParams;
     const extractCursor = EntityFactory.extractCursor(cursor);
     const lastCreatedAt = extractCursor

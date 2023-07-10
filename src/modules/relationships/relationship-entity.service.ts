@@ -82,18 +82,6 @@ export class RelationshipEntity {
     });
   }
 
-  public async findOneConversationOrFailById(id: string, userId: string) {
-    const findResult = await this.findOneConversationById(id, userId);
-    if (!findResult) {
-      throw new NotFoundException({
-        errorCode: HttpErrorCodes.ROOM_DOES_NOT_EXIST,
-        message: 'Room does not exist!',
-      });
-    }
-
-    return findResult;
-  }
-
   public async findOneById(
     id: string,
     options: EntityFindOneByIdOptions<Relationship>,

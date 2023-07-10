@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
@@ -15,6 +16,13 @@ import {
 } from '../relationships.constant';
 
 @Entity({ name: 'relationship' })
+@Index('conversations', [
+  'lastMessageAt',
+  'userOneStatus',
+  'userTwoStatus',
+  'userOne.id',
+  'userTwo.id',
+])
 export class Relationship {
   @PrimaryColumn('varchar')
   id!: string;
