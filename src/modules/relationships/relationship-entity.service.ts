@@ -10,6 +10,7 @@ import { FindManyOptions, FindOneOptions, Not, Repository } from 'typeorm';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
 import { User } from '../users/entities/user.entity';
+import { UserEntity } from '../users/users-entity.service';
 import { Relationship } from './entities/relationship.entity';
 import {
   RelationshipUserStatus,
@@ -21,6 +22,7 @@ export class RelationshipEntity {
   constructor(
     @InjectRepository(Relationship)
     private readonly repository: Repository<Relationship>,
+    private readonly userEntity: UserEntity,
   ) {}
 
   public async saveOne(entity: Partial<Relationship>, currentUserId: string) {
@@ -149,5 +151,22 @@ export class RelationshipEntity {
 
   getUserIdsFromId(id: string): string[] {
     return id.split('_');
+  }
+
+  formatConversation(entity: Relationship, isUserOne: boolean) {
+    const { userOne, userTwo, ...partConversation } = entity;
+
+    return {
+      ...partConversation,
+      targetUser: isUserOne
+        ? this.userEntity.formatInConversation(userTwo)
+        : this.userEntity.formatInConversation(userOne),
+    };
+  }
+
+  formatConversations(entities: Relationship[], isUserOne: boolean) {
+    return entities.map((item) => {
+      return this.formatConversation(item, isUserOne);
+    });
   }
 }

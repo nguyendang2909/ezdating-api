@@ -29,11 +29,11 @@ export class Relationship {
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'user_one' })
-  userOne!: User;
+  userOne!: Partial<User>;
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'user_two' })
-  userTwo!: User;
+  userTwo!: Partial<User>;
 
   @Column({
     name: 'user_one_status',

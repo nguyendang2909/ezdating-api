@@ -73,13 +73,17 @@ export class UploadFilesController {
         message: 'File not found!',
       });
     }
-    const { share } = payload;
+    const { share, isAvatar } = payload;
     if (!share || !Object.values(UploadFileShares).includes(share)) {
       throw new BadRequestException();
     }
     return {
       type: 'uploadPhoto',
-      data: await this.uploadFilesService.uploadPhoto(file, { share }, userId),
+      data: await this.uploadFilesService.uploadPhoto(
+        file,
+        { share, isAvatar },
+        userId,
+      ),
     };
   }
 
@@ -125,7 +129,7 @@ export class UploadFilesController {
   ) {
     return {
       type: 'removeFileUpload',
-      data: await this.uploadFilesService.remove(id, userId),
+      data: { success: await this.uploadFilesService.remove(id, userId) },
     };
   }
 }

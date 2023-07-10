@@ -6,10 +6,7 @@ import {
   Query,
 } from '@nestjs/common';
 
-import {
-  CurrentUser,
-  UserId,
-} from '../../commons/decorators/current-user-id.decorator';
+import { CurrentUser } from '../../commons/decorators/current-user-id.decorator';
 import { FindManyMessagesByConversationIdDto } from '../messages/dto/find-many-messages.dto';
 import { User } from '../users/entities/user.entity';
 import { ConversationsService } from './conversations.service';
@@ -22,9 +19,9 @@ export class ConversationsController {
   @Get('/')
   public async findMany(
     @Query() queryParams: FindManyConversations,
-    @UserId() userId: string,
+    @CurrentUser() currentUser: User,
   ) {
-    return await this.conversationsService.findMany(queryParams, userId);
+    return await this.conversationsService.findMany(queryParams, currentUser);
   }
 
   @Get('/:id/messages')

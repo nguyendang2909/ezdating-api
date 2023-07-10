@@ -21,86 +21,27 @@ export class ConversationsService {
     private readonly messageEntity: MessageEntity,
   ) {}
 
-  public async findMany(queryParams: FindManyConversations, userId: string) {
-    const { cursor } = queryParams;
-    const currentUser = new User({ id: userId });
-    const extractCursor = EntityFactory.extractCursor(cursor);
-    const lastMessageAt = extractCursor
-      ? new Date(extractCursor.value)
-      : undefined;
-    const lastMessageAtQuery = lastMessageAt
-      ? {
-          lastMessageAt:
-            extractCursor?.type === Cursors.before
-              ? MoreThan(lastMessageAt)
-              : LessThan(lastMessageAt),
-        }
-      : { lastMessageAt: Not(IsNull()) };
-    const findResult = await this.relationshipEntity.findMany({
-      where: [
-        {
-          ...lastMessageAtQuery,
-          userOneStatus: And(
-            Not(RelationshipUserStatuses.block),
-            Not(RelationshipUserStatuses.cancel),
-          ),
-          userTwoStatus: And(
-            Not(RelationshipUserStatuses.block),
-            Not(RelationshipUserStatuses.cancel),
-          ),
-          userOne: currentUser,
-        },
-        {
-          ...lastMessageAtQuery,
-          userOneStatus: And(
-            Not(RelationshipUserStatuses.block),
-            Not(RelationshipUserStatuses.cancel),
-          ),
-          userTwoStatus: And(
-            Not(RelationshipUserStatuses.block),
-            Not(RelationshipUserStatuses.cancel),
-          ),
-          userTwo: currentUser,
-        },
-      ],
-      order: {
-        lastMessageAt: 'DESC',
-      },
-      relations: [
-        'userOne',
-        'userOne.uploadFiles',
-        'userTwo',
-        'userTwo.uploadFiles',
-      ],
-      take: 20,
-    });
-    const formatFindResult = findResult.map((item) => {
-      const { userOne, userTwo, ...partItem } = item;
-      const userIds = this.relationshipEntity.getUserIdsFromId(item.id);
-      const isUserOne = this.userEntity.isUserOneByIds(userId, userIds);
-
-      return {
-        ...partItem,
-        targetUser: isUserOne
-          ? this.userEntity.convertInRelationship(userTwo)
-          : this.userEntity.convertInRelationship(userOne),
-      };
-    });
+  public async findMany(queryParams: FindManyConversations, currentUser: User) {
+    const findResult = await this.findManyByQuery(queryParams, currentUser);
+    const userIds = this.relationshipEntity.getUserIdsFromId(currentUser.id);
+    const isUserOne = this.userEntity.isUserOneByIds(currentUser.id, userIds);
+    const conversations = this.relationshipEntity.formatConversations(
+      findResult,
+      isUserOne,
+    );
 
     return {
       type: 'conversations',
-      data: formatFindResult,
+      data: conversations,
       pagination: {
-        cursors: EntityFactory.getCursors(
-          _.last(formatFindResult)?.lastMessageAt,
-        ),
+        cursors: EntityFactory.getCursors(_.last(conversations)?.lastMessageAt),
       },
     };
   }
 
-  public async findOneOrFailById(id: string, user: User) {
+  public async findOneOrFailById(id: string, currentUser: User) {
     const currentUserObj = {
-      id: user.id,
+      id: currentUser.id,
     };
     const lastMessageQuery = { lastMessage: Not(IsNull()) };
     const findResult = await this.relationshipEntity.findOne({
@@ -136,10 +77,49 @@ export class ConversationsService {
       relations: [
         'userOne',
         'userOne.uploadFiles',
+        'userOne.avatarFile',
         'userTwo',
         'userTwo.uploadFiles',
+        'userTwo.avatarFile',
       ],
+      select: {
+        userOne: {
+          id: true,
+          birthday: true,
+          gender: true,
+          introduce: true,
+          lastActivatedAt: true,
+          lookingFor: true,
+          nickname: true,
+          role: true,
+          status: true,
+          avatarFile: {
+            location: true,
+          },
+          uploadFiles: {
+            location: true,
+          },
+        },
+        userTwo: {
+          id: true,
+          birthday: true,
+          gender: true,
+          introduce: true,
+          lastActivatedAt: true,
+          lookingFor: true,
+          nickname: true,
+          role: true,
+          status: true,
+          avatarFile: {
+            location: true,
+          },
+          uploadFiles: {
+            location: true,
+          },
+        },
+      },
     });
+
     if (!findResult) {
       throw new NotFoundException({
         errorCode: HttpErrorCodes.CONVERSATION_DOES_NOT_EXIST,
@@ -147,16 +127,14 @@ export class ConversationsService {
       });
     }
 
-    const { userOne, userTwo, ...partConversation } = findResult;
-    const userIds = this.relationshipEntity.getUserIdsFromId(findResult.id);
-    const isUserOne = this.userEntity.isUserOneByIds(user.id, userIds);
+    const userIds = this.relationshipEntity.getUserIdsFromId(currentUser.id);
 
-    const conversation = {
-      ...partConversation,
-      targetUser: isUserOne
-        ? this.userEntity.convertInRelationship(userTwo)
-        : this.userEntity.convertInRelationship(userOne),
-    };
+    const isUserOne = this.userEntity.isUserOneByIds(currentUser.id, userIds);
+
+    const conversation = this.relationshipEntity.formatConversation(
+      findResult,
+      isUserOne,
+    );
 
     return {
       type: 'conversations',
@@ -170,11 +148,15 @@ export class ConversationsService {
     user: User,
   ) {
     await this.findOneOrFailById(id, user);
+
     const { cursor } = queryParams;
+
     const extractCursor = EntityFactory.extractCursor(cursor);
+
     const lastCreatedAt = extractCursor
       ? new Date(extractCursor.value)
       : undefined;
+
     const findResult = await this.messageEntity.findMany({
       where: {
         relationship: { id },
@@ -190,24 +172,126 @@ export class ConversationsService {
       order: {
         createdAt: 'DESC',
       },
-      relations: ['user'],
+      relations: ['user', 'user.avatarFile'],
       select: {
         user: {
           id: true,
           nickname: true,
-          avatar: true,
+          avatarFile: {
+            location: true,
+          },
         },
       },
       take: 20,
     });
 
+    const messages = this.messageEntity.formats(findResult);
+
     return {
       type: 'messagesByConversation',
       conversationId: id,
-      data: findResult,
+      data: messages,
       pagination: {
         cursors: EntityFactory.getCursors(_.last(findResult)?.createdAt),
       },
     };
+  }
+
+  public async findManyByQuery(
+    queryParams: FindManyConversations,
+    currentUser: User,
+  ) {
+    const user = new User({ id: currentUser.id });
+
+    const { cursor } = queryParams;
+
+    const extractCursor = EntityFactory.extractCursor(cursor);
+
+    const lastMessageAt = extractCursor
+      ? new Date(extractCursor.value)
+      : undefined;
+    const lastMessageAtQuery = lastMessageAt
+      ? {
+          lastMessageAt:
+            extractCursor?.type === Cursors.before
+              ? MoreThan(lastMessageAt)
+              : LessThan(lastMessageAt),
+        }
+      : { lastMessageAt: Not(IsNull()) };
+    return await this.relationshipEntity.findMany({
+      where: [
+        {
+          ...lastMessageAtQuery,
+          userOneStatus: And(
+            Not(RelationshipUserStatuses.block),
+            Not(RelationshipUserStatuses.cancel),
+          ),
+          userTwoStatus: And(
+            Not(RelationshipUserStatuses.block),
+            Not(RelationshipUserStatuses.cancel),
+          ),
+          userOne: user,
+        },
+        {
+          ...lastMessageAtQuery,
+          userOneStatus: And(
+            Not(RelationshipUserStatuses.block),
+            Not(RelationshipUserStatuses.cancel),
+          ),
+          userTwoStatus: And(
+            Not(RelationshipUserStatuses.block),
+            Not(RelationshipUserStatuses.cancel),
+          ),
+          userTwo: user,
+        },
+      ],
+      order: {
+        lastMessageAt: 'DESC',
+      },
+      relations: [
+        'userOne',
+        'userOne.uploadFiles',
+        'userOne.avatarFile',
+        'userTwo',
+        'userTwo.uploadFiles',
+        'userTwo.avatarFile',
+      ],
+      select: {
+        userOne: {
+          id: true,
+          birthday: true,
+          gender: true,
+          introduce: true,
+          lastActivatedAt: true,
+          lookingFor: true,
+          nickname: true,
+          role: true,
+          status: true,
+          avatarFile: {
+            location: true,
+          },
+          uploadFiles: {
+            location: true,
+          },
+        },
+        userTwo: {
+          id: true,
+          birthday: true,
+          gender: true,
+          introduce: true,
+          lastActivatedAt: true,
+          lookingFor: true,
+          nickname: true,
+          role: true,
+          status: true,
+          avatarFile: {
+            location: true,
+          },
+          uploadFiles: {
+            location: true,
+          },
+        },
+      },
+    });
   }
 }

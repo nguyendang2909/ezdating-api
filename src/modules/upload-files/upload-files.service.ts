@@ -35,7 +35,7 @@ export class UploadFilesService {
     payload: UploadPhotoDtoDto,
     userId: string,
   ) {
-    const { share } = payload;
+    const { share, isAvatar } = payload;
     const numberUploadedPhotos = await this.uploadFileEntity.count({
       where: {
         user: new User({ id: userId }),
@@ -80,6 +80,11 @@ export class UploadFilesService {
       },
       userId,
     );
+    if (isAvatar) {
+      await this.userEntity.updateOneById(userId, {
+        avatarFile: { id: createResult.id },
+      });
+    }
 
     return createResult;
   }
@@ -133,10 +138,21 @@ export class UploadFilesService {
   }
 
   public async remove(id: string, userId: string) {
-    await this.uploadFileEntity.deleteOne({
+    // const currentUser = await this.userEntity.findOneOrFail({
+    //   where: { id: userId },
+    //   relations: ['avatarFile'],
+    // });
+    // if (currentUser.avatarFile?.id === id) {
+    //   await this.userEntity.updateOneById(userId, {
+    //     avatarFile: {},
+    //   });
+    // }
+
+    const deleted = await this.uploadFileEntity.deleteOne({
       id,
       user: new User({ id: userId }),
     });
-    return { success: true };
+    // TODO: Remove avatar
+    return deleted;
   }
 }

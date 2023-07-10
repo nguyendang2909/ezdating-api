@@ -34,12 +34,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
       process.env.NODE_ENV === 'test' ||
       process.env.NODE_ENV === 'development'
     ) {
-      // tslint:disable-next-line: no-console
-      console.log('HttpExceptionFilter');
-      // tslint:disable-next-line: no-console
-      console.log('exc', exc);
-      // tslint:disable-next-line: no-console
-      console.log('error', error);
+      // // tslint:disable-next-line: no-console
+      // console.log('HttpExceptionFilter');
+      // // tslint:disable-next-line: no-console
+      // console.log('exc', exc);
+      // // tslint:disable-next-line: no-console
+      // console.log('error', error);
     }
 
     return { status, json };

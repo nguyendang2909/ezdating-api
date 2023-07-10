@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import _ from 'lodash';
 import { And, LessThan, Not } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
@@ -160,16 +159,22 @@ export class UsersService {
   }
 
   public async getProfile(currentUserId: string) {
-    const user = await this.userEntity.findOneOrFail({
+    const { password, ...userPart } = await this.userEntity.findOneOrFail({
       where: {
         id: currentUserId,
       },
       relations: {
         uploadFiles: true,
+        avatarFile: true,
       },
     });
 
-    return _.omit<User>(user, ['password']);
+    const formattedProfile = {
+      ...userPart,
+      avatar: userPart.avatarFile?.location,
+    };
+
+    return formattedProfile;
   }
 
   public async updateProfile(

@@ -81,6 +81,7 @@ export class UploadFileEntity {
   }
 
   public async deleteOne(options: FindOptionsWhere<UploadFile>) {
-    return await this.repository.softDelete(options);
+    const deleteResult = await this.repository.delete(options);
+    return !!deleteResult.affected;
   }
 }

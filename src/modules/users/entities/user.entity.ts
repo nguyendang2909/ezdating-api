@@ -26,10 +26,12 @@ import {
 
 @Entity({ name: 'user' })
 export class User extends BaseEntity {
-  @Column({ name: 'avatar', nullable: true, type: 'date' })
   avatar?: string;
 
-  @OneToOne(() => UploadFile, (file) => file.user, { nullable: true })
+  @OneToOne(() => UploadFile, (file) => file.user, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'avatar_file_id' })
   avatarFile?: UploadFile;
 

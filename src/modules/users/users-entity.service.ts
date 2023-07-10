@@ -132,14 +132,23 @@ export class UserEntity {
     }
   }
 
-  public convertInRelationship(user: User) {
+  public formatInConversation(user: Partial<User>) {
     // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
-    const { birthday, password, email, phoneNumber, uploadFiles, ...userPart } =
+    const { birthday, password, email, phoneNumber, avatarFile, ...userPart } =
       user;
     return {
       ...userPart,
       ...(birthday ? { age: moment().diff(birthday, 'years') } : {}),
-      ...(uploadFiles ? { avatar: uploadFiles[0] } : {}),
+      avatarFile,
+      ...(avatarFile ? { avatar: avatarFile.location } : {}),
+    };
+  }
+
+  public formatInMessage(user: Partial<User>) {
+    return {
+      id: user.id,
+      name: user.nickname,
+      avatar: user.avatarFile?.location,
     };
   }
 }
