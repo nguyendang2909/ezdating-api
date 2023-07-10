@@ -1,13 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
 
 import {
   EntityCountOptions,
   EntityFindManyOptions,
   EntityFindOneByIdOptions,
-  EntityFindOneOptions,
 } from '../../commons/types/find-options.type';
 import { UploadFile } from './entities/upload-file.entity';
 
@@ -35,7 +34,7 @@ export class UploadFileEntity {
   }
 
   public async findOne(
-    options: EntityFindOneOptions<UploadFile>,
+    options: FindOneOptions<UploadFile>,
   ): Promise<Partial<UploadFile> | null> {
     if (_.isEmpty(options.where)) {
       return null;
@@ -44,7 +43,7 @@ export class UploadFileEntity {
   }
 
   public async findOneOrFail(
-    options: EntityFindOneOptions<UploadFile>,
+    options: FindOneOptions<UploadFile>,
   ): Promise<Partial<UploadFile>> {
     const findResult = await this.findOne(options);
     if (!findResult) {

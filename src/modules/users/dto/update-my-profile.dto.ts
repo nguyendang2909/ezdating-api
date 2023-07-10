@@ -43,6 +43,10 @@ export class UpdateMyProfileDto {
   )
   lookingFor?: UserLookingFor;
 
+  @ApiPropertyOptional({ type: String })
+  @JoiSchema(Joi.string().guid().optional())
+  avatarFileId?: string;
+
   country?: string;
 
   city?: string;

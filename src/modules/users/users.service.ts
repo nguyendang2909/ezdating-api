@@ -7,6 +7,7 @@ import _ from 'lodash';
 import { And, LessThan, Not } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
+import { UploadFileEntity } from '../upload-files/upload-file-entity.service';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
 import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
 import { FindOneUserDto } from './dto/is-exist-user.dto';
@@ -18,7 +19,11 @@ import { UserEntity } from './users-entity.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly userEntity: UserEntity) {}
+  constructor(
+    private readonly userEntity: UserEntity,
+    // @Inject(forwardRef(() => UploadFileEntity))
+    private readonly uploadFileEntity: UploadFileEntity,
+  ) {}
 
   public async findManyDating(
     queryParams: FindManyDatingUsersDto,
@@ -171,7 +176,17 @@ export class UsersService {
     payload: UpdateMyProfileDto,
     currentUserId: string,
   ) {
-    const { ...updateDto } = payload;
+    const { avatarFileId, ...updateDto } = payload;
+    if (avatarFileId) {
+      await this.uploadFileEntity.findOneOrFail({
+        where: {
+          id: avatarFileId,
+          user: {
+            id: currentUserId,
+          },
+        },
+      });
+    }
     const updateOptions: QueryDeepPartialEntity<User> = {
       ...updateDto,
     };
