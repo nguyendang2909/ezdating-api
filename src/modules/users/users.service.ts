@@ -177,6 +177,7 @@ export class UsersService {
     currentUserId: string,
   ) {
     const { avatarFileId, ...updateDto } = payload;
+
     if (avatarFileId) {
       await this.uploadFileEntity.findOneOrFail({
         where: {
@@ -187,9 +188,11 @@ export class UsersService {
         },
       });
     }
+
     const updateOptions: QueryDeepPartialEntity<User> = {
       ...updateDto,
     };
+
     return await this.userEntity.updateOneById(currentUserId, updateOptions);
   }
 

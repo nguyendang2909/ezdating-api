@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
 import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
 
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import {
   EntityCountOptions,
   EntityFindManyOptions,
@@ -46,9 +47,14 @@ export class UploadFileEntity {
     options: FindOneOptions<UploadFile>,
   ): Promise<Partial<UploadFile>> {
     const findResult = await this.findOne(options);
+
     if (!findResult) {
-      throw new NotFoundException('User not found!');
+      throw new NotFoundException({
+        errorCode: HttpErrorCodes.FILE_DOES_NOT_EXIST,
+        message: 'File does not exist!',
+      });
     }
+
     return findResult;
   }
 
