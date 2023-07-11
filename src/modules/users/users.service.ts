@@ -61,6 +61,7 @@ export class UsersService {
     return { data: findResult, pagination: { cursor: {} } };
   }
 
+  // https://stackoverflow.com/questions/67435650/storing-geojson-points-and-finding-points-within-a-given-distance-radius-nodej
   public async findManyNearby(
     queryParams: FindManyDatingUsersDto,
     currentUserId: string,
