@@ -201,8 +201,6 @@ export class ConversationsService {
     queryParams: FindManyConversations,
     currentUser: User,
   ) {
-    const user = new User({ id: currentUser.id });
-
     const { cursor } = queryParams;
 
     const extractCursor = EntityFactory.extractCursor(cursor);
@@ -230,7 +228,9 @@ export class ConversationsService {
             Not(RelationshipUserStatuses.block),
             Not(RelationshipUserStatuses.cancel),
           ),
-          userOne: user,
+          userOne: {
+            id: currentUser.id,
+          },
         },
         {
           ...lastMessageAtQuery,
@@ -242,7 +242,9 @@ export class ConversationsService {
             Not(RelationshipUserStatuses.block),
             Not(RelationshipUserStatuses.cancel),
           ),
-          userTwo: user,
+          userTwo: {
+            id: currentUser.id,
+          },
         },
       ],
       order: {

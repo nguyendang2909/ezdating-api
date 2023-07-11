@@ -47,6 +47,14 @@ export class UpdateMyProfileDto {
   @JoiSchema(Joi.string().guid().optional())
   avatarFileId?: string;
 
+  @ApiPropertyOptional({ type: Number })
+  @JoiSchema(Joi.number().optional())
+  longitude?: number;
+
+  @ApiPropertyOptional({ type: Number })
+  @JoiSchema(Joi.number().optional())
+  latitude?: number;
+
   country?: string;
 
   city?: string;

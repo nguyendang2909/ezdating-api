@@ -19,6 +19,8 @@ export class UserEntity {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
+  public createOne = this.userRepository.create;
+
   public async saveOne(entity: Partial<User>): Promise<User> {
     const { phoneNumber } = entity;
     if (!phoneNumber) {

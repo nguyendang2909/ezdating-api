@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
+  Point,
 } from 'typeorm';
 
 import { BaseEntity } from '../../../commons/entities/base.entity';
@@ -63,7 +64,7 @@ export class User extends BaseEntity {
     srid: 4326,
     nullable: true,
   })
-  location?: string;
+  location?: Point;
 
   @Column({
     name: 'looking_for',

@@ -38,7 +38,9 @@ export class UploadFilesService {
     const { share, isAvatar } = payload;
     const numberUploadedPhotos = await this.uploadFileEntity.count({
       where: {
-        user: new User({ id: userId }),
+        user: {
+          id: userId,
+        },
       },
     });
     if (numberUploadedPhotos >= LIMIT_UPLOADED_PHOTOS) {
@@ -61,7 +63,9 @@ export class UploadFilesService {
       .promise();
     const numberUploadedPhotosAgain = await this.uploadFileEntity.count({
       where: {
-        user: new User({ id: userId }),
+        user: {
+          id: userId,
+        },
       },
     });
     if (numberUploadedPhotosAgain >= LIMIT_UPLOADED_PHOTOS) {
@@ -95,7 +99,13 @@ export class UploadFilesService {
       where: {
         share,
         type,
-        ...(targetUserId ? { user: new User({ id: targetUserId }) } : {}),
+        ...(targetUserId
+          ? {
+              user: {
+                id: targetUserId,
+              },
+            }
+          : {}),
       },
       select: {
         id: true,
@@ -110,7 +120,7 @@ export class UploadFilesService {
   ): Promise<Partial<UploadFile> | null> {
     return await this.uploadFileEntity.findOne({
       where: [
-        { id, user: new User({ id: userId }) },
+        { id, user: { id: userId } },
         {
           id,
           share: UploadFileShares.public,
@@ -150,7 +160,7 @@ export class UploadFilesService {
 
     const deleted = await this.uploadFileEntity.deleteOne({
       id,
-      user: new User({ id: userId }),
+      user: { id: userId },
     });
     // TODO: Remove avatar
     return deleted;

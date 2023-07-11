@@ -9,7 +9,6 @@ import { FindManyOptions, FindOneOptions, Not, Repository } from 'typeorm';
 
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
-import { User } from '../users/entities/user.entity';
 import { UserEntity } from '../users/users-entity.service';
 import { Relationship } from './entities/relationship.entity';
 import {
@@ -60,7 +59,6 @@ export class RelationshipEntity {
   }
 
   public async findOneConversationById(id: string, userId: string) {
-    const user = new User({ id: userId });
     return await this.repository.findOne({
       where: [
         {
@@ -70,13 +68,17 @@ export class RelationshipEntity {
         },
         {
           id,
-          userOne: user,
+          userOne: {
+            id: userId,
+          },
           userTwoStatus: Not(RelationshipUserStatuses.block),
           canUserOneChat: true,
         },
         {
           id,
-          userTwo: user,
+          userTwo: {
+            id: userId,
+          },
           userOneStatus: Not(RelationshipUserStatuses.block),
           canUserTwoChat: true,
         },

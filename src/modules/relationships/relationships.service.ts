@@ -82,7 +82,6 @@ export class RelationshipsService {
     currentUserId: string,
   ) {
     const { cursor } = queryParams;
-    const currentUser = new User({ id: currentUserId });
     const extractCursor = EntityFactory.extractCursor(cursor);
     const lastStatusAt = extractCursor
       ? new Date(extractCursor.value)
@@ -101,14 +100,18 @@ export class RelationshipsService {
           ...lastStatusAtQuery,
           userOneStatus: RelationshipUserStatuses.like,
           userTwoStatus: RelationshipUserStatuses.like,
-          userOne: currentUser,
+          userOne: {
+            id: currentUserId,
+          },
           lastMessage: IsNull(),
         },
         {
           ...lastStatusAtQuery,
           userOneStatus: RelationshipUserStatuses.like,
           userTwoStatus: RelationshipUserStatuses.like,
-          userTwo: currentUser,
+          userTwo: {
+            id: currentUserId,
+          },
           lastMessage: IsNull(),
         },
       ],
@@ -142,7 +145,6 @@ export class RelationshipsService {
     currentUserId: string,
   ) {
     const { cursor } = queryParams;
-    const currentUser = new User({ id: currentUserId });
     const extractCursor = EntityFactory.extractCursor(cursor);
     const lastStatusAt = extractCursor
       ? new Date(extractCursor.value)
@@ -160,7 +162,9 @@ export class RelationshipsService {
             : {}),
           userOneStatus: Not(RelationshipUserStatuses.like),
           userTwoStatus: RelationshipUserStatuses.like,
-          userOne: currentUser,
+          userOne: {
+            id: currentUserId,
+          },
         },
         {
           ...(lastStatusAt
@@ -173,7 +177,9 @@ export class RelationshipsService {
             : {}),
           userOneStatus: RelationshipUserStatuses.like,
           userTwoStatus: Not(RelationshipUserStatuses.like),
-          userTwo: currentUser,
+          userTwo: {
+            id: currentUserId,
+          },
         },
       ],
       order: {

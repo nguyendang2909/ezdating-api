@@ -39,6 +39,8 @@ export class UsersService {
         status: UserStatuses.activated,
       },
       relations: ['state', 'state.country'],
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       select: {
         id: true,
         birthday: true,
@@ -181,7 +183,7 @@ export class UsersService {
     payload: UpdateMyProfileDto,
     currentUserId: string,
   ) {
-    const { avatarFileId, ...updateDto } = payload;
+    const { avatarFileId, longitude, latitude, ...updateDto } = payload;
 
     if (avatarFileId) {
       await this.uploadFileEntity.findOneOrFail({
@@ -197,6 +199,14 @@ export class UsersService {
     const updateOptions: QueryDeepPartialEntity<User> = {
       ...(avatarFileId ? { avatarFile: { id: avatarFileId } } : {}),
       ...updateDto,
+      ...(longitude && latitude
+        ? {
+            location: {
+              type: 'Point',
+              coordinates: [longitude, latitude],
+            },
+          }
+        : {}),
     };
 
     return await this.userEntity.updateOneById(currentUserId, updateOptions);
