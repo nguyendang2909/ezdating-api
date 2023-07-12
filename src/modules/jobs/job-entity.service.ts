@@ -3,28 +3,24 @@ import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
-import { HttpErrorCodes } from '../commons/erros/http-error-codes.constant';
-import { RelationshipStatus } from './entities/relationship-status.entity';
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { Job } from './entities/job.entity';
 
 @Injectable()
-export class RelationshipStatusEntity {
+export class JobEntity {
   constructor(
-    @InjectRepository(RelationshipStatus)
-    private readonly repository: Repository<RelationshipStatus>,
+    @InjectRepository(Job)
+    private readonly repository: Repository<Job>,
   ) {}
 
-  public async findOne(
-    options: FindOneOptions<RelationshipStatus>,
-  ): Promise<RelationshipStatus | null> {
+  public async findOne(options: FindOneOptions<Job>): Promise<Job | null> {
     if (_.isEmpty(options.where)) {
       return null;
     }
     return await this.repository.findOne(options);
   }
 
-  public async findOneOrFail(
-    options: FindOneOptions<RelationshipStatus>,
-  ): Promise<RelationshipStatus> {
+  public async findOneOrFail(options: FindOneOptions<Job>): Promise<Job> {
     const findResult = await this.findOne(options);
     if (!findResult) {
       throw new BadRequestException({
@@ -35,9 +31,7 @@ export class RelationshipStatusEntity {
     return findResult;
   }
 
-  public async findAll(
-    options: FindManyOptions<RelationshipStatus>,
-  ): Promise<RelationshipStatus[]> {
+  public async findAll(options: FindManyOptions<Job>): Promise<Job[]> {
     return await this.repository.find(options);
   }
 }

@@ -3,19 +3,19 @@ import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
-import { HttpErrorCodes } from '../commons/erros/http-error-codes.constant';
-import { RelationshipStatus } from './entities/relationship-status.entity';
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { EducationLevel } from './entities/education-level.entity';
 
 @Injectable()
-export class RelationshipStatusEntity {
+export class EducationLevelEntity {
   constructor(
-    @InjectRepository(RelationshipStatus)
-    private readonly repository: Repository<RelationshipStatus>,
+    @InjectRepository(EducationLevel)
+    private readonly repository: Repository<EducationLevel>,
   ) {}
 
   public async findOne(
-    options: FindOneOptions<RelationshipStatus>,
-  ): Promise<RelationshipStatus | null> {
+    options: FindOneOptions<EducationLevel>,
+  ): Promise<EducationLevel | null> {
     if (_.isEmpty(options.where)) {
       return null;
     }
@@ -23,8 +23,8 @@ export class RelationshipStatusEntity {
   }
 
   public async findOneOrFail(
-    options: FindOneOptions<RelationshipStatus>,
-  ): Promise<RelationshipStatus> {
+    options: FindOneOptions<EducationLevel>,
+  ): Promise<EducationLevel> {
     const findResult = await this.findOne(options);
     if (!findResult) {
       throw new BadRequestException({
@@ -36,8 +36,8 @@ export class RelationshipStatusEntity {
   }
 
   public async findAll(
-    options: FindManyOptions<RelationshipStatus>,
-  ): Promise<RelationshipStatus[]> {
+    options: FindManyOptions<EducationLevel>,
+  ): Promise<EducationLevel[]> {
     return await this.repository.find(options);
   }
 }

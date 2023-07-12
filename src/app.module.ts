@@ -13,21 +13,23 @@ import path from 'path';
 import winston from 'winston';
 
 import { AppConfig } from './app.config';
-import { JwtAuthGuard } from './guards/jwt.guard';
-import { RolesGuard } from './guards/roles.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { ConversationsModule } from './modules/conversations/conversations.module';
 import { CountriesModule } from './modules/countries/countries.module';
+import { EducationLevelsModule } from './modules/education-levels/education-levels.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
+import { JwtAuthGuard } from './modules/guards/jwt.guard';
+import { RolesGuard } from './modules/guards/roles.guard';
 import { HealthModule } from './modules/health/health.module';
+import { JobsModule } from './modules/jobs/jobs.module';
 import { LoggedDevicesModule } from './modules/logged-devices/logged-devices.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { RelationshipsModule } from './modules/relationships/relationships.module';
 import { StatesModule } from './modules/states/states.module';
 import { UploadFilesModule } from './modules/upload-files/upload-files.module';
 import { UsersModule } from './modules/users/users.module';
-import { UserRelationshipStatusesModule } from './relationship-statuses/relationship-statuses.module';
+import { RelationshipStatusesModule } from './relationship-statuses/relationship-statuses.module';
 
 @Module({
   imports: [
@@ -151,7 +153,9 @@ import { UserRelationshipStatusesModule } from './relationship-statuses/relation
     LoggedDevicesModule,
     ConversationsModule,
     HealthModule,
-    UserRelationshipStatusesModule,
+    RelationshipStatusesModule,
+    EducationLevelsModule,
+    JobsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

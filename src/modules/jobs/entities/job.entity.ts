@@ -1,9 +1,9 @@
 import { Column, Entity } from 'typeorm';
 
-import { DataEntity } from '../../commons/entities/base.entity';
+import { DataEntity } from '../../../commons/entities/base.entity';
 
-@Entity({ name: 'relationship_status' })
-export class RelationshipStatus extends DataEntity {
+@Entity({ name: 'job' })
+export class Job extends DataEntity {
   @Column({ name: 'value', type: 'varchar', nullable: false })
   value: string;
 
