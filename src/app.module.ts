@@ -17,7 +17,6 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { ConversationsModule } from './modules/conversations/conversations.module';
 import { CountriesModule } from './modules/countries/countries.module';
-import { EducationLevelsModule } from './modules/education-levels/education-levels.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
 import { JwtAuthGuard } from './modules/guards/jwt.guard';
 import { RolesGuard } from './modules/guards/roles.guard';
@@ -29,7 +28,6 @@ import { RelationshipsModule } from './modules/relationships/relationships.modul
 import { StatesModule } from './modules/states/states.module';
 import { UploadFilesModule } from './modules/upload-files/upload-files.module';
 import { UsersModule } from './modules/users/users.module';
-import { RelationshipStatusesModule } from './relationship-statuses/relationship-statuses.module';
 
 @Module({
   imports: [
@@ -153,8 +151,6 @@ import { RelationshipStatusesModule } from './relationship-statuses/relationship
     LoggedDevicesModule,
     ConversationsModule,
     HealthModule,
-    RelationshipStatusesModule,
-    EducationLevelsModule,
     JobsModule,
   ],
   providers: [

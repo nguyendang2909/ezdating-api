@@ -22,12 +22,37 @@ export const UserStatuses = {
 export type UserStatus = (typeof UserStatuses)[keyof typeof UserStatuses];
 
 export const UserLookingFors = {
-  lover: 'lover',
-  friend: 'friend',
-  partner: 'partner',
-  marriage: 'marriage',
+  boyGirlFriend: 'boyGirlFriend',
+  makeFriends: 'makeFriends',
+  sexPartner: 'sexPartner',
+  getMarried: 'getMarried',
   oneNightStand: 'oneNightStand',
 };
 
 export type UserLookingFor =
   (typeof UserLookingFors)[keyof typeof UserLookingFors];
+
+export const UserRelationshipStatuses = {
+  single: 'single',
+  haveFriend: 'haveBoyGirlFriend',
+  married: 'married',
+  divorcedWithouChildren: 'divorcedWithouChildren',
+  divercedWithChildren: 'divercedWithChildren',
+  singleMomDad: 'singleMomDad',
+};
+
+export type UserRelationshipStatus =
+  (typeof UserRelationshipStatuses)[keyof typeof UserRelationshipStatuses];
+
+export const UserEducationLevels = {
+  highSchool: 'highSchool',
+  bachelor: 'bachelor',
+  associate: 'associate',
+  undergraduate: 'undergraduate',
+  master: 'master',
+  doctor: 'doctor',
+  professor: 'professor',
+};
+
+export type UserEducationLevel =
+  (typeof UserEducationLevels)[keyof typeof UserEducationLevels];

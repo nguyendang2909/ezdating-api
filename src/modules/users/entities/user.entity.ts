@@ -11,15 +11,18 @@ import {
 
 import { BaseEntity } from '../../../commons/entities/base.entity';
 import { EntityFactory } from '../../../commons/lib/entity-factory';
-import { RelationshipStatus } from '../../../relationship-statuses/entities/relationship-status.entity';
 import { Country } from '../../countries/entities/country.entity';
 import { State } from '../../states/entities/state.entity';
 import { UploadFile } from '../../upload-files/entities/upload-file.entity';
 import {
+  UserEducationLevel,
+  UserEducationLevels,
   UserGender,
   UserGenders,
   UserLookingFor,
   UserLookingFors,
+  UserRelationshipStatus,
+  UserRelationshipStatuses,
   UserRole,
   UserRoles,
   UserStatus,
@@ -39,6 +42,14 @@ export class User extends BaseEntity {
 
   @Column({ name: 'birthday', nullable: true, type: 'date' })
   birthday?: string;
+
+  @Column({
+    name: 'education_level',
+    type: 'enum',
+    enum: UserEducationLevels,
+    nullable: true,
+  })
+  educationLevel: UserEducationLevel;
 
   @ManyToOne(() => State, { nullable: true })
   @JoinColumn({ name: 'state_id' })
@@ -129,9 +140,13 @@ export class User extends BaseEntity {
   })
   lastActivatedAt!: Date;
 
-  @ManyToOne(() => RelationshipStatus, { nullable: true })
-  @JoinColumn({ name: 'relationship_status' })
-  relationshipStatus?: RelationshipStatus;
+  @Column({
+    name: 'relationship_status',
+    type: 'enum',
+    enum: UserRelationshipStatuses,
+    nullable: true,
+  })
+  relationshipStatus: UserRelationshipStatus;
 
   @Column({ name: 'weight', type: 'integer', nullable: true })
   weight?: number;
