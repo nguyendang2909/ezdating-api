@@ -27,6 +27,7 @@ import { RelationshipsModule } from './modules/relationships/relationships.modul
 import { StatesModule } from './modules/states/states.module';
 import { UploadFilesModule } from './modules/upload-files/upload-files.module';
 import { UsersModule } from './modules/users/users.module';
+import { UserRelationshipStatusesModule } from './relationship-statuses/relationship-statuses.module';
 
 @Module({
   imports: [
@@ -150,6 +151,7 @@ import { UsersModule } from './modules/users/users.module';
     LoggedDevicesModule,
     ConversationsModule,
     HealthModule,
+    UserRelationshipStatusesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

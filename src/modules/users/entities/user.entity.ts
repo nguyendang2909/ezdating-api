@@ -11,6 +11,7 @@ import {
 
 import { BaseEntity } from '../../../commons/entities/base.entity';
 import { EntityFactory } from '../../../commons/lib/entity-factory';
+import { RelationshipStatus } from '../../../relationship-statuses/entities/relationship-status.entity';
 import { Country } from '../../countries/entities/country.entity';
 import { State } from '../../states/entities/state.entity';
 import { UploadFile } from '../../upload-files/entities/upload-file.entity';
@@ -52,6 +53,9 @@ export class User extends BaseEntity {
 
   @Column({ name: 'gender', enum: UserGenders, nullable: true, type: 'enum' })
   gender?: UserGender;
+
+  @Column({ name: 'height', type: 'integer', nullable: true })
+  height?: number;
 
   @Column({ name: 'introduce', type: 'varchar', nullable: true, length: 500 })
   introduce?: string;
@@ -124,6 +128,13 @@ export class User extends BaseEntity {
     nullable: false,
   })
   lastActivatedAt!: Date;
+
+  @ManyToOne(() => RelationshipStatus, { nullable: true })
+  @JoinColumn({ name: 'relationship_status' })
+  relationshipStatus?: RelationshipStatus;
+
+  @Column({ name: 'weight', type: 'integer', nullable: true })
+  weight?: number;
 
   @Column({ name: 'created_by', type: 'uuid', nullable: true })
   createdBy?: string;

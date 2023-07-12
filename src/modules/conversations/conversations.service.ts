@@ -76,10 +76,8 @@ export class ConversationsService {
       },
       relations: [
         'userOne',
-        'userOne.uploadFiles',
         'userOne.avatarFile',
         'userTwo',
-        'userTwo.uploadFiles',
         'userTwo.avatarFile',
       ],
       select: {
@@ -96,9 +94,6 @@ export class ConversationsService {
           avatarFile: {
             location: true,
           },
-          uploadFiles: {
-            location: true,
-          },
         },
         userTwo: {
           id: true,
@@ -111,9 +106,6 @@ export class ConversationsService {
           role: true,
           status: true,
           avatarFile: {
-            location: true,
-          },
-          uploadFiles: {
             location: true,
           },
         },
