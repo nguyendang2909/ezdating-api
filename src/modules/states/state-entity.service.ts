@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
 import { State } from './entities/state.entity';
 
@@ -36,8 +37,8 @@ export class StateEntity {
     const findResult = await this.findOne(options);
     if (!findResult) {
       throw new NotFoundException({
-        errorCode: 'STATE_DOES_NOT_EXIST',
-        message: 'State doesnot exist!',
+        errorCode: HttpErrorCodes.STATE_DOES_NOT_EXIST,
+        message: 'State does not exist!',
       });
     }
     return findResult;

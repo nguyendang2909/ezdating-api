@@ -11,8 +11,6 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
-import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
-import { FindOneUserDto } from './dto/is-exist-user.dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
 import { UsersService } from './users.service';
@@ -45,20 +43,6 @@ export class UsersController {
     };
   }
 
-  @Get('/search')
-  private async findOne(
-    @Query() findOneUserDto: FindOneUserDto,
-    @UserId() currentUserId: string,
-  ) {
-    return {
-      type: 'user',
-      data: await this.usersService.findOneOrFail(
-        findOneUserDto,
-        currentUserId,
-      ),
-    };
-  }
-
   @Get('/profile')
   private async getProfile(@UserId() currentUserId: string) {
     return {
@@ -70,16 +54,11 @@ export class UsersController {
   @Get('/:id')
   private async findOneById(
     @Param('id', ParseUUIDPipe) id: string,
-    @Query() findOneUserByIdDto: FindOneUserByIdDto,
     @UserId() currentUserId: string,
   ) {
     return {
       type: 'profile',
-      data: await this.usersService.findOneOrFailById(
-        id,
-        findOneUserByIdDto,
-        currentUserId,
-      ),
+      data: await this.usersService.findOneOrFailById(id, currentUserId),
     };
   }
 

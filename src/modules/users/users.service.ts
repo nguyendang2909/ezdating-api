@@ -1,14 +1,11 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { And, LessThan, Not } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
+import { CountryEntity } from '../countries/country-entity.service';
+import { StateEntity } from '../states/state-entity.service';
 import { UploadFileEntity } from '../upload-files/upload-file-entity.service';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
-import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
 import { FindOneUserDto } from './dto/is-exist-user.dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
@@ -20,8 +17,9 @@ import { UserEntity } from './users-entity.service';
 export class UsersService {
   constructor(
     private readonly userEntity: UserEntity,
-    // @Inject(forwardRef(() => UploadFileEntity))
     private readonly uploadFileEntity: UploadFileEntity,
+    private readonly stateEntity: StateEntity,
+    private readonly countryEntity: CountryEntity,
   ) {}
 
   public async findManyDating(
@@ -54,6 +52,7 @@ export class UsersService {
             id: true,
           },
         },
+        lastActivatedAt: true,
       },
       order: {},
     });
@@ -111,57 +110,16 @@ export class UsersService {
     return findResult;
   }
 
-  public async findOneOrFail(
-    findOneUserDto: FindOneUserDto,
-    currentUserId: string,
-  ) {
-    const findResult = await this.findOne(findOneUserDto, currentUserId);
-    if (!findResult) {
-      throw new NotFoundException('User not found!');
-    }
-
-    return findResult;
-  }
-
-  public async findOneById(
-    id: string,
-    findOneUserByIdDto: FindOneUserByIdDto,
-    currentUserId: string,
-  ) {
-    const findResult = await this.userEntity.findOne({
-      where: {
-        id,
-      },
+  public async findOneOrFailById(id: string, currentUserId: string) {
+    const findResult = await this.userEntity.findOneOrFail({
+      where: { id },
     });
 
     return findResult;
   }
 
-  public async findOneOrFailById(
-    id: string,
-    findOneUserByIdDto: FindOneUserByIdDto,
-    currentUserId: string,
-  ) {
-    const findResult = await this.findOneById(
-      id,
-      findOneUserByIdDto,
-      currentUserId,
-    );
-    if (!findResult) {
-      throw new BadRequestException('User not found!');
-    }
-    const { status } = findResult;
-    if (!status || status === UserStatuses.banned) {
-      throw new BadRequestException({
-        message: 'User has been banned',
-        errorCode: 'USER_BANNED',
-      });
-    }
-
-    return findResult;
-  }
-
   public async getProfile(currentUserId: string) {
+    // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
     const { password, ...userPart } = await this.userEntity.findOneOrFail({
       where: {
         id: currentUserId,
@@ -184,21 +142,10 @@ export class UsersService {
     payload: UpdateMyProfileDto,
     currentUserId: string,
   ) {
-    const { avatarFileId, longitude, latitude, ...updateDto } = payload;
-
-    if (avatarFileId) {
-      await this.uploadFileEntity.findOneOrFail({
-        where: {
-          id: avatarFileId,
-          user: {
-            id: currentUserId,
-          },
-        },
-      });
-    }
+    const { avatarFileId, longitude, latitude, stateId, ...updateDto } =
+      payload;
 
     const updateOptions: QueryDeepPartialEntity<User> = {
-      ...(avatarFileId ? { avatarFile: { id: avatarFileId } } : {}),
       ...updateDto,
       ...(longitude && latitude
         ? {
@@ -210,6 +157,27 @@ export class UsersService {
         : {}),
     };
 
+    if (avatarFileId) {
+      await this.uploadFileEntity.findOneOrFail({
+        where: {
+          id: avatarFileId,
+          user: {
+            id: currentUserId,
+          },
+        },
+      });
+      updateOptions.avatarFile = { id: avatarFileId };
+    }
+
+    if (stateId) {
+      await this.stateEntity.findOneOrFail({
+        where: { id: stateId },
+      });
+      updateOptions.state = {
+        id: stateId,
+      };
+    }
+
     return await this.userEntity.updateOneById(currentUserId, updateOptions);
   }
 
@@ -218,6 +186,9 @@ export class UsersService {
     currentUserId: string,
   ) {
     const { stateId, ...updateDto } = payload;
+    await this.stateEntity.findOneOrFail({
+      where: { id: stateId },
+    });
     const updateOptions: QueryDeepPartialEntity<User> = {
       ...updateDto,
       state: { id: stateId },

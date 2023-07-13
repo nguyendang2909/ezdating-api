@@ -97,6 +97,14 @@ export class User extends BaseEntity {
   })
   haveBasicInfo?: boolean;
 
+  @Column({
+    name: 'is_verified',
+    type: 'boolean',
+    nullable: true,
+    default: false,
+  })
+  isVerified?: boolean;
+
   @Column({ name: 'nickname', length: 100, nullable: true, type: 'varchar' })
   nickname?: string;
 

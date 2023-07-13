@@ -5,10 +5,14 @@ import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 
 import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 import {
+  UserEducationLevel,
+  UserEducationLevels,
   UserGender,
   UserGenders,
   UserLookingFor,
   UserLookingFors,
+  UserRelationshipStatus,
+  UserRelationshipStatuses,
 } from '../users.constant';
 
 const JoiExtendDate = Joi.extend(JoiDate);
@@ -18,6 +22,14 @@ export class UpdateMyProfileDto {
   @ApiPropertyOptional({ type: String })
   @JoiSchema(JoiExtendDate.date().format('YYYY-MM-DD').optional().raw())
   birthday?: string;
+
+  @ApiPropertyOptional({ type: String, enum: UserEducationLevels })
+  @JoiSchema(
+    Joi.string()
+      .valid(...Object.values(UserEducationLevels))
+      .optional(),
+  )
+  educationLevel: UserEducationLevel;
 
   @ApiPropertyOptional({ type: String })
   @JoiSchema(
@@ -55,7 +67,15 @@ export class UpdateMyProfileDto {
   @JoiSchema(Joi.number().optional())
   latitude?: number;
 
-  country?: string;
+  @ApiPropertyOptional({ type: String, enum: UserRelationshipStatuses })
+  @JoiSchema(
+    Joi.string()
+      .valid(...Object.values(UserRelationshipStatuses))
+      .optional(),
+  )
+  relationshipStatus: UserRelationshipStatus;
 
-  city?: string;
+  @ApiPropertyOptional({ type: Number })
+  @JoiSchema(Joi.number().required())
+  stateId?: number;
 }

@@ -17,7 +17,7 @@ export const UserStatuses = {
   banned: 'banned',
   activated: 'activated',
   deactivate: 'deactivate',
-};
+} as const;
 
 export type UserStatus = (typeof UserStatuses)[keyof typeof UserStatuses];
 
@@ -27,7 +27,7 @@ export const UserLookingFors = {
   sexPartner: 'sexPartner',
   getMarried: 'getMarried',
   oneNightStand: 'oneNightStand',
-};
+} as const;
 
 export type UserLookingFor =
   (typeof UserLookingFors)[keyof typeof UserLookingFors];
@@ -37,9 +37,9 @@ export const UserRelationshipStatuses = {
   haveFriend: 'haveBoyGirlFriend',
   married: 'married',
   divorcedWithouChildren: 'divorcedWithouChildren',
-  divercedWithChildren: 'divercedWithChildren',
+  divorcedWithChildren: 'divorcedWithChildren',
   singleMomDad: 'singleMomDad',
-};
+} as const;
 
 export type UserRelationshipStatus =
   (typeof UserRelationshipStatuses)[keyof typeof UserRelationshipStatuses];
@@ -52,7 +52,7 @@ export const UserEducationLevels = {
   master: 'master',
   doctor: 'doctor',
   professor: 'professor',
-};
+} as const;
 
 export type UserEducationLevel =
   (typeof UserEducationLevels)[keyof typeof UserEducationLevels];
