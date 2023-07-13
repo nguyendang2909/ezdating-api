@@ -178,7 +178,11 @@ export class UsersService {
       };
     }
 
-    return await this.userEntity.updateOneById(currentUserId, updateOptions);
+    return await this.userEntity.updateOneById(
+      currentUserId,
+      updateOptions,
+      currentUserId,
+    );
   }
 
   public async updateProfileBasicInfo(
@@ -194,12 +198,20 @@ export class UsersService {
       state: { id: stateId },
       haveBasicInfo: true,
     };
-    return await this.userEntity.updateOneById(currentUserId, updateOptions);
+    return await this.userEntity.updateOneById(
+      currentUserId,
+      updateOptions,
+      currentUserId,
+    );
   }
 
   public async deactivate(userId: string) {
-    return await this.userEntity.updateOneById(userId, {
-      status: UserStatuses.activated,
-    });
+    return await this.userEntity.updateOneById(
+      userId,
+      {
+        status: UserStatuses.activated,
+      },
+      userId,
+    );
   }
 }

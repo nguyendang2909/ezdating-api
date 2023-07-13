@@ -67,7 +67,6 @@ export class AuthService {
         refreshToken,
         expiresIn: moment().add(90, 'days'),
       },
-      userId,
     );
     if (!isUpdated) {
       throw new UnauthorizedException();

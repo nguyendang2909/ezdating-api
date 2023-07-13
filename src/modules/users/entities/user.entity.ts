@@ -43,6 +43,9 @@ export class User extends BaseEntity {
   @Column({ name: 'birthday', nullable: true, type: 'date' })
   birthday?: string;
 
+  @Column({ name: 'coins', type: 'integer', nullable: false, default: 0 })
+  coins: number;
+
   @Column({
     name: 'education_level',
     type: 'enum',

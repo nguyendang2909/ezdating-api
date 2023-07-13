@@ -22,9 +22,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         throw new UnauthorizedException();
       });
 
-    await this.userEntity.updateOneById(user.id, {
-      lastActivatedAt: new Date(),
-    });
+    await this.userEntity.updateOneById(
+      user.id,
+      {
+        lastActivatedAt: new Date(),
+      },
+      user.id,
+    );
 
     return user;
   }

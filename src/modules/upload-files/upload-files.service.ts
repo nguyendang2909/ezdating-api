@@ -85,9 +85,13 @@ export class UploadFilesService {
       userId,
     );
     if (isAvatar) {
-      await this.userEntity.updateOneById(userId, {
-        avatarFile: { id: createResult.id },
-      });
+      await this.userEntity.updateOneById(
+        userId,
+        {
+          avatarFile: { id: createResult.id },
+        },
+        userId,
+      );
     }
 
     return createResult;

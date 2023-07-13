@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
-import { CommonEntity } from '../../../commons/entities/common.entity';
+import { BaseEntity } from '../../../commons/entities/base.entity';
 import { User } from '../../users/entities/user.entity';
 import {
   UploadFileShare,
@@ -10,7 +10,7 @@ import {
 } from '../upload-files.constant';
 
 @Entity({ name: 'upload_file' })
-export class UploadFile extends CommonEntity {
+export class UploadFile extends BaseEntity {
   @Column({ name: 'key', type: 'varchar', nullable: false })
   key?: string;
 

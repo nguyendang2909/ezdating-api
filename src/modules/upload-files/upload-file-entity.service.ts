@@ -69,15 +69,8 @@ export class UploadFileEntity {
     });
   }
 
-  public async updateOne(
-    id: string,
-    partialEntity: Partial<UploadFile>,
-    currentUserId: string,
-  ) {
-    return await this.repository.update(id, {
-      ...partialEntity,
-      updatedBy: currentUserId,
-    });
+  public async updateOne(id: string, partialEntity: Partial<UploadFile>) {
+    return await this.repository.update(id, partialEntity);
   }
 
   public async deleteOne(options: FindOptionsWhere<UploadFile>) {

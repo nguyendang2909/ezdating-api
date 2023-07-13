@@ -1,10 +1,10 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
-import { CommonEntity } from '../../../commons/entities/common.entity';
+import { BaseEntity } from '../../../commons/entities/base.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Entity({ name: 'logged_device' })
-export class LoggedDevice extends CommonEntity {
+export class LoggedDevice extends BaseEntity {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user!: Partial<User>;

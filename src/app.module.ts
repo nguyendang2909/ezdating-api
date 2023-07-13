@@ -28,6 +28,7 @@ import { RelationshipsModule } from './modules/relationships/relationships.modul
 import { StatesModule } from './modules/states/states.module';
 import { UploadFilesModule } from './modules/upload-files/upload-files.module';
 import { UsersModule } from './modules/users/users.module';
+import { CoinsModule } from './modules/coins/coins.module';
 
 @Module({
   imports: [
@@ -152,6 +153,7 @@ import { UsersModule } from './modules/users/users.module';
     ConversationsModule,
     HealthModule,
     JobsModule,
+    CoinsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

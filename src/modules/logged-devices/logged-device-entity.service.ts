@@ -95,12 +95,8 @@ export class LoggedDeviceEntity {
   public async updateOneById(
     id: string,
     updateOptions: QueryDeepPartialEntity<LoggedDevice>,
-    userId: string,
   ): Promise<boolean> {
-    const updateResult = await this.repository.update(id, {
-      ...updateOptions,
-      updatedBy: userId,
-    });
+    const updateResult = await this.repository.update(id, updateOptions);
     return !!updateResult.affected;
   }
 }

@@ -112,8 +112,12 @@ export class UserEntity {
   public async updateOneById(
     id: string,
     updateOptions: QueryDeepPartialEntity<User>,
+    currentUserId: string,
   ): Promise<boolean> {
-    const updateResult = await this.userRepository.update(id, updateOptions);
+    const updateResult = await this.userRepository.update(id, {
+      ...updateOptions,
+      updatedBy: currentUserId,
+    });
     return !!updateResult.affected;
   }
 

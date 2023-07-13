@@ -1,11 +1,11 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 
-import { CommonEntity } from '../../../commons/entities/common.entity';
+import { BaseEntity } from '../../../commons/entities/base.entity';
 import { Relationship } from '../../relationships/entities/relationship.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Entity()
-export class Message extends CommonEntity {
+export class Message extends BaseEntity {
   @Column({ name: 'audio', type: 'varchar', nullable: true })
   audio?: string;
 

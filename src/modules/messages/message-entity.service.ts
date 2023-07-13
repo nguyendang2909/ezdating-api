@@ -41,12 +41,8 @@ export class MessageEntity {
   public async updateOneById(
     id: string,
     updateOptions: QueryDeepPartialEntity<Message>,
-    userId: string,
   ): Promise<boolean> {
-    const updateResult = await this.repository.update(
-      { id },
-      { ...updateOptions, updatedBy: userId },
-    );
+    const updateResult = await this.repository.update({ id }, updateOptions);
     return !!updateResult.affected;
   }
 
