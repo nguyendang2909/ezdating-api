@@ -5,15 +5,15 @@ import _ from 'lodash';
 import { Socket } from 'socket.io';
 
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
+import { UserModel } from '../../entities/users.model';
 import { UserStatuses } from '../../users/users.constant';
-import { UserEntity } from '../../users/users-entity.service';
 
 @Injectable()
 export class WsAuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly encryptionsUtil: EncryptionsUtil,
-    private readonly userEntity: UserEntity,
+    private readonly userModel: UserModel,
   ) {}
 
   async canActivate(context: ExecutionContext) {
@@ -23,7 +23,7 @@ export class WsAuthGuard implements CanActivate {
       throw new WsException({ status: 401, message: 'Unauthorized' });
     }
     const decoded = this.encryptionsUtil.verifyAccessToken(token);
-    const user = await this.userEntity.findOneById(decoded.id);
+    const user = await this.userModel.findOneById(decoded.id);
     if (!user) {
       throw new WsException({
         status: 404,

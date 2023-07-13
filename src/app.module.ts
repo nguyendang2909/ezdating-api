@@ -29,6 +29,7 @@ import { StatesModule } from './modules/states/states.module';
 import { UploadFilesModule } from './modules/upload-files/upload-files.module';
 import { UsersModule } from './modules/users/users.module';
 import { CoinsModule } from './modules/coins/coins.module';
+import { EntitiesModule } from './modules/entities/entities.module';
 
 @Module({
   imports: [
@@ -154,6 +155,7 @@ import { CoinsModule } from './modules/coins/coins.module';
     HealthModule,
     JobsModule,
     CoinsModule,
+    EntitiesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

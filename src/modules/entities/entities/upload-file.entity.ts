@@ -1,13 +1,13 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from '../../../commons/entities/base.entity';
-import { User } from '../../users/entities/user.entity';
 import {
   UploadFileShare,
   UploadFileShares,
   UploadFileType,
   UploadFileTypes,
-} from '../upload-files.constant';
+} from '../../upload-files/upload-files.constant';
+import { User } from './user.entity';
 
 @Entity({ name: 'upload_file' })
 export class UploadFile extends BaseEntity {

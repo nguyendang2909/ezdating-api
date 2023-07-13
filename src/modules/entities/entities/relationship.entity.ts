@@ -9,11 +9,11 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { User } from '../../users/entities/user.entity';
 import {
   RelationshipUserStatus,
   RelationshipUserStatuses,
-} from '../relationships.constant';
+} from '../../relationships/relationships.constant';
+import { User } from './user.entity';
 
 @Entity({ name: 'relationship' })
 @Index('conversations', [

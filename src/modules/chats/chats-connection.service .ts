@@ -3,14 +3,14 @@ import _ from 'lodash';
 import { Socket } from 'socket.io';
 
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
+import { UserModel } from '../entities/users.model';
 import { UserStatuses } from '../users/users.constant';
-import { UserEntity } from '../users/users-entity.service';
 
 @Injectable()
 export class ChatsConnectionService {
   constructor(
     private readonly encryptionsUtil: EncryptionsUtil,
-    private readonly userEntity: UserEntity,
+    private readonly userModel: UserModel,
   ) {}
 
   private readonly logger = new Logger(ChatsConnectionService.name);
@@ -24,7 +24,7 @@ export class ChatsConnectionService {
         return;
       }
       const decodedToken = this.encryptionsUtil.verifyAccessToken(token);
-      const user = await this.userEntity.findOneById(decodedToken.id);
+      const user = await this.userModel.findOneById(decodedToken.id);
       if (!user || user.status === UserStatuses.banned) {
         socket.disconnect();
 

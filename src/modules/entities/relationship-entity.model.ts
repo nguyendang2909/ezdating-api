@@ -9,19 +9,19 @@ import { FindManyOptions, FindOneOptions, Not, Repository } from 'typeorm';
 
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
-import { UserEntity } from '../users/users-entity.service';
-import { Relationship } from './entities/relationship.entity';
 import {
   RelationshipUserStatus,
   RelationshipUserStatuses,
-} from './relationships.constant';
+} from '../relationships/relationships.constant';
+import { Relationship } from './entities/relationship.entity';
+import { UserModel } from './users.model';
 
 @Injectable()
-export class RelationshipEntity {
+export class RelationshipModel {
   constructor(
     @InjectRepository(Relationship)
     private readonly repository: Repository<Relationship>,
-    private readonly userEntity: UserEntity,
+    private readonly userModel: UserModel,
   ) {}
 
   public async saveOne(entity: Partial<Relationship>, currentUserId: string) {
@@ -161,8 +161,8 @@ export class RelationshipEntity {
     return {
       ...partConversation,
       targetUser: isUserOne
-        ? this.userEntity.formatInConversation(userTwo)
-        : this.userEntity.formatInConversation(userOne),
+        ? this.userModel.formatInConversation(userTwo)
+        : this.userModel.formatInConversation(userOne),
     };
   }
 

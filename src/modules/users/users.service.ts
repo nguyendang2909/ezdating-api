@@ -2,24 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { And, LessThan, Not } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
-import { CountryEntity } from '../countries/country-entity.service';
-import { StateEntity } from '../states/state-entity.service';
-import { UploadFileEntity } from '../upload-files/upload-file-entity.service';
+import { User } from '../entities/entities/user.entity';
+import { StateModel } from '../entities/state.model';
+import { UploadFileModel } from '../entities/upload-file.model';
+import { UserModel } from '../entities/users.model';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
 import { FindOneUserDto } from './dto/is-exist-user.dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
-import { User } from './entities/user.entity';
 import { UserStatuses } from './users.constant';
-import { UserEntity } from './users-entity.service';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly userEntity: UserEntity,
-    private readonly uploadFileEntity: UploadFileEntity,
-    private readonly stateEntity: StateEntity,
-    private readonly countryEntity: CountryEntity,
+    private readonly userModel: UserModel,
+    private readonly uploadFileModel: UploadFileModel,
+    private readonly stateModel: StateModel, // private readonly countryModel: CountryModel,
   ) {}
 
   public async findManyDating(
@@ -30,7 +28,7 @@ export class UsersService {
     const whereId = cursor
       ? And(Not(currentUserId), LessThan(cursor))
       : Not(currentUserId);
-    const findResult = await this.userEntity.findMany({
+    const findResult = await this.userModel.findMany({
       where: {
         id: whereId,
         haveBasicInfo: true,
@@ -69,7 +67,7 @@ export class UsersService {
     const whereId = cursor
       ? And(Not(currentUserId), LessThan(cursor))
       : Not(currentUserId);
-    const findResult = await this.userEntity.findMany({
+    const findResult = await this.userModel.findMany({
       where: {
         id: whereId,
         haveBasicInfo: true,
@@ -98,7 +96,7 @@ export class UsersService {
     if (!phoneNumber.startsWith('+')) {
       phoneNumber = `+${phoneNumber.trim()}`;
     }
-    const findResult = await this.userEntity.findOne({
+    const findResult = await this.userModel.findOne({
       where: {
         ...(phoneNumber ? { phoneNumber } : {}),
       },
@@ -111,7 +109,7 @@ export class UsersService {
   }
 
   public async findOneOrFailById(id: string, currentUserId: string) {
-    const findResult = await this.userEntity.findOneOrFail({
+    const findResult = await this.userModel.findOneOrFail({
       where: { id },
     });
 
@@ -120,7 +118,7 @@ export class UsersService {
 
   public async getProfile(currentUserId: string) {
     // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
-    const { password, ...userPart } = await this.userEntity.findOneOrFail({
+    const { password, ...userPart } = await this.userModel.findOneOrFail({
       where: {
         id: currentUserId,
       },
@@ -158,7 +156,7 @@ export class UsersService {
     };
 
     if (avatarFileId) {
-      await this.uploadFileEntity.findOneOrFail({
+      await this.uploadFileModel.findOneOrFail({
         where: {
           id: avatarFileId,
           user: {
@@ -170,7 +168,7 @@ export class UsersService {
     }
 
     if (stateId) {
-      await this.stateEntity.findOneOrFail({
+      await this.stateModel.findOneOrFail({
         where: { id: stateId },
       });
       updateOptions.state = {
@@ -178,7 +176,7 @@ export class UsersService {
       };
     }
 
-    return await this.userEntity.updateOneById(
+    return await this.userModel.updateOneById(
       currentUserId,
       updateOptions,
       currentUserId,
@@ -190,7 +188,7 @@ export class UsersService {
     currentUserId: string,
   ) {
     const { stateId, ...updateDto } = payload;
-    await this.stateEntity.findOneOrFail({
+    await this.stateModel.findOneOrFail({
       where: { id: stateId },
     });
     const updateOptions: QueryDeepPartialEntity<User> = {
@@ -198,7 +196,7 @@ export class UsersService {
       state: { id: stateId },
       haveBasicInfo: true,
     };
-    return await this.userEntity.updateOneById(
+    return await this.userModel.updateOneById(
       currentUserId,
       updateOptions,
       currentUserId,
@@ -206,7 +204,7 @@ export class UsersService {
   }
 
   public async deactivate(userId: string) {
-    return await this.userEntity.updateOneById(
+    return await this.userModel.updateOneById(
       userId,
       {
         status: UserStatuses.activated,

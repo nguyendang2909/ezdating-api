@@ -7,7 +7,7 @@ import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { Job } from './entities/job.entity';
 
 @Injectable()
-export class JobEntity {
+export class JobModel {
   constructor(
     @InjectRepository(Job)
     private readonly repository: Repository<Job>,

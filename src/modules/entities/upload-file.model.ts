@@ -13,7 +13,7 @@ import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type'
 import { UploadFile } from './entities/upload-file.entity';
 
 @Injectable()
-export class UploadFileEntity {
+export class UploadFileModel {
   constructor(
     @InjectRepository(UploadFile)
     private readonly repository: Repository<UploadFile>,

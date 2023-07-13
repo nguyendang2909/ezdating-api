@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from '../../../commons/entities/base.entity';
-import { User } from '../../users/entities/user.entity';
+import { User } from './user.entity';
 
 @Entity({ name: 'logged_device' })
 export class LoggedDevice extends BaseEntity {

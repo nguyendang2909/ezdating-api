@@ -5,40 +5,40 @@ import { IsNull, LessThan, MoreThan, Not } from 'typeorm';
 
 import { Cursors } from '../../commons/constants/paginations';
 import { EntityFactory } from '../../commons/lib/entity-factory';
-import { MessageEntity } from '../messages/message-entity.service';
-import { User } from '../users/entities/user.entity';
-import { UserEntity } from '../users/users-entity.service';
+import { Relationship } from '../entities/entities/relationship.entity';
+import { User } from '../entities/entities/user.entity';
+import { MessageModel } from '../entities/message.model';
+import { RelationshipModel } from '../entities/relationship-entity.model';
+import { UserModel } from '../entities/users.model';
 import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
-import { Relationship } from './entities/relationship.entity';
-import { RelationshipEntity } from './relationship-entity.service';
 import { RelationshipUserStatuses } from './relationships.constant';
 
 @Injectable()
 export class RelationshipsService {
   constructor(
-    private readonly relationshipEntity: RelationshipEntity,
-    private readonly userEntity: UserEntity,
-    private readonly messageEntity: MessageEntity,
+    private readonly relationshipModel: RelationshipModel,
+    private readonly userModel: UserModel,
+    private readonly messageModel: MessageModel,
   ) {}
 
   public async sendStatus(payload: SendRelationshipStatusDto, userId: string) {
     const { targetUserId, status } = payload;
-    this.userEntity.validateYourSelf(userId, targetUserId);
-    await this.userEntity.findOneAndValidateBasicInfoById(targetUserId);
+    this.userModel.validateYourSelf(userId, targetUserId);
+    await this.userModel.findOneAndValidateBasicInfoById(targetUserId);
     const userIds = [userId, targetUserId].sort();
     const relationshipId = userIds.join('_');
     const userOne = new User({ id: userIds[0] });
     const userTwo = new User({ id: userIds[1] });
-    const isUserOne = this.userEntity.isUserOneByIds(userId, userIds);
-    const existRelationship = await this.relationshipEntity.findOne({
+    const isUserOne = this.userModel.isUserOneByIds(userId, userIds);
+    const existRelationship = await this.relationshipModel.findOne({
       where: {
         id: relationshipId,
       },
     });
     const now = moment().toDate();
     if (!existRelationship) {
-      return await this.relationshipEntity.saveOne(
+      return await this.relationshipModel.saveOne(
         {
           id: relationshipId,
           userOne,
@@ -51,8 +51,8 @@ export class RelationshipsService {
         userId,
       );
     }
-    this.relationshipEntity.validateBlocked(existRelationship, isUserOne);
-    this.relationshipEntity.validateConflictSendStatus(
+    this.relationshipModel.validateBlocked(existRelationship, isUserOne);
+    this.relationshipModel.validateConflictSendStatus(
       status,
       existRelationship,
       isUserOne,
@@ -69,7 +69,7 @@ export class RelationshipsService {
             userTwoStatusAt: now,
           }),
     };
-    await this.relationshipEntity.updateOneById(
+    await this.relationshipModel.updateOneById(
       existRelationship.id,
       updateRelationshipEntity,
       userId,
@@ -94,7 +94,7 @@ export class RelationshipsService {
               : MoreThan(lastStatusAt),
         }
       : {};
-    const findResult = await this.relationshipEntity.findMany({
+    const findResult = await this.relationshipModel.findMany({
       where: [
         {
           ...lastStatusAtQuery,
@@ -149,7 +149,7 @@ export class RelationshipsService {
     const lastStatusAt = extractCursor
       ? new Date(extractCursor.value)
       : undefined;
-    const findResult = await this.relationshipEntity.findMany({
+    const findResult = await this.relationshipModel.findMany({
       where: [
         {
           ...(lastStatusAt

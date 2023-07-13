@@ -4,15 +4,15 @@ import _ from 'lodash';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
-import { UserEntity } from '../users/users-entity.service';
 import { Message } from './entities/message.entity';
+import { UserModel } from './users.model';
 
 @Injectable()
-export class MessageEntity {
+export class MessageModel {
   constructor(
     @InjectRepository(Message)
     private readonly repository: Repository<Message>,
-    private readonly userEntity: UserEntity,
+    private readonly userModel: UserModel,
   ) {}
 
   public async saveOne(
@@ -48,7 +48,7 @@ export class MessageEntity {
 
   public format(message: Message) {
     const { user, ...messagePart } = message;
-    const formattedUser = this.userEntity.formatInMessage(user);
+    const formattedUser = this.userModel.formatInMessage(user);
 
     return { ...messagePart, user: formattedUser };
   }

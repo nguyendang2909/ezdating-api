@@ -11,9 +11,6 @@ import {
 
 import { BaseEntity } from '../../../commons/entities/base.entity';
 import { EntityFactory } from '../../../commons/lib/entity-factory';
-import { Country } from '../../countries/entities/country.entity';
-import { State } from '../../states/entities/state.entity';
-import { UploadFile } from '../../upload-files/entities/upload-file.entity';
 import {
   UserEducationLevel,
   UserEducationLevels,
@@ -27,7 +24,10 @@ import {
   UserRoles,
   UserStatus,
   UserStatuses,
-} from '../users.constant';
+} from '../../users/users.constant';
+import { Country } from './country.entity';
+import { State } from './state.entity';
+import { UploadFile } from './upload-file.entity';
 
 @Entity({ name: 'user' })
 export class User extends BaseEntity {

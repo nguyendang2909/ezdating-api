@@ -3,17 +3,17 @@ import moment from 'moment';
 import { Socket } from 'socket.io';
 
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
-import { MessageEntity } from '../messages/message-entity.service';
-import { RelationshipEntity } from '../relationships/relationship-entity.service';
-import { UserEntity } from '../users/users-entity.service';
+import { MessageModel } from '../entities/message.model';
+import { RelationshipModel } from '../entities/relationship-entity.model';
+import { UserModel } from '../entities/users.model';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
 
 @Injectable()
 export class ChatsService {
   constructor(
-    private readonly relationshipEntity: RelationshipEntity,
-    private readonly messageEntity: MessageEntity,
-    private readonly userEntity: UserEntity,
+    private readonly relationshipModel: RelationshipModel,
+    private readonly messageModel: MessageModel,
+    private readonly userModel: UserModel,
   ) {}
 
   private readonly logger = new Logger(ChatsService.name);
@@ -22,7 +22,7 @@ export class ChatsService {
     const { relationshipId, text, uuid } = payload;
     const currentUser = socket.handshake.user;
     const currentUserId = socket.handshake.user.id;
-    const existRelationship = this.relationshipEntity.findOneConversationById(
+    const existRelationship = this.relationshipModel.findOneConversationById(
       relationshipId,
       currentUserId,
     );
@@ -35,7 +35,7 @@ export class ChatsService {
     }
     const messageCreatedAt = moment().toDate();
     const [message] = await Promise.all([
-      this.messageEntity.saveOne(
+      this.messageModel.saveOne(
         {
           user: { id: currentUserId },
           relationship: { id: relationshipId },
@@ -45,7 +45,7 @@ export class ChatsService {
         },
         currentUserId,
       ),
-      this.relationshipEntity.updateOneById(
+      this.relationshipModel.updateOneById(
         relationshipId,
         {
           lastMessageAt: messageCreatedAt,
@@ -65,8 +65,8 @@ export class ChatsService {
         avatar: currentUser.avatar,
       },
     };
-    const userIds = this.relationshipEntity.getUserIdsFromId(relationshipId);
-    const targetUserId = this.userEntity.isUserOneByIds(currentUserId, userIds)
+    const userIds = this.relationshipModel.getUserIdsFromId(relationshipId);
+    const targetUserId = this.userModel.isUserOneByIds(currentUserId, userIds)
       ? userIds[1]
       : userIds[0];
     socket.to([currentUserId, targetUserId]).emit('msg', formattedMessage);

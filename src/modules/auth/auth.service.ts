@@ -10,18 +10,18 @@ import moment from 'moment';
 
 import { TokenFactory } from '../../commons/lib/token-factory.lib';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
-import { LoggedDeviceEntity } from '../logged-devices/logged-device-entity.service';
-import { UserEntity } from '../users/users-entity.service';
+import { LoggedDeviceModel } from '../entities/logged-device.model';
+import { UserModel } from '../entities/users.model';
 import { AccessTokenPayload } from './auth.type';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService {
   constructor(
-    private readonly loggedDeviceEntity: LoggedDeviceEntity,
+    private readonly loggedDeviceModel: LoggedDeviceModel,
     private readonly encryptionsUtil: EncryptionsUtil,
     @Inject(REQUEST) private request: Request & { user: { sub: string } },
-    private readonly userEntity: UserEntity,
+    private readonly userModel: UserModel,
   ) {}
 
   public async refreshAccessToken(payload: RefreshTokenDto) {
@@ -51,8 +51,8 @@ export class AuthService {
     if (userId !== refreshTokenPayload.id) {
       throw new UnauthorizedException();
     }
-    await this.userEntity.findOneOrFailById(userId);
-    const loggedDevice = await this.loggedDeviceEntity.findOneOrFail({
+    await this.userModel.findOneOrFailById(userId);
+    const loggedDevice = await this.loggedDeviceModel.findOneOrFail({
       where: {
         user: { id: userId },
       },
@@ -61,7 +61,7 @@ export class AuthService {
       id: userId,
       sub: userId,
     });
-    const isUpdated = await this.loggedDeviceEntity.updateOneById(
+    const isUpdated = await this.loggedDeviceModel.updateOneById(
       loggedDevice.id,
       {
         refreshToken,

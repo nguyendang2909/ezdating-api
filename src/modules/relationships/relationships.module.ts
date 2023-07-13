@@ -1,21 +1,13 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { MessagesModule } from '../messages/messages.module';
-import { UsersModule } from '../users/users.module';
-import { Relationship } from './entities/relationship.entity';
-import { RelationshipEntity } from './relationship-entity.service';
+import { EntitiesModule } from '../entities/entities.module';
 import { RelationshipsController } from './relationships.controller';
 import { RelationshipsService } from './relationships.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Relationship]),
-    UsersModule,
-    MessagesModule,
-  ],
-  exports: [RelationshipEntity],
+  imports: [EntitiesModule],
+  exports: [],
   controllers: [RelationshipsController],
-  providers: [RelationshipsService, RelationshipEntity],
+  providers: [RelationshipsService],
 })
 export class RelationshipsModule {}

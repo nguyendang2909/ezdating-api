@@ -1,19 +1,13 @@
-import { forwardRef, Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { Module } from '@nestjs/common';
 
-import { UsersModule } from '../users/users.module';
-import { UploadFile } from './entities/upload-file.entity';
-import { UploadFileEntity } from './upload-file-entity.service';
+import { EntitiesModule } from '../entities/entities.module';
 import { UploadFilesController } from './upload-files.controller';
 import { UploadFilesService } from './upload-files.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UploadFile]),
-    forwardRef(() => UsersModule),
-  ],
-  exports: [UploadFileEntity],
+  imports: [EntitiesModule],
+  exports: [],
   controllers: [UploadFilesController],
-  providers: [UploadFilesService, UploadFileEntity],
+  providers: [UploadFilesService],
 })
 export class UploadFilesModule {}

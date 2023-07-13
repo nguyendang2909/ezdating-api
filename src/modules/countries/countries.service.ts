@@ -1,17 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import Axios from 'axios';
 
-import { StateEntity } from '../states/state-entity.service';
+import { CountryModel } from '../entities/country.model';
+import { Country } from '../entities/entities/country.entity';
+import { StateModel } from '../entities/state.model';
 import { StateOfStatesResponse, StateResponse } from '../states/states.type';
 import { CountryOfCountriesResponse } from './countries.type';
-import { CountryEntity } from './country-entity.service';
-import { Country } from './entities/country.entity';
 
 @Injectable()
 export class CountriesService {
   constructor(
-    private readonly stateEntity: StateEntity,
-    private readonly countryEntity: CountryEntity,
+    private readonly stateModel: StateModel,
+    private readonly countryModel: CountryModel,
   ) {}
 
   private readonly logger = new Logger(CountriesService.name);
@@ -76,7 +76,7 @@ export class CountriesService {
         await this.locationsService.get<StateResponse>(
           `/v1/countries/${country.iso2}/states/${state.iso2}`,
         );
-      await this.stateEntity.saveOne({
+      await this.stateModel.saveOne({
         id: stateData.id,
         name: stateData.name,
         country: new Country({ id: country.id }),
@@ -99,11 +99,11 @@ export class CountriesService {
   });
 
   public async findAll() {
-    return await this.countryEntity.findAll({});
+    return await this.countryModel.findAll({});
   }
 
   public async findOneOrFail(iso2: string) {
-    return await this.countryEntity.findOneOrFail({
+    return await this.countryModel.findOneOrFail({
       where: {
         iso2,
       },
@@ -111,7 +111,7 @@ export class CountriesService {
   }
 
   public async findCountryAndStates(iso2: string) {
-    return await this.stateEntity.findAll({
+    return await this.stateModel.findAll({
       where: {
         countryCode: iso2,
       },

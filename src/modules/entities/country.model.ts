@@ -3,28 +3,29 @@ import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
-import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
-import { State } from './entities/state.entity';
+import { Country } from './entities/country.entity';
 
 @Injectable()
-export class StateEntity {
+export class CountryModel {
   constructor(
-    @InjectRepository(State)
-    private readonly repository: Repository<State>,
+    @InjectRepository(Country)
+    private readonly repository: Repository<Country>,
   ) {}
 
-  public async saveOne(entity: Partial<State>) {
+  public async saveOne(entity: Partial<Country>) {
     return await this.repository.save({
       ...entity,
     });
   }
 
-  public async findAll(options: FindManyOptions<State>) {
+  public async findAll(options: FindManyOptions<Country>) {
     return await this.repository.find({ ...options });
   }
 
-  public async findOne(options: FindOneOptions<State>): Promise<State | null> {
+  public async findOne(
+    options: FindOneOptions<Country>,
+  ): Promise<Country | null> {
     if (_.isEmpty(options.where)) {
       return null;
     }
@@ -32,13 +33,13 @@ export class StateEntity {
   }
 
   public async findOneOrFail(
-    options: FindOneOptions<State>,
-  ): Promise<Partial<State>> {
+    options: FindOneOptions<Country>,
+  ): Promise<Partial<Country>> {
     const findResult = await this.findOne(options);
     if (!findResult) {
       throw new NotFoundException({
-        errorCode: HttpErrorCodes.STATE_DOES_NOT_EXIST,
-        message: 'State does not exist!',
+        errorCode: 'COUNTRY_DOES_NOT_EXIST',
+        message: 'Country doesnot exist!',
       });
     }
     return findResult;
@@ -46,7 +47,7 @@ export class StateEntity {
 
   public async findOneById(
     id: number,
-    options: EntityFindOneByIdOptions<State>,
+    options: EntityFindOneByIdOptions<Country>,
   ) {
     return await this.repository.findOne({
       ...options,
@@ -54,7 +55,7 @@ export class StateEntity {
     });
   }
 
-  public async updateOne(id: number, partialEntity: Partial<State>) {
+  public async updateOne(id: number, partialEntity: Partial<Country>) {
     return await this.repository.update(
       { id },
       {

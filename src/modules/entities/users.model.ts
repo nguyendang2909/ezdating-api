@@ -10,32 +10,32 @@ import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { UserStatuses } from '../users/users.constant';
 import { User } from './entities/user.entity';
-import { UserStatuses } from './users.constant';
 
 @Injectable()
-export class UserEntity {
+export class UserModel {
   constructor(
-    @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(User) private readonly repository: Repository<User>,
   ) {}
 
-  public createOne = this.userRepository.create;
+  public createOne = this.repository.create;
 
   public async saveOne(entity: Partial<User>): Promise<User> {
     const { phoneNumber } = entity;
     if (!phoneNumber) {
       throw new BadRequestException('Phone number does not exist!');
     }
-    const user = this.userRepository.create({ phoneNumber });
+    const user = this.repository.create({ phoneNumber });
 
-    return await this.userRepository.save(user);
+    return await this.repository.save(user);
   }
 
   public async findOne(options: FindOneOptions<User>): Promise<User | null> {
     if (_.isEmpty(options.where)) {
       return null;
     }
-    return await this.userRepository.findOne(options);
+    return await this.repository.findOne(options);
   }
 
   public async findOneOrFail(options: FindOneOptions<User>): Promise<User> {
@@ -60,7 +60,7 @@ export class UserEntity {
     if (!id) {
       return null;
     }
-    return await this.userRepository.findOne({ where: { id } });
+    return await this.repository.findOne({ where: { id } });
   }
 
   public async findOneOrFailById(id: string) {
@@ -82,7 +82,7 @@ export class UserEntity {
   }
 
   public async findOneAndValidateBasicInfoById(id: string) {
-    const user = await this.userRepository.findOne({
+    const user = await this.repository.findOne({
       where: {
         id: id,
         status: UserStatuses.activated,
@@ -106,7 +106,7 @@ export class UserEntity {
   // }
 
   public async findMany(options: FindManyOptions<User>): Promise<User[]> {
-    return await this.userRepository.find(options);
+    return await this.repository.find(options);
   }
 
   public async updateOneById(
@@ -114,7 +114,7 @@ export class UserEntity {
     updateOptions: QueryDeepPartialEntity<User>,
     currentUserId: string,
   ): Promise<boolean> {
-    const updateResult = await this.userRepository.update(id, {
+    const updateResult = await this.repository.update(id, {
       ...updateOptions,
       updatedBy: currentUserId,
     });

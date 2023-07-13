@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common';
 
 import { CurrentUser } from '../../commons/decorators/current-user-id.decorator';
+import { User } from '../entities/entities/user.entity';
 import { FindManyMessagesByConversationIdDto } from '../messages/dto/find-many-messages.dto';
-import { User } from '../users/entities/user.entity';
 import { ConversationsService } from './conversations.service';
 import { FindManyConversations } from './dto/find-many-conversations.dto';
 

@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
 
-import { JobEntity } from './job-entity.service';
+import { JobModel } from '../entities/job.model';
 
 @Injectable()
 export class JobsService {
-  constructor(private readonly jobEntity: JobEntity) {}
+  constructor(private readonly jobModel: JobModel) {}
 
   public async findAll() {
-    const findResult = await this.jobEntity.findAll({});
+    const findResult = await this.jobModel.findAll({});
 
     return findResult;
   }
 
   public async findOneOrFailById(id: number) {
-    return await this.jobEntity.findOneOrFail({
+    return await this.jobModel.findOneOrFail({
       where: {
         id,
       },

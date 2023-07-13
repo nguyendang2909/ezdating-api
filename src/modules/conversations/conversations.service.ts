@@ -5,27 +5,27 @@ import { And, IsNull, LessThan, MoreThan, Not } from 'typeorm';
 import { Cursors } from '../../commons/constants/paginations';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFactory } from '../../commons/lib/entity-factory';
+import { User } from '../entities/entities/user.entity';
+import { MessageModel } from '../entities/message.model';
+import { RelationshipModel } from '../entities/relationship-entity.model';
+import { UserModel } from '../entities/users.model';
 import { FindManyMessagesByConversationIdDto } from '../messages/dto/find-many-messages.dto';
-import { MessageEntity } from '../messages/message-entity.service';
-import { RelationshipEntity } from '../relationships/relationship-entity.service';
 import { RelationshipUserStatuses } from '../relationships/relationships.constant';
-import { User } from '../users/entities/user.entity';
-import { UserEntity } from '../users/users-entity.service';
 import { FindManyConversations } from './dto/find-many-conversations.dto';
 
 @Injectable()
 export class ConversationsService {
   constructor(
-    private readonly relationshipEntity: RelationshipEntity,
-    private readonly userEntity: UserEntity,
-    private readonly messageEntity: MessageEntity,
+    private readonly relationshipModel: RelationshipModel,
+    private readonly userModel: UserModel,
+    private readonly messageModel: MessageModel,
   ) {}
 
   public async findMany(queryParams: FindManyConversations, currentUser: User) {
     const findResult = await this.findManyByQuery(queryParams, currentUser);
-    const userIds = this.relationshipEntity.getUserIdsFromId(currentUser.id);
-    const isUserOne = this.userEntity.isUserOneByIds(currentUser.id, userIds);
-    const conversations = this.relationshipEntity.formatConversations(
+    const userIds = this.relationshipModel.getUserIdsFromId(currentUser.id);
+    const isUserOne = this.userModel.isUserOneByIds(currentUser.id, userIds);
+    const conversations = this.relationshipModel.formatConversations(
       findResult,
       isUserOne,
     );
@@ -44,7 +44,7 @@ export class ConversationsService {
       id: currentUser.id,
     };
     const lastMessageQuery = { lastMessage: Not(IsNull()) };
-    const findResult = await this.relationshipEntity.findOne({
+    const findResult = await this.relationshipModel.findOne({
       where: [
         {
           ...lastMessageQuery,
@@ -119,11 +119,11 @@ export class ConversationsService {
       });
     }
 
-    const userIds = this.relationshipEntity.getUserIdsFromId(currentUser.id);
+    const userIds = this.relationshipModel.getUserIdsFromId(currentUser.id);
 
-    const isUserOne = this.userEntity.isUserOneByIds(currentUser.id, userIds);
+    const isUserOne = this.userModel.isUserOneByIds(currentUser.id, userIds);
 
-    const conversation = this.relationshipEntity.formatConversation(
+    const conversation = this.relationshipModel.formatConversation(
       findResult,
       isUserOne,
     );
@@ -149,7 +149,7 @@ export class ConversationsService {
       ? new Date(extractCursor.value)
       : undefined;
 
-    const findResult = await this.messageEntity.findMany({
+    const findResult = await this.messageModel.findMany({
       where: {
         relationship: { id },
         ...(lastCreatedAt
@@ -177,7 +177,7 @@ export class ConversationsService {
       take: 20,
     });
 
-    const messages = this.messageEntity.formats(findResult);
+    const messages = this.messageModel.formats(findResult);
 
     return {
       type: 'messagesByConversation',
@@ -208,7 +208,7 @@ export class ConversationsService {
               : LessThan(lastMessageAt),
         }
       : { lastMessageAt: Not(IsNull()) };
-    return await this.relationshipEntity.findMany({
+    return await this.relationshipModel.findMany({
       where: [
         {
           ...lastMessageAtQuery,

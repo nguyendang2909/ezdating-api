@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { Country } from '../../countries/entities/country.entity';
+import { Country } from './country.entity';
 
 @Entity()
 export class State {

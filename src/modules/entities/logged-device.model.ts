@@ -10,10 +10,10 @@ import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
-import { LoggedDevice } from './entities/logged-device.entity';
+import { LoggedDevice } from '../entities/entities/logged-device.entity';
 
 @Injectable()
-export class LoggedDeviceEntity {
+export class LoggedDeviceModel {
   constructor(
     @InjectRepository(LoggedDevice)
     private readonly repository: Repository<LoggedDevice>,

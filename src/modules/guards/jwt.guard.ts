@@ -7,7 +7,7 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 
 import { AppConfig } from '../../app.config';
-import { User } from '../users/entities/user.entity';
+import { User } from '../entities/entities/user.entity';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard(['jwt']) {

@@ -9,11 +9,11 @@ import {
 import moment from 'moment';
 
 import { HttpErrorCodes } from '../../../commons/erros/http-error-codes.constant';
-import { LoggedDeviceEntity } from '../../logged-devices/logged-device-entity.service';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
-import { User } from '../../users/entities/user.entity';
+import { User } from '../../entities/entities/user.entity';
+import { LoggedDeviceModel } from '../../entities/logged-device.model';
+import { UserModel } from '../../entities/users.model';
 import { UserRoles, UserStatuses } from '../../users/users.constant';
-import { UserEntity } from '../../users/users-entity.service';
 import { SignInData } from '../auth.type';
 import { SignInWithPhoneNumberDto } from '../dto/sign-in-with-phone-number.dto';
 import { SignInWithPhoneNumberAndPasswordDto } from '../dto/sign-in-with-phone-number-and-password.dto';
@@ -24,8 +24,8 @@ export class SignInService {
   constructor(
     private readonly encryptionsUtil: EncryptionsUtil,
     private readonly firebaseService: FirebaseService,
-    private readonly userEntity: UserEntity,
-    private readonly loggedDeviceEntity: LoggedDeviceEntity,
+    private readonly userModel: UserModel,
+    private readonly loggedDeviceModel: LoggedDeviceModel,
   ) {}
 
   private readonly logger = new Logger(SignInService.name);
@@ -33,7 +33,7 @@ export class SignInService {
   private async onApplicationBootstrap() {
     try {
       const phoneNumber = '+84971016191';
-      const existAdminUser = await this.userEntity.findOne({
+      const existAdminUser = await this.userModel.findOne({
         where: {
           phoneNumber,
         },
@@ -48,7 +48,7 @@ export class SignInService {
           status: UserStatuses.activated,
         });
 
-        await this.userEntity.saveOne(adminUser);
+        await this.userModel.saveOne(adminUser);
       }
     } catch (err) {
       this.logger.log(err);
@@ -67,7 +67,7 @@ export class SignInService {
         message: 'User does not exist!',
       });
     }
-    let user = await this.userEntity.findOne({
+    let user = await this.userModel.findOne({
       where: {
         phoneNumber,
       },
@@ -81,7 +81,7 @@ export class SignInService {
         });
       }
     } else {
-      user = await this.userEntity.saveOne({
+      user = await this.userModel.saveOne({
         phoneNumber,
       });
     }
@@ -101,7 +101,7 @@ export class SignInService {
       id: userId,
       sub: userId,
     });
-    await this.loggedDeviceEntity.saveOne(
+    await this.loggedDeviceModel.saveOne(
       {
         user: {
           id: userId,
@@ -126,7 +126,7 @@ export class SignInService {
       password: userPassword,
       id: userId,
       role: userRole,
-    } = await this.userEntity.findOneOrFail({
+    } = await this.userModel.findOneOrFail({
       where: {
         phoneNumber,
       },
@@ -153,7 +153,7 @@ export class SignInService {
       id: userId,
       sub: userId,
     });
-    await this.loggedDeviceEntity.saveOne(
+    await this.loggedDeviceModel.saveOne(
       {
         user: {
           id: userId,
