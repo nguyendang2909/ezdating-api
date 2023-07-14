@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import _ from 'lodash';
 import { And, IsNull, LessThan, MoreThan, Not } from 'typeorm';
 
+import { RelationshipUserStatuses } from '../../commons/constants/enums';
 import { Cursors } from '../../commons/constants/paginations';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFactory } from '../../commons/lib/entity-factory';
@@ -10,7 +11,6 @@ import { MessageModel } from '../entities/message.model';
 import { RelationshipModel } from '../entities/relationship-entity.model';
 import { UserModel } from '../entities/users.model';
 import { FindManyMessagesByConversationIdDto } from '../messages/dto/find-many-messages.dto';
-import { RelationshipUserStatuses } from '../relationships/relationships.constant';
 import { FindManyConversations } from './dto/find-many-conversations.dto';
 
 @Injectable()

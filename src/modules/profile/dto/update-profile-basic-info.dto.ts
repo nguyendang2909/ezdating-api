@@ -3,13 +3,13 @@ import { ApiProperty } from '@nestjs/swagger';
 import Joi from 'joi';
 import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 
-import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 import {
   UserGender,
   UserGenders,
   UserLookingFor,
   UserLookingFors,
-} from '../users.constant';
+} from '../../../commons/constants/enums';
+import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 
 const JoiExtendDate = Joi.extend(JoiDate);
 
@@ -19,9 +19,9 @@ export class UpdateMyProfileBasicInfoDto {
   @JoiSchema(JoiExtendDate.date().format('YYYY-MM-DD').required().raw())
   birthday!: string;
 
-  @ApiProperty({ type: String })
+  @ApiProperty({ type: Number })
   @JoiSchema(
-    Joi.string()
+    Joi.number()
       .valid(...Object.values(UserGenders))
       .required(),
   )
@@ -35,9 +35,9 @@ export class UpdateMyProfileBasicInfoDto {
   @JoiSchema(Joi.string().max(100).required())
   nickname!: string;
 
-  @ApiProperty({ type: String, enum: UserLookingFors })
+  @ApiProperty({ type: Number, enum: UserLookingFors })
   @JoiSchema(
-    Joi.string()
+    Joi.number()
       .valid(...Object.values(UserLookingFors))
       .required(),
   )

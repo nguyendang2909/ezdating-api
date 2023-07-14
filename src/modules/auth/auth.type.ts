@@ -1,4 +1,4 @@
-import { UserRole } from '../users/users.constant';
+import { UserRole } from '../../commons/constants/enums';
 
 export type AccessTokenPayload = {
   sub: string;

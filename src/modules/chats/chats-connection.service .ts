@@ -2,9 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import _ from 'lodash';
 import { Socket } from 'socket.io';
 
+import { UserStatuses } from '../../commons/constants/enums';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { UserModel } from '../entities/users.model';
-import { UserStatuses } from '../users/users.constant';
 
 @Injectable()
 export class ChatsConnectionService {

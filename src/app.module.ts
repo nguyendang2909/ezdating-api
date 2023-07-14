@@ -15,21 +15,21 @@ import winston from 'winston';
 import { AppConfig } from './app.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
+import { CoinsModule } from './modules/coins/coins.module';
 import { ConversationsModule } from './modules/conversations/conversations.module';
 import { CountriesModule } from './modules/countries/countries.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
+import { EntitiesModule } from './modules/entities/entities.module';
 import { JwtAuthGuard } from './modules/guards/jwt.guard';
 import { RolesGuard } from './modules/guards/roles.guard';
 import { HealthModule } from './modules/health/health.module';
-import { JobsModule } from './modules/jobs/jobs.module';
 import { LoggedDevicesModule } from './modules/logged-devices/logged-devices.module';
 import { MessagesModule } from './modules/messages/messages.module';
+import { ProfileModule } from './modules/profile/profile.module';
 import { RelationshipsModule } from './modules/relationships/relationships.module';
 import { StatesModule } from './modules/states/states.module';
 import { UploadFilesModule } from './modules/upload-files/upload-files.module';
 import { UsersModule } from './modules/users/users.module';
-import { CoinsModule } from './modules/coins/coins.module';
-import { EntitiesModule } from './modules/entities/entities.module';
 
 @Module({
   imports: [
@@ -142,6 +142,7 @@ import { EntitiesModule } from './modules/entities/entities.module';
     }),
     JoiPipeModule.forRoot(),
     AuthModule,
+    ProfileModule,
     UsersModule,
     ChatsModule,
     EncryptionsModule,
@@ -153,7 +154,6 @@ import { EntitiesModule } from './modules/entities/entities.module';
     LoggedDevicesModule,
     ConversationsModule,
     HealthModule,
-    JobsModule,
     CoinsModule,
     EntitiesModule,
   ],

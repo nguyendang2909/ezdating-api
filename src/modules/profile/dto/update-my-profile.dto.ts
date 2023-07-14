@@ -3,7 +3,6 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import Joi from 'joi';
 import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 
-import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 import {
   UserEducationLevel,
   UserEducationLevels,
@@ -13,7 +12,8 @@ import {
   UserLookingFors,
   UserRelationshipStatus,
   UserRelationshipStatuses,
-} from '../users.constant';
+} from '../../../commons/constants/enums';
+import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 
 const JoiExtendDate = Joi.extend(JoiDate);
 
@@ -23,17 +23,17 @@ export class UpdateMyProfileDto {
   @JoiSchema(JoiExtendDate.date().format('YYYY-MM-DD').optional().raw())
   birthday?: string;
 
-  @ApiPropertyOptional({ type: String, enum: UserEducationLevels })
+  @ApiPropertyOptional({ type: Number, enum: UserEducationLevels })
   @JoiSchema(
-    Joi.string()
+    Joi.number()
       .valid(...Object.values(UserEducationLevels))
       .optional(),
   )
   educationLevel: UserEducationLevel;
 
-  @ApiPropertyOptional({ type: String })
+  @ApiPropertyOptional({ type: Number, enum: UserGenders })
   @JoiSchema(
-    Joi.string()
+    Joi.number()
       .valid(...Object.values(UserGenders))
       .optional(),
   )
@@ -47,9 +47,9 @@ export class UpdateMyProfileDto {
   @JoiSchema(Joi.string().max(100).optional())
   nickname?: string;
 
-  @ApiPropertyOptional({ type: String, enum: UserLookingFors })
+  @ApiPropertyOptional({ type: Number, enum: UserLookingFors })
   @JoiSchema(
-    Joi.string()
+    Joi.number()
       .valid(...Object.values(UserLookingFors))
       .optional(),
   )
@@ -67,9 +67,9 @@ export class UpdateMyProfileDto {
   @JoiSchema(Joi.number().optional())
   latitude?: number;
 
-  @ApiPropertyOptional({ type: String, enum: UserRelationshipStatuses })
+  @ApiPropertyOptional({ type: Number, enum: UserRelationshipStatuses })
   @JoiSchema(
-    Joi.string()
+    Joi.number()
       .valid(...Object.values(UserRelationshipStatuses))
       .optional(),
   )

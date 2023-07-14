@@ -7,12 +7,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
 import { FindManyOptions, FindOneOptions, Not, Repository } from 'typeorm';
 
-import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
-import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
 import {
   RelationshipUserStatus,
   RelationshipUserStatuses,
-} from '../relationships/relationships.constant';
+} from '../../commons/constants/enums';
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
 import { Relationship } from './entities/relationship.entity';
 import { UserModel } from './users.model';
 

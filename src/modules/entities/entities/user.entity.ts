@@ -9,8 +9,6 @@ import {
   Point,
 } from 'typeorm';
 
-import { BaseEntity } from '../../../commons/entities/base.entity';
-import { EntityFactory } from '../../../commons/lib/entity-factory';
 import {
   UserEducationLevel,
   UserEducationLevels,
@@ -24,7 +22,9 @@ import {
   UserRoles,
   UserStatus,
   UserStatuses,
-} from '../../users/users.constant';
+} from '../../../commons/constants/enums';
+import { BaseEntity } from '../../../commons/entities/base.entity';
+import { EntityFactory } from '../../../commons/lib/entity-factory';
 import { Country } from './country.entity';
 import { State } from './state.entity';
 import { UploadFile } from './upload-file.entity';
@@ -129,7 +129,7 @@ export class User extends BaseEntity {
     name: 'role',
     default: UserRoles.member,
     enum: UserRoles,
-    nullable: false,
+    nullable: true,
     type: 'enum',
   })
   role!: UserRole;

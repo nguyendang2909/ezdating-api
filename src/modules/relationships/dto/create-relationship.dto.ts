@@ -1,11 +1,11 @@
 import Joi from 'joi';
 import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 
-import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 import {
   RelationshipUserStatus,
   RelationshipUserStatuses,
-} from '../relationships.constant';
+} from '../../../commons/constants/enums';
+import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
 export class SendRelationshipStatusDto {
@@ -13,7 +13,7 @@ export class SendRelationshipStatusDto {
   targetUserId!: string;
 
   @JoiSchema(
-    Joi.string()
+    Joi.number()
       .valid(...Object.values(RelationshipUserStatuses))
       .required(),
   )

@@ -12,7 +12,7 @@ import {
 import {
   RelationshipUserStatus,
   RelationshipUserStatuses,
-} from '../../relationships/relationships.constant';
+} from '../../../commons/constants/enums';
 import { User } from './user.entity';
 
 @Entity({ name: 'relationship' })
@@ -40,6 +40,7 @@ export class Relationship {
     nullable: true,
     type: 'enum',
     enum: RelationshipUserStatuses,
+    default: RelationshipUserStatuses.viewed,
   })
   userOneStatus?: RelationshipUserStatus;
 
@@ -48,6 +49,7 @@ export class Relationship {
     nullable: true,
     type: 'enum',
     enum: RelationshipUserStatuses,
+    default: RelationshipUserStatuses.viewed,
   })
   userTwoStatus?: RelationshipUserStatus;
 

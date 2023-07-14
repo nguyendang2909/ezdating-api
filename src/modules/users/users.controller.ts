@@ -1,18 +1,8 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseUUIDPipe,
-  Patch,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
-import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
-import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -43,14 +33,6 @@ export class UsersController {
     };
   }
 
-  @Get('/profile')
-  private async getProfile(@UserId() currentUserId: string) {
-    return {
-      type: 'profile',
-      data: await this.usersService.getProfile(currentUserId),
-    };
-  }
-
   @Get('/:id')
   private async findOneById(
     @Param('id', ParseUUIDPipe) id: string,
@@ -59,34 +41,6 @@ export class UsersController {
     return {
       type: 'profile',
       data: await this.usersService.findOneOrFailById(id, currentUserId),
-    };
-  }
-
-  @Patch('/profile')
-  private async updateProfile(
-    @Body() updateMyProfileDto: UpdateMyProfileDto,
-    @UserId() currentUserId: string,
-  ) {
-    return {
-      type: 'updateProfile',
-      data: await this.usersService.updateProfile(
-        updateMyProfileDto,
-        currentUserId,
-      ),
-    };
-  }
-
-  @Patch('/profile/basic-info')
-  private async updateProfileBasicInfo(
-    @Body() payload: UpdateMyProfileBasicInfoDto,
-    @UserId() currentUserId: string,
-  ) {
-    return {
-      type: 'updateProfileBasicInfo',
-      data: await this.usersService.updateProfileBasicInfo(
-        payload,
-        currentUserId,
-      ),
     };
   }
 }

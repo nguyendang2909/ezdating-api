@@ -3,6 +3,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { IsNull, LessThan, MoreThan, Not } from 'typeorm';
 
+import { RelationshipUserStatuses } from '../../commons/constants/enums';
 import { Cursors } from '../../commons/constants/paginations';
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { Relationship } from '../entities/entities/relationship.entity';
@@ -12,7 +13,6 @@ import { RelationshipModel } from '../entities/relationship-entity.model';
 import { UserModel } from '../entities/users.model';
 import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
-import { RelationshipUserStatuses } from './relationships.constant';
 
 @Injectable()
 export class RelationshipsService {
