@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { And, LessThan, Not } from 'typeorm';
 
-import { UserStatuses } from '../../commons/constants/enums';
+import { UserStatuses } from '../../commons/constants/constants';
 import { User } from '../entities/entities/user.entity';
 import { StateModel } from '../entities/state.model';
 import { UploadFileModel } from '../entities/upload-file.model';

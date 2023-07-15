@@ -3,7 +3,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { IsNull, LessThan, MoreThan, Not } from 'typeorm';
 
-import { RelationshipUserStatuses } from '../../commons/constants/enums';
+import { RelationshipUserStatuses } from '../../commons/constants/constants';
 import { Cursors } from '../../commons/constants/paginations';
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { Relationship } from '../entities/entities/relationship.entity';

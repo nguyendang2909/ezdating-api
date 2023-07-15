@@ -3,7 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import {
   UploadFileType,
   UploadFileTypes,
-} from '../../../commons/constants/enums';
+} from '../../../commons/constants/constants';
 import { BaseEntity } from '../../../commons/entities/base.entity';
 import { User } from './user.entity';
 

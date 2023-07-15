@@ -22,7 +22,7 @@ import {
   UserRoles,
   UserStatus,
   UserStatuses,
-} from '../../../commons/constants/enums';
+} from '../../../commons/constants/constants';
 import { BaseEntity } from '../../../commons/entities/base.entity';
 import { EntityFactory } from '../../../commons/lib/entity-factory';
 import { Country } from './country.entity';

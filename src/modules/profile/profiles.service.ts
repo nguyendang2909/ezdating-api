@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
-import { UserStatuses } from '../../commons/constants/enums';
+import { UserStatuses } from '../../commons/constants/constants';
 import { User } from '../entities/entities/user.entity';
 import { StateModel } from '../entities/state.model';
 import { UploadFileModel } from '../entities/upload-file.model';

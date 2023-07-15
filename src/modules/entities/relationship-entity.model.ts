@@ -10,7 +10,7 @@ import { FindManyOptions, FindOneOptions, Not, Repository } from 'typeorm';
 import {
   RelationshipUserStatus,
   RelationshipUserStatuses,
-} from '../../commons/constants/enums';
+} from '../../commons/constants/constants';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
 import { Relationship } from './entities/relationship.entity';

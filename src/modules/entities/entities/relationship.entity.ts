@@ -12,7 +12,7 @@ import {
 import {
   RelationshipUserStatus,
   RelationshipUserStatuses,
-} from '../../../commons/constants/enums';
+} from '../../../commons/constants/constants';
 import { User } from './user.entity';
 
 @Entity({ name: 'relationship' })

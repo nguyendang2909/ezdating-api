@@ -4,7 +4,7 @@ import { WsException } from '@nestjs/websockets';
 import _ from 'lodash';
 import { Socket } from 'socket.io';
 
-import { UserStatuses } from '../../../commons/constants/enums';
+import { UserStatuses } from '../../../commons/constants/constants';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { UserModel } from '../../entities/users.model';
 

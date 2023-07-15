@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import moment from 'moment';
 
-import { UserRoles, UserStatuses } from '../../../commons/constants/enums';
+import { UserRoles, UserStatuses } from '../../../commons/constants/constants';
 import { HttpErrorCodes } from '../../../commons/erros/http-error-codes.constant';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { User } from '../../entities/entities/user.entity';

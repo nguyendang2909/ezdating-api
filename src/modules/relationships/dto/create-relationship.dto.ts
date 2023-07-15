@@ -4,7 +4,7 @@ import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 import {
   RelationshipUserStatus,
   RelationshipUserStatuses,
-} from '../../../commons/constants/enums';
+} from '../../../commons/constants/constants';
 import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)

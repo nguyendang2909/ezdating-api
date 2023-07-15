@@ -9,7 +9,7 @@ import moment from 'moment';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
-import { UserStatuses } from '../../commons/constants/enums';
+import { UserStatuses } from '../../commons/constants/constants';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { User } from './entities/user.entity';
 

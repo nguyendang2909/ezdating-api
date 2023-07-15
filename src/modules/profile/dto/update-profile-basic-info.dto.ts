@@ -8,7 +8,7 @@ import {
   UserGenders,
   UserLookingFor,
   UserLookingFors,
-} from '../../../commons/constants/enums';
+} from '../../../commons/constants/constants';
 import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 
 const JoiExtendDate = Joi.extend(JoiDate);

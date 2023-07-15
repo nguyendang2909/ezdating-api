@@ -4,7 +4,7 @@ import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 
 import { AppConfig } from '../../app.config';
-import { UploadFileTypes } from '../../commons/constants/enums';
+import { UploadFileTypes } from '../../commons/constants/constants';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { UploadFile } from '../entities/entities/upload-file.entity';
 import { User } from '../entities/entities/user.entity';

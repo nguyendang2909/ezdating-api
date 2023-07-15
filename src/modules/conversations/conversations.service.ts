@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import _ from 'lodash';
 import { And, IsNull, LessThan, MoreThan, Not } from 'typeorm';
 
-import { RelationshipUserStatuses } from '../../commons/constants/enums';
+import { RelationshipUserStatuses } from '../../commons/constants/constants';
 import { Cursors } from '../../commons/constants/paginations';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFactory } from '../../commons/lib/entity-factory';
