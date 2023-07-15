@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { AppConfig } from '../../app.config';
 import { UploadFileTypes } from '../../commons/constants/enums';
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { UploadFile } from '../entities/entities/upload-file.entity';
 import { User } from '../entities/entities/user.entity';
 import { UploadFileModel } from '../entities/upload-file.model';
@@ -33,19 +34,7 @@ export class UploadFilesService {
     userId: string,
   ) {
     const { isAvatar } = payload;
-    const numberUploadedPhotos = await this.uploadFileModel.count({
-      where: {
-        user: {
-          id: userId,
-        },
-      },
-    });
-    if (numberUploadedPhotos >= AppConfig.UPLOAD_PHOTOS_LIMIT) {
-      throw new BadRequestException({
-        errorCode: 'LIMIT_UPLOADED_PHOTOS',
-        message: 'You can only upload 6 photos!',
-      });
-    }
+    await this.verifyCanUploadFiles(userId);
     const fileBufferWithSharp = await sharp(file.buffer)
       .resize(640, 860)
       .toFormat('webp')
@@ -58,19 +47,7 @@ export class UploadFilesService {
         ACL: 'public-read',
       })
       .promise();
-    const numberUploadedPhotosAgain = await this.uploadFileModel.count({
-      where: {
-        user: {
-          id: userId,
-        },
-      },
-    });
-    if (numberUploadedPhotosAgain >= AppConfig.UPLOAD_PHOTOS_LIMIT) {
-      throw new BadRequestException({
-        errorCode: 'LIMIT_UPLOADED_PHOTOS',
-        message: 'You can only upload 6 photos!',
-      });
-    }
+    await this.verifyCanUploadFiles(userId);
     const createResult = await this.uploadFileModel.saveOne(
       {
         user: new User({ id: userId }),
@@ -162,5 +139,24 @@ export class UploadFilesService {
     });
     // TODO: Remove avatar
     return deleted;
+  }
+
+  public async verifyCanUploadFiles(userId: string): Promise<number> {
+    const numberUploadedPhotos = await this.uploadFileModel.count({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+    });
+
+    if (numberUploadedPhotos >= AppConfig.UPLOAD_PHOTOS_LIMIT) {
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.LIMIT_UPLOADED_FILES,
+        message: 'You can only upload 6 photos!',
+      });
+    }
+
+    return numberUploadedPhotos;
   }
 }

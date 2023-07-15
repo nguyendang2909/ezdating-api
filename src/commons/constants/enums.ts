@@ -84,8 +84,8 @@ export type RelationshipUserStatus =
   (typeof RelationshipUserStatuses)[keyof typeof RelationshipUserStatuses];
 
 export const UploadFileTypes = {
-  photo: 'photo',
-  video: 'video',
+  photo: 1,
+  video: 2,
 };
 
 export type UploadFileType =

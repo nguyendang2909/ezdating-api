@@ -21,7 +21,7 @@ export class UploadFile extends BaseEntity {
 
   @Column({
     name: 'type',
-    type: 'varchar',
+    type: 'enum',
     nullable: false,
     enum: UploadFileTypes,
   })

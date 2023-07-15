@@ -92,6 +92,12 @@ export class UploadFilesController {
     return {
       type: 'uploadFiles',
       data: await this.uploadFilesService.findMany(queryParams, userId),
+      pagination: {
+        cursors: {
+          before: null,
+          after: null,
+        },
+      },
     };
   }
 
