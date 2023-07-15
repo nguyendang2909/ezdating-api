@@ -3,6 +3,8 @@ import { S3 } from 'aws-sdk';
 import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 
+import { AppConfig } from '../../app.config';
+import { UploadFileTypes } from '../../commons/constants/enums';
 import { UploadFile } from '../entities/entities/upload-file.entity';
 import { User } from '../entities/entities/user.entity';
 import { UploadFileModel } from '../entities/upload-file.model';
@@ -10,11 +12,6 @@ import { UserModel } from '../entities/users.model';
 import { FindManyUploadFilesDto } from './dto/find-many-upload-files.dto';
 import { FindOneUploadFileByIdDto } from './dto/find-one-upload-file-by-id.dto';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
-import {
-  LIMIT_UPLOADED_PHOTOS,
-  UploadFileShares,
-  UploadFileTypes,
-} from './upload-files.constant';
 
 @Injectable()
 export class UploadFilesService {
@@ -35,7 +32,7 @@ export class UploadFilesService {
     payload: UploadPhotoDtoDto,
     userId: string,
   ) {
-    const { share, isAvatar } = payload;
+    const { isAvatar } = payload;
     const numberUploadedPhotos = await this.uploadFileModel.count({
       where: {
         user: {
@@ -43,7 +40,7 @@ export class UploadFilesService {
         },
       },
     });
-    if (numberUploadedPhotos >= LIMIT_UPLOADED_PHOTOS) {
+    if (numberUploadedPhotos >= AppConfig.UPLOAD_PHOTOS_LIMIT) {
       throw new BadRequestException({
         errorCode: 'LIMIT_UPLOADED_PHOTOS',
         message: 'You can only upload 6 photos!',
@@ -58,7 +55,7 @@ export class UploadFilesService {
         Bucket: this.awsBucketName,
         Key: `photos/${uuidv4()}.webp`,
         Body: fileBufferWithSharp,
-        ACL: share === UploadFileShares.public ? 'public-read' : 'private',
+        ACL: 'public-read',
       })
       .promise();
     const numberUploadedPhotosAgain = await this.uploadFileModel.count({
@@ -68,7 +65,7 @@ export class UploadFilesService {
         },
       },
     });
-    if (numberUploadedPhotosAgain >= LIMIT_UPLOADED_PHOTOS) {
+    if (numberUploadedPhotosAgain >= AppConfig.UPLOAD_PHOTOS_LIMIT) {
       throw new BadRequestException({
         errorCode: 'LIMIT_UPLOADED_PHOTOS',
         message: 'You can only upload 6 photos!',
@@ -80,7 +77,6 @@ export class UploadFilesService {
         key: photo.Key,
         type: UploadFileTypes.photo,
         location: photo.Location,
-        share,
       },
       userId,
     );
@@ -98,10 +94,9 @@ export class UploadFilesService {
   }
 
   public async findMany(queryParams: FindManyUploadFilesDto, userId: string) {
-    const { targetUserId, share, type, cursor, ...findDto } = queryParams;
+    const { targetUserId, type, cursor, ...findDto } = queryParams;
     return await this.uploadFileModel.findMany({
       where: {
-        share,
         type,
         ...(targetUserId
           ? {
@@ -127,7 +122,6 @@ export class UploadFilesService {
         { id, user: { id: userId } },
         {
           id,
-          share: UploadFileShares.public,
         },
       ],
       select: {

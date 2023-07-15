@@ -19,7 +19,6 @@ import { UserId } from '../../commons/decorators/current-user-id.decorator';
 import { FindManyUploadFilesDto } from './dto/find-many-upload-files.dto';
 import { FindOneUploadFileByIdDto } from './dto/find-one-upload-file-by-id.dto';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
-import { UploadFileShares } from './upload-files.constant';
 import { UploadFilesService } from './upload-files.service';
 
 @Controller('/upload-files')
@@ -32,7 +31,7 @@ export class UploadFilesController {
   @UseInterceptors(
     FileInterceptor('file', {
       limits: {
-        fileSize: AppConfig.MAX_UPLOAD_PHOTO_FILE_SIZE,
+        fileSize: AppConfig.UPLOAD_PHOTO_MAX_FILE_SIZE,
       },
       fileFilter: (req, file, cb) => {
         if (!file.mimetype.startsWith('image/')) {
@@ -73,15 +72,13 @@ export class UploadFilesController {
         message: 'File not found!',
       });
     }
-    const { share, isAvatar } = payload;
-    if (!share || !Object.values(UploadFileShares).includes(share)) {
-      throw new BadRequestException();
-    }
+    const { isAvatar } = payload;
+
     return {
       type: 'uploadPhoto',
       data: await this.uploadFilesService.uploadPhoto(
         file,
-        { share, isAvatar },
+        { isAvatar },
         userId,
       ),
     };

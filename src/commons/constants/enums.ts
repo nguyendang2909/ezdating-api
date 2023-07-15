@@ -82,3 +82,19 @@ export const RelationshipUserStatuses = {
 
 export type RelationshipUserStatus =
   (typeof RelationshipUserStatuses)[keyof typeof RelationshipUserStatuses];
+
+export const UploadFileTypes = {
+  photo: 'photo',
+  video: 'video',
+};
+
+export type UploadFileType =
+  (typeof UploadFileTypes)[keyof typeof UploadFileTypes];
+
+// export const UploadFileShares = {
+//   public: 'public',
+//   private: 'private',
+// };
+
+// export type UploadFileShare =
+//   (typeof UploadFileShares)[keyof typeof UploadFileShares];

@@ -6,8 +6,8 @@ import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
 import { ProfileService } from './profiles.service';
 
-@Controller('users/profile')
-@ApiTags('users/profile')
+@Controller('/profile')
+@ApiTags('/profile')
 @ApiBearerAuth('JWT')
 export class ProfilesController {
   constructor(private readonly profileService: ProfileService) {}

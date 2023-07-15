@@ -1,12 +1,10 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
-import { BaseEntity } from '../../../commons/entities/base.entity';
 import {
-  UploadFileShare,
-  UploadFileShares,
   UploadFileType,
   UploadFileTypes,
-} from '../../upload-files/upload-files.constant';
+} from '../../../commons/constants/enums';
+import { BaseEntity } from '../../../commons/entities/base.entity';
 import { User } from './user.entity';
 
 @Entity({ name: 'upload_file' })
@@ -28,13 +26,4 @@ export class UploadFile extends BaseEntity {
     enum: UploadFileTypes,
   })
   type?: UploadFileType;
-
-  @Column({
-    name: 'share',
-    type: 'varchar',
-    nullable: false,
-    enum: UploadFileShares,
-    default: UploadFileShares.public,
-  })
-  share?: UploadFileShare;
 }
