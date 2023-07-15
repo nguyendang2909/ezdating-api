@@ -76,6 +76,6 @@ export class UpdateMyProfileDto {
   relationshipStatus: UserRelationshipStatus;
 
   @ApiPropertyOptional({ type: Number })
-  @JoiSchema(Joi.number().required())
+  @JoiSchema(Joi.number().optional())
   stateId?: number;
 }
