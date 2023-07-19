@@ -27,10 +27,7 @@ export class UsersController {
     @Query() queryParams: FindManyDatingUsersDto,
     @UserId() currentUserId: string,
   ) {
-    return {
-      type: 'users',
-      ...(await this.usersService.findManyNearby(queryParams, currentUserId)),
-    };
+    return await this.usersService.findManyNearby(queryParams, currentUserId);
   }
 
   @Get('/:id')

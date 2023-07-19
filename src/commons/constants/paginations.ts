@@ -9,3 +9,14 @@ export const Cursors = {
 };
 
 export type Cursor = (typeof Cursors)[keyof typeof Cursors];
+
+export type ResponsePagination<T> = {
+  type?: string;
+  data: T;
+  pagination: {
+    cursors: {
+      before: null;
+      after: null;
+    };
+  };
+};

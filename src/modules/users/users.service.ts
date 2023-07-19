@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { And, LessThan, Not } from 'typeorm';
 
 import { UserStatuses } from '../../commons/constants/constants';
+import { ResponsePagination } from '../../commons/constants/paginations';
 import { User } from '../entities/entities/user.entity';
 import { StateModel } from '../entities/state.model';
 import { UploadFileModel } from '../entities/upload-file.model';
@@ -59,7 +60,7 @@ export class UsersService {
   public async findManyNearby(
     queryParams: FindManyDatingUsersDto,
     currentUserId: string,
-  ): Promise<{ data: User[] }> {
+  ): Promise<ResponsePagination<User[]>> {
     const { cursor } = queryParams;
     const whereId = cursor
       ? And(Not(currentUserId), LessThan(cursor))
@@ -79,7 +80,16 @@ export class UsersService {
     //   id: Raw(alias => ${alias} < ${id} and ${alias} in (${ids})),
     //   },
     //   });
-    return { data: findResult };
+    return {
+      type: 'nearbyUsers',
+      data: findResult,
+      pagination: {
+        cursors: {
+          before: null,
+          after: null,
+        },
+      },
+    };
   }
 
   public async findOne(
