@@ -1,7 +1,11 @@
-import { Body, Controller, Get, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { UserId } from '../../commons/decorators/current-user-id.decorator';
+import {
+  CurrentUser,
+  UserId,
+} from '../../commons/decorators/current-user-id.decorator';
+import { User } from '../entities/entities/user.entity';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
 import { ProfileService } from './profiles.service';
@@ -45,6 +49,14 @@ export class ProfilesController {
         payload,
         currentUserId,
       ),
+    };
+  }
+
+  @Post('/coin/daily')
+  async getDailyCoin(@CurrentUser() user: User) {
+    return {
+      type: 'dailyCoin',
+      data: await this.profileService.getDailyCoin(user),
     };
   }
 }

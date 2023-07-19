@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { CoinHistoryModel } from './coinHistory.model';
 import { CountryModel } from './country.model';
 import { CoinHistory } from './entities/coin-history.entity';
 import { Country } from './entities/country.entity';
@@ -35,6 +36,7 @@ import { UserModel } from './users.model';
   ],
   exports: [
     CountryModel,
+    CoinHistoryModel,
     JobModel,
     LoggedDeviceModel,
     MessageModel,
@@ -46,6 +48,7 @@ import { UserModel } from './users.model';
   controllers: [],
   providers: [
     CountryModel,
+    CoinHistoryModel,
     JobModel,
     LoggedDeviceModel,
     MessageModel,

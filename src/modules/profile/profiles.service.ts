@@ -1,7 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import moment from 'moment';
+import { MoreThan } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
-import { UserStatuses } from '../../commons/constants/constants';
+import { CoinTypes, UserStatuses } from '../../commons/constants/constants';
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { CoinHistoryModel } from '../entities/coinHistory.model';
 import { User } from '../entities/entities/user.entity';
 import { StateModel } from '../entities/state.model';
 import { UploadFileModel } from '../entities/upload-file.model';
@@ -14,7 +18,8 @@ export class ProfileService {
   constructor(
     private readonly userModel: UserModel,
     private readonly uploadFileModel: UploadFileModel,
-    private readonly stateModel: StateModel, // private readonly countryModel: CountryModel,
+    private readonly stateModel: StateModel,
+    private readonly coinHistoryModel: CoinHistoryModel, // private readonly countryModel: CountryModel,
   ) {}
 
   public async getProfile(currentUserId: string) {
@@ -77,11 +82,7 @@ export class ProfileService {
       };
     }
 
-    return await this.userModel.updateOneById(
-      currentUserId,
-      updateOptions,
-      currentUserId,
-    );
+    return await this.userModel.updateOneById(currentUserId, updateOptions);
   }
 
   public async updateProfileBasicInfo(
@@ -97,20 +98,44 @@ export class ProfileService {
       state: { id: stateId },
       haveBasicInfo: true,
     };
-    return await this.userModel.updateOneById(
-      currentUserId,
-      updateOptions,
-      currentUserId,
-    );
+    return await this.userModel.updateOneById(currentUserId, updateOptions);
   }
 
   public async deactivate(userId: string) {
-    return await this.userModel.updateOneById(
-      userId,
-      {
-        status: UserStatuses.activated,
+    return await this.userModel.updateOneById(userId, {
+      status: UserStatuses.activated,
+    });
+  }
+
+  public async getDailyCoin(user: User) {
+    const now = moment().startOf('date').toDate();
+    const existDailyCoin = await this.coinHistoryModel.findOne({
+      where: {
+        user: {
+          id: user.id,
+        },
+        type: CoinTypes.daily,
+        receivedAt: MoreThan(now),
       },
-      userId,
-    );
+    });
+    if (existDailyCoin) {
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.DAILY_COIN_ALREADY_RECEIVED,
+        message: 'You already received daily coin!',
+      });
+    }
+    // TODO: transaction
+    await this.coinHistoryModel.saveOne({
+      user: {
+        id: user.id,
+      },
+      type: CoinTypes.daily,
+      receivedAt: now,
+    });
+    await this.userModel.updateOneById(user.id, {
+      coins: () => 'coins + 10',
+    });
+
+    return;
   }
 }

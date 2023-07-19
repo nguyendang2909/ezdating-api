@@ -2,14 +2,15 @@ export const UserRoles = {
   admin: 1,
   manager: 2,
   member: 3,
-};
+} as const;
 
 export type UserRole = (typeof UserRoles)[keyof typeof UserRoles];
 
 export const UserGenders = {
   male: 1,
   female: 2,
-};
+} as const;
+
 export type UserGender = (typeof UserGenders)[keyof typeof UserGenders];
 
 export const UserStatuses = {
@@ -68,7 +69,7 @@ export const UserJobs = {
   salesManager: 9,
   painter: 10,
   fashionDesigner: 11,
-};
+} as const;
 
 export type UserJob = (typeof UserJobs)[keyof typeof UserJobs];
 
@@ -86,7 +87,7 @@ export type RelationshipUserStatus =
 export const UploadFileTypes = {
   photo: 1,
   video: 2,
-};
+} as const;
 
 export type UploadFileType =
   (typeof UploadFileTypes)[keyof typeof UploadFileTypes];
@@ -98,3 +99,9 @@ export type UploadFileType =
 
 // export type UploadFileShare =
 //   (typeof UploadFileShares)[keyof typeof UploadFileShares];
+
+export const CoinTypes = {
+  daily: 1,
+};
+
+export type CoinType = (typeof CoinTypes)[keyof typeof CoinTypes];

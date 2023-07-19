@@ -162,12 +162,6 @@ export class User extends BaseEntity {
   @Column({ name: 'weight', type: 'integer', nullable: true })
   weight?: number;
 
-  @Column({ name: 'created_by', type: 'uuid', nullable: true })
-  createdBy?: string;
-
-  @Column({ name: 'updated_by', type: 'uuid', nullable: true })
-  updatedBy?: string;
-
   constructor(obj: Partial<User>) {
     super();
 

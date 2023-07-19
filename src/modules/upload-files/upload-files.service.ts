@@ -58,13 +58,9 @@ export class UploadFilesService {
       userId,
     );
     if (isAvatar) {
-      await this.userModel.updateOneById(
-        userId,
-        {
-          avatarFile: { id: createResult.id },
-        },
-        userId,
-      );
+      await this.userModel.updateOneById(userId, {
+        avatarFile: { id: createResult.id },
+      });
     }
 
     return createResult;
