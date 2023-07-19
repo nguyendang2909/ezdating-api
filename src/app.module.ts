@@ -47,6 +47,9 @@ import { UsersModule } from './modules/users/users.module';
         POSTGRES_DB_NAME: Joi.string().required(),
         POSTGRES_USER: Joi.string().required(),
         POSTGRES_PASS: Joi.string().required(),
+        // Cache
+        REDIS_HOST: Joi.string().required(),
+        REDIS_PORT: Joi.string().required(),
         // Firebase
         FIREBASE_PROJECT_ID: Joi.string().required(),
         FIREBASE_CLIENT_EMAIL: Joi.string().required(),

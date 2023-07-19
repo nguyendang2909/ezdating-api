@@ -14,6 +14,9 @@ declare global {
       POSTGRES_DB_NAME: string;
       POSTGRES_USER: string;
       POSTGRES_PASS: string;
+      // Cache
+      REDIS_HOST: string;
+      REDIS_PORT: string;
 
       // // Google
       // GOOGLE_CLIENT_ID: string;

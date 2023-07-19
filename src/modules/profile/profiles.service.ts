@@ -135,7 +135,5 @@ export class ProfileService {
     await this.userModel.updateOneById(user.id, {
       coins: () => 'coins + 10',
     });
-
-    return;
   }
 }

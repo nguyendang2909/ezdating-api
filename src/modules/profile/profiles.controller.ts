@@ -59,4 +59,12 @@ export class ProfilesController {
       data: await this.profileService.getDailyCoin(user),
     };
   }
+
+  @Post('/deactivate')
+  async deactivate(@UserId() userId: string) {
+    return {
+      type: 'deactivate',
+      data: await this.profileService.deactivate(userId),
+    };
+  }
 }
