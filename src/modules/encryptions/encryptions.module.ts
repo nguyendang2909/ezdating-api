@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 
 import { EncryptionsUtil } from './encryptions.util';
+import { AppConfig } from '../../app.config';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { EncryptionsUtil } from './encryptions.util';
         return {
           secret: configService.get<string>('JWT_SECRET_KEY'),
           signOptions: {
-            expiresIn: '10m',
+            expiresIn: AppConfig.ACCESS_TOKEN_EXPIRES,
           },
         };
       },

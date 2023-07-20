@@ -71,9 +71,6 @@ export class UsersService {
         haveBasicInfo: true,
         status: UserStatuses.activated,
       },
-      select: {
-        id: true,
-      },
     });
     // const data = this.repository.find({
     //   where: {

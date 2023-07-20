@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 
+import { AppConfig } from '../../app.config';
 import {
   AccessTokenPayload,
   AccessTokenSignPayload,
@@ -23,7 +24,7 @@ export class EncryptionsUtil {
 
   public signRefreshToken(payload: RefreshTokenPayload): string {
     return this.jwtService.sign(payload, {
-      expiresIn: '100d',
+      expiresIn: AppConfig.APP_NAME,
       secret: this.JWT_REFRESH_TOKEN_SECRET_KEY,
     });
   }
