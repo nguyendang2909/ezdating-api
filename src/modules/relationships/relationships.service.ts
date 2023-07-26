@@ -10,7 +10,7 @@ import { Relationship } from '../entities/entities/relationship.entity';
 import { User } from '../entities/entities/user.entity';
 import { MessageModel } from '../entities/message.model';
 import { RelationshipModel } from '../entities/relationship-entity.model';
-import { UserModel } from '../entities/users.model';
+import { UserModel } from '../entities/user.model';
 import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
 

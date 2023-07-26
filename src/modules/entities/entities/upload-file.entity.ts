@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 
 import {
   UploadFileType,
@@ -17,7 +17,10 @@ export class UploadFile extends BaseEntity {
 
   @ManyToOne(() => User, (user) => user.uploadFiles, { nullable: false })
   @JoinColumn({ name: 'user_id' })
-  user?: User;
+  user: User;
+
+  @RelationId((uploadFile: UploadFile) => uploadFile.user)
+  userId: string;
 
   @Column({
     name: 'type',

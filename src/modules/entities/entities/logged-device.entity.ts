@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
+import { DevicePlatform } from '../../../commons/constants/constants';
 import { BaseEntity } from '../../../commons/entities/base.entity';
 import { User } from './user.entity';
 
@@ -14,4 +15,10 @@ export class LoggedDevice extends BaseEntity {
 
   @Column({ name: 'expires_in', type: 'timestamp', nullable: false })
   expiresIn!: Date;
+
+  @Column({ name: 'device_id', type: 'varchar', nullable: true })
+  deviceId: string;
+
+  @Column({ name: '', type: 'varchar', nullable: true })
+  platform: DevicePlatform;
 }

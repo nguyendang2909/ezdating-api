@@ -5,7 +5,7 @@ import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 import { Message } from './entities/message.entity';
-import { UserModel } from './users.model';
+import { UserModel } from './user.model';
 
 @Injectable()
 export class MessageModel {

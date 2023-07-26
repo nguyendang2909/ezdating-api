@@ -1,4 +1,11 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  RelationId,
+} from 'typeorm';
 
 import { BaseEntity } from '../../../commons/entities/base.entity';
 import { Relationship } from './relationship.entity';
@@ -19,7 +26,10 @@ export class Message extends BaseEntity {
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'user_id' })
-  user!: Partial<User>;
+  user: Partial<User>;
+
+  @RelationId((message: Message) => message.user)
+  userId: string;
 
   @Column({ type: 'varchar', nullable: true })
   image?: string;
@@ -37,5 +47,5 @@ export class Message extends BaseEntity {
   video?: string;
 
   @Column({ type: 'uuid', nullable: false })
-  uuid!: string;
+  uuid: string;
 }

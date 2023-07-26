@@ -6,6 +6,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
+  RelationId,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -31,9 +32,15 @@ export class Relationship {
   @JoinColumn({ name: 'user_one' })
   userOne!: Partial<User>;
 
+  @RelationId((relationship: Relationship) => relationship.userOne)
+  userOneId!: string;
+
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'user_two' })
   userTwo!: Partial<User>;
+
+  @RelationId((relationship: Relationship) => relationship.userTwo)
+  userTwoId!: string;
 
   @Column({
     name: 'user_one_status',

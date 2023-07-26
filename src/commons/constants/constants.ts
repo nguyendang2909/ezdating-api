@@ -105,3 +105,16 @@ export const CoinTypes = {
 };
 
 export type CoinType = (typeof CoinTypes)[keyof typeof CoinTypes];
+
+export const WeeklyCoins = [10, 20, 40, 70, 110, 160, 220];
+
+export const WeeklyCoinsLength = WeeklyCoins.length;
+
+export const DevicePlatforms = {
+  web: 1,
+  ios: 2,
+  android: 3,
+} as const;
+
+export type DevicePlatform =
+  (typeof DevicePlatforms)[keyof typeof DevicePlatforms];

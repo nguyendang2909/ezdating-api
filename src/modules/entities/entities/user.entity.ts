@@ -7,6 +7,7 @@ import {
   OneToMany,
   OneToOne,
   Point,
+  RelationId,
 } from 'typeorm';
 
 import {
@@ -24,7 +25,6 @@ import {
   UserStatuses,
 } from '../../../commons/constants/constants';
 import { BaseEntity } from '../../../commons/entities/base.entity';
-import { EntityFactory } from '../../../commons/lib/entity-factory';
 import { Country } from './country.entity';
 import { State } from './state.entity';
 import { UploadFile } from './upload-file.entity';
@@ -58,8 +58,14 @@ export class User extends BaseEntity {
   @JoinColumn({ name: 'state_id' })
   state?: State;
 
+  @RelationId((user: User) => user.state)
+  stateId?: string;
+
   @ManyToOne(() => Country)
   @JoinColumn({ name: 'country_id' })
+  country?: string;
+
+  @RelationId((user: User) => user.country)
   countryId?: string;
 
   @Column({ name: 'email', length: 100, nullable: true, type: 'varchar' })
@@ -168,5 +174,3 @@ export class User extends BaseEntity {
     Object.assign(this, obj);
   }
 }
-
-export const userEntityName = EntityFactory.getEntityName(User);

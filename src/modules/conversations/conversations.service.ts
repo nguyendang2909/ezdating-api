@@ -9,7 +9,7 @@ import { EntityFactory } from '../../commons/lib/entity-factory';
 import { User } from '../entities/entities/user.entity';
 import { MessageModel } from '../entities/message.model';
 import { RelationshipModel } from '../entities/relationship-entity.model';
-import { UserModel } from '../entities/users.model';
+import { UserModel } from '../entities/user.model';
 import { FindManyMessagesByConversationIdDto } from '../messages/dto/find-many-messages.dto';
 import { FindManyConversations } from './dto/find-many-conversations.dto';
 

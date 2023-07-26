@@ -13,7 +13,7 @@ import { HttpErrorCodes } from '../../../commons/erros/http-error-codes.constant
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { User } from '../../entities/entities/user.entity';
 import { LoggedDeviceModel } from '../../entities/logged-device.model';
-import { UserModel } from '../../entities/users.model';
+import { UserModel } from '../../entities/user.model';
 import { SignInData } from '../auth.type';
 import { SignInWithPhoneNumberDto } from '../dto/sign-in-with-phone-number.dto';
 import { SignInWithPhoneNumberAndPasswordDto } from '../dto/sign-in-with-phone-number-and-password.dto';

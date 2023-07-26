@@ -5,7 +5,7 @@ import { Socket } from 'socket.io';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { MessageModel } from '../entities/message.model';
 import { RelationshipModel } from '../entities/relationship-entity.model';
-import { UserModel } from '../entities/users.model';
+import { UserModel } from '../entities/user.model';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
 
 @Injectable()

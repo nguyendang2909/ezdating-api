@@ -1,4 +1,11 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  RelationId,
+} from 'typeorm';
 
 import { CoinType, CoinTypes } from '../../../commons/constants/constants';
 import { BaseEntity } from '../../../commons/entities/base.entity';
@@ -16,6 +23,9 @@ export class CoinHistory extends BaseEntity {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user: Partial<User>;
+
+  @RelationId((coindHistory: CoinHistory) => coindHistory.user)
+  userId: string;
 
   @Column({ name: 'received_at', type: 'timestamp', nullable: false })
   receivedAt: Date;

@@ -18,7 +18,7 @@ import { MessageModel } from './message.model';
 import { RelationshipModel } from './relationship-entity.model';
 import { StateModel } from './state.model';
 import { UploadFileModel } from './upload-file.model';
-import { UserModel } from './users.model';
+import { UserModel } from './user.model';
 
 @Module({
   imports: [

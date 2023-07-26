@@ -4,7 +4,7 @@ import { Socket } from 'socket.io';
 
 import { UserStatuses } from '../../commons/constants/constants';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
-import { UserModel } from '../entities/users.model';
+import { UserModel } from '../entities/user.model';
 
 @Injectable()
 export class ChatsConnectionService {

@@ -6,7 +6,7 @@ import { ResponsePagination } from '../../commons/constants/paginations';
 import { User } from '../entities/entities/user.entity';
 import { StateModel } from '../entities/state.model';
 import { UploadFileModel } from '../entities/upload-file.model';
-import { UserModel } from '../entities/users.model';
+import { UserModel } from '../entities/user.model';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
 import { FindOneUserDto } from './dto/is-exist-user.dto';
 

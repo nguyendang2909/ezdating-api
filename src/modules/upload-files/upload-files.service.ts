@@ -9,7 +9,7 @@ import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { UploadFile } from '../entities/entities/upload-file.entity';
 import { User } from '../entities/entities/user.entity';
 import { UploadFileModel } from '../entities/upload-file.model';
-import { UserModel } from '../entities/users.model';
+import { UserModel } from '../entities/user.model';
 import { FindManyUploadFilesDto } from './dto/find-many-upload-files.dto';
 import { FindOneUploadFileByIdDto } from './dto/find-one-upload-file-by-id.dto';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
