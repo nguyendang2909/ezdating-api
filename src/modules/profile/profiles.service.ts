@@ -94,13 +94,9 @@ export class ProfileService {
     payload: UpdateMyProfileBasicInfoDto,
     currentUserId: string,
   ) {
-    const { stateId, ...updateDto } = payload;
-    await this.stateModel.findOneOrFail({
-      where: { id: stateId },
-    });
+    const { ...updateDto } = payload;
     const updateOptions: QueryDeepPartialEntity<User> = {
       ...updateDto,
-      state: { id: stateId },
       haveBasicInfo: true,
     };
     return await this.userModel.updateOneById(currentUserId, updateOptions);

@@ -24,7 +24,7 @@ export class EncryptionsUtil {
 
   public signRefreshToken(payload: RefreshTokenPayload): string {
     return this.jwtService.sign(payload, {
-      expiresIn: AppConfig.APP_NAME,
+      expiresIn: AppConfig.REFRESH_TOKEN_EXPIRES,
       secret: this.JWT_REFRESH_TOKEN_SECRET_KEY,
     });
   }
