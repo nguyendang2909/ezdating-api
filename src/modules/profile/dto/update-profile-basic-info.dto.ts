@@ -43,7 +43,7 @@ export class UpdateMyProfileBasicInfoDto {
   )
   lookingFor!: UserLookingFor;
 
-  @ApiProperty({ type: String })
-  @JoiSchema(Joi.number().required())
-  stateId!: number;
+  // @ApiProperty({ type: String })
+  // @JoiSchema(Joi.number().required())
+  // stateId?: number;
 }
