@@ -82,13 +82,13 @@ export class User extends BaseEntity {
 
   @Index({ spatial: true })
   @Column({
-    name: 'location',
+    name: 'geo_location',
     type: 'geography',
     spatialFeatureType: 'Point',
     srid: 4326,
     nullable: true,
   })
-  location?: Point;
+  geoLocation?: Point;
 
   @Column({
     name: 'looking_for',

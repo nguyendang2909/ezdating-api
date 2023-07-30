@@ -1,4 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { Request } from 'express';
+import geoIp from 'geoip-lite';
 import moment from 'moment';
 import { MoreThan } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
@@ -93,11 +95,22 @@ export class ProfileService {
 
   public async updateProfileBasicInfo(
     payload: UpdateMyProfileBasicInfoDto,
+    req: Request,
     currentUserId: string,
   ) {
+    const geoData = geoIp.lookup(req.ip);
+
     const { ...updateDto } = payload;
     const updateOptions: QueryDeepPartialEntity<User> = {
       ...updateDto,
+      ...(geoData?.ll.length
+        ? {
+            geoLocation: {
+              type: 'Point',
+              coordinates: [geoData.ll[1], geoData.ll[0]],
+            },
+          }
+        : {}),
       haveBasicInfo: true,
     };
     return await this.userModel.updateOneById(currentUserId, updateOptions);

@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 
 import {
   Client,
@@ -41,12 +42,14 @@ export class ProfilesController {
   @Patch('/basic-info')
   private async updateProfileBasicInfo(
     @Body() payload: UpdateMyProfileBasicInfoDto,
+    @Req() req: Request,
     @CurrentUserId() currentUserId: string,
   ) {
     return {
       type: 'updateProfileBasicInfo',
       data: await this.profileService.updateProfileBasicInfo(
         payload,
+        req,
         currentUserId,
       ),
     };

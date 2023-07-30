@@ -40,7 +40,7 @@ export class UsersService {
         birthday: true,
         gender: true,
         introduce: true,
-        location: true,
+        geoLocation: true,
         nickname: true,
         state: {
           id: true,
