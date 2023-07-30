@@ -1,7 +1,7 @@
 import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { UserId } from '../../commons/decorators/current-user-id.decorator';
+import { CurrentUserId } from '../../commons/decorators/current-user-id.decorator';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
 import { UsersService } from './users.service';
 
@@ -14,7 +14,7 @@ export class UsersController {
   @Get('/dating')
   public async findManyDating(
     @Query() queryParams: FindManyDatingUsersDto,
-    @UserId() currentUserId: string,
+    @CurrentUserId() currentUserId: string,
   ) {
     return {
       type: 'users',
@@ -25,7 +25,7 @@ export class UsersController {
   @Get('/nearby')
   public async findManyNearby(
     @Query() queryParams: FindManyDatingUsersDto,
-    @UserId() currentUserId: string,
+    @CurrentUserId() currentUserId: string,
   ) {
     return await this.usersService.findManyNearby(queryParams, currentUserId);
   }
@@ -33,7 +33,7 @@ export class UsersController {
   @Get('/:id')
   private async findOneById(
     @Param('id', ParseUUIDPipe) id: string,
-    @UserId() currentUserId: string,
+    @CurrentUserId() currentUserId: string,
   ) {
     return {
       type: 'profile',

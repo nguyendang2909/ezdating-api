@@ -15,7 +15,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { AppConfig } from '../../app.config';
-import { UserId } from '../../commons/decorators/current-user-id.decorator';
+import { CurrentUserId } from '../../commons/decorators/current-user-id.decorator';
 import { FindManyUploadFilesDto } from './dto/find-many-upload-files.dto';
 import { FindOneUploadFileByIdDto } from './dto/find-one-upload-file-by-id.dto';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
@@ -62,7 +62,7 @@ export class UploadFilesController {
     }),
   )
   private async uploadPhoto(
-    @UserId() userId: string,
+    @CurrentUserId() userId: string,
     @Body() payload: UploadPhotoDtoDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
@@ -87,7 +87,7 @@ export class UploadFilesController {
   @Get()
   private async findMany(
     @Query() queryParams: FindManyUploadFilesDto,
-    @UserId() userId: string,
+    @CurrentUserId() userId: string,
   ) {
     return {
       type: 'uploadFiles',
@@ -105,7 +105,7 @@ export class UploadFilesController {
   findOneById(
     @Param('id', ParseUUIDPipe) id: string,
     @Query() queryParams: FindOneUploadFileByIdDto,
-    @UserId() userId: string,
+    @CurrentUserId() userId: string,
   ) {
     return {
       type: 'uploadFile',
@@ -128,7 +128,7 @@ export class UploadFilesController {
   @Delete(':id')
   private async remove(
     @Param('id', ParseUUIDPipe) id: string,
-    @UserId() userId: string,
+    @CurrentUserId() userId: string,
   ) {
     return {
       type: 'removeFileUpload',

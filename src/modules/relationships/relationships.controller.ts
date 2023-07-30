@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 
-import { UserId } from '../../commons/decorators/current-user-id.decorator';
+import { CurrentUserId } from '../../commons/decorators/current-user-id.decorator';
 import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
 import { FindUsersLikeMeDto } from './dto/find-user-like-me.dto';
@@ -13,7 +13,7 @@ export class RelationshipsController {
   @Post('/status')
   public async sendStatus(
     @Body() payload: SendRelationshipStatusDto,
-    @UserId() currentUserId: string,
+    @CurrentUserId() currentUserId: string,
   ) {
     return {
       type: 'sendRelationshipStatus',
@@ -24,7 +24,7 @@ export class RelationshipsController {
   @Get('/matched')
   public async findMatched(
     @Query() queryParams: FindMatchedRelationshipsDto,
-    @UserId() userId: string,
+    @CurrentUserId() userId: string,
   ) {
     return {
       type: 'matchedRelationships',
@@ -35,7 +35,7 @@ export class RelationshipsController {
   @Get('/like-me')
   findUsersLikeMe(
     @Query() queryParams: FindUsersLikeMeDto,
-    @UserId() userId: string,
+    @CurrentUserId() userId: string,
   ) {
     return {
       type: 'usersLikeMe',

@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import {
   Client,
-  UserId,
+  CurrentUserId,
 } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
@@ -17,7 +17,7 @@ export class ProfilesController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Get('/')
-  private async getProfile(@UserId() currentUserId: string) {
+  private async getProfile(@CurrentUserId() currentUserId: string) {
     return {
       type: 'profile',
       data: await this.profileService.getProfile(currentUserId),
@@ -27,7 +27,7 @@ export class ProfilesController {
   @Patch('/')
   private async updateProfile(
     @Body() updateMyProfileDto: UpdateMyProfileDto,
-    @UserId() currentUserId: string,
+    @CurrentUserId() currentUserId: string,
   ) {
     return {
       type: 'updateProfile',
@@ -41,7 +41,7 @@ export class ProfilesController {
   @Patch('/basic-info')
   private async updateProfileBasicInfo(
     @Body() payload: UpdateMyProfileBasicInfoDto,
-    @UserId() currentUserId: string,
+    @CurrentUserId() currentUserId: string,
   ) {
     return {
       type: 'updateProfileBasicInfo',
@@ -61,7 +61,7 @@ export class ProfilesController {
   }
 
   @Post('/deactivate')
-  async deactivate(@UserId() userId: string) {
+  async deactivate(@CurrentUserId() userId: string) {
     return {
       type: 'deactivate',
       data: await this.profileService.deactivate(userId),
