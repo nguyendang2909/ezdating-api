@@ -4,8 +4,8 @@ import bcrypt from 'bcrypt';
 
 import { AppConfig } from '../../app.config';
 import {
-  AccessTokenPayload,
   AccessTokenSignPayload,
+  ClientData,
   RefreshTokenPayload,
 } from '../auth/auth.type';
 
@@ -32,8 +32,8 @@ export class EncryptionsUtil {
   public verifyAccessToken(
     jwt: string,
     options?: Omit<JwtVerifyOptions, 'secret'>,
-  ): AccessTokenPayload {
-    return this.jwtService.verify<AccessTokenPayload>(jwt, options);
+  ): ClientData {
+    return this.jwtService.verify<ClientData>(jwt, options);
   }
 
   public verifyRefreshToken(

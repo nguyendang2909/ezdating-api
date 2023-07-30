@@ -39,7 +39,7 @@ export class WsAuthGuard implements CanActivate {
       });
     }
 
-    client.handshake.user = user;
+    client.handshake.user = decoded;
 
     // Add your custom authentication logic here
     // for example, call super.logIn(request) to establish a session.

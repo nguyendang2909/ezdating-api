@@ -10,6 +10,7 @@ import {
   WeeklyCoinsLength,
 } from '../../commons/constants/constants';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { ClientData } from '../auth/auth.type';
 import { CoinHistoryModel } from '../entities/coinHistory.model';
 import { User } from '../entities/entities/user.entity';
 import { StateModel } from '../entities/state.model';
@@ -108,12 +109,12 @@ export class ProfileService {
     });
   }
 
-  public async getDailyCoin(user: User) {
+  public async getDailyCoin(clientData: ClientData) {
     const now = moment().startOf('date').toDate();
     const lastDailyCoin = await this.coinHistoryModel.findOne({
       where: {
         user: {
-          id: user.id,
+          id: clientData.id,
         },
         type: CoinTypes.daily,
         receivedAt: MoreThan(now),
@@ -123,13 +124,13 @@ export class ProfileService {
       // TODO: transaction
       await this.coinHistoryModel.saveOne({
         user: {
-          id: user.id,
+          id: clientData.id,
         },
         type: CoinTypes.daily,
         receivedAt: now,
         value: WeeklyCoins[0],
       });
-      await this.userModel.updateOneById(user.id, {
+      await this.userModel.updateOneById(clientData.id, {
         coins: () => 'coins + 10',
       });
     }
@@ -152,7 +153,7 @@ export class ProfileService {
 
       return await this.coinHistoryModel.saveOne({
         user: {
-          id: user.id,
+          id: clientData.id,
         },
         type: CoinTypes.daily,
         receivedAt: now,

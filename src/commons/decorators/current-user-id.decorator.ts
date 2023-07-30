@@ -1,4 +1,9 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import {
+  BadRequestException,
+  createParamDecorator,
+  ExecutionContext,
+} from '@nestjs/common';
+import { Request } from 'express';
 
 export const UserId = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
@@ -8,10 +13,14 @@ export const UserId = createParamDecorator(
   },
 );
 
-export const CurrentUser = createParamDecorator(
+export const Client = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
+    const { user } = ctx.switchToHttp().getRequest<Request>();
 
-    return request.user;
+    if (!user) {
+      throw new BadRequestException('Access token payload does not exist!');
+    }
+
+    return user;
   },
 );

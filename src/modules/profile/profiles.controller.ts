@@ -2,10 +2,10 @@ import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import {
-  CurrentUser,
+  Client,
   UserId,
 } from '../../commons/decorators/current-user-id.decorator';
-import { User } from '../entities/entities/user.entity';
+import { ClientData } from '../auth/auth.type';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
 import { ProfileService } from './profiles.service';
@@ -53,10 +53,10 @@ export class ProfilesController {
   }
 
   @Post('/coin/daily')
-  async getDailyCoin(@CurrentUser() user: User) {
+  async getDailyCoin(@Client() clientData: ClientData) {
     return {
       type: 'dailyCoin',
-      data: await this.profileService.getDailyCoin(user),
+      data: await this.profileService.getDailyCoin(clientData),
     };
   }
 

@@ -1,4 +1,4 @@
-import { CurrentUser } from './modules/users/users.type';
+import { ClientData } from './modules/auth/auth.type';
 
 declare global {
   namespace NodeJS {
@@ -48,7 +48,7 @@ declare global {
 
 declare module 'socket.io/dist/socket' {
   interface Handshake {
-    user: CurrentUser;
+    user: ClientData;
   }
 }
 

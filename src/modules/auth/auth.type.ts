@@ -1,6 +1,6 @@
 import { UserRole } from '../../commons/constants/constants';
 
-export type AccessTokenPayload = {
+export type ClientData = {
   sub: string;
   id: string;
   role: UserRole;

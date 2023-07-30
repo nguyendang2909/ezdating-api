@@ -20,7 +20,6 @@ export class ChatsService {
 
   public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
     const { relationshipId, text, uuid } = payload;
-    const currentUser = socket.handshake.user;
     const currentUserId = socket.handshake.user.id;
     const existRelationship = this.relationshipModel.findOneConversationById(
       relationshipId,
@@ -57,6 +56,14 @@ export class ChatsService {
       ),
     ]);
     socket.emit('updateMsg', message);
+    const currentUser = await this.userModel.findOne({
+      where: {
+        id: socket.handshake.user.id,
+      },
+    });
+    if (!currentUser) {
+      return;
+    }
     const formattedMessage = {
       ...message,
       user: {

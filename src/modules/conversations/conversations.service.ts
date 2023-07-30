@@ -6,7 +6,7 @@ import { RelationshipUserStatuses } from '../../commons/constants/constants';
 import { Cursors } from '../../commons/constants/paginations';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFactory } from '../../commons/lib/entity-factory';
-import { User } from '../entities/entities/user.entity';
+import { ClientData } from '../auth/auth.type';
 import { MessageModel } from '../entities/message.model';
 import { RelationshipModel } from '../entities/relationship-entity.model';
 import { UserModel } from '../entities/user.model';
@@ -21,10 +21,13 @@ export class ConversationsService {
     private readonly messageModel: MessageModel,
   ) {}
 
-  public async findMany(queryParams: FindManyConversations, currentUser: User) {
-    const findResult = await this.findManyByQuery(queryParams, currentUser);
-    const userIds = this.relationshipModel.getUserIdsFromId(currentUser.id);
-    const isUserOne = this.userModel.isUserOneByIds(currentUser.id, userIds);
+  public async findMany(
+    queryParams: FindManyConversations,
+    clientData: ClientData,
+  ) {
+    const findResult = await this.findManyByQuery(queryParams, clientData);
+    const userIds = this.relationshipModel.getUserIdsFromId(clientData.id);
+    const isUserOne = this.userModel.isUserOneByIds(clientData.id, userIds);
     const conversations = this.relationshipModel.formatConversations(
       findResult,
       isUserOne,
@@ -39,9 +42,9 @@ export class ConversationsService {
     };
   }
 
-  public async findOneOrFailById(id: string, currentUser: User) {
+  public async findOneOrFailById(id: string, clientData: ClientData) {
     const currentUserObj = {
-      id: currentUser.id,
+      id: clientData.id,
     };
     const lastMessageQuery = { lastMessage: Not(IsNull()) };
     const findResult = await this.relationshipModel.findOne({
@@ -119,9 +122,9 @@ export class ConversationsService {
       });
     }
 
-    const userIds = this.relationshipModel.getUserIdsFromId(currentUser.id);
+    const userIds = this.relationshipModel.getUserIdsFromId(clientData.id);
 
-    const isUserOne = this.userModel.isUserOneByIds(currentUser.id, userIds);
+    const isUserOne = this.userModel.isUserOneByIds(clientData.id, userIds);
 
     const conversation = this.relationshipModel.formatConversation(
       findResult,
@@ -137,9 +140,9 @@ export class ConversationsService {
   public async findManyMessagesByConversationId(
     id: string,
     queryParams: FindManyMessagesByConversationIdDto,
-    user: User,
+    clientData: ClientData,
   ) {
-    await this.findOneOrFailById(id, user);
+    await this.findOneOrFailById(id, clientData);
 
     const { cursor } = queryParams;
 
@@ -191,7 +194,7 @@ export class ConversationsService {
 
   public async findManyByQuery(
     queryParams: FindManyConversations,
-    currentUser: User,
+    clientData: ClientData,
   ) {
     const { cursor } = queryParams;
 
@@ -221,7 +224,7 @@ export class ConversationsService {
             Not(RelationshipUserStatuses.cancel),
           ),
           userOne: {
-            id: currentUser.id,
+            id: clientData.id,
           },
         },
         {
@@ -235,7 +238,7 @@ export class ConversationsService {
             Not(RelationshipUserStatuses.cancel),
           ),
           userTwo: {
-            id: currentUser.id,
+            id: clientData.id,
           },
         },
       ],

@@ -12,7 +12,7 @@ import { TokenFactory } from '../../commons/lib/token-factory.lib';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { LoggedDeviceModel } from '../entities/logged-device.model';
 import { UserModel } from '../entities/user.model';
-import { AccessTokenPayload } from './auth.type';
+import { ClientData } from './auth.type';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -75,7 +75,7 @@ export class AuthService {
     return { refreshToken };
   }
 
-  public verifyAccessTokenFromRequest(): AccessTokenPayload {
+  public verifyAccessTokenFromRequest(): ClientData {
     const currentAccessToken = TokenFactory.getAccessTokenFromHttpRequest(
       this.request,
     );

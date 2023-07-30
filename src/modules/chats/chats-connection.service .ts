@@ -30,7 +30,7 @@ export class ChatsConnectionService {
 
         return;
       }
-      socket.handshake.user = user;
+      socket.handshake.user = decodedToken;
       socket.join(user.id);
       this.logger.log(`Socket connected: ${socket.id}`);
 

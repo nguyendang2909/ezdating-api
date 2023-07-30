@@ -1,9 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { UserModel } from '../../entities/user.model';
-import { AccessTokenPayload } from '../auth.type';
+import { ClientData } from '../auth.type';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -15,17 +15,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(accessTokenPayload: AccessTokenPayload) {
-    const user = await this.userModel
-      .findOneOrFailById(accessTokenPayload.id)
-      .catch(() => {
-        throw new UnauthorizedException();
-      });
-
-    await this.userModel.updateOneById(user.id, {
+  async validate(accessTokenPayload: ClientData) {
+    await this.userModel.updateOneById(accessTokenPayload.id, {
       lastActivatedAt: new Date(),
     });
 
-    return user;
+    return accessTokenPayload;
   }
 }

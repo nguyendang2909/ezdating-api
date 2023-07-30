@@ -6,8 +6,8 @@ import {
   Query,
 } from '@nestjs/common';
 
-import { CurrentUser } from '../../commons/decorators/current-user-id.decorator';
-import { User } from '../entities/entities/user.entity';
+import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { ClientData } from '../auth/auth.type';
 import { FindManyMessagesByConversationIdDto } from '../messages/dto/find-many-messages.dto';
 import { ConversationsService } from './conversations.service';
 import { FindManyConversations } from './dto/find-many-conversations.dto';
@@ -19,28 +19,28 @@ export class ConversationsController {
   @Get('/')
   public async findMany(
     @Query() queryParams: FindManyConversations,
-    @CurrentUser() currentUser: User,
+    @Client() clienData: ClientData,
   ) {
-    return await this.conversationsService.findMany(queryParams, currentUser);
+    return await this.conversationsService.findMany(queryParams, clienData);
   }
 
   @Get('/:id/messages')
   public async findManyMessages(
     @Param('id') id: string,
     @Query() queryParams: FindManyMessagesByConversationIdDto,
-    @CurrentUser() currentUser: User,
+    @Client() clientData: ClientData,
   ) {
     return await this.conversationsService.findManyMessagesByConversationId(
       id,
       queryParams,
-      currentUser,
+      clientData,
     );
   }
 
   @Get('/:id')
   public async findOneById(
     @Param('id') id: string,
-    @CurrentUser() currentUser: User,
+    @Client() clientData: ClientData,
   ) {
     if (!id) {
       throw new BadRequestException();
@@ -48,7 +48,7 @@ export class ConversationsController {
 
     return {
       type: 'conversation',
-      data: await this.conversationsService.findOneOrFailById(id, currentUser),
+      data: await this.conversationsService.findOneOrFailById(id, clientData),
     };
   }
 }
