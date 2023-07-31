@@ -60,7 +60,7 @@ export class ProfileService {
       ...updateDto,
       ...(longitude && latitude
         ? {
-            location: {
+            geolocation: {
               type: 'Point',
               coordinates: [longitude, latitude],
             },
