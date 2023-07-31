@@ -37,7 +37,10 @@ export class ConversationsService {
       type: 'conversations',
       data: conversations,
       pagination: {
-        cursors: EntityFactory.getCursors(_.last(conversations)?.lastMessageAt),
+        cursors: EntityFactory.getCursors({
+          before: _.last(conversations)?.lastMessageAt,
+          after: _.first(conversations)?.lastMessageAt,
+        }),
       },
     };
   }
@@ -187,7 +190,10 @@ export class ConversationsService {
       conversationId: id,
       data: messages,
       pagination: {
-        cursors: EntityFactory.getCursors(_.last(findResult)?.createdAt),
+        cursors: EntityFactory.getCursors({
+          before: _.last(messages)?.createdAt,
+          after: _.first(messages)?.createdAt,
+        }),
       },
     };
   }

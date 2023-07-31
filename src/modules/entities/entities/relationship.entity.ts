@@ -29,14 +29,14 @@ export class Relationship {
   id!: string;
 
   @ManyToOne(() => User, { nullable: false })
-  @JoinColumn({ name: 'user_one' })
+  @JoinColumn({ name: 'user_one_id' })
   userOne!: Partial<User>;
 
   @RelationId((relationship: Relationship) => relationship.userOne)
   userOneId!: string;
 
   @ManyToOne(() => User, { nullable: false })
-  @JoinColumn({ name: 'user_two' })
+  @JoinColumn({ name: 'user_two_id' })
   userTwo!: Partial<User>;
 
   @RelationId((relationship: Relationship) => relationship.userTwo)

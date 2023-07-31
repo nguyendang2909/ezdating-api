@@ -135,7 +135,10 @@ export class RelationshipsService {
     return {
       data: findResult,
       pagination: {
-        cursor: EntityFactory.getCursors(_.last(findResult)?.statusAt),
+        cursor: EntityFactory.getCursors({
+          before: _.last(findResult)?.statusAt,
+          after: _.first(findResult)?.statusAt,
+        }),
       },
     };
   }
@@ -191,7 +194,10 @@ export class RelationshipsService {
     return {
       data: findResult,
       pagination: {
-        cursor: EntityFactory.getCursors(_.last(findResult)?.statusAt),
+        cursor: EntityFactory.getCursors({
+          before: _.last(findResult)?.statusAt,
+          after: _.first(findResult)?.statusAt,
+        }),
       },
     };
   }

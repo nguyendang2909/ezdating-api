@@ -99,6 +99,35 @@ export class User extends BaseEntity {
   lookingFor?: UserLookingFor;
 
   @Column({
+    name: 'filter_gender',
+    type: 'enum',
+    enum: UserGenders,
+    nullable: true,
+  })
+  filterGender?: UserGender;
+
+  @Column({
+    name: 'filter_max_distance',
+    type: 'integer',
+    nullable: true,
+  })
+  filterMaxDistance?: number;
+
+  @Column({
+    name: 'filter_min_age',
+    type: 'integer',
+    nullable: true,
+  })
+  filterMinAge: number;
+
+  @Column({
+    name: 'filter_max_age',
+    type: 'integer',
+    nullable: true,
+  })
+  filterMaxAge: number;
+
+  @Column({
     name: 'have_basic_info',
     type: 'boolean',
     nullable: false,
@@ -167,6 +196,8 @@ export class User extends BaseEntity {
 
   @Column({ name: 'weight', type: 'integer', nullable: true })
   weight?: number;
+
+  distance?: string;
 
   constructor(obj: Partial<User>) {
     super();

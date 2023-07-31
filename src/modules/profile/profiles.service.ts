@@ -4,8 +4,11 @@ import moment from 'moment';
 import { MoreThan } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
+import { AppConfig } from '../../app.config';
 import {
   CoinTypes,
+  UserGender,
+  UserGenders,
   UserStatuses,
   WeeklyCoins,
   WeeklyCoinsLength,
@@ -97,9 +100,14 @@ export class ProfileService {
     req: Request,
     currentUserId: string,
   ) {
+    const age = moment().diff(moment(payload.birthday, 'YYYY-MM-DD'), 'years');
     const { ...updateDto } = payload;
     const updateOptions: QueryDeepPartialEntity<User> = {
       ...updateDto,
+      filterGender: this.getFilterGender(payload.gender),
+      filterMinAge: age - 10 > 18 ? age - 10 : 18,
+      filterMaxAge: age + 10,
+      filterMaxDistance: AppConfig.USER_FILTER_MAX_DISTANCE,
       haveBasicInfo: true,
     };
     return await this.userModel.updateOneById(currentUserId, updateOptions);
@@ -162,5 +170,13 @@ export class ProfileService {
         value,
       });
     }
+  }
+
+  getFilterGender(gender: UserGender) {
+    if (gender === UserGenders.male) {
+      return UserGenders.female;
+    }
+
+    return UserGenders.male;
   }
 }

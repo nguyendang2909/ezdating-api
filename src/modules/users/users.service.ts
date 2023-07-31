@@ -1,15 +1,20 @@
-import { Injectable } from '@nestjs/common';
-import { And, LessThan, Not } from 'typeorm';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import _ from 'lodash';
+import moment from 'moment';
 
-import { UserStatuses } from '../../commons/constants/constants';
-import { ResponsePagination } from '../../commons/constants/paginations';
+import { RelationshipUserStatuses } from '../../commons/constants/constants';
+import {
+  Cursors,
+  ResponsePagination,
+} from '../../commons/constants/paginations';
+import { EntityFactory } from '../../commons/lib/entity-factory';
+import { ExtractCursor } from '../../commons/types';
 import { User } from '../entities/entities/user.entity';
 import { StateModel } from '../entities/state.model';
 import { UploadFileModel } from '../entities/upload-file.model';
 import { UserModel } from '../entities/user.model';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
 import { FindOneUserDto } from './dto/is-exist-user.dto';
-
 @Injectable()
 export class UsersService {
   constructor(
@@ -18,73 +23,167 @@ export class UsersService {
     private readonly stateModel: StateModel, // private readonly countryModel: CountryModel,
   ) {}
 
-  public async findManyDating(
+  public async findManySwipe(
     queryParams: FindManyDatingUsersDto,
     currentUserId: string,
   ) {
-    const { cursor } = queryParams;
-    const whereId = cursor
-      ? And(Not(currentUserId), LessThan(cursor))
-      : Not(currentUserId);
-    const findResult = await this.userModel.findMany({
+    const user = await this.userModel.findOneOrFail({
       where: {
-        id: whereId,
-        haveBasicInfo: true,
-        status: UserStatuses.activated,
+        id: currentUserId,
       },
-      relations: ['state', 'state.country'],
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      select: {
-        id: true,
-        birthday: true,
-        gender: true,
-        introduce: true,
-        geolocation: true,
-        nickname: true,
-        state: {
-          id: true,
-          country: {
-            id: true,
-          },
-        },
-        lastActivatedAt: true,
-      },
-      order: {},
     });
 
-    return { data: findResult, pagination: { cursor: {} } };
+    if (!user.geolocation) {
+      throw new BadRequestException();
+    }
+
+    const rawUsers = await this.userModel.query(
+      `SELECT *, ST_Distance(ST_MakePoint(${user.geolocation.coordinates[0]}, ${user.geolocation.coordinates[1]} ), "user"."geolocation") FROM "user";`,
+    );
+
+    return rawUsers;
+
+    // `SELECT * , ST_Distance(ST_MakePoint(${user.geolocation?.coordinates[0]}, ${user.geolocation.coordinates[1]} ), distance_in_meters) AS dist FROM user ORDER BY dist LIMIT 10;`,
+    // const { cursor } = queryParams;
+    // const whereId = cursor
+    //   ? And(Not(currentUserId), LessThan(cursor))
+    //   : Not(currentUserId);
+    // const findResult = await this.userModel.findMany({
+    //   where: {
+    //     id: whereId,
+    //     haveBasicInfo: true,
+    //     status: UserStatuses.activated,
+    //   },
+    //   relations: ['state', 'state.country'],
+    //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //   // @ts-ignore
+    //   select: {
+    //     id: true,
+    //     birthday: true,
+    //     gender: true,
+    //     introduce: true,
+    //     geolocation: true,
+    //     nickname: true,
+    //     state: {
+    //       id: true,
+    //       country: {
+    //         id: true,
+    //       },
+    //     },
+    //     lastActivatedAt: true,
+    //   },
+    //   order: {},
+    // });
+    // return { data: findResult, pagination: { cursor: {} } };
   }
 
   // https://stackoverflow.com/questions/67435650/storing-geojson-points-and-finding-points-within-a-given-distance-radius-nodej
   public async findManyNearby(
     queryParams: FindManyDatingUsersDto,
     currentUserId: string,
-  ): Promise<ResponsePagination<User[]>> {
+  ): Promise<ResponsePagination<User>> {
     const { cursor } = queryParams;
-    const whereId = cursor
-      ? And(Not(currentUserId), LessThan(cursor))
-      : Not(currentUserId);
-    const findResult = await this.userModel.findMany({
+
+    const extractCursor = EntityFactory.extractCursor(cursor);
+
+    const {
+      geolocation,
+      filterMaxAge,
+      filterMinAge,
+      filterMaxDistance,
+      filterGender,
+      gender,
+      haveBasicInfo,
+    } = await this.userModel.findOneOrFail({
       where: {
-        id: whereId,
-        haveBasicInfo: true,
-        status: UserStatuses.activated,
+        id: currentUserId,
       },
     });
-    // const data = this.repository.find({
-    //   where: {
-    //   id: Raw(alias => ${alias} < ${id} and ${alias} in (${ids})),
-    //   },
-    //   });
+
+    if (
+      !haveBasicInfo ||
+      !geolocation ||
+      !filterMaxAge ||
+      !filterMaxAge ||
+      !gender ||
+      !filterGender ||
+      !filterMaxDistance
+    ) {
+      throw new BadRequestException();
+    }
+
+    if (extractCursor?.value && +extractCursor.value >= filterMaxDistance) {
+      return {
+        type: 'nearbyUsers',
+        data: [],
+        pagination: {
+          cursors: EntityFactory.getCursors({
+            before: filterMaxDistance,
+            after: null,
+          }),
+        },
+      };
+    }
+
+    const filterMaxBirthday = moment()
+      .subtract(filterMinAge, 'years')
+      .format('YYYY-MM-DD');
+    const filterMinBirthday = moment()
+      .subtract(filterMaxAge, 'years')
+      .format('YYYY-MM-DD');
+
+    const rawUsers = await this.userModel.query(
+      `SELECT *, ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") AS distance
+      FROM "user" "User"
+      WHERE
+        ${this.getQueryDistance(extractCursor)}
+        AND "User"."have_basic_info" = true
+        AND "User"."avatar_file_id" IS NOT NULL
+        AND "User"."id" <> $3
+        AND "User"."gender"=$4
+        AND "User".birthday BETWEEN $5 AND $6
+        AND NOT EXISTS (
+          SELECT 1 FROM "relationship" "Relationship"
+          WHERE
+            "Relationship"."user_one_id" = $3
+            AND "Relationship"."user_two_id" = "User"."id"
+            AND "Relationship"."user_two_status" <> $7
+            AND "Relationship"."user_one_status" <> $8
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM "relationship" "Relationship"
+          WHERE
+            "Relationship"."user_two_id" = $3
+            AND "Relationship"."user_one_id" = "User"."id"
+            AND "Relationship"."user_one_status" <> $8
+            AND "Relationship"."user_two_status" <> $7
+          )
+      ORDER BY
+        "distance",
+        "User"."id"
+      LIMIT 20
+      ;`,
+      [
+        geolocation.coordinates[0],
+        geolocation.coordinates[1],
+        currentUserId,
+        filterGender,
+        filterMinBirthday,
+        filterMaxBirthday,
+        RelationshipUserStatuses.block,
+        RelationshipUserStatuses.block,
+        100000,
+      ],
+    );
+
     return {
       type: 'nearbyUsers',
-      data: findResult,
+      data: rawUsers,
       pagination: {
-        cursors: {
-          before: null,
-          after: null,
-        },
+        cursors: EntityFactory.getCursors({
+          before: _.first<{ distance: number }>(rawUsers)?.distance,
+          after: _.last<{ distance: number }>(rawUsers)?.distance,
+        }),
       },
     };
   }
@@ -118,5 +217,17 @@ export class UsersService {
     });
 
     return findResult;
+  }
+
+  getQueryDistance(extractCursor: ExtractCursor) {
+    if (!extractCursor) {
+      return `ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") <= $9`;
+    }
+
+    if (extractCursor.type === Cursors.before) {
+      throw new BadRequestException('Not implemented');
+    }
+
+    return `ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") > ${+extractCursor.value} AND ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") <= $9`;
   }
 }

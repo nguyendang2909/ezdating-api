@@ -11,14 +11,14 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('/dating')
-  public async findManyDating(
+  @Get('/swipe')
+  public async findManySwipe(
     @Query() queryParams: FindManyDatingUsersDto,
     @CurrentUserId() currentUserId: string,
   ) {
     return {
       type: 'users',
-      ...(await this.usersService.findManyDating(queryParams, currentUserId)),
+      ...(await this.usersService.findManySwipe(queryParams, currentUserId)),
     };
   }
 

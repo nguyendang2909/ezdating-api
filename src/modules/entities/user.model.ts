@@ -19,7 +19,13 @@ export class UserModel {
     @InjectRepository(User) private readonly repository: Repository<User>,
   ) {}
 
-  public createOne = this.repository.create;
+  async query(data: string, parameters?: any[]) {
+    return this.repository.query(data, parameters);
+  }
+
+  public create(user: any) {
+    return this.repository.create(user);
+  }
 
   public async saveOne(entity: Partial<User>): Promise<User> {
     const { phoneNumber } = entity;
