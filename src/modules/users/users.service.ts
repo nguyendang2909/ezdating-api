@@ -133,8 +133,14 @@ export class UsersService {
       .format('YYYY-MM-DD');
 
     const rawUsers = await this.userModel.query(
-      `SELECT *, ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") AS distance
+      `SELECT
+        "User".*,
+        "AvatarFile"."id" AS avatarfile_id,
+        "AvatarFile"."location" AS avatarfile_location,
+        "AvatarFile"."type" AS avatarfile_type,
+        ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") AS distance
       FROM "user" "User"
+      LEFT JOIN "upload_file" "AvatarFile" ON "User"."avatar_file_id" = "AvatarFile"."id"
       WHERE
         ${this.getQueryDistance(extractCursor)}
         AND "User"."have_basic_info" = true
@@ -178,7 +184,7 @@ export class UsersService {
 
     return {
       type: 'nearbyUsers',
-      data: rawUsers,
+      data: this.userModel.formatRaws(rawUsers),
       pagination: {
         cursors: EntityFactory.getCursors({
           before: _.first<{ distance: number }>(rawUsers)?.distance,

@@ -20,7 +20,7 @@ export class UserModel {
   ) {}
 
   async query(data: string, parameters?: any[]) {
-    return this.repository.query(data, parameters);
+    return this.repository.manager.query(data, parameters);
   }
 
   public create(user: any) {
@@ -160,5 +160,25 @@ export class UserModel {
       name: user.nickname,
       avatar: user.avatarFile?.location,
     };
+  }
+
+  formatRaw(user: Record<string, any>): User {
+    const result: Record<string, any> = {};
+    for (const key of Object.keys(user)) {
+      if (key.startsWith('avatarfile')) {
+        if (result.avatarFile) {
+          result.avatarFile[_.camelCase(key.substring(10))] = user[key];
+        } else {
+          result.avatarFile = { [_.camelCase(key.substring(10))]: user[key] };
+        }
+      } else {
+        result[_.camelCase(key)] = user[key];
+      }
+    }
+    return result as User;
+  }
+
+  formatRaws(users: Record<string, any>[]) {
+    return users.map(this.formatRaw);
   }
 }
