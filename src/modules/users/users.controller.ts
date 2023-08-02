@@ -1,4 +1,11 @@
-import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUserId } from '../../commons/decorators/current-user-id.decorator';
@@ -22,7 +29,7 @@ export class UsersController {
     };
   }
 
-  @Get('/nearby')
+  @Post('/nearby')
   public async findManyNearby(
     @Query() queryParams: FindManyDatingUsersDto,
     @CurrentUserId() currentUserId: string,
