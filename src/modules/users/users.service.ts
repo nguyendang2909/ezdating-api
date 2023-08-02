@@ -139,6 +139,7 @@ export class UsersService {
     const rawUsers = await this.userModel.query(
       `SELECT
         "User".*,
+        date_part('year',age(birthday)) as age,
         "AvatarFile"."id" AS avatarfile_id,
         "AvatarFile"."location" AS avatarfile_location,
         "AvatarFile"."type" AS avatarfile_type,
