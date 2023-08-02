@@ -7,6 +7,7 @@ import {
   Cursors,
   ResponsePagination,
 } from '../../commons/constants/paginations';
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { ExtractCursor } from '../../commons/types';
 import { User } from '../entities/entities/user.entity';
@@ -109,7 +110,10 @@ export class UsersService {
       !filterGender ||
       !filterMaxDistance
     ) {
-      throw new BadRequestException();
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.YOU_DO_NOT_HAVE_BASIC_INFO,
+        message: 'You do not have a basic info. Please complete it!',
+      });
     }
 
     if (extractCursor?.value && +extractCursor.value >= filterMaxDistance) {
