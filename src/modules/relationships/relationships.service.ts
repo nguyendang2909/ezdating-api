@@ -24,13 +24,16 @@ export class RelationshipsService {
 
   public async sendStatus(payload: SendRelationshipStatusDto, userId: string) {
     const { targetUserId, status } = payload;
-    this.userModel.validateYourSelf(userId, targetUserId);
+    this.relationshipModel.validateYourSelf(userId, targetUserId);
     await this.userModel.findOneAndValidateBasicInfoById(targetUserId);
     const userIds = [userId, targetUserId].sort();
     const relationshipId = userIds.join('_');
     const userOne = new User({ id: userIds[0] });
     const userTwo = new User({ id: userIds[1] });
-    const isUserOne = this.userModel.isUserOneByIds(userId, userIds);
+    const isUserOne = this.relationshipModel.isUserOneBySortedIds(
+      userId,
+      userIds,
+    );
     const existRelationship = await this.relationshipModel.findOne({
       where: {
         id: relationshipId,
@@ -72,7 +75,6 @@ export class RelationshipsService {
     await this.relationshipModel.updateOneById(
       existRelationship.id,
       updateRelationshipEntity,
-      userId,
     );
     return { ...existRelationship, ...updateRelationshipEntity };
   }

@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
 import { FindManyOptions, FindOneOptions, Not, Repository } from 'typeorm';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 import {
   RelationshipUserStatus,
@@ -14,6 +15,7 @@ import {
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFindOneByIdOptions } from '../../commons/types/find-options.type';
 import { Relationship } from './entities/relationship.entity';
+import { User } from './entities/user.entity';
 import { UserModel } from './user.model';
 
 @Injectable()
@@ -98,13 +100,9 @@ export class RelationshipModel {
 
   public async updateOneById(
     id: string,
-    partialEntity: Partial<Relationship>,
-    userId: string,
+    partialEntity: QueryDeepPartialEntity<Relationship>,
   ) {
-    const updateResult = await this.repository.update(id, {
-      ...partialEntity,
-      updatedBy: userId,
-    });
+    const updateResult = await this.repository.update(id, partialEntity);
 
     return !!updateResult.affected;
   }
@@ -140,6 +138,7 @@ export class RelationshipModel {
   }
 
   sortUserIds(userIdOne: string, userIdTwo: string): string[] {
+    // const sortedUserIds =
     return [userIdOne, userIdTwo].sort();
   }
 
@@ -155,8 +154,28 @@ export class RelationshipModel {
     return id.split('_');
   }
 
-  formatConversation(entity: Relationship, isUserOne: boolean) {
+  public isUserOneBySortedIds(userId: string, userIds: string[]): boolean {
+    return userId === userIds[0];
+  }
+
+  public isUserOneByEntities(userId: string, entities: User[]): boolean {
+    return userId === entities[0]?.id;
+  }
+
+  public validateYourSelf(userId: string, targetUserId: string) {
+    if (userId === targetUserId) {
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.CONFLICT_USER,
+        message: 'You cannot send status yourself!',
+      });
+    }
+  }
+
+  formatConversation(entity: Relationship, currentUserId: string) {
     const { userOne, userTwo, ...partConversation } = entity;
+
+    const userIds = this.getUserIdsFromId(entity.id);
+    const isUserOne = this.isUserOneBySortedIds(currentUserId, userIds);
 
     return {
       ...partConversation,
@@ -166,9 +185,9 @@ export class RelationshipModel {
     };
   }
 
-  formatConversations(entities: Relationship[], isUserOne: boolean) {
+  formatConversations(entities: Relationship[], currentUserId: string) {
     return entities.map((item) => {
-      return this.formatConversation(item, isUserOne);
+      return this.formatConversation(item, currentUserId);
     });
   }
 }

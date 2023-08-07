@@ -6,7 +6,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
 import moment from 'moment';
-import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
+import {
+  FindManyOptions,
+  FindOneOptions,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 import { UserStatuses } from '../../commons/constants/constants';
@@ -21,6 +26,10 @@ export class UserModel {
 
   async query(data: string, parameters?: any[]) {
     return this.repository.manager.query(data, parameters);
+  }
+
+  createQueryBuilder(): SelectQueryBuilder<User> {
+    return this.repository.createQueryBuilder(User.name);
   }
 
   public create(user: any) {
@@ -123,23 +132,6 @@ export class UserModel {
       ...updateOptions,
     });
     return !!updateResult.affected;
-  }
-
-  public isUserOneByIds(userId: string, userIds: string[]): boolean {
-    return userId === userIds[0];
-  }
-
-  public isUserOneByEntities(userId: string, entities: User[]): boolean {
-    return userId === entities[0]?.id;
-  }
-
-  public validateYourSelf(userId: string, targetUserId: string) {
-    if (userId === targetUserId) {
-      throw new BadRequestException({
-        errorCode: HttpErrorCodes.CONFLICT_USER,
-        message: 'You cannot send status yourself!',
-      });
-    }
   }
 
   public formatInConversation(user: Partial<User>) {

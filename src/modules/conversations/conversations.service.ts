@@ -26,11 +26,10 @@ export class ConversationsService {
     clientData: ClientData,
   ) {
     const findResult = await this.findManyByQuery(queryParams, clientData);
-    const userIds = this.relationshipModel.getUserIdsFromId(clientData.id);
-    const isUserOne = this.userModel.isUserOneByIds(clientData.id, userIds);
+
     const conversations = this.relationshipModel.formatConversations(
       findResult,
-      isUserOne,
+      clientData.id,
     );
 
     return {
@@ -125,13 +124,9 @@ export class ConversationsService {
       });
     }
 
-    const userIds = this.relationshipModel.getUserIdsFromId(clientData.id);
-
-    const isUserOne = this.userModel.isUserOneByIds(clientData.id, userIds);
-
     const conversation = this.relationshipModel.formatConversation(
       findResult,
-      isUserOne,
+      clientData.id,
     );
 
     return {

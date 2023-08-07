@@ -44,16 +44,12 @@ export class ChatsService {
         },
         currentUserId,
       ),
-      this.relationshipModel.updateOneById(
-        relationshipId,
-        {
-          lastMessageAt: messageCreatedAt,
-          lastMessage: text,
-          lastMessageBy: currentUserId,
-          lastMessageRead: false,
-        },
-        currentUserId,
-      ),
+      this.relationshipModel.updateOneById(relationshipId, {
+        lastMessageAt: messageCreatedAt,
+        lastMessage: text,
+        lastMessageBy: currentUserId,
+        lastMessageRead: false,
+      }),
     ]);
     socket.emit('updateMsg', message);
     const currentUser = await this.userModel.findOne({
@@ -72,10 +68,14 @@ export class ChatsService {
         avatar: currentUser.avatar,
       },
     };
-    const userIds = this.relationshipModel.getUserIdsFromId(relationshipId);
-    const targetUserId = this.userModel.isUserOneByIds(currentUserId, userIds)
-      ? userIds[1]
-      : userIds[0];
+    const sortedUserIds =
+      this.relationshipModel.getUserIdsFromId(relationshipId);
+    const targetUserId = this.relationshipModel.isUserOneBySortedIds(
+      currentUserId,
+      sortedUserIds,
+    )
+      ? sortedUserIds[1]
+      : sortedUserIds[0];
     socket.to([currentUserId, targetUserId]).emit('msg', formattedMessage);
   }
 }

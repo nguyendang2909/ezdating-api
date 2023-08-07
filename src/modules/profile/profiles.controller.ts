@@ -7,6 +7,7 @@ import {
   CurrentUserId,
 } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
+import { BlockUserDto } from './dto/block-user.dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
 import { ProfileService } from './profiles.service';
@@ -25,6 +26,14 @@ export class ProfilesController {
     };
   }
 
+  @Get('/blocked')
+  async getBlockedUsers(@CurrentUserId() currentUserId: string) {
+    return {
+      type: 'blockedUsers',
+      data: await this.profileService.getBlockedUsers(currentUserId),
+    };
+  }
+
   @Patch('/')
   private async updateProfile(
     @Body() updateMyProfileDto: UpdateMyProfileDto,
@@ -36,6 +45,17 @@ export class ProfilesController {
         updateMyProfileDto,
         currentUserId,
       ),
+    };
+  }
+
+  @Patch('/block')
+  async blockUser(
+    @Body() payload: BlockUserDto,
+    @CurrentUserId() currentUserId: string,
+  ) {
+    return {
+      type: 'blockUser',
+      data: await this.profileService.blockUser(payload, currentUserId),
     };
   }
 
