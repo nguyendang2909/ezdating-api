@@ -136,6 +136,15 @@ export class UsersService {
       .subtract(filterMaxAge, 'years')
       .format('YYYY-MM-DD');
 
+    const user = await this.userModel
+      .createQueryBuilder()
+      .select(
+        `ST_Distance(ST_MakePoint(${geolocation.coordinates[0]}, ${geolocation.coordinates[1]} ), "User"."geolocation") AS distance`,
+      )
+      .getMany();
+
+    console.log(user);
+
     const rawUsers = await this.userModel.query(
       `SELECT
         "User".*,
@@ -143,9 +152,11 @@ export class UsersService {
         "AvatarFile"."id" AS avatarfile_id,
         "AvatarFile"."location" AS avatarfile_location,
         "AvatarFile"."type" AS avatarfile_type,
+        "UploadFiles".*,
         ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") AS distance
       FROM "user" "User"
       LEFT JOIN "upload_file" "AvatarFile" ON "User"."avatar_file_id" = "AvatarFile"."id"
+      LEFT JOIN "upload_file" "UploadFiles" ON "User"."id" = "UploadFiles"."user_id"
       WHERE
         ${this.getQueryDistance(extractCursor)}
         AND "User"."have_basic_info" = true
