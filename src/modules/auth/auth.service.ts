@@ -34,7 +34,6 @@ export class AuthService {
       sub: user.id,
       id: user.id,
       role: user.role,
-      gender: user.gender,
     });
 
     return { accessToken };
@@ -68,17 +67,4 @@ export class AuthService {
 
     return { refreshToken };
   }
-
-  // public verifyAccessTokenFromRequest(): ClientData {
-  //   const currentAccessToken = TokenFactory.getAccessTokenFromHttpRequest(
-  //     this.request,
-  //   );
-  //   if (!currentAccessToken) {
-  //     throw new UnauthorizedException();
-  //   }
-
-  //   return this.encryptionsUtil.verifyAccessToken(currentAccessToken, {
-  //     ignoreExpiration: true,
-  //   });
-  // }
 }

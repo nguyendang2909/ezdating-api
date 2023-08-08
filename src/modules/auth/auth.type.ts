@@ -1,4 +1,4 @@
-import { UserGender, UserRole } from '../../commons/constants/constants';
+import { UserRole } from '../../commons/constants/constants';
 
 export type ClientData = AccessTokenSignPayload & {
   iat: number;
@@ -9,7 +9,6 @@ export type AccessTokenSignPayload = {
   sub: string;
   id: string;
   role: UserRole;
-  gender?: UserGender;
 };
 
 export type RefreshTokenSignPayload = {
