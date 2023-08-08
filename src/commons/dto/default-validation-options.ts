@@ -1,6 +1,7 @@
 import { BaseValidationOptions } from 'joi';
 
 export const DEFAULT_VALIDATION_OPTIONS: BaseValidationOptions = {
-  allowUnknown: false,
+  allowUnknown: true,
+  stripUnknown: true,
   abortEarly: true,
 };

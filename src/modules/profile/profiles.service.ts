@@ -7,7 +7,6 @@ import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity
 import { AppConfig } from '../../app.config';
 import {
   CoinTypes,
-  RelationshipUserStatuses,
   UserGender,
   UserGenders,
   UserStatuses,
@@ -17,13 +16,11 @@ import {
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { ClientData } from '../auth/auth.type';
 import { CoinHistoryModel } from '../entities/coinHistory.model';
-import { Relationship } from '../entities/entities/relationship.entity';
 import { User } from '../entities/entities/user.entity';
 import { RelationshipModel } from '../entities/relationship-entity.model';
 import { StateModel } from '../entities/state.model';
 import { UploadFileModel } from '../entities/upload-file.model';
 import { UserModel } from '../entities/user.model';
-import { BlockUserDto } from './dto/block-user.dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
 
@@ -55,52 +52,6 @@ export class ProfileService {
     };
 
     return formattedProfile;
-  }
-
-  async getBlockedUsers(currentUserId: string) {
-    return await this.userModel.createQueryBuilder().where('');
-  }
-
-  async blockUser(payload: BlockUserDto, currentUserId: string) {
-    const now = moment().toDate();
-    const userIds = [payload.targetUserId, currentUserId];
-
-    const sortedUserIds = this.relationshipModel.sortUserIds(
-      payload.targetUserId,
-      currentUserId,
-    );
-
-    const existRelationship = await this.relationshipModel.findOneOrFail({
-      where: {
-        userOneId: sortedUserIds[0],
-        userTwoId: sortedUserIds[1],
-      },
-    });
-
-    const isUserOne = this.relationshipModel.isUserOneBySortedIds(
-      currentUserId,
-      sortedUserIds,
-    );
-
-    const updateOptions: QueryDeepPartialEntity<Relationship> = {
-      statusAt: now,
-      ...(isUserOne
-        ? {
-            userOneStatus: RelationshipUserStatuses.block,
-            userOneStatusAt: now,
-          }
-        : {
-            userTwoStatus: RelationshipUserStatuses.block,
-            userTwoStatusAt: now,
-          }),
-    };
-
-    const isUpdated = await this.relationshipModel.updateOneById(
-      existRelationship.id,
-      updateOptions,
-    );
-
-    return isUpdated;
   }
 
   public async updateProfile(

@@ -6,12 +6,14 @@ import { IsNull, LessThan, MoreThan, Not } from 'typeorm';
 import { RelationshipUserStatuses } from '../../commons/constants/constants';
 import { Cursors } from '../../commons/constants/paginations';
 import { EntityFactory } from '../../commons/lib/entity-factory';
+import { ClientData } from '../auth/auth.type';
 import { Relationship } from '../entities/entities/relationship.entity';
 import { User } from '../entities/entities/user.entity';
 import { MessageModel } from '../entities/message.model';
 import { RelationshipModel } from '../entities/relationship-entity.model';
 import { UserModel } from '../entities/user.model';
 import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
+import { FindBlockedRelationshipsDto } from './dto/find-blocked-relationships.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
 
 @Injectable()
@@ -138,8 +140,68 @@ export class RelationshipsService {
       data: findResult,
       pagination: {
         cursor: EntityFactory.getCursors({
-          before: _.last(findResult)?.statusAt,
           after: _.first(findResult)?.statusAt,
+          before: _.last(findResult)?.statusAt,
+        }),
+      },
+    };
+  }
+
+  async findBlocked(
+    queryParams: FindBlockedRelationshipsDto,
+    clientData: ClientData,
+  ) {
+    const { cursor } = queryParams;
+    const currentUserId = clientData.id;
+    const extractCursor = EntityFactory.extractCursor(cursor);
+    const lastStatusAt = extractCursor
+      ? new Date(extractCursor.value)
+      : undefined;
+    const lastStatusAtQuery = lastStatusAt
+      ? {
+          statusAt:
+            extractCursor?.type === Cursors.after
+              ? LessThan(lastStatusAt)
+              : MoreThan(lastStatusAt),
+        }
+      : {};
+
+    const findResult = await this.relationshipModel.findMany({
+      where: [
+        {
+          ...lastStatusAtQuery,
+          userOneStatus: RelationshipUserStatuses.block,
+          userOneId: currentUserId,
+        },
+        {
+          ...lastStatusAtQuery,
+          userTwoStatus: RelationshipUserStatuses.block,
+          userTwoId: currentUserId,
+        },
+      ],
+      order: {
+        statusAt: 'DESC',
+      },
+      relations: ['userOne', 'userTwo'],
+      take: 20,
+      select: {
+        userOne: {
+          id: true,
+          nickname: true,
+        },
+        userTwo: {
+          id: true,
+          nickname: true,
+        },
+      },
+    });
+
+    return {
+      data: findResult,
+      pagination: {
+        cursor: EntityFactory.getCursors({
+          after: _.first(findResult)?.statusAt,
+          before: _.last(findResult)?.statusAt,
         }),
       },
     };

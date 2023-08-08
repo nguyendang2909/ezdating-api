@@ -1,7 +1,12 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 
-import { CurrentUserId } from '../../commons/decorators/current-user-id.decorator';
+import {
+  Client,
+  CurrentUserId,
+} from '../../commons/decorators/current-user-id.decorator';
+import { ClientData } from '../auth/auth.type';
 import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
+import { FindBlockedRelationshipsDto } from './dto/find-blocked-relationships.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
 import { FindUsersLikeMeDto } from './dto/find-user-like-me.dto';
 import { RelationshipsService } from './relationships.service';
@@ -30,6 +35,14 @@ export class RelationshipsController {
       type: 'matchedRelationships',
       ...(await this.relationshipsService.findMatched(queryParams, userId)),
     };
+  }
+
+  @Get('/blocked')
+  async findBlocked(
+    @Query() queryParams: FindBlockedRelationshipsDto,
+    @Client() clientData: ClientData,
+  ) {
+    return this.relationshipsService.findBlocked(queryParams, clientData);
   }
 
   @Get('/like-me')
