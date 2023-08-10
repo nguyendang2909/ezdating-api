@@ -1,15 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import _ from 'lodash';
 import moment from 'moment';
 
-import { RelationshipUserStatuses } from '../../commons/constants/constants';
-import {
-  Cursors,
-  ResponsePagination,
-} from '../../commons/constants/paginations';
+import { Cursors } from '../../commons/constants/paginations';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EntityFactory } from '../../commons/lib/entity-factory';
 import { ExtractCursor } from '../../commons/types';
+import { UploadFile } from '../entities/entities/upload-file.entity';
 import { User } from '../entities/entities/user.entity';
 import { StateModel } from '../entities/state.model';
 import { UploadFileModel } from '../entities/upload-file.model';
@@ -79,10 +75,14 @@ export class UsersService {
   }
 
   // https://stackoverflow.com/questions/67435650/storing-geojson-points-and-finding-points-within-a-given-distance-radius-nodej
+  // public async findManyNearby(
+  //   queryParams: FindManyDatingUsersDto,
+  //   currentUserId: string,
+  // ): Promise<ResponsePagination<User>> {
   public async findManyNearby(
     queryParams: FindManyDatingUsersDto,
     currentUserId: string,
-  ): Promise<ResponsePagination<User>> {
+  ) {
     const { cursor } = queryParams;
 
     const extractCursor = EntityFactory.extractCursor(cursor);
@@ -136,78 +136,130 @@ export class UsersService {
       .subtract(filterMaxAge, 'years')
       .format('YYYY-MM-DD');
 
-    const user = await this.userModel
+    const results = await this.userModel
       .createQueryBuilder()
-      .select(
-        `ST_Distance(ST_MakePoint(${geolocation.coordinates[0]}, ${geolocation.coordinates[1]} ), "User"."geolocation") AS distance`,
-      )
-      .getMany();
+      .leftJoinAndSelect('User.uploadFiles', 'UploadFiles')
+      .addSelect([
+        // User
+        `ST_Distance(ST_MakePoint(${geolocation.coordinates[0]}, ${geolocation.coordinates[1]}), "User"."geolocation") AS "distance"`,
+      ])
+      .where('User.have_basic_info = true')
+      .orderBy('distance', 'ASC')
+      .getRawMany();
 
-    console.log(user);
+    const entities = results.reduce(
+      (acc: User[], rawEntity: Record<string, any>) => {
+        let user = acc.find((entity) => entity.id === rawEntity.User_id);
 
-    const rawUsers = await this.userModel.query(
-      `SELECT
-        "User".*,
-        date_part('year',age(birthday)) as age,
-        "AvatarFile"."id" AS avatarfile_id,
-        "AvatarFile"."location" AS avatarfile_location,
-        "AvatarFile"."type" AS avatarfile_type,
-        "UploadFiles".*,
-        ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") AS distance
-      FROM "user" "User"
-      LEFT JOIN "upload_file" "AvatarFile" ON "User"."avatar_file_id" = "AvatarFile"."id"
-      LEFT JOIN "upload_file" "UploadFiles" ON "User"."id" = "UploadFiles"."user_id"
-      WHERE
-        ${this.getQueryDistance(extractCursor)}
-        AND "User"."have_basic_info" = true
-        AND "User"."avatar_file_id" IS NOT NULL
-        AND "User"."id" <> $3
-        AND "User"."gender"=$4
-        AND "User".birthday BETWEEN $5 AND $6
-        AND NOT EXISTS (
-          SELECT 1 FROM "relationship" "Relationship"
-          WHERE
-            "Relationship"."user_one_id" = $3
-            AND "Relationship"."user_two_id" = "User"."id"
-            AND "Relationship"."user_two_status" <> $7
-            AND "Relationship"."user_one_status" <> $8
-        )
-        AND NOT EXISTS (
-          SELECT 1 FROM "relationship" "Relationship"
-          WHERE
-            "Relationship"."user_two_id" = $3
-            AND "Relationship"."user_one_id" = "User"."id"
-            AND "Relationship"."user_one_status" <> $8
-            AND "Relationship"."user_two_status" <> $7
-          )
-      ORDER BY
-        "distance",
-        "User"."id"
-      LIMIT 20
-      ;`,
-      [
-        geolocation.coordinates[0],
-        geolocation.coordinates[1],
-        currentUserId,
-        filterGender,
-        filterMinBirthday,
-        filterMaxBirthday,
-        RelationshipUserStatuses.block,
-        RelationshipUserStatuses.block,
-        100000,
-      ],
+        console.log(rawEntity);
+
+        const uploadFile = new UploadFile({
+          id: rawEntity.UploadFiles_id,
+          userId: rawEntity.UploadFiles_user_id,
+          type: rawEntity.UploadFiles_type,
+          location: rawEntity.UploadFiles_location,
+        });
+
+        if (!user) {
+          user = new User({
+            id: rawEntity.User_id,
+            educationLevel: rawEntity.User_education_level,
+            gender: rawEntity.User_gender,
+            height: rawEntity.User_height,
+            weight: rawEntity.User_weight,
+            introduce: rawEntity.User_introduce,
+            lookingFor: rawEntity.User_looking_for,
+            avatarFileId: rawEntity.User_avatar_file_id,
+            uploadFiles: [],
+            // avatarFile: {
+            //   id: rawEntity.UploadFiles_id,
+            //   userId: rawEntity.UploadFiles_user_id,
+            //   type: rawEntity.UploadFiles_type,
+            //   location: rawEntity.UploadFiles_location,
+            // },
+          });
+          acc.push(user);
+        }
+
+        user.uploadFiles.push(uploadFile);
+
+        if (uploadFile.id === rawEntity.User_avatar_file_id) {
+          user.avatarFile = uploadFile;
+          user.avatar = uploadFile.location;
+        }
+
+        return acc;
+      },
+      [],
     );
 
-    return {
-      type: 'nearbyUsers',
-      data: this.userModel.formatRaws(rawUsers),
-      pagination: {
-        cursors: EntityFactory.getCursors({
-          before: _.first<{ distance: number }>(rawUsers)?.distance,
-          after: _.last<{ distance: number }>(rawUsers)?.distance,
-        }),
-      },
-    };
+    return entities;
+
+    // console.log(user);
+
+    // const rawUsers = await this.userModel.query(
+    //   `SELECT
+    //     "User".*,
+    //     date_part('year',age(birthday)) as age,
+    //     "AvatarFile"."id" AS avatarfile_id,
+    //     "AvatarFile"."location" AS avatarfile_location,
+    //     "AvatarFile"."type" AS avatarfile_type,
+    //     "UploadFiles".*,
+    //     ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") AS distance
+    //   FROM "user" "User"
+    //   LEFT JOIN "upload_file" "AvatarFile" ON "User"."avatar_file_id" = "AvatarFile"."id"
+    //   LEFT JOIN "upload_file" "UploadFiles" ON "User"."id" = "UploadFiles"."user_id"
+    //   WHERE
+    //     ${this.getQueryDistance(extractCursor)}
+    //     AND "User"."have_basic_info" = true
+    //     AND "User"."avatar_file_id" IS NOT NULL
+    //     AND "User"."id" <> $3
+    //     AND "User"."gender"=$4
+    //     AND "User".birthday BETWEEN $5 AND $6
+    //     AND NOT EXISTS (
+    //       SELECT 1 FROM "relationship" "Relationship"
+    //       WHERE
+    //         "Relationship"."user_one_id" = $3
+    //         AND "Relationship"."user_two_id" = "User"."id"
+    //         AND "Relationship"."user_two_status" <> $7
+    //         AND "Relationship"."user_one_status" <> $8
+    //     )
+    //     AND NOT EXISTS (
+    //       SELECT 1 FROM "relationship" "Relationship"
+    //       WHERE
+    //         "Relationship"."user_two_id" = $3
+    //         AND "Relationship"."user_one_id" = "User"."id"
+    //         AND "Relationship"."user_one_status" <> $8
+    //         AND "Relationship"."user_two_status" <> $7
+    //       )
+    //   ORDER BY
+    //     "distance",
+    //     "User"."id"
+    //   LIMIT 20
+    //   ;`,
+    //   [
+    //     geolocation.coordinates[0],
+    //     geolocation.coordinates[1],
+    //     currentUserId,
+    //     filterGender,
+    //     filterMinBirthday,
+    //     filterMaxBirthday,
+    //     RelationshipUserStatuses.block,
+    //     RelationshipUserStatuses.block,
+    //     100000,
+    //   ],
+    // );
+
+    // return {
+    //   type: 'nearbyUsers',
+    //   data: this.userModel.formatRaws(rawUsers),
+    //   pagination: {
+    //     cursors: EntityFactory.getCursors({
+    //       before: _.first<{ distance: number }>(rawUsers)?.distance,
+    //       after: _.last<{ distance: number }>(rawUsers)?.distance,
+    //     }),
+    //   },
+    // };
   }
 
   public async findOne(

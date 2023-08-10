@@ -38,7 +38,10 @@ export class User extends BaseEntity {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'avatar_file_id' })
-  avatarFile?: UploadFile;
+  avatarFile?: Partial<UploadFile>;
+
+  @RelationId((user: User) => user.avatarFile)
+  avatarFileId?: string;
 
   @Column({ name: 'birthday', nullable: true, type: 'date' })
   birthday?: string;
@@ -158,7 +161,7 @@ export class User extends BaseEntity {
   phoneNumber?: string;
 
   @OneToMany(() => UploadFile, (file) => file.user)
-  uploadFiles: UploadFile[];
+  uploadFiles: Partial<UploadFile>[];
 
   @Column({
     name: 'role',

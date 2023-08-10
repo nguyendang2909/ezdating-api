@@ -29,4 +29,10 @@ export class UploadFile extends BaseEntity {
     enum: UploadFileTypes,
   })
   type?: UploadFileType;
+
+  constructor(obj: Partial<UploadFile>) {
+    super();
+
+    Object.assign(this, obj);
+  }
 }
