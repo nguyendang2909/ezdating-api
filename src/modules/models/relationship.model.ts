@@ -204,20 +204,6 @@ export class RelationshipModel extends CommonModel {
     }
   }
 
-  //   formatConversation(entity: Relationship, currentUserId: string) {
-  //     const { userOne, userTwo, ...partConversation } = entity;
-
-  //     const userIds = this.getUserIdsFromId(entity.id);
-  //     const isUserOne = this.isUserOneBySortedIds(currentUserId, userIds);
-
-  //     return {
-  //       ...partConversation,
-  //       targetUser: isUserOne
-  //         ? this.userModel.formatInConversation(userTwo)
-  //         : this.userModel.formatInConversation(userOne),
-  //     };
-  //   }
-
   //   formatConversations(entities: Relationship[], currentUserId: string) {
   //     return entities.map((item) => {
   //       return this.formatConversation(item, currentUserId);

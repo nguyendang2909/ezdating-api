@@ -21,29 +21,25 @@ export class ChatsService {
 
   public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
     const { relationshipId, text, uuid } = payload;
-
     const currentUserId = socket.handshake.user.id;
-
     const _currentUserId = this.userModel.getObjectId(currentUserId);
-
     const _relationshipId = this.relationshipModel.getObjectId(relationshipId);
-
     const existRelationship = await this.relationshipModel.findOne({
       _id: _relationshipId,
       userOneStatus: RelationshipUserStatuses.like,
       userTwoStatus: RelationshipUserStatuses.like,
     });
-
+    const isUserOne =
+      currentUserId === existRelationship?._userOneId.toString();
     if (!existRelationship) {
       socket.emit('error', {
         errorCode: HttpErrorCodes.RELATIONSHIP_DOES_NOT_EXIST,
         message: 'Relationship does not exist!',
       });
+
       return;
     }
-
     const messageCreatedAt = moment().toDate();
-
     // TODO: transaction
     const [message] = await Promise.all([
       this.messageModel.createOne({
@@ -59,36 +55,17 @@ export class ChatsService {
           lastMessageAt: messageCreatedAt,
           lastMessage: text,
           _lastMessageUserId: currentUserId,
-          lastMessageRead: false,
+          ...(isUserOne ? { userTwoRead: false } : { userOneRead: false }),
         },
       ),
     ]);
 
     socket.emit('updateMsg', message);
-
-    const currentUser = await this.userModel.findOne({
-      _id: _currentUserId,
-    });
-
-    if (!currentUser) {
-      return;
-    }
-    // const formattedMessage = {
-    //   ...message,
-    //   user: {
-    //     id: currentUserId,
-    //     nickname: currentUser.nickname,
-    //     avatar: currentUser.avatar,
-    //   },
-    // };
-    // const sortedUserIds =
-    //   this.relationshipModel.getUserIdsFromId(relationshipId);
-    // const targetUserId = this.relationshipModel.isUserOneBySortedIds(
-    //   currentUserId,
-    //   sortedUserIds,
-    // )
-    //   ? sortedUserIds[1]
-    //   : sortedUserIds[0];
-    // socket.to([currentUserId, targetUserId]).emit('msg', formattedMessage);
+    socket
+      .to([
+        existRelationship._userOneId.toString(),
+        existRelationship._userTwoId.toString(),
+      ])
+      .emit('msg', message);
   }
 }

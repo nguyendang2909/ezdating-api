@@ -18,7 +18,7 @@ import { UserModel } from './user.model';
 export class MessageModel extends CommonModel {
   constructor(
     @InjectModel(Message.name)
-    private readonly model: Model<Message>,
+    public readonly model: Model<Message>,
     private readonly userModel: UserModel,
   ) {
     super();

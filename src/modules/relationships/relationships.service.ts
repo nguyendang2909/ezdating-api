@@ -115,7 +115,7 @@ export class RelationshipsService {
         ...(cursorValue
           ? {
               statusAt: {
-                [after ? '$lte' : '$gte']: cursorValue,
+                [after ? '$gt' : '$lt']: cursorValue,
               },
             }
           : {}),
@@ -172,7 +172,7 @@ export class RelationshipsService {
       data: findResult,
       pagination: {
         cursor: this.relationshipModel.getCursors({
-          after: _.first(findResult)?.statusAt,
+          // after: _.first(findResult)?.statusAt,
           before: _.last(findResult)?.statusAt,
         }),
       },

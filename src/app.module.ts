@@ -15,6 +15,7 @@ import winston from 'winston';
 import { AppConfig } from './app.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
+import { ConversationsModule } from './modules/conversations/conversations.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
 import { JwtAuthGuard } from './modules/guards/jwt.guard';
 import { RolesGuard } from './modules/guards/roles.guard';
@@ -138,7 +139,6 @@ import { UsersModule } from './modules/users/users.module';
     ),
     JoiPipeModule.forRoot(),
     ModelsModule,
-
     AuthModule,
     ProfileModule,
     UsersModule,
@@ -150,7 +150,7 @@ import { UsersModule } from './modules/users/users.module';
     // CountriesModule,
     // StatesModule,
     LoggedDevicesModule,
-    // ConversationsModule,
+    ConversationsModule,
     HealthModule,
     // CoinsModule,
   ],
