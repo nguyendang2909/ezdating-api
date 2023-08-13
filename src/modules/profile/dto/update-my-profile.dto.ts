@@ -55,9 +55,9 @@ export class UpdateMyProfileDto {
   )
   lookingFor?: UserLookingFor;
 
-  @ApiPropertyOptional({ type: String })
-  @JoiSchema(Joi.string().guid().optional())
-  avatarFileId?: string;
+  // @ApiPropertyOptional({ type: String })
+  // @JoiSchema(Joi.string().guid().optional())
+  // avatarFileId?: string;
 
   @ApiPropertyOptional({ type: Number })
   @JoiSchema(Joi.number().optional())
@@ -75,7 +75,7 @@ export class UpdateMyProfileDto {
   )
   relationshipStatus: UserRelationshipStatus;
 
-  @ApiPropertyOptional({ type: Number })
-  @JoiSchema(Joi.number().optional())
-  stateId?: number;
+  // @ApiPropertyOptional({ type: Number })
+  // @JoiSchema(Joi.number().optional())
+  // stateId?: number;
 }

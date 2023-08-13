@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-import { UserModel } from '../../entities/user.model';
+import { UserModel } from '../../models/user.model';
 import { ClientData } from '../auth.type';
 
 @Injectable()
@@ -15,10 +15,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(accessTokenPayload: ClientData) {
-    await this.userModel.updateOneById(accessTokenPayload.id, {
-      lastActivatedAt: new Date(),
-    });
+  validate(accessTokenPayload: ClientData) {
+    this.userModel.updateOneById(
+      this.userModel.getObjectId(accessTokenPayload.id),
+      {
+        lastActivatedAt: new Date(),
+      },
+    );
 
     return accessTokenPayload;
   }

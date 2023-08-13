@@ -3,11 +3,8 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
   Param,
-  ParseUUIDPipe,
   Post,
-  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -16,16 +13,14 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { AppConfig } from '../../app.config';
 import { CurrentUserId } from '../../commons/decorators/current-user-id.decorator';
-import { FindManyUploadFilesDto } from './dto/find-many-upload-files.dto';
-import { FindOneUploadFileByIdDto } from './dto/find-one-upload-file-by-id.dto';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
-import { UploadFilesService } from './upload-files.service';
+import { MediaFilesService } from './media-files.service';
 
-@Controller('/upload-files')
-@ApiTags('upload-files')
+@Controller('/media-files')
+@ApiTags('/media-files')
 @ApiBearerAuth('JWT')
-export class UploadFilesController {
-  constructor(private readonly uploadFilesService: UploadFilesService) {}
+export class MediaFilesController {
+  constructor(private readonly mediaFilesService: MediaFilesService) {}
 
   @Post('/photos')
   @UseInterceptors(
@@ -72,67 +67,21 @@ export class UploadFilesController {
         message: 'File not found!',
       });
     }
-    const { isAvatar } = payload;
 
     return {
       type: 'uploadPhoto',
-      data: await this.uploadFilesService.uploadPhoto(
-        file,
-        { isAvatar },
-        userId,
-      ),
+      data: await this.mediaFilesService.uploadPhoto(file, payload, userId),
     };
   }
-
-  @Get()
-  private async findMany(
-    @Query() queryParams: FindManyUploadFilesDto,
-    @CurrentUserId() userId: string,
-  ) {
-    return {
-      type: 'uploadFiles',
-      data: await this.uploadFilesService.findMany(queryParams, userId),
-      pagination: {
-        cursors: {
-          before: null,
-          after: null,
-        },
-      },
-    };
-  }
-
-  @Get('/:id')
-  findOneById(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Query() queryParams: FindOneUploadFileByIdDto,
-    @CurrentUserId() userId: string,
-  ) {
-    return {
-      type: 'uploadFile',
-      data: this.uploadFilesService.findOneOrFailById(id, queryParams, userId),
-    };
-  }
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.uploadFilesService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() updateUploadFileDto: UpdateUploadFileDto,
-  // ) {
-  //   return this.uploadFilesService.update(+id, updateUploadFileDto);
-  // }
 
   @Delete(':id')
   private async remove(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id') id: string,
     @CurrentUserId() userId: string,
   ) {
     return {
       type: 'removeFileUpload',
-      data: { success: await this.uploadFilesService.remove(id, userId) },
+      data: { success: await this.mediaFilesService.deleteOne(id, userId) },
     };
   }
 }

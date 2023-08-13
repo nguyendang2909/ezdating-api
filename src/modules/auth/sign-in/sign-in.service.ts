@@ -4,16 +4,15 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import moment from 'moment';
 
+import { AppConfig } from '../../../app.config';
 import { UserRoles, UserStatuses } from '../../../commons/constants/constants';
 import { HttpErrorCodes } from '../../../commons/erros/http-error-codes.constant';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
-import { User } from '../../entities/entities/user.entity';
-import { LoggedDeviceModel } from '../../entities/logged-device.model';
-import { UserModel } from '../../entities/user.model';
+import { SignedDeviceModel } from '../../models/signed-device.model';
+import { UserModel } from '../../models/user.model';
 import { SignInData } from '../auth.type';
 import { SignInWithPhoneNumberDto } from '../dto/sign-in-with-phone-number.dto';
 import { SignInWithPhoneNumberAndPasswordDto } from '../dto/sign-in-with-phone-number-and-password.dto';
@@ -25,30 +24,24 @@ export class SignInService {
     private readonly encryptionsUtil: EncryptionsUtil,
     private readonly firebaseService: FirebaseService,
     private readonly userModel: UserModel,
-    private readonly loggedDeviceModel: LoggedDeviceModel,
+    private readonly signedDeviceModel: SignedDeviceModel,
   ) {}
 
   private readonly logger = new Logger(SignInService.name);
 
-  private async onApplicationBootstrap() {
+  public async onApplicationBootstrap() {
     try {
       const phoneNumber = '+84971016191';
       const existAdminUser = await this.userModel.findOne({
-        where: {
-          phoneNumber,
-        },
+        phoneNumber,
       });
-
       if (!existAdminUser && process.env.ADMIN_PASSWORD) {
-        const adminUser = new User({
+        await this.userModel.createOne({
           phoneNumber,
           password: this.encryptionsUtil.hash(process.env.ADMIN_PASSWORD),
           nickname: 'Quynh',
           role: UserRoles.admin,
-          status: UserStatuses.activated,
         });
-
-        await this.userModel.saveOne(adminUser);
       }
     } catch (err) {
       this.logger.log(err);
@@ -56,9 +49,9 @@ export class SignInService {
   }
 
   public async signInWithPhoneNumber(
-    signInByPhoneNumberDto: SignInWithPhoneNumberDto,
+    payload: SignInWithPhoneNumberDto,
   ): Promise<SignInData> {
-    const { token } = signInByPhoneNumberDto;
+    const { token } = payload;
     const decoded = await this.firebaseService.decodeToken(token);
     const phoneNumber = decoded.phone_number;
     if (!phoneNumber) {
@@ -67,11 +60,7 @@ export class SignInService {
         message: 'User does not exist!',
       });
     }
-    let user = await this.userModel.findOne({
-      where: {
-        phoneNumber,
-      },
-    });
+    let user = await this.userModel.findOne({ phoneNumber });
     if (user) {
       const { status } = user;
       if (!status || status === UserStatuses.banned) {
@@ -80,18 +69,20 @@ export class SignInService {
           message: 'You have been banned!',
         });
       }
+      // TODO: If user is deactivated => activate user
     } else {
-      user = await this.userModel.saveOne({
+      user = await this.userModel.createOne({
         phoneNumber,
       });
     }
-    const { id: userId, role } = user;
-    if (!userId || !role) {
+    const { _id: _userId, role } = user;
+    if (!_userId || !role) {
       throw new NotFoundException({
-        errorCode: HttpErrorCodes.USER_DOES_NOT_EXIST,
-        message: 'User does not exist!',
+        errorCode: HttpErrorCodes.USER_DATA_INCORRECT,
+        message: 'User data is incorrect!',
       });
     }
+    const userId = _userId.toString();
     const accessToken = this.encryptionsUtil.signAccessToken({
       sub: userId,
       id: userId,
@@ -101,16 +92,11 @@ export class SignInService {
       id: userId,
       sub: userId,
     });
-    await this.loggedDeviceModel.saveOne(
-      {
-        user: {
-          id: userId,
-        },
-        refreshToken: refreshToken,
-        expiresIn: moment().add(100, 'days').toDate(),
-      },
-      userId,
-    );
+    await this.signedDeviceModel.createOne({
+      _userId,
+      refreshToken: refreshToken,
+      expiresIn: moment().add(AppConfig.REFRESH_TOKEN_EXPIRES, 'days').toDate(),
+    });
 
     return {
       accessToken,
@@ -119,31 +105,19 @@ export class SignInService {
   }
 
   public async signInWithPhoneNumberAndPassword(
-    signInByPhoneNumberWithPasswordDto: SignInWithPhoneNumberAndPasswordDto,
+    payload: SignInWithPhoneNumberAndPasswordDto,
   ): Promise<SignInData> {
-    const { phoneNumber, password } = signInByPhoneNumberWithPasswordDto;
+    const { phoneNumber, password } = payload;
     const {
-      password: userPassword,
-      id: userId,
+      password: hashedPassword,
+      _id: _userId,
       role: userRole,
-    } = await this.userModel.findOneOrFail({
-      where: {
-        phoneNumber,
-      },
-    });
-    if (!userPassword) {
+    } = await this.userModel.findOneOrFail({ phoneNumber });
+    if (!hashedPassword || !_userId || !userRole) {
       throw new BadRequestException('Try login with OTP!');
     }
-    const isMatchPassword = this.encryptionsUtil.isMatchWithHashedKey(
-      password,
-      userPassword,
-    );
-    if (!isMatchPassword) {
-      throw new UnauthorizedException({
-        errorCode: 'PASSWORD_IS_NOT_CORRECT',
-        message: 'Phone number or password is not correct!',
-      });
-    }
+    this.encryptionsUtil.verifyMatchPassword(password, hashedPassword);
+    const userId = _userId.toString();
     const accessToken = this.encryptionsUtil.signAccessToken({
       id: userId,
       sub: userId,
@@ -153,16 +127,11 @@ export class SignInService {
       id: userId,
       sub: userId,
     });
-    await this.loggedDeviceModel.saveOne(
-      {
-        user: {
-          id: userId,
-        },
-        refreshToken: refreshToken,
-        expiresIn: moment().add(100, 'days').toDate(),
-      },
-      userId,
-    );
+    await this.signedDeviceModel.createOne({
+      _userId,
+      refreshToken: refreshToken,
+      expiresIn: moment().add(100, 'days').toDate(),
+    });
 
     return {
       accessToken,

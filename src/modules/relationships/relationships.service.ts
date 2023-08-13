@@ -1,19 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import _ from 'lodash';
 import moment from 'moment';
-import { IsNull, LessThan, MoreThan, Not } from 'typeorm';
 
 import { RelationshipUserStatuses } from '../../commons/constants/constants';
-import { Cursors } from '../../commons/constants/paginations';
-import { EntityFactory } from '../../commons/lib/entity-factory';
+import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { ClientData } from '../auth/auth.type';
-import { Relationship } from '../entities/entities/relationship.entity';
-import { User } from '../entities/entities/user.entity';
-import { MessageModel } from '../entities/message.model';
-import { RelationshipModel } from '../entities/relationship-entity.model';
-import { UserModel } from '../entities/user.model';
-import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
-import { FindBlockedRelationshipsDto } from './dto/find-blocked-relationships.dto';
+import { MessageModel } from '../models/message.model';
+import { RelationshipModel } from '../models/relationship.model';
+import { UserModel } from '../models/user.model';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
 
 @Injectable()
@@ -24,182 +18,160 @@ export class RelationshipsService {
     private readonly messageModel: MessageModel,
   ) {}
 
-  public async sendStatus(payload: SendRelationshipStatusDto, userId: string) {
-    const { targetUserId, status } = payload;
-    this.relationshipModel.validateYourSelf(userId, targetUserId);
-    await this.userModel.findOneAndValidateBasicInfoById(targetUserId);
-    const userIds = [userId, targetUserId].sort();
-    const relationshipId = userIds.join('_');
-    const userOne = new User({ id: userIds[0] });
-    const userTwo = new User({ id: userIds[1] });
-    const isUserOne = this.relationshipModel.isUserOneBySortedIds(
-      userId,
-      userIds,
-    );
+  public async sendLikeStatus(
+    targetUserId: string,
+    clientData: ClientData,
+  ): Promise<ResponseSuccess> {
+    const currentUserId = clientData.id;
+
+    this.relationshipModel.validateYourSelf(currentUserId, targetUserId);
+
+    const { isUserOne, _userOneId, _userTwoId } =
+      this.relationshipModel.getSortedUserIds({
+        currentUserId,
+        targetUserId,
+      });
+
     const existRelationship = await this.relationshipModel.findOne({
-      where: {
-        id: relationshipId,
-      },
+      _userOneId,
+      _userTwoId,
     });
-    const now = moment().toDate();
-    if (!existRelationship) {
-      return await this.relationshipModel.saveOne(
-        {
-          id: relationshipId,
-          userOne,
-          userTwo,
-          statusAt: now,
-          ...(isUserOne
-            ? { userOneStatus: status }
-            : { userTwoStatus: status }),
-        },
-        userId,
-      );
+
+    if (
+      existRelationship &&
+      this.relationshipModel.haveSentStatus(
+        RelationshipUserStatuses.like,
+        existRelationship,
+        isUserOne,
+      )
+    ) {
+      return { success: false };
     }
-    this.relationshipModel.validateBlocked(existRelationship, isUserOne);
-    this.relationshipModel.validateConflictSendStatus(
-      status,
-      existRelationship,
+
+    const now = moment().toDate();
+
+    const relationship = await this.relationshipModel.findAndUpsertOneByUserIds(
+      {
+        _userOneId,
+        _userTwoId,
+      },
+      {
+        _userOneId,
+        _userTwoId,
+        statusAt: now,
+        ...(isUserOne
+          ? {
+              userOneStatus: RelationshipUserStatuses.like,
+              userOneStatusAt: now,
+            }
+          : {
+              userTwoStatus: RelationshipUserStatuses.like,
+              userTwoStatusAt: now,
+            }),
+      },
+      {
+        upsert: true,
+        new: true,
+      },
+    );
+
+    if (isUserOne) {
+      if (relationship.userTwoStatus === RelationshipUserStatuses.like) {
+        // TODO: Notify by socket
+      }
+    } else {
+      if (relationship.userOneStatus === RelationshipUserStatuses.like) {
+      }
+    }
+
+    const haveBeenLiked = this.relationshipModel.haveBeenLiked(
+      relationship,
       isUserOne,
     );
-    const updateRelationshipEntity: Partial<Relationship> = {
-      statusAt: now,
-      ...(isUserOne
-        ? {
-            userOneStatus: status,
-            userOneStatusAt: now,
-          }
-        : {
-            userTwoStatus: status,
-            userTwoStatusAt: now,
-          }),
-    };
-    await this.relationshipModel.updateOneById(
-      existRelationship.id,
-      updateRelationshipEntity,
-    );
-    return { ...existRelationship, ...updateRelationshipEntity };
+    if (haveBeenLiked) {
+      // TODO: Socket emit event matches
+    }
+
+    return { success: true };
   }
 
   public async findMatched(
     queryParams: FindMatchedRelationshipsDto,
     currentUserId: string,
   ) {
-    const { cursor } = queryParams;
-    const extractCursor = EntityFactory.extractCursor(cursor);
-    const lastStatusAt = extractCursor
-      ? new Date(extractCursor.value)
-      : undefined;
-    const lastStatusAtQuery = lastStatusAt
-      ? {
-          statusAt:
-            extractCursor?.type === Cursors.after
-              ? LessThan(lastStatusAt)
-              : MoreThan(lastStatusAt),
-        }
-      : {};
-    const findResult = await this.relationshipModel.findMany({
-      where: [
-        {
-          ...lastStatusAtQuery,
-          userOneStatus: RelationshipUserStatuses.like,
-          userTwoStatus: RelationshipUserStatuses.like,
-          userOne: {
-            id: currentUserId,
+    const { after, before } = queryParams;
+
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
+
+    const cursor = this.relationshipModel.extractCursor(after || before);
+
+    const cursorValue = cursor ? new Date(cursor) : undefined;
+
+    const findResult = await this.relationshipModel.model
+      .aggregate()
+      .match({
+        userOneStatus: RelationshipUserStatuses.like,
+        userTwoStatus: RelationshipUserStatuses.like,
+        ...(cursorValue
+          ? {
+              statusAt: {
+                [after ? '$lte' : '$gte']: cursorValue,
+              },
+            }
+          : {}),
+      })
+      .lookup({
+        from: 'users',
+        let: { userOneId: '$_userOneId', userTwoId: '$_userTwoId' },
+        pipeline: [
+          {
+            $match: {
+              _id: {
+                $ne: _currentUserId,
+              },
+              $expr: {
+                $or: [
+                  { $eq: ['$_id', '$$userOneId'] },
+                  { $eq: ['$_id', '$$userTwoId'] },
+                ],
+              },
+            },
           },
-          lastMessage: IsNull(),
-        },
-        {
-          ...lastStatusAtQuery,
-          userOneStatus: RelationshipUserStatuses.like,
-          userTwoStatus: RelationshipUserStatuses.like,
-          userTwo: {
-            id: currentUserId,
+          {
+            $lookup: {
+              from: 'mediafiles',
+              let: { userId: '$_id' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $eq: ['$_userId', '$$userId'],
+                    },
+                  },
+                },
+                { $limit: 6 },
+              ],
+              as: 'mediaFiles',
+            },
           },
-          lastMessage: IsNull(),
-        },
-      ],
-      order: {
-        statusAt: 'DESC',
-      },
-      relations: ['userOne', 'userTwo'],
-      take: 20,
-      select: {
-        userOne: {
-          id: true,
-          nickname: true,
-        },
-        userTwo: {
-          id: true,
-          nickname: true,
-        },
-      },
-    });
+          {
+            $limit: 1,
+          },
+        ],
+        as: 'targetUser',
+      })
+      .addFields({
+        targetUser: { $first: '$targetUser' },
+      })
+      .sort({
+        statusAt: -1,
+      })
+      .limit(20);
 
     return {
       data: findResult,
       pagination: {
-        cursor: EntityFactory.getCursors({
-          after: _.first(findResult)?.statusAt,
-          before: _.last(findResult)?.statusAt,
-        }),
-      },
-    };
-  }
-
-  async findBlocked(
-    queryParams: FindBlockedRelationshipsDto,
-    clientData: ClientData,
-  ) {
-    const { cursor } = queryParams;
-    const currentUserId = clientData.id;
-    const extractCursor = EntityFactory.extractCursor(cursor);
-    const lastStatusAt = extractCursor
-      ? new Date(extractCursor.value)
-      : undefined;
-    const lastStatusAtQuery = lastStatusAt
-      ? {
-          statusAt:
-            extractCursor?.type === Cursors.after
-              ? LessThan(lastStatusAt)
-              : MoreThan(lastStatusAt),
-        }
-      : {};
-
-    const findResult = await this.relationshipModel.findMany({
-      where: [
-        {
-          ...lastStatusAtQuery,
-          userOneStatus: RelationshipUserStatuses.block,
-          userOneId: currentUserId,
-        },
-        {
-          ...lastStatusAtQuery,
-          userTwoStatus: RelationshipUserStatuses.block,
-          userTwoId: currentUserId,
-        },
-      ],
-      order: {
-        statusAt: 'DESC',
-      },
-      relations: ['userOne', 'userTwo'],
-      take: 20,
-      select: {
-        userOne: {
-          id: true,
-          nickname: true,
-        },
-        userTwo: {
-          id: true,
-          nickname: true,
-        },
-      },
-    });
-
-    return {
-      data: findResult,
-      pagination: {
-        cursor: EntityFactory.getCursors({
+        cursor: this.relationshipModel.getCursors({
           after: _.first(findResult)?.statusAt,
           before: _.last(findResult)?.statusAt,
         }),
@@ -211,56 +183,56 @@ export class RelationshipsService {
     queryParams: FindMatchedRelationshipsDto,
     currentUserId: string,
   ) {
-    const { cursor } = queryParams;
-    const extractCursor = EntityFactory.extractCursor(cursor);
-    const lastStatusAt = extractCursor
-      ? new Date(extractCursor.value)
-      : undefined;
-    const findResult = await this.relationshipModel.findMany({
-      where: [
-        {
-          ...(lastStatusAt
-            ? {
-                userTwoStatus:
-                  extractCursor?.type === Cursors.after
-                    ? LessThan(lastStatusAt)
-                    : MoreThan(lastStatusAt),
-              }
-            : {}),
-          userOneStatus: Not(RelationshipUserStatuses.like),
-          userTwoStatus: RelationshipUserStatuses.like,
-          userOne: {
-            id: currentUserId,
-          },
-        },
-        {
-          ...(lastStatusAt
-            ? {
-                userOneStatusAt:
-                  extractCursor?.type === Cursors.after
-                    ? LessThan(lastStatusAt)
-                    : MoreThan(lastStatusAt),
-              }
-            : {}),
-          userOneStatus: RelationshipUserStatuses.like,
-          userTwoStatus: Not(RelationshipUserStatuses.like),
-          userTwo: {
-            id: currentUserId,
-          },
-        },
-      ],
-      order: {
-        statusAt: 'DESC',
-      },
-      take: 20,
-    });
+    // const { after, before } = queryParams;
+    // const extractCursor = EntityFactory.extractCursor(after || before);
+    // const lastStatusAt = extractCursor
+    //   ? new Date(extractCursor.value)
+    //   : undefined;
+    // const findResult = await this.relationshipModel.findMany({
+    //   where: [
+    //     {
+    //       ...(lastStatusAt
+    //         ? {
+    //             userTwoStatus:
+    //               extractCursor?.type === Cursors.after
+    //                 ? LessThan(lastStatusAt)
+    //                 : MoreThan(lastStatusAt),
+    //           }
+    //         : {}),
+    //       userOneStatus: Not(RelationshipUserStatuses.like),
+    //       userTwoStatus: RelationshipUserStatuses.like,
+    //       userOne: {
+    //         id: currentUserId,
+    //       },
+    //     },
+    //     {
+    //       ...(lastStatusAt
+    //         ? {
+    //             userOneStatusAt:
+    //               extractCursor?.type === Cursors.after
+    //                 ? LessThan(lastStatusAt)
+    //                 : MoreThan(lastStatusAt),
+    //           }
+    //         : {}),
+    //       userOneStatus: RelationshipUserStatuses.like,
+    //       userTwoStatus: Not(RelationshipUserStatuses.like),
+    //       userTwo: {
+    //         id: currentUserId,
+    //       },
+    //     },
+    //   ],
+    //   order: {
+    //     statusAt: 'DESC',
+    //   },
+    //   take: 20,
+    // });
 
     return {
-      data: findResult,
+      data: [],
       pagination: {
-        cursor: EntityFactory.getCursors({
-          before: _.last(findResult)?.statusAt,
-          after: _.first(findResult)?.statusAt,
+        cursor: this.relationshipModel.getCursors({
+          before: null,
+          after: null,
         }),
       },
     };

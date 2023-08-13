@@ -1,13 +1,13 @@
-import { Module } from '@nestjs/common';
+// import { Module } from '@nestjs/common';
 
-import { EntitiesModule } from '../entities/entities.module';
-import { CountriesController } from './countries.controller';
-import { CountriesService } from './countries.service';
+// import { ModelsModule } from '../models/models.module';
+// import { CountriesController } from './countries.controller';
+// import { CountriesService } from './countries.service';
 
-@Module({
-  imports: [EntitiesModule],
-  exports: [],
-  controllers: [CountriesController],
-  providers: [CountriesService],
-})
-export class CountriesModule {}
+// @Module({
+//   imports: [ModelsModule],
+//   exports: [],
+//   controllers: [CountriesController],
+//   providers: [CountriesService],
+// })
+// export class CountriesModule {}

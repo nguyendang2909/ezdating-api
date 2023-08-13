@@ -9,7 +9,7 @@ import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validat
 
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
 export class SendRelationshipStatusDto {
-  @JoiSchema(Joi.string().guid().required())
+  @JoiSchema(Joi.string().required())
   targetUserId!: string;
 
   @JoiSchema(

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import Joi from 'joi';
 import {
   utilities as nestWinstonModuleUtilities,
@@ -15,20 +15,16 @@ import winston from 'winston';
 import { AppConfig } from './app.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
-import { CoinsModule } from './modules/coins/coins.module';
-import { ConversationsModule } from './modules/conversations/conversations.module';
-import { CountriesModule } from './modules/countries/countries.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
-import { EntitiesModule } from './modules/entities/entities.module';
 import { JwtAuthGuard } from './modules/guards/jwt.guard';
 import { RolesGuard } from './modules/guards/roles.guard';
 import { HealthModule } from './modules/health/health.module';
 import { LoggedDevicesModule } from './modules/logged-devices/logged-devices.module';
+import { MediaFilesModule } from './modules/media-files/media-files.module';
 import { MessagesModule } from './modules/messages/messages.module';
+import { ModelsModule } from './modules/models/models.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { RelationshipsModule } from './modules/relationships/relationships.module';
-import { StatesModule } from './modules/states/states.module';
-import { UploadFilesModule } from './modules/upload-files/upload-files.module';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
@@ -42,11 +38,11 @@ import { UsersModule } from './modules/users/users.module';
         // App
         API_PORT: Joi.number().required(),
         //  Database
-        POSTGRES_DB_HOST: Joi.string().required(),
-        POSTGRES_DB_PORT: Joi.string().required(),
-        POSTGRES_DB_NAME: Joi.string().required(),
-        POSTGRES_USER: Joi.string().required(),
-        POSTGRES_PASS: Joi.string().required(),
+        MONGO_DB_HOST: Joi.string().required(),
+        MONGO_DB_NAME: Joi.string().required(),
+        MONGO_DB_PORT: Joi.string().required(),
+        MONGO_DB_USER: Joi.string().required(),
+        MONGO_DB_PASS: Joi.string().required(),
         // Cache
         REDIS_HOST: Joi.string().required(),
         REDIS_PORT: Joi.string().required(),
@@ -132,18 +128,17 @@ import { UsersModule } from './modules/users/users.module';
       // other options
     }),
     ThrottlerModule.forRoot({ ttl: 10, limit: 100 }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.POSTGRES_DB_HOST,
-      port: Number(process.env.POSTGRES_DB_PORT),
-      username: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASS,
-      database: process.env.POSTGRES_DB_NAME,
-      entities: ['dist/**/*.entity{.ts,.js}'],
-      synchronize: true,
-      logging: process.env.NODE_ENV === 'development' ? true : false,
-    }),
+    MongooseModule.forRoot(
+      `mongodb://117.2.240.66:10026/?authSource=admin&readPreference=primary&directConnection=true`,
+      {
+        dbName: process.env.MONGO_DB_NAME,
+        user: process.env.MONGO_DB_USER,
+        pass: process.env.MONGO_DB_PASS,
+      },
+    ),
     JoiPipeModule.forRoot(),
+    ModelsModule,
+
     AuthModule,
     ProfileModule,
     UsersModule,
@@ -151,14 +146,13 @@ import { UsersModule } from './modules/users/users.module';
     EncryptionsModule,
     RelationshipsModule,
     MessagesModule,
-    UploadFilesModule,
-    CountriesModule,
-    StatesModule,
+    MediaFilesModule,
+    // CountriesModule,
+    // StatesModule,
     LoggedDevicesModule,
-    ConversationsModule,
+    // ConversationsModule,
     HealthModule,
-    CoinsModule,
-    EntitiesModule,
+    // CoinsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

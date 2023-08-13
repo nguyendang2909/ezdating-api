@@ -1,23 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import moment from 'moment';
 
-import { Cursors } from '../../commons/constants/paginations';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
-import { EntityFactory } from '../../commons/lib/entity-factory';
-import { ExtractCursor } from '../../commons/types';
-import { UploadFile } from '../entities/entities/upload-file.entity';
-import { User } from '../entities/entities/user.entity';
-import { StateModel } from '../entities/state.model';
-import { UploadFileModel } from '../entities/upload-file.model';
-import { UserModel } from '../entities/user.model';
+import { MediaFileModel } from '../models/media-file.model';
+import { UserModel } from '../models/user.model';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
-import { FindOneUserDto } from './dto/is-exist-user.dto';
 @Injectable()
 export class UsersService {
   constructor(
     private readonly userModel: UserModel,
-    private readonly uploadFileModel: UploadFileModel,
-    private readonly stateModel: StateModel, // private readonly countryModel: CountryModel,
+    private readonly mediaFileModel: MediaFileModel, // private readonly stateModel: StateModel, // private readonly countryModel: CountryModel,
   ) {}
 
   public async findManySwipe(
@@ -34,11 +25,11 @@ export class UsersService {
       throw new BadRequestException();
     }
 
-    const rawUsers = await this.userModel.query(
-      `SELECT *, ST_Distance(ST_MakePoint(${user.geolocation.coordinates[0]}, ${user.geolocation.coordinates[1]} ), "user"."geolocation") FROM "user";`,
-    );
+    // const rawUsers = await this.userModel.query(
+    //   `SELECT *, ST_Distance(ST_MakePoint(${user.geolocation.coordinates[0]}, ${user.geolocation.coordinates[1]} ), "user"."geolocation") FROM "user";`,
+    // );
 
-    return rawUsers;
+    return [];
 
     // `SELECT * , ST_Distance(ST_MakePoint(${user.geolocation?.coordinates[0]}, ${user.geolocation.coordinates[1]} ), distance_in_meters) AS dist FROM user ORDER BY dist LIMIT 10;`,
     // const { cursor } = queryParams;
@@ -83,117 +74,120 @@ export class UsersService {
     queryParams: FindManyDatingUsersDto,
     currentUserId: string,
   ) {
-    const { cursor } = queryParams;
+    const { after, before } = queryParams;
 
-    const extractCursor = EntityFactory.extractCursor(cursor);
+    const users = await this.userModel.model.find().lean().exec();
 
-    const {
-      geolocation,
-      filterMaxAge,
-      filterMinAge,
-      filterMaxDistance,
-      filterGender,
-      gender,
-      haveBasicInfo,
-    } = await this.userModel.findOneOrFail({
-      where: {
-        id: currentUserId,
-      },
-    });
+    return users;
+    // const { cursor } = queryParams;
 
-    if (
-      !haveBasicInfo ||
-      !geolocation ||
-      !filterMaxAge ||
-      !filterMaxAge ||
-      !gender ||
-      !filterGender ||
-      !filterMaxDistance
-    ) {
-      throw new BadRequestException({
-        errorCode: HttpErrorCodes.YOU_DO_NOT_HAVE_BASIC_INFO,
-        message: 'You do not have a basic info. Please complete it!',
-      });
-    }
+    // const extractCursor = EntityFactory.extractCursor(cursor);
 
-    if (extractCursor?.value && +extractCursor.value >= filterMaxDistance) {
-      return {
-        type: 'nearbyUsers',
-        data: [],
-        pagination: {
-          cursors: EntityFactory.getCursors({
-            before: filterMaxDistance,
-            after: null,
-          }),
-        },
-      };
-    }
+    // const {
+    //   geolocation,
+    //   filterMaxAge,
+    //   filterMinAge,
+    //   filterMaxDistance,
+    //   filterGender,
+    //   gender,
+    // } = await this.userModel.findOneOrFail({
+    //   where: {
+    //     id: currentUserId,
+    //   },
+    // });
 
-    const filterMaxBirthday = moment()
-      .subtract(filterMinAge, 'years')
-      .format('YYYY-MM-DD');
-    const filterMinBirthday = moment()
-      .subtract(filterMaxAge, 'years')
-      .format('YYYY-MM-DD');
+    // if (
+    //   !geolocation ||
+    //   !filterMaxAge ||
+    //   !filterMaxAge ||
+    //   !gender ||
+    //   !filterGender ||
+    //   !filterMaxDistance
+    // ) {
+    //   throw new BadRequestException({
+    //     errorCode: HttpErrorCodes.YOU_DO_NOT_HAVE_BASIC_INFO,
+    //     message: 'You do not have a basic info. Please complete it!',
+    //   });
+    // }
 
-    const results = await this.userModel
-      .createQueryBuilder()
-      .leftJoinAndSelect('User.uploadFiles', 'UploadFiles')
-      .addSelect([
-        // User
-        `ST_Distance(ST_MakePoint(${geolocation.coordinates[0]}, ${geolocation.coordinates[1]}), "User"."geolocation") AS "distance"`,
-      ])
-      .where('User.have_basic_info = true')
-      .orderBy('distance', 'ASC')
-      .getRawMany();
+    // if (extractCursor?.value && +extractCursor.value >= filterMaxDistance) {
+    //   return {
+    //     type: 'nearbyUsers',
+    //     data: [],
+    //     pagination: {
+    //       cursors: EntityFactory.getCursors({
+    //         before: filterMaxDistance,
+    //         after: null,
+    //       }),
+    //     },
+    //   };
+    // }
 
-    const entities = results.reduce(
-      (acc: User[], rawEntity: Record<string, any>) => {
-        let user = acc.find((entity) => entity.id === rawEntity.User_id);
+    // const filterMaxBirthday = moment()
+    //   .subtract(filterMinAge, 'years')
+    //   .format('YYYY-MM-DD');
+    // const filterMinBirthday = moment()
+    //   .subtract(filterMaxAge, 'years')
+    //   .format('YYYY-MM-DD');
 
-        console.log(rawEntity);
+    // // const results = await this.userModel
+    // //   .createQueryBuilder()
+    // //   .leftJoinAndSelect('User.uploadFiles', 'UploadFiles')
+    // //   .addSelect([
+    // //     // User
+    // //     `ST_Distance(ST_MakePoint(${geolocation.coordinates[0]}, ${geolocation.coordinates[1]}), "User"."geolocation") AS "distance"`,
+    // //   ])
+    // //   .where('User.have_basic_info = true')
+    // //   .orderBy('distance', 'ASC')
+    // //   .getRawMany();
 
-        const uploadFile = new UploadFile({
-          id: rawEntity.UploadFiles_id,
-          userId: rawEntity.UploadFiles_user_id,
-          type: rawEntity.UploadFiles_type,
-          location: rawEntity.UploadFiles_location,
-        });
+    // // const entities = results.reduce(
+    // //   (acc: User[], rawEntity: Record<string, any>) => {
+    // //     let user = acc.find((entity) => entity.id === rawEntity.User_id);
 
-        if (!user) {
-          user = new User({
-            id: rawEntity.User_id,
-            educationLevel: rawEntity.User_education_level,
-            gender: rawEntity.User_gender,
-            height: rawEntity.User_height,
-            weight: rawEntity.User_weight,
-            introduce: rawEntity.User_introduce,
-            lookingFor: rawEntity.User_looking_for,
-            avatarFileId: rawEntity.User_avatar_file_id,
-            uploadFiles: [],
-            // avatarFile: {
-            //   id: rawEntity.UploadFiles_id,
-            //   userId: rawEntity.UploadFiles_user_id,
-            //   type: rawEntity.UploadFiles_type,
-            //   location: rawEntity.UploadFiles_location,
-            // },
-          });
-          acc.push(user);
-        }
+    // //     console.log(rawEntity);
 
-        user.uploadFiles.push(uploadFile);
+    // //     const uploadFile = new UploadFile({
+    // //       id: rawEntity.UploadFiles_id,
+    // //       userId: rawEntity.UploadFiles_user_id,
+    // //       type: rawEntity.UploadFiles_type,
+    // //       location: rawEntity.UploadFiles_location,
+    // //     });
 
-        if (uploadFile.id === rawEntity.User_avatar_file_id) {
-          user.avatarFile = uploadFile;
-          user.avatar = uploadFile.location;
-        }
+    // //     if (!user) {
+    // //       user = new User({
+    // //         id: rawEntity.User_id,
+    // //         educationLevel: rawEntity.User_education_level,
+    // //         gender: rawEntity.User_gender,
+    // //         height: rawEntity.User_height,
+    // //         weight: rawEntity.User_weight,
+    // //         introduce: rawEntity.User_introduce,
+    // //         lookingFor: rawEntity.User_looking_for,
+    // //         avatarFileId: rawEntity.User_avatar_file_id,
+    // //         uploadFiles: [],
+    // //         // avatarFile: {
+    // //         //   id: rawEntity.UploadFiles_id,
+    // //         //   userId: rawEntity.UploadFiles_user_id,
+    // //         //   type: rawEntity.UploadFiles_type,
+    // //         //   location: rawEntity.UploadFiles_location,
+    // //         // },
+    // //       });
+    // //       acc.push(user);
+    // //     }
 
-        return acc;
-      },
-      [],
-    );
+    // //     user.uploadFiles.push(uploadFile);
 
-    return entities;
+    // //     if (uploadFile.id === rawEntity.User_avatar_file_id) {
+    // //       user.avatarFile = uploadFile;
+    // //       user.avatar = uploadFile.location;
+    // //     }
+
+    // //     return acc;
+    // //   },
+    // //   [],
+    // // );
+
+    return [];
 
     // console.log(user);
 
@@ -262,46 +256,50 @@ export class UsersService {
     // };
   }
 
-  public async findOne(
-    findOneUserDto: FindOneUserDto,
-    currentUserId: string,
-  ): Promise<Partial<User> | null> {
-    let phoneNumber = findOneUserDto.phoneNumber;
-    if (!phoneNumber) {
-      return null;
-    }
-    if (!phoneNumber.startsWith('+')) {
-      phoneNumber = `+${phoneNumber.trim()}`;
-    }
-    const findResult = await this.userModel.findOne({
-      where: {
-        ...(phoneNumber ? { phoneNumber } : {}),
-      },
-      select: {
-        id: true,
-      },
-    });
+  // public async findOne(findOneUserDto: FindOneUserDto, currentUserId: string) {
+  //   let phoneNumber = findOneUserDto.phoneNumber;
+  //   if (!phoneNumber) {
+  //     return null;
+  //   }
+  //   if (!phoneNumber.startsWith('+')) {
+  //     phoneNumber = `+${phoneNumber.trim()}`;
+  //   }
+  //   const findResult = await this.userModel.findOne({
+  //     where: {
+  //       ...(phoneNumber ? { phoneNumber } : {}),
+  //     },
+  //     select: {
+  //       id: true,
+  //     },
+  //   });
 
-    return findResult;
-  }
+  //   return findResult;
+  // }
 
-  public async findOneOrFailById(id: string, currentUserId: string) {
+  public async findOneOrFailById(targetUserId: string, currentUserId: string) {
+    if (targetUserId === currentUserId) {
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.CONFLICT_USER,
+        message: 'You cannot find yourself!',
+      });
+    }
+    const _targetUserId = this.userModel.getObjectId(targetUserId);
     const findResult = await this.userModel.findOneOrFail({
-      where: { id },
+      _id: _targetUserId,
     });
 
     return findResult;
   }
 
-  getQueryDistance(extractCursor: ExtractCursor) {
-    if (!extractCursor) {
-      return `ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") <= $9`;
-    }
+  // getQueryDistance(extractCursor: ExtractCursor) {
+  //   if (!extractCursor) {
+  //     return `ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") <= $9`;
+  //   }
 
-    if (extractCursor.type === Cursors.before) {
-      throw new BadRequestException('Not implemented');
-    }
+  //   if (extractCursor.type === Cursors.before) {
+  //     throw new BadRequestException('Not implemented');
+  //   }
 
-    return `ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") > ${+extractCursor.value} AND ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") <= $9`;
-  }
+  //   return `ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") > ${+extractCursor.value} AND ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") <= $9`;
+  // }
 }

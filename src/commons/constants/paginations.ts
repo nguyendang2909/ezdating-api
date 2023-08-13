@@ -4,8 +4,8 @@ export type PaginationCursors = {
 };
 
 export type GetCursors = {
-  after?: any;
-  before?: any;
+  after?: string | null;
+  before?: string | null;
 };
 
 export const Cursors = {

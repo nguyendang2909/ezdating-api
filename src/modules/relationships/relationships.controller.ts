@@ -1,30 +1,45 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import {
   Client,
   CurrentUserId,
 } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
-import { SendRelationshipStatusDto } from './dto/create-relationship.dto';
-import { FindBlockedRelationshipsDto } from './dto/find-blocked-relationships.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
 import { FindUsersLikeMeDto } from './dto/find-user-like-me.dto';
 import { RelationshipsService } from './relationships.service';
 
-@Controller('relationships')
+@Controller('/relationships')
+@ApiTags('/relationships')
+@ApiBearerAuth('JWT')
 export class RelationshipsController {
   constructor(private readonly relationshipsService: RelationshipsService) {}
 
-  @Post('/status')
-  public async sendStatus(
-    @Body() payload: SendRelationshipStatusDto,
-    @CurrentUserId() currentUserId: string,
+  @Post('/status/like/:targetUserId')
+  public async sendLikeStatus(
+    @Client() clientData: ClientData,
+    @Param('targetUserId') targetUserId: string,
   ) {
     return {
       type: 'sendRelationshipStatus',
-      data: await this.relationshipsService.sendStatus(payload, currentUserId),
+      data: await this.relationshipsService.sendLikeStatus(
+        targetUserId,
+        clientData,
+      ),
     };
   }
+
+  // @Post('/status')
+  // public async sendStatus(
+  //   @Body() payload: SendRelationshipStatusDto,
+  //   @CurrentUserId() currentUserId: string,
+  // ) {
+  //   return {
+  //     type: 'sendRelationshipStatus',
+  //     data: await this.relationshipsService.sendStatus(payload, currentUserId),
+  //   };
+  // }
 
   @Get('/matched')
   public async findMatched(
@@ -35,14 +50,6 @@ export class RelationshipsController {
       type: 'matchedRelationships',
       ...(await this.relationshipsService.findMatched(queryParams, userId)),
     };
-  }
-
-  @Get('/blocked')
-  async findBlocked(
-    @Query() queryParams: FindBlockedRelationshipsDto,
-    @Client() clientData: ClientData,
-  ) {
-    return this.relationshipsService.findBlocked(queryParams, clientData);
   }
 
   @Get('/like-me')

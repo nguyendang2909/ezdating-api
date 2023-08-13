@@ -7,7 +7,7 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 
 import { AppConfig } from '../../app.config';
-import { User } from '../entities/entities/user.entity';
+import { ClientData } from '../auth/auth.type';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard(['jwt']) {
@@ -30,7 +30,7 @@ export class JwtAuthGuard extends AuthGuard(['jwt']) {
     return super.canActivate(context);
   }
 
-  handleRequest<T extends User>(
+  handleRequest<T extends ClientData>(
     err: unknown,
     user: T,
     info: unknown,

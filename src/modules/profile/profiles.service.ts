@@ -1,26 +1,18 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import moment from 'moment';
-import { MoreThan } from 'typeorm';
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { UpdateQuery } from 'mongoose';
 
 import { AppConfig } from '../../app.config';
 import {
-  CoinTypes,
   UserGender,
   UserGenders,
   UserStatuses,
-  WeeklyCoins,
-  WeeklyCoinsLength,
 } from '../../commons/constants/constants';
-import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
-import { ClientData } from '../auth/auth.type';
-import { CoinHistoryModel } from '../entities/coinHistory.model';
-import { User } from '../entities/entities/user.entity';
-import { RelationshipModel } from '../entities/relationship-entity.model';
-import { StateModel } from '../entities/state.model';
-import { UploadFileModel } from '../entities/upload-file.model';
-import { UserModel } from '../entities/user.model';
+import { MediaFileModel } from '../models/media-file.model';
+import { RelationshipModel } from '../models/relationship.model';
+import { UserDocument } from '../models/schemas/user.schema';
+import { UserModel } from '../models/user.model';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
 
@@ -28,40 +20,32 @@ import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto
 export class ProfileService {
   constructor(
     private readonly userModel: UserModel,
-    private readonly uploadFileModel: UploadFileModel,
-    private readonly stateModel: StateModel,
-    private readonly coinHistoryModel: CoinHistoryModel, // private readonly countryModel: CountryModel,
+    private readonly mediaFileModel: MediaFileModel,
+    // private readonly stateModel: StateModel,
+    // private readonly coinHistoryModel: CoinHistoryModel,
+    // private readonly countryModel: CountryModel,
     private readonly relationshipModel: RelationshipModel,
   ) {}
 
   public async getProfile(currentUserId: string) {
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
     // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
     const { password, ...userPart } = await this.userModel.findOneOrFail({
-      where: {
-        id: currentUserId,
-      },
-      relations: {
-        uploadFiles: true,
-        avatarFile: true,
-      },
+      _id: _currentUserId,
     });
 
-    const formattedProfile = {
-      ...userPart,
-      avatar: userPart.avatarFile?.location,
-    };
-
-    return formattedProfile;
+    return userPart;
   }
 
   public async updateProfile(
     payload: UpdateMyProfileDto,
     currentUserId: string,
   ) {
-    const { avatarFileId, longitude, latitude, stateId, ...updateDto } =
-      payload;
+    const { longitude, latitude, ...updateDto } = payload;
 
-    const updateOptions: QueryDeepPartialEntity<User> = {
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
+
+    const updateOptions: UpdateQuery<UserDocument> = {
       ...updateDto,
       ...(longitude && latitude
         ? {
@@ -73,28 +57,16 @@ export class ProfileService {
         : {}),
     };
 
-    if (avatarFileId) {
-      await this.uploadFileModel.findOneOrFail({
-        where: {
-          id: avatarFileId,
-          user: {
-            id: currentUserId,
-          },
-        },
-      });
-      updateOptions.avatarFile = { id: avatarFileId };
-    }
+    // if (stateId) {
+    //   await this.stateModel.findOneOrFail({
+    //     where: { id: stateId },
+    //   });
+    //   updateOptions.state = {
+    //     id: stateId,
+    //   };
+    // }
 
-    if (stateId) {
-      await this.stateModel.findOneOrFail({
-        where: { id: stateId },
-      });
-      updateOptions.state = {
-        id: stateId,
-      };
-    }
-
-    return await this.userModel.updateOneById(currentUserId, updateOptions);
+    return await this.userModel.updateOneById(_currentUserId, updateOptions);
   }
 
   public async updateProfileBasicInfo(
@@ -102,77 +74,80 @@ export class ProfileService {
     req: Request,
     currentUserId: string,
   ) {
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    await this.userModel.findOneOrFail({ _id: _currentUserId });
     const age = moment().diff(moment(payload.birthday, 'YYYY-MM-DD'), 'years');
     const { ...updateDto } = payload;
-    const updateOptions: QueryDeepPartialEntity<User> = {
+
+    return await this.userModel.updateOneById(_currentUserId, {
       ...updateDto,
       filterGender: this.getFilterGender(payload.gender),
       filterMinAge: age - 10 > 18 ? age - 10 : 18,
       filterMaxAge: age + 10,
       filterMaxDistance: AppConfig.USER_FILTER_MAX_DISTANCE,
-      haveBasicInfo: true,
-    };
-    return await this.userModel.updateOneById(currentUserId, updateOptions);
-  }
-
-  public async deactivate(userId: string) {
-    return await this.userModel.updateOneById(userId, {
       status: UserStatuses.activated,
     });
   }
 
-  public async getDailyCoin(clientData: ClientData) {
-    const now = moment().startOf('date').toDate();
-    const lastDailyCoin = await this.coinHistoryModel.findOne({
-      where: {
-        user: {
-          id: clientData.id,
-        },
-        type: CoinTypes.daily,
-        receivedAt: MoreThan(now),
-      },
+  public async deactivate(currentUserId: string) {
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    return await this.userModel.updateOneById(_currentUserId, {
+      status: UserStatuses.deactivated,
     });
-    if (!lastDailyCoin) {
-      // TODO: transaction
-      await this.coinHistoryModel.saveOne({
-        user: {
-          id: clientData.id,
-        },
-        type: CoinTypes.daily,
-        receivedAt: now,
-        value: WeeklyCoins[0],
-      });
-      await this.userModel.updateOneById(clientData.id, {
-        coins: () => 'coins + 10',
-      });
-    }
-    if (lastDailyCoin) {
-      const lastDate = moment(lastDailyCoin.receivedAt).startOf('date');
-      if (moment(now).diff(lastDate, 'd') < 1) {
-        throw new BadRequestException({
-          errorCode: HttpErrorCodes.DAILY_COIN_ALREADY_RECEIVED,
-          message: 'You already received daily coin!',
-        });
-      }
-      const lastReceivedDay = WeeklyCoins.findIndex(
-        (item) => item === lastDailyCoin.value,
-      );
-      const newReceiveDay =
-        lastReceivedDay && lastReceivedDay !== WeeklyCoinsLength - 1
-          ? lastReceivedDay + 1
-          : 0;
-      const value = WeeklyCoins[newReceiveDay] || 10;
-
-      return await this.coinHistoryModel.saveOne({
-        user: {
-          id: clientData.id,
-        },
-        type: CoinTypes.daily,
-        receivedAt: now,
-        value,
-      });
-    }
   }
+
+  //   public async getDailyCoin(clientData: ClientData) {
+  //     const now = moment().startOf('date').toDate();
+  //     const lastDailyCoin = await this.coinHistoryModel.findOne({
+  //       where: {
+  //         user: {
+  //           id: clientData.id,
+  //         },
+  //         type: CoinTypes.daily,
+  //         receivedAt: MoreThan(now),
+  //       },
+  //     });
+  //     if (!lastDailyCoin) {
+  //       // TODO: transaction
+  //       await this.coinHistoryModel.saveOne({
+  //         user: {
+  //           id: clientData.id,
+  //         },
+  //         type: CoinTypes.daily,
+  //         receivedAt: now,
+  //         value: WeeklyCoins[0],
+  //       });
+  //       await this.userModel.updateOneById(clientData.id, {
+  //         coins: () => 'coins + 10',
+  //       });
+  //     }
+  //     if (lastDailyCoin) {
+  //       const lastDate = moment(lastDailyCoin.receivedAt).startOf('date');
+  //       if (moment(now).diff(lastDate, 'd') < 1) {
+  //         throw new BadRequestException({
+  //           errorCode: HttpErrorCodes.DAILY_COIN_ALREADY_RECEIVED,
+  //           message: 'You already received daily coin!',
+  //         });
+  //       }
+  //       const lastReceivedDay = WeeklyCoins.findIndex(
+  //         (item) => item === lastDailyCoin.value,
+  //       );
+  //       const newReceiveDay =
+  //         lastReceivedDay && lastReceivedDay !== WeeklyCoinsLength - 1
+  //           ? lastReceivedDay + 1
+  //           : 0;
+  //       const value = WeeklyCoins[newReceiveDay] || 10;
+
+  //       return await this.coinHistoryModel.saveOne({
+  //         user: {
+  //           id: clientData.id,
+  //         },
+  //         type: CoinTypes.daily,
+  //         receivedAt: now,
+  //         value,
+  //       });
+  //     }
+  //   }
 
   getFilterGender(gender: UserGender) {
     if (gender === UserGenders.male) {

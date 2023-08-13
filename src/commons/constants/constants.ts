@@ -14,9 +14,11 @@ export const UserGenders = {
 export type UserGender = (typeof UserGenders)[keyof typeof UserGenders];
 
 export const UserStatuses = {
-  activated: 1,
-  deactivate: 2,
-  banned: 3,
+  verified: 5,
+  activated: 4,
+  registered: 3,
+  deactivated: 2,
+  banned: 1,
 } as const;
 
 export type UserStatus = (typeof UserStatuses)[keyof typeof UserStatuses];
@@ -77,20 +79,19 @@ export const RelationshipUserStatuses = {
   like: 1,
   unlike: 2,
   cancel: 3,
-  block: 4,
-  viewed: 5,
+  viewed: 4,
 } as const;
 
 export type RelationshipUserStatus =
   (typeof RelationshipUserStatuses)[keyof typeof RelationshipUserStatuses];
 
-export const UploadFileTypes = {
+export const MediaFileTypes = {
   photo: 1,
   video: 2,
 } as const;
 
-export type UploadFileType =
-  (typeof UploadFileTypes)[keyof typeof UploadFileTypes];
+export type MediaFileType =
+  (typeof MediaFileTypes)[keyof typeof MediaFileTypes];
 
 // export const UploadFileShares = {
 //   public: 'public',

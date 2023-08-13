@@ -4,16 +4,13 @@ import { WsException } from '@nestjs/websockets';
 import _ from 'lodash';
 import { Socket } from 'socket.io';
 
-import { UserStatuses } from '../../../commons/constants/constants';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
-import { UserModel } from '../../entities/user.model';
 
 @Injectable()
 export class WsAuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly encryptionsUtil: EncryptionsUtil,
-    private readonly userModel: UserModel,
   ) {}
 
   async canActivate(context: ExecutionContext) {
@@ -23,21 +20,6 @@ export class WsAuthGuard implements CanActivate {
       throw new WsException({ status: 401, message: 'Unauthorized' });
     }
     const decoded = this.encryptionsUtil.verifyAccessToken(token);
-    const user = await this.userModel.findOneById(decoded.id);
-    if (!user) {
-      throw new WsException({
-        status: 404,
-        errorCode: 'USER_DOES_NOT_EXIST',
-        message: 'User does not exist!',
-      });
-    }
-    if (user.status === UserStatuses.banned) {
-      throw new WsException({
-        status: 403,
-        errorCode: 'YOU_HAS_BEEN_BANNED',
-        message: 'You have been banned!',
-      });
-    }
 
     client.handshake.user = decoded;
 

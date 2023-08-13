@@ -1,19 +1,19 @@
-import { Injectable } from '@nestjs/common';
+// import { Injectable } from '@nestjs/common';
 
-import { StateModel } from '../entities/state.model';
+// import { StateModel } from '../entities/state.model';
 
-@Injectable()
-export class StatesService {
-  constructor(private readonly stateModel: StateModel) {}
-  public async findAll() {
-    return await this.stateModel.findAll({});
-  }
+// @Injectable()
+// export class StatesService {
+//   constructor(private readonly stateModel: StateModel) {}
+//   public async findAll() {
+//     return await this.stateModel.findAll({});
+//   }
 
-  public async findOneOrFail(iso2: string) {
-    return await this.stateModel.findOneOrFail({
-      where: {
-        iso2,
-      },
-    });
-  }
-}
+//   public async findOneOrFail(iso2: string) {
+//     return await this.stateModel.findOneOrFail({
+//       where: {
+//         iso2,
+//       },
+//     });
+//   }
+// }

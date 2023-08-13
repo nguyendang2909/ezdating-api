@@ -4,7 +4,7 @@ import { Socket } from 'socket.io';
 
 import { UserStatuses } from '../../commons/constants/constants';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
-import { UserModel } from '../entities/user.model';
+import { UserModel } from '../models/user.model';
 
 @Injectable()
 export class ChatsConnectionService {
@@ -23,15 +23,17 @@ export class ChatsConnectionService {
 
         return;
       }
-      const decodedToken = this.encryptionsUtil.verifyAccessToken(token);
-      const user = await this.userModel.findOneById(decodedToken.id);
+      const clientData = this.encryptionsUtil.verifyAccessToken(token);
+      const { id: userId } = clientData;
+      const _currentUserId = this.userModel.getObjectId(userId);
+      const user = await this.userModel.findOneOrFail({ _id: _currentUserId });
       if (!user || user.status === UserStatuses.banned) {
         socket.disconnect();
 
         return;
       }
-      socket.handshake.user = decodedToken;
-      socket.join(user.id);
+      socket.handshake.user = clientData;
+      socket.join(userId);
       this.logger.log(`Socket connected: ${socket.id}`);
 
       return;

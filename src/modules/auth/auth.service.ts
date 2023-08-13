@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   Scope,
@@ -8,63 +9,72 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import moment from 'moment';
 
+import { AppConfig } from '../../app.config';
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
-import { LoggedDeviceModel } from '../entities/logged-device.model';
-import { UserModel } from '../entities/user.model';
+import { SignedDeviceModel } from '../models/signed-device.model';
+import { UserModel } from '../models/user.model';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService {
   constructor(
-    private readonly loggedDeviceModel: LoggedDeviceModel,
+    private readonly signedDeviceModel: SignedDeviceModel,
     private readonly encryptionsUtil: EncryptionsUtil,
     @Inject(REQUEST) private request: Request & { user: { sub: string } },
     private readonly userModel: UserModel,
   ) {}
 
   public async refreshAccessToken(payload: RefreshTokenDto) {
-    const refreshTokenPayload = this.encryptionsUtil.verifyRefreshToken(
+    const { id: currentUserId } = this.encryptionsUtil.verifyRefreshToken(
       payload.refreshToken,
     );
-    const user = await this.userModel.findOneOrFailById(
-      refreshTokenPayload.sub,
-    );
-
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const user = await this.userModel.findOneOrFail({
+      _id: _currentUserId,
+    });
+    const { role } = user;
+    if (!role) {
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.USER_DATA_INCORRECT,
+        message: 'User data is incorrect!',
+      });
+    }
     const accessToken = this.encryptionsUtil.signAccessToken({
-      sub: user.id,
-      id: user.id,
-      role: user.role,
+      sub: currentUserId,
+      id: currentUserId,
+      role: role,
     });
 
     return { accessToken };
   }
 
   public async refreshToken(payload: RefreshTokenDto) {
-    const refreshTokenPayload = this.encryptionsUtil.verifyRefreshToken(
-      payload.refreshToken,
-    );
-
-    await this.userModel.findOneOrFailById(refreshTokenPayload.id);
-    const loggedDevice = await this.loggedDeviceModel.findOneOrFail({
-      where: {
-        user: { id: refreshTokenPayload.id },
-      },
+    const { refreshToken: currentRefreshToken } = payload;
+    const { id: currentUserId } =
+      this.encryptionsUtil.verifyRefreshToken(currentRefreshToken);
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    await this.userModel.findOneOrFail({ _id: _currentUserId });
+    const loggedDevice = await this.signedDeviceModel.findOneOrFail({
+      refreshToken: currentRefreshToken,
     });
-    const refreshToken = this.encryptionsUtil.signRefreshToken({
-      id: refreshTokenPayload.id,
-      sub: refreshTokenPayload.id,
+    const newRefreshToken = this.encryptionsUtil.signRefreshToken({
+      id: currentUserId,
+      sub: currentUserId,
     });
-    const isUpdated = await this.loggedDeviceModel.updateOneById(
-      loggedDevice.id,
+    const isUpdated = await this.signedDeviceModel.updateOneById(
+      loggedDevice._id,
       {
-        refreshToken,
-        expiresIn: moment().add(90, 'days'),
+        refreshToken: newRefreshToken,
+        expiresIn: moment().add(AppConfig.REFRESH_TOKEN_EXPIRES, 'days'),
       },
     );
     if (!isUpdated) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException({
+        message: 'Update refresh token failed!',
+      });
     }
 
-    return { refreshToken };
+    return { refreshToken: newRefreshToken };
   }
 }

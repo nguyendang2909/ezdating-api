@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 
@@ -24,7 +24,7 @@ export class EncryptionsUtil {
 
   public signRefreshToken(payload: RefreshTokenPayload): string {
     return this.jwtService.sign(payload, {
-      expiresIn: AppConfig.REFRESH_TOKEN_EXPIRES,
+      expiresIn: `${AppConfig.REFRESH_TOKEN_EXPIRES}d`,
       secret: this.JWT_REFRESH_TOKEN_SECRET_KEY,
     });
   }
@@ -52,5 +52,19 @@ export class EncryptionsUtil {
 
   public isMatchWithHashedKey(key: string, hashedKey: string): boolean {
     return bcrypt.compareSync(`${key}${this.hashSecretKey}`, hashedKey);
+  }
+
+  public verifyMatchPassword(
+    password: string,
+    hashedPassword: string,
+  ): boolean {
+    const isMatchPassword = this.isMatchWithHashedKey(password, hashedPassword);
+    if (!isMatchPassword) {
+      throw new UnauthorizedException({
+        errorCode: 'PASSWORD_IS_NOT_CORRECT',
+        message: 'Password is not correct!',
+      });
+    }
+    return isMatchPassword;
   }
 }

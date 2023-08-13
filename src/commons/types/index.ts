@@ -1,1 +1,1 @@
-export type ExtractCursor = { type: string; value: string } | undefined;
+// export type ExtractCursor = { type: string; value: string } | undefined;

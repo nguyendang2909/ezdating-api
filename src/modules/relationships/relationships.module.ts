@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 
-import { EntitiesModule } from '../entities/entities.module';
+import { ModelsModule } from '../models/models.module';
 import { RelationshipsController } from './relationships.controller';
 import { RelationshipsService } from './relationships.service';
 
 @Module({
-  imports: [EntitiesModule],
+  imports: [ModelsModule],
   exports: [],
   controllers: [RelationshipsController],
   providers: [RelationshipsService],

@@ -14,6 +14,11 @@ declare global {
       POSTGRES_DB_NAME: string;
       POSTGRES_USER: string;
       POSTGRES_PASS: string;
+      MONGO_DB_HOST: string;
+      MONGO_DB_PORT: string;
+      MONGO_DB_NAME: string;
+      MONGO_DB_USER: string;
+      MONGO_DB_PASS: string;
       // Cache
       REDIS_HOST: string;
       REDIS_PORT: string;

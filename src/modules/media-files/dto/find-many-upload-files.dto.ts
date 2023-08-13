@@ -2,21 +2,20 @@ import Joi from 'joi';
 import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 
 import {
-  UploadFileType,
-  UploadFileTypes,
+  MediaFileType,
+  MediaFileTypes,
 } from '../../../commons/constants/constants';
 import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
-import { FindManyCursorDto } from '../../../commons/dto/find-many-cursor.dto';
 
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
-export class FindManyUploadFilesDto extends FindManyCursorDto {
+export class FindManyUploadFilesDto {
   @JoiSchema(Joi.string().guid().optional())
   targetUserId: string;
 
   @JoiSchema(
     Joi.number()
-      .valid(...Object.values(UploadFileTypes))
-      .required(),
+      .valid(...Object.values(MediaFileTypes))
+      .optional(),
   )
-  type!: UploadFileType;
+  type?: MediaFileType;
 }
