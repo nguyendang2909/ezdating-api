@@ -168,7 +168,12 @@ export class ConversationsService {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
 
-    await this.verifyConversationOfUser(_conversationId, _currentUserId);
+    const conversation = await this.verifyConversationOfUser(
+      _conversationId,
+      _currentUserId,
+    );
+
+    const isUserOne = conversation._userOneId.toString() === currentUserId;
 
     const { before, after } = queryParams;
     const cursor = this.relationshipModel.extractCursor(after || before);
@@ -192,6 +197,13 @@ export class ConversationsService {
       .limit(25)
       .lean()
       .exec();
+
+    await this.relationshipModel.model.updateOne(
+      { _id: conversation._id },
+      {
+        ...(isUserOne ? { userOneRead: true } : { userTwoRead: true }),
+      },
+    );
 
     return {
       type: 'messagesByConversation',
