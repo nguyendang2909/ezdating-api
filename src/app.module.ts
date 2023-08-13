@@ -129,7 +129,7 @@ import { UsersModule } from './modules/users/users.module';
     }),
     ThrottlerModule.forRoot({ ttl: 10, limit: 100 }),
     MongooseModule.forRoot(
-      `mongodb://117.2.240.66:10026/?authSource=admin&readPreference=primary&directConnection=true`,
+      `${process.env.MONGO_DB_HOST}:${process.env.MONGO_DB_PORT}/?authSource=admin&readPreference=primary&directConnection=true`,
       {
         dbName: process.env.MONGO_DB_NAME,
         user: process.env.MONGO_DB_USER,
