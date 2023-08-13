@@ -35,14 +35,14 @@ export class Relationship extends CommonSchema {
   @Prop({ type: Boolean, default: false })
   userOneRead?: boolean;
 
-  @Prop({ type: Boolean, default: false })
-  userTwoRead?: boolean;
-
   @Prop({
     type: Number,
     enum: RelationshipUserStatuses,
   })
   userOneStatus?: RelationshipUserStatus;
+
+  @Prop({ type: Boolean, default: false })
+  userTwoRead?: boolean;
 
   @Prop({
     type: Number,

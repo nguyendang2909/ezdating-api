@@ -16,6 +16,7 @@ import {
   UserStatuses,
 } from '../../../commons/constants/constants';
 import { CommonSchema } from '../../../commons/schemas.common';
+import { MediaFile } from './media-file.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -26,18 +27,6 @@ export type MongoGeoLocation = {
 
 @Schema({ timestamps: true })
 export class User extends CommonSchema {
-  avatar?: string;
-
-  //   @OneToOne(() => UploadFile, (file) => file.user, {
-  //     nullable: true,
-  //     onDelete: 'SET NULL',
-  //   })
-  //   @JoinColumn({ name: 'avatar_file_id' })
-  //   avatarFile?: Partial<UploadFile>;
-
-  //   @RelationId((user: User) => user.avatarFile)
-  //   avatarFileId?: string;
-
   @Prop({ type: Date })
   birthday?: Date;
 
@@ -101,6 +90,11 @@ export class User extends CommonSchema {
   @Prop({ type: Number })
   filterMaxAge?: number;
 
+  @Prop({ type: Date, default: new Date() })
+  lastActivatedAt?: Date;
+
+  mediaFiles?: MediaFile[];
+
   @Prop({ type: String, length: 100 })
   nickname?: string;
 
@@ -110,8 +104,8 @@ export class User extends CommonSchema {
   @Prop({ type: String, length: 20 })
   phoneNumber?: string;
 
-  //   @OneToMany(() => UploadFile, (file) => file.user)
-  //   uploadFiles: Partial<UploadFile>[];
+  @Prop({ type: Number, enum: UserRelationshipStatuses })
+  relationshipStatus?: UserRelationshipStatus;
 
   @Prop({
     type: Number,
@@ -123,12 +117,6 @@ export class User extends CommonSchema {
 
   @Prop({ type: Number, enum: UserStatuses, default: UserStatuses.registered })
   status?: UserStatus;
-
-  @Prop({ type: Date, default: new Date() })
-  lastActivatedAt?: Date;
-
-  @Prop({ type: Number, enum: UserRelationshipStatuses })
-  relationshipStatus?: UserRelationshipStatus;
 
   @Prop({ type: Number })
   weight?: number;

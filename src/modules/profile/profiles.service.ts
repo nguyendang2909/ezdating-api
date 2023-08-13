@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
+import _ from 'lodash';
 import moment from 'moment';
 import { UpdateQuery } from 'mongoose';
 
@@ -29,12 +30,31 @@ export class ProfileService {
 
   public async getProfile(currentUserId: string) {
     const _currentUserId = this.userModel.getObjectId(currentUserId);
-    // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
-    const { password, ...userPart } = await this.userModel.findOneOrFail({
-      _id: _currentUserId,
-    });
 
-    return userPart;
+    const [user] = await this.userModel.model
+      .aggregate()
+      .match({
+        _id: _currentUserId,
+      })
+      .lookup({
+        from: 'mediafiles',
+        let: { userId: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$_userId', '$$userId'],
+              },
+            },
+          },
+          { $limit: 6 },
+        ],
+        as: 'mediaFiles',
+      })
+      .limit(1)
+      .exec();
+
+    return _.omit(user, ['password']);
   }
 
   public async updateProfile(

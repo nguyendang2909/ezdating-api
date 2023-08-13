@@ -26,8 +26,8 @@ export class Message extends CommonSchema {
   text?: string;
 
   @Prop({ type: String })
-  video?: string;
+  uuid?: string;
 
   @Prop({ type: String })
-  uuid: string;
+  video?: string;
 }
