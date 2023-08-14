@@ -11,7 +11,7 @@ import {
   RelationshipSchema,
 } from './schemas/relationship.schema';
 import { SignedDevice } from './schemas/signed-device.schema';
-import { User } from './schemas/user.schema';
+import { User, UserSchema } from './schemas/user.schema';
 import { SignedDeviceModel } from './signed-device.model';
 import { UserModel } from './user.model';
 
@@ -28,7 +28,7 @@ import { UserModel } from './user.model';
         name: SignedDevice.name,
         schema: SchemaFactory.createForClass(SignedDevice),
       },
-      { name: User.name, schema: SchemaFactory.createForClass(User) },
+      { name: User.name, schema: UserSchema },
     ]),
   ],
   exports: [

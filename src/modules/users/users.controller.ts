@@ -1,7 +1,11 @@
 import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { CurrentUserId } from '../../commons/decorators/current-user-id.decorator';
+import {
+  Client,
+  CurrentUserId,
+} from '../../commons/decorators/current-user-id.decorator';
+import { ClientData } from '../auth/auth.type';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
 import { UsersService } from './users.service';
 
@@ -25,9 +29,9 @@ export class UsersController {
   @Post('/nearby')
   public async findManyNearby(
     @Query() queryParams: FindManyDatingUsersDto,
-    @CurrentUserId() currentUserId: string,
+    @Client() clientData: ClientData,
   ) {
-    return await this.usersService.findManyNearby(queryParams, currentUserId);
+    return await this.usersService.findManyNearby(queryParams, clientData);
   }
 
   @Get('/:id')

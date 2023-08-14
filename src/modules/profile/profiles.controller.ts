@@ -28,10 +28,12 @@ export class ProfilesController {
   ) {
     return {
       type: 'updateProfile',
-      data: await this.profileService.updateProfile(
-        updateMyProfileDto,
-        currentUserId,
-      ),
+      data: {
+        success: await this.profileService.updateProfile(
+          updateMyProfileDto,
+          currentUserId,
+        ),
+      },
     };
   }
 

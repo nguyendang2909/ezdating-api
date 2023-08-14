@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
-import _ from 'lodash';
 import moment from 'moment';
 import { UpdateQuery } from 'mongoose';
 
@@ -51,16 +50,29 @@ export class ProfileService {
         ],
         as: 'mediaFiles',
       })
+      .addFields({
+        age: {
+          $dateDiff: {
+            startDate: '$birthday',
+            endDate: '$$NOW',
+            unit: 'year',
+          },
+        },
+      })
+      .project({
+        birthday: false,
+        password: false,
+      })
       .limit(1)
       .exec();
 
-    return _.omit(user, ['password']);
+    return user;
   }
 
   public async updateProfile(
     payload: UpdateMyProfileDto,
     currentUserId: string,
-  ) {
+  ): Promise<boolean> {
     const { longitude, latitude, ...updateDto } = payload;
 
     const _currentUserId = this.userModel.getObjectId(currentUserId);
@@ -76,15 +88,6 @@ export class ProfileService {
           }
         : {}),
     };
-
-    // if (stateId) {
-    //   await this.stateModel.findOneOrFail({
-    //     where: { id: stateId },
-    //   });
-    //   updateOptions.state = {
-    //     id: stateId,
-    //   };
-    // }
 
     return await this.userModel.updateOneById(_currentUserId, updateOptions);
   }

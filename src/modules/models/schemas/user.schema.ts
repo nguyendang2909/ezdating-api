@@ -1,4 +1,4 @@
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
 import {
@@ -123,3 +123,9 @@ export class User extends CommonSchema {
 
   distance?: string;
 }
+
+export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.index({
+  geolocation: '2dsphere',
+});

@@ -1,7 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import _ from 'lodash';
+import moment from 'moment';
 
+import { UserStatuses } from '../../commons/constants/constants';
+import { ResponsePagination } from '../../commons/constants/paginations';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { ClientData } from '../auth/auth.type';
 import { MediaFileModel } from '../models/media-file.model';
+import { UserDocument } from '../models/schemas/user.schema';
 import { UserModel } from '../models/user.model';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
 @Injectable()
@@ -72,63 +78,99 @@ export class UsersService {
   // ): Promise<ResponsePagination<User>> {
   public async findManyNearby(
     queryParams: FindManyDatingUsersDto,
-    currentUserId: string,
-  ) {
+    clientData: ClientData,
+  ): Promise<ResponsePagination<UserDocument>> {
     const { after, before } = queryParams;
+    const { id: currentUserId } = clientData;
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const {
+      geolocation,
+      filterMaxAge,
+      filterMinAge,
+      filterMaxDistance,
+      filterGender,
+      gender,
+    } = await this.userModel.findOneOrFail({
+      _id: _currentUserId,
+    });
 
-    const users = await this.userModel.model.find().lean().exec();
+    if (
+      !geolocation?.coordinates[1] ||
+      !filterMaxAge ||
+      !filterMinAge ||
+      !gender ||
+      !filterGender ||
+      !filterMaxDistance
+    ) {
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.YOU_DO_NOT_HAVE_BASIC_INFO,
+        message: 'You do not have a basic info. Please complete it!',
+      });
+    }
 
-    return users;
-    // const { cursor } = queryParams;
+    const cursor = this.userModel.extractCursor(after || before);
+    const cursorValue = cursor ? +cursor : undefined;
+    if (cursorValue && cursorValue >= filterMaxDistance) {
+      return {
+        data: [],
+        pagination: {
+          cursors: { after: null, before: null },
+        },
+      };
+    }
 
-    // const extractCursor = EntityFactory.extractCursor(cursor);
+    const filterMaxBirthday = moment().subtract(filterMinAge, 'years').toDate();
+    const filterMinBirthday = moment().subtract(filterMaxAge, 'years').toDate();
 
-    // const {
-    //   geolocation,
-    //   filterMaxAge,
-    //   filterMinAge,
-    //   filterMaxDistance,
-    //   filterGender,
-    //   gender,
-    // } = await this.userModel.findOneOrFail({
-    //   where: {
-    //     id: currentUserId,
-    //   },
-    // });
+    const users = await this.userModel.model
+      .aggregate()
+      .append({
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: [
+              geolocation.coordinates[0],
+              geolocation.coordinates[1],
+            ],
+          },
+          distanceField: 'distance',
+          // distanceMultiplier: 0.001,
+        },
+      })
+      .match({
+        _id: {
+          $ne: _currentUserId,
+        },
+        status: {
+          $in: [UserStatuses.activated, UserStatuses.verified],
+        },
+        lastActivatedAt: {
+          $gt: moment().subtract(7, 'd').toDate(),
+        },
+        birthday: {
+          $gt: filterMinBirthday,
+          $lt: filterMaxBirthday,
+        },
+        gender: filterGender,
+        distance: {
+          ...(cursorValue
+            ? {
+                $gt: cursorValue,
+              }
+            : {}),
+          $lte: filterMaxDistance,
+        },
+      });
 
-    // if (
-    //   !geolocation ||
-    //   !filterMaxAge ||
-    //   !filterMaxAge ||
-    //   !gender ||
-    //   !filterGender ||
-    //   !filterMaxDistance
-    // ) {
-    //   throw new BadRequestException({
-    //     errorCode: HttpErrorCodes.YOU_DO_NOT_HAVE_BASIC_INFO,
-    //     message: 'You do not have a basic info. Please complete it!',
-    //   });
-    // }
-
-    // if (extractCursor?.value && +extractCursor.value >= filterMaxDistance) {
-    //   return {
-    //     type: 'nearbyUsers',
-    //     data: [],
-    //     pagination: {
-    //       cursors: EntityFactory.getCursors({
-    //         before: filterMaxDistance,
-    //         after: null,
-    //       }),
-    //     },
-    //   };
-    // }
-
-    // const filterMaxBirthday = moment()
-    //   .subtract(filterMinAge, 'years')
-    //   .format('YYYY-MM-DD');
-    // const filterMinBirthday = moment()
-    //   .subtract(filterMaxAge, 'years')
-    //   .format('YYYY-MM-DD');
+    return {
+      data: users,
+      pagination: {
+        cursors: this.userModel.getCursors({
+          after: _.last(users)?.distance?.toString(),
+          before: null,
+        }),
+      },
+    };
 
     // // const results = await this.userModel
     // //   .createQueryBuilder()
@@ -186,8 +228,6 @@ export class UsersService {
     // //   },
     // //   [],
     // // );
-
-    return [];
 
     // console.log(user);
 
