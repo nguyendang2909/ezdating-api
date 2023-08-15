@@ -12,6 +12,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
+import { Constants } from '../../commons/constants/constants';
 import { ChatsService } from './chats.service';
 import { ChatsConnectionService } from './chats-connection.service ';
 import {
@@ -33,11 +34,11 @@ export class ChatsGateway
     private readonly chatsConnectionService: ChatsConnectionService,
   ) {}
 
-  @WebSocketServer() private readonly server!: Server;
+  @WebSocketServer() public readonly server: Server;
 
   private readonly logger = new Logger(ChatsGateway.name);
 
-  @SubscribeMessage('sendMsg')
+  @SubscribeMessage(Constants.socketEvents.toServer.sendMessage)
   @UseGuards(WsAuthGuard)
   public async sendMsg(
     @ConnectedSocket() socket: Socket,

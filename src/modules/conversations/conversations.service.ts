@@ -173,9 +173,18 @@ export class ConversationsService {
       _conversationId,
       _currentUserId,
     );
-
-    const isUserOne = conversation._userOneId.toString() === currentUserId;
-
+    const { _userOneId, _userTwoId } = conversation;
+    if (!_userOneId || !_userTwoId) {
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.RELATIONSHIP_IS_INVALID,
+        message: 'Relationship is invalid!',
+      });
+    }
+    const { isUserOne } = this.relationshipModel.getUsersFromIds({
+      _userOneId,
+      _userTwoId,
+      currentUserId,
+    });
     const { before, after } = queryParams;
     const cursor = this.relationshipModel.extractCursor(after || before);
     const cursorValue = cursor ? new Date(cursor) : undefined;

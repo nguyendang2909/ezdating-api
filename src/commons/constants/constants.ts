@@ -113,3 +113,18 @@ export const DevicePlatforms = {
 
 export type DevicePlatform =
   (typeof DevicePlatforms)[keyof typeof DevicePlatforms];
+
+export const Constants = {
+  socketEvents: {
+    toServer: {
+      sendMessage: 'sendMsg',
+      matched: 'matched',
+    },
+    toClient: {
+      error: 'error',
+      updateMessage: 'updateMsg',
+      newMessage: 'msg',
+      cancelMatched: 'cancelMatched',
+    },
+  },
+};

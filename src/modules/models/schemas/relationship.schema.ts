@@ -12,10 +12,10 @@ export type RelationshipDocument = HydratedDocument<Relationship>;
 @Schema({ timestamps: true })
 export class Relationship extends CommonSchema {
   @Prop({ type: SchemaTypes.ObjectId, required: true })
-  _userOneId: Types.ObjectId;
+  _userOneId?: Types.ObjectId;
 
   @Prop({ type: SchemaTypes.ObjectId, required: true })
-  _userTwoId: Types.ObjectId;
+  _userTwoId?: Types.ObjectId;
 
   @Prop({ type: SchemaTypes.ObjectId })
   _lastMessageUserId?: Types.ObjectId;

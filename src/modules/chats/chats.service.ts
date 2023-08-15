@@ -2,7 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import moment from 'moment';
 import { Socket } from 'socket.io';
 
-import { RelationshipUserStatuses } from '../../commons/constants/constants';
+import {
+  Constants,
+  RelationshipUserStatuses,
+} from '../../commons/constants/constants';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { MessageModel } from '../models/message.model';
 import { RelationshipModel } from '../models/relationship.model';
@@ -24,21 +27,43 @@ export class ChatsService {
     const currentUserId = socket.handshake.user.id;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
     const _relationshipId = this.relationshipModel.getObjectId(relationshipId);
-    const existRelationship = await this.relationshipModel.findOne({
-      _id: _relationshipId,
-      userOneStatus: RelationshipUserStatuses.like,
-      userTwoStatus: RelationshipUserStatuses.like,
-    });
-    const isUserOne =
-      currentUserId === existRelationship?._userOneId.toString();
+
+    const existRelationship = await this.relationshipModel.model
+      .findOne({
+        _id: _relationshipId,
+        userOneStatus: RelationshipUserStatuses.like,
+        userTwoStatus: RelationshipUserStatuses.like,
+      })
+      .lean()
+      .exec();
+
     if (!existRelationship) {
-      socket.emit('error', {
+      socket.emit(Constants.socketEvents.toClient.error, {
         errorCode: HttpErrorCodes.RELATIONSHIP_DOES_NOT_EXIST,
-        message: 'Relationship does not exist!',
+        message: 'Relationship not found',
       });
 
       return;
     }
+
+    const { _userOneId, _userTwoId } = existRelationship;
+
+    if (!_userOneId || !_userTwoId) {
+      socket.emit(Constants.socketEvents.toClient.error, {
+        errorCode: HttpErrorCodes.RELATIONSHIP_IS_INVALID,
+        message: 'Relationship is invalid',
+      });
+
+      return;
+    }
+    const { userOneId, userTwoId } = this.relationshipModel.getUsersFromIds({
+      _userOneId,
+      _userTwoId,
+      currentUserId,
+    });
+
+    const isUserOne = currentUserId === userOneId;
+
     const messageCreatedAt = moment().toDate();
     // TODO: transaction
     const [message] = await Promise.all([
@@ -62,12 +87,10 @@ export class ChatsService {
       ),
     ]);
 
-    socket.emit('updateMsg', message);
+    socket.emit(Constants.socketEvents.toClient.updateMessage, message);
+
     socket
-      .to([
-        existRelationship._userOneId.toString(),
-        existRelationship._userTwoId.toString(),
-      ])
-      .emit('msg', message);
+      .to([userOneId, userTwoId])
+      .emit(Constants.socketEvents.toClient.newMessage, message);
   }
 }

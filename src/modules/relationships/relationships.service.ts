@@ -1,10 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import _ from 'lodash';
 import moment from 'moment';
 
-import { RelationshipUserStatuses } from '../../commons/constants/constants';
+import {
+  Constants,
+  RelationshipUserStatuses,
+} from '../../commons/constants/constants';
 import { ResponseSuccess } from '../../commons/dto/response.dto';
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { ClientData } from '../auth/auth.type';
+import { ChatsGateway } from '../chats/chats.gateway';
 import { MessageModel } from '../models/message.model';
 import { RelationshipModel } from '../models/relationship.model';
 import { UserModel } from '../models/user.model';
@@ -16,6 +21,7 @@ export class RelationshipsService {
     private readonly relationshipModel: RelationshipModel,
     private readonly userModel: UserModel,
     private readonly messageModel: MessageModel,
+    private readonly chatsGateway: ChatsGateway,
   ) {}
 
   public async sendLikeStatus(
@@ -89,10 +95,58 @@ export class RelationshipsService {
       isUserOne,
     );
     if (haveBeenLiked) {
+      this.chatsGateway.server.to(currentUserId).emit('matched', relationship);
+      this.chatsGateway.server.to(targetUserId).emit('matched', relationship);
       // TODO: Socket emit event matches
     }
 
     return { success: true };
+  }
+
+  public async cancelMatched(
+    id: string,
+    clientData: ClientData,
+  ): Promise<ResponseSuccess> {
+    const _id = this.relationshipModel.getObjectId(id);
+    const { id: currentUserId } = clientData;
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
+
+    const { _userOneId, _userTwoId } =
+      await this.relationshipModel.findOneOrFail({
+        _id,
+        $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
+        userOneStatus: RelationshipUserStatuses.like,
+        userTwoRead: RelationshipUserStatuses.like,
+      });
+
+    if (!_userOneId || !_userTwoId) {
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.RELATIONSHIP_IS_INVALID,
+        message: 'Relationship is invalid',
+      });
+    }
+
+    const updateResult = await this.relationshipModel.model.updateOne(
+      { _id },
+      {
+        ...(this.relationshipModel.areObjectIdEqual(_currentUserId, _userOneId)
+          ? {
+              userOneStatus: RelationshipUserStatuses.cancel,
+            }
+          : {
+              userTwoStatus: RelationshipUserStatuses.cancel,
+            }),
+      },
+    );
+    const success = !!updateResult.modifiedCount;
+
+    if (success) {
+      this.chatsGateway.server
+        .to([_userOneId.toString(), _userTwoId.toString()])
+        .emit(Constants.socketEvents.toClient.cancelMatched, { _id });
+    }
+
+    return { success: !!updateResult.modifiedCount };
   }
 
   public async findMatched(

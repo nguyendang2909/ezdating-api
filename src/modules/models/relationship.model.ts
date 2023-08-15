@@ -157,6 +157,25 @@ export class RelationshipModel extends CommonModel {
     };
   }
 
+  public getUsersFromIds({
+    _userOneId,
+    _userTwoId,
+    currentUserId,
+  }: {
+    _userOneId: Types.ObjectId;
+    _userTwoId: Types.ObjectId;
+    currentUserId: string;
+  }) {
+    const userOneId = _userOneId.toString();
+    const userTwoId = _userTwoId.toString();
+
+    return {
+      userOneId,
+      userTwoId,
+      isUserOne: userOneId === currentUserId,
+    };
+  }
+
   //   validateConflictSendStatus(
   //     status: RelationshipUserStatus,
   //     entity: Relationship,

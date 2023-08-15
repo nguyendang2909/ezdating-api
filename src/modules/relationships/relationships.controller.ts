@@ -30,6 +30,20 @@ export class RelationshipsController {
     };
   }
 
+  @Post('/matched/cancel/:id')
+  public async cancelMatched(
+    @Client() clientData: ClientData,
+    @Param('targetUserId') targetUserId: string,
+  ) {
+    return {
+      type: 'cancelMatched',
+      data: await this.relationshipsService.cancelMatched(
+        targetUserId,
+        clientData,
+      ),
+    };
+  }
+
   // @Post('/status')
   // public async sendStatus(
   //   @Body() payload: SendRelationshipStatusDto,

@@ -7,6 +7,13 @@ import {
 } from '../../commons/constants/paginations';
 
 export class CommonModel {
+  public areObjectIdEqual(
+    first: Types.ObjectId,
+    second: Types.ObjectId,
+  ): boolean {
+    return first.toString() === second.toString();
+  }
+
   public getObjectId(id: string): Types.ObjectId {
     return new Types.ObjectId(id);
   }
