@@ -13,9 +13,9 @@ export class ConversationsController {
   @Get('/')
   public async findMany(
     @Query() queryParams: FindManyConversations,
-    @Client() clienData: ClientData,
+    @Client() clientData: ClientData,
   ) {
-    return await this.conversationsService.findMany(queryParams, clienData);
+    return await this.conversationsService.findMany(queryParams, clientData);
   }
 
   @Get('/:id/messages')

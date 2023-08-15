@@ -57,10 +57,10 @@ export class ProfilesController {
     };
   }
 
-  @Post('/attendance')
+  @Post('/daily-attendance')
   async takeAttendance(@Client() clientData: ClientData) {
     return {
-      type: 'dailyCoin',
+      type: 'dailyAttendance',
       data: await this.profileService.takeAttendance(clientData),
     };
   }

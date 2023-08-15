@@ -100,11 +100,8 @@ export class RelationshipsService {
     currentUserId: string,
   ) {
     const { after, before } = queryParams;
-
     const _currentUserId = this.userModel.getObjectId(currentUserId);
-
     const cursor = this.relationshipModel.extractCursor(after || before);
-
     const cursorValue = cursor ? new Date(cursor) : undefined;
 
     const findResult = await this.relationshipModel.model
@@ -112,6 +109,7 @@ export class RelationshipsService {
       .match({
         userOneStatus: RelationshipUserStatuses.like,
         userTwoStatus: RelationshipUserStatuses.like,
+        _lastMessageUserId: null,
         ...(cursorValue
           ? {
               statusAt: {

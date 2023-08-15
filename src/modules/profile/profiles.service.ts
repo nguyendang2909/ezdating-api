@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import moment from 'moment';
 import { UpdateQuery } from 'mongoose';
@@ -11,10 +11,12 @@ import {
   WeeklyCoins,
   WeeklyCoinsLength,
 } from '../../commons/constants/constants';
+import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { ClientData } from '../auth/auth.type';
 import { CoinAttendanceModel } from '../models/coin-attendance.model';
 import { MediaFileModel } from '../models/media-file.model';
 import { RelationshipModel } from '../models/relationship.model';
+import { CoinAttendanceDocument } from '../models/schemas/coin-attendance.schema';
 import { UserDocument } from '../models/schemas/user.schema';
 import { UserModel } from '../models/user.model';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
@@ -123,7 +125,9 @@ export class ProfileService {
     });
   }
 
-  public async takeAttendance(clientData: ClientData) {
+  public async takeAttendance(
+    clientData: ClientData,
+  ): Promise<CoinAttendanceDocument> {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
     const todayDate = moment().startOf('date').toDate();
@@ -137,10 +141,10 @@ export class ProfileService {
 
     if (!lastCoinAttendance) {
       // TODO: transaction
-      await this.coinAttendanceModel.model.create({
+      const firstCoinAttendance = await this.coinAttendanceModel.model.create({
         _userId: _currentUserId,
         receivedDate: todayDate,
-        value: 10,
+        value: WeeklyCoins[0],
         receivedDateIndex: 0,
       });
 
@@ -154,22 +158,33 @@ export class ProfileService {
           },
         },
       );
-    } else {
-      const lastReceivedDayIndex = WeeklyCoins.findIndex(
-        (item) => item === lastCoinAttendance.value,
-      );
-      const newReceiveDayIndex =
-        lastReceivedDayIndex !== WeeklyCoinsLength - 1
-          ? lastReceivedDayIndex + 1
-          : 0;
 
-      await this.coinAttendanceModel.model.create({
-        _userId: _currentUserId,
-        receivedDate: todayDate,
-        receivedDateIndex: newReceiveDayIndex,
-        value: WeeklyCoins[newReceiveDayIndex || 0],
+      return firstCoinAttendance;
+    }
+
+    if (moment(lastCoinAttendance.receivedDate).isSame(moment(todayDate))) {
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.YOU_ALREADY_TOOK_ATTENDANCE_TODAY,
+        message: 'You already took attendance today',
       });
     }
+
+    const lastReceivedDayIndex = WeeklyCoins.findIndex(
+      (item) => item === lastCoinAttendance.value,
+    );
+    const newReceiveDayIndex =
+      lastReceivedDayIndex !== WeeklyCoinsLength - 1
+        ? lastReceivedDayIndex + 1
+        : 0;
+
+    const createResult = await this.coinAttendanceModel.model.create({
+      _userId: _currentUserId,
+      receivedDate: todayDate,
+      receivedDateIndex: newReceiveDayIndex,
+      value: WeeklyCoins[newReceiveDayIndex || 0],
+    });
+
+    return createResult;
   }
 
   getFilterGender(gender: UserGender) {

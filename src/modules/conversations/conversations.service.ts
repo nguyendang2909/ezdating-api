@@ -28,12 +28,13 @@ export class ConversationsService {
     const { after, before } = queryParams;
     const cursor = this.relationshipModel.extractCursor(after || before);
     const cursorValue = cursor ? new Date(cursor) : undefined;
+
     const findResult = await this.relationshipModel.model
       .aggregate()
       .match({
         userOneStatus: RelationshipUserStatuses.like,
         userTwoStatus: RelationshipUserStatuses.like,
-        lastMessage: { $ne: null },
+        _lastMessageUserId: { $ne: null },
         $or: [
           {
             _userOneId: _currentUserId,

@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { SchemaTypes, Types } from 'mongoose';
+import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 import { CommonSchema } from '../../../commons/schemas.common';
 
+export type CoinAttendanceDocument = HydratedDocument<CoinAttendance>;
 @Schema({ timestamps: true })
 export class CoinAttendance extends CommonSchema {
   @Prop({ type: SchemaTypes.ObjectId, required: true })
