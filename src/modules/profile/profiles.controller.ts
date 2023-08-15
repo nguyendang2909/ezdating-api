@@ -2,7 +2,11 @@ import { Body, Controller, Get, Patch, Post, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
-import { CurrentUserId } from '../../commons/decorators/current-user-id.decorator';
+import {
+  Client,
+  CurrentUserId,
+} from '../../commons/decorators/current-user-id.decorator';
+import { ClientData } from '../auth/auth.type';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
 import { ProfileService } from './profiles.service';
@@ -53,13 +57,13 @@ export class ProfilesController {
     };
   }
 
-  //   @Post('/coin/daily')
-  //   async getDailyCoin(@Client() clientData: ClientData) {
-  //     return {
-  //       type: 'dailyCoin',
-  //       data: await this.profileService.getDailyCoin(clientData),
-  //     };
-  //   }
+  @Post('/attendance')
+  async takeAttendance(@Client() clientData: ClientData) {
+    return {
+      type: 'dailyCoin',
+      data: await this.profileService.takeAttendance(clientData),
+    };
+  }
 
   @Post('/deactivate')
   async deactivate(@CurrentUserId() userId: string) {

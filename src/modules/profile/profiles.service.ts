@@ -8,7 +8,11 @@ import {
   UserGender,
   UserGenders,
   UserStatuses,
+  WeeklyCoins,
+  WeeklyCoinsLength,
 } from '../../commons/constants/constants';
+import { ClientData } from '../auth/auth.type';
+import { CoinAttendanceModel } from '../models/coin-attendance.model';
 import { MediaFileModel } from '../models/media-file.model';
 import { RelationshipModel } from '../models/relationship.model';
 import { UserDocument } from '../models/schemas/user.schema';
@@ -22,7 +26,7 @@ export class ProfileService {
     private readonly userModel: UserModel,
     private readonly mediaFileModel: MediaFileModel,
     // private readonly stateModel: StateModel,
-    // private readonly coinHistoryModel: CoinHistoryModel,
+    private readonly coinAttendanceModel: CoinAttendanceModel,
     // private readonly countryModel: CountryModel,
     private readonly relationshipModel: RelationshipModel,
   ) {}
@@ -119,58 +123,54 @@ export class ProfileService {
     });
   }
 
-  //   public async getDailyCoin(clientData: ClientData) {
-  //     const now = moment().startOf('date').toDate();
-  //     const lastDailyCoin = await this.coinHistoryModel.findOne({
-  //       where: {
-  //         user: {
-  //           id: clientData.id,
-  //         },
-  //         type: CoinTypes.daily,
-  //         receivedAt: MoreThan(now),
-  //       },
-  //     });
-  //     if (!lastDailyCoin) {
-  //       // TODO: transaction
-  //       await this.coinHistoryModel.saveOne({
-  //         user: {
-  //           id: clientData.id,
-  //         },
-  //         type: CoinTypes.daily,
-  //         receivedAt: now,
-  //         value: WeeklyCoins[0],
-  //       });
-  //       await this.userModel.updateOneById(clientData.id, {
-  //         coins: () => 'coins + 10',
-  //       });
-  //     }
-  //     if (lastDailyCoin) {
-  //       const lastDate = moment(lastDailyCoin.receivedAt).startOf('date');
-  //       if (moment(now).diff(lastDate, 'd') < 1) {
-  //         throw new BadRequestException({
-  //           errorCode: HttpErrorCodes.DAILY_COIN_ALREADY_RECEIVED,
-  //           message: 'You already received daily coin!',
-  //         });
-  //       }
-  //       const lastReceivedDay = WeeklyCoins.findIndex(
-  //         (item) => item === lastDailyCoin.value,
-  //       );
-  //       const newReceiveDay =
-  //         lastReceivedDay && lastReceivedDay !== WeeklyCoinsLength - 1
-  //           ? lastReceivedDay + 1
-  //           : 0;
-  //       const value = WeeklyCoins[newReceiveDay] || 10;
+  public async takeAttendance(clientData: ClientData) {
+    const { id: currentUserId } = clientData;
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const todayDate = moment().startOf('date').toDate();
 
-  //       return await this.coinHistoryModel.saveOne({
-  //         user: {
-  //           id: clientData.id,
-  //         },
-  //         type: CoinTypes.daily,
-  //         receivedAt: now,
-  //         value,
-  //       });
-  //     }
-  //   }
+    const lastCoinAttendance = await this.coinAttendanceModel.model
+      .findOne({
+        _userId: _currentUserId,
+      })
+      .lean()
+      .exec();
+
+    if (!lastCoinAttendance) {
+      // TODO: transaction
+      await this.coinAttendanceModel.model.create({
+        _userId: _currentUserId,
+        receivedDate: todayDate,
+        value: 10,
+        receivedDateIndex: 0,
+      });
+
+      await this.userModel.model.updateOne(
+        {
+          _id: _currentUserId,
+        },
+        {
+          $inc: {
+            coins: WeeklyCoins[0],
+          },
+        },
+      );
+    } else {
+      const lastReceivedDayIndex = WeeklyCoins.findIndex(
+        (item) => item === lastCoinAttendance.value,
+      );
+      const newReceiveDayIndex =
+        lastReceivedDayIndex !== WeeklyCoinsLength - 1
+          ? lastReceivedDayIndex + 1
+          : 0;
+
+      await this.coinAttendanceModel.model.create({
+        _userId: _currentUserId,
+        receivedDate: todayDate,
+        receivedDateIndex: newReceiveDayIndex,
+        value: WeeklyCoins[newReceiveDayIndex || 0],
+      });
+    }
+  }
 
   getFilterGender(gender: UserGender) {
     if (gender === UserGenders.male) {

@@ -1,9 +1,14 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
 
+import { CoinAttendanceModel } from './coin-attendance.model';
 import { MediaFileModel } from './media-file.model';
 import { MessageModel } from './message.model';
 import { RelationshipModel } from './relationship.model';
+import {
+  CoinAttendance,
+  CoinAttendanceSchema,
+} from './schemas/coin-attendance.schema';
 import { MediaFile } from './schemas/media-file.schema';
 import { Message } from './schemas/message.schema';
 import {
@@ -18,6 +23,7 @@ import { UserModel } from './user.model';
 @Module({
   imports: [
     MongooseModule.forFeature([
+      { name: CoinAttendance.name, schema: CoinAttendanceSchema },
       { name: MediaFile.name, schema: SchemaFactory.createForClass(MediaFile) },
       { name: Message.name, schema: SchemaFactory.createForClass(Message) },
       {
@@ -32,6 +38,7 @@ import { UserModel } from './user.model';
     ]),
   ],
   exports: [
+    CoinAttendanceModel,
     MediaFileModel,
     MessageModel,
     RelationshipModel,
@@ -40,6 +47,7 @@ import { UserModel } from './user.model';
   ],
   controllers: [],
   providers: [
+    CoinAttendanceModel,
     MediaFileModel,
     MessageModel,
     RelationshipModel,

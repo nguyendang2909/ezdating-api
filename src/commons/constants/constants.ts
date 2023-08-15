@@ -101,12 +101,6 @@ export type MediaFileType =
 // export type UploadFileShare =
 //   (typeof UploadFileShares)[keyof typeof UploadFileShares];
 
-export const CoinTypes = {
-  daily: 1,
-};
-
-export type CoinType = (typeof CoinTypes)[keyof typeof CoinTypes];
-
 export const WeeklyCoins = [10, 20, 40, 70, 110, 160, 220];
 
 export const WeeklyCoinsLength = WeeklyCoins.length;
