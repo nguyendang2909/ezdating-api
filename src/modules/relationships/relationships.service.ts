@@ -153,72 +153,134 @@ export class RelationshipsService {
     queryParams: FindMatchedRelationshipsDto,
     currentUserId: string,
   ) {
-    const { after, before } = queryParams;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const { after, before } = queryParams;
     const cursor = this.relationshipModel.extractCursor(after || before);
     const cursorValue = cursor ? new Date(cursor) : undefined;
 
     const findResult = await this.relationshipModel.model
-      .aggregate()
-      .match({
-        userOneStatus: RelationshipUserStatuses.like,
-        userTwoStatus: RelationshipUserStatuses.like,
-        _lastMessageUserId: null,
-        ...(cursorValue
-          ? {
-              statusAt: {
-                [after ? '$gt' : '$lt']: cursorValue,
-              },
-            }
-          : {}),
-      })
-      .lookup({
-        from: 'users',
-        let: { userOneId: '$_userOneId', userTwoId: '$_userTwoId' },
-        pipeline: [
-          {
-            $match: {
-              _id: {
-                $ne: _currentUserId,
-              },
-              $expr: {
-                $or: [
-                  { $eq: ['$_id', '$$userOneId'] },
-                  { $eq: ['$_id', '$$userTwoId'] },
-                ],
+      .aggregate([
+        {
+          $match: {
+            userOneStatus: RelationshipUserStatuses.like,
+            userTwoStatus: RelationshipUserStatuses.like,
+            lastMessageAt: null,
+            ...(cursorValue
+              ? {
+                  statusAt: {
+                    [after ? '$gt' : '$lt']: cursorValue,
+                  },
+                }
+              : {}),
+          },
+        },
+        {
+          $sort: {
+            statusAt: -1,
+          },
+        },
+        { $limit: 20 },
+        {
+          $set: {
+            isUserOne: {
+              $cond: {
+                if: {
+                  $eq: ['$_userOneId', _currentUserId],
+                },
+                then: true,
+                else: false,
               },
             },
           },
-          {
-            $lookup: {
-              from: 'mediafiles',
-              let: { userId: '$_id' },
-              pipeline: [
-                {
-                  $match: {
-                    $expr: {
-                      $eq: ['$_userId', '$$userId'],
+        },
+        {
+          $lookup: {
+            from: 'users',
+            let: {
+              targetUserId: {
+                $cond: {
+                  if: {
+                    $eq: ['$isUserOne', true],
+                  },
+                  then: '$_userTwoId',
+                  else: '$_userOneId',
+                },
+              },
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$_id', '$$targetUserId'],
+                  },
+                },
+              },
+              {
+                $limit: 1,
+              },
+              {
+                $lookup: {
+                  from: 'mediafiles',
+                  let: { userId: '$_id' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $eq: ['$_userId', '$$userId'],
+                        },
+                      },
+                    },
+                    { $limit: 6 },
+                    {
+                      $project: {
+                        _id: true,
+                        location: true,
+                      },
+                    },
+                  ],
+                  as: 'mediaFiles',
+                },
+              },
+              {
+                $set: {
+                  age: {
+                    $dateDiff: {
+                      startDate: '$birthday',
+                      endDate: '$$NOW',
+                      unit: 'year',
                     },
                   },
                 },
-                { $limit: 6 },
-              ],
-              as: 'mediaFiles',
-            },
+              },
+              {
+                $project: {
+                  _id: true,
+                  nickname: true,
+                  status: true,
+                  lastActivatedAt: true,
+                  age: 1,
+                  filterGender: true,
+                  filterMaxAge: true,
+                  filterMaxDistance: true,
+                  filterMinAge: true,
+                  gender: true,
+                  introduce: true,
+                  lookingFor: true,
+                  mediaFiles: true,
+                },
+              },
+            ],
+            as: 'targetUser',
           },
-          {
-            $limit: 1,
+        },
+        {
+          $set: {
+            targetUser: { $first: '$targetUser' },
+            read: false,
           },
-        ],
-        as: 'targetUser',
-      })
-      .addFields({
-        targetUser: { $first: '$targetUser' },
-      })
-      .sort({
-        statusAt: -1,
-      })
-      .limit(20);
+        },
+      ])
+      .exec();
 
     return {
       data: findResult,
@@ -231,56 +293,145 @@ export class RelationshipsService {
     };
   }
 
-  public async findUsersLikeMe(
+  public async findManyLikedMe(
     queryParams: FindMatchedRelationshipsDto,
-    currentUserId: string,
+    clientData: ClientData,
   ) {
-    // const { after, before } = queryParams;
-    // const extractCursor = EntityFactory.extractCursor(after || before);
-    // const lastStatusAt = extractCursor
-    //   ? new Date(extractCursor.value)
-    //   : undefined;
-    // const findResult = await this.relationshipModel.findMany({
-    //   where: [
-    //     {
-    //       ...(lastStatusAt
-    //         ? {
-    //             userTwoStatus:
-    //               extractCursor?.type === Cursors.after
-    //                 ? LessThan(lastStatusAt)
-    //                 : MoreThan(lastStatusAt),
-    //           }
-    //         : {}),
-    //       userOneStatus: Not(RelationshipUserStatuses.like),
-    //       userTwoStatus: RelationshipUserStatuses.like,
-    //       userOne: {
-    //         id: currentUserId,
-    //       },
-    //     },
-    //     {
-    //       ...(lastStatusAt
-    //         ? {
-    //             userOneStatusAt:
-    //               extractCursor?.type === Cursors.after
-    //                 ? LessThan(lastStatusAt)
-    //                 : MoreThan(lastStatusAt),
-    //           }
-    //         : {}),
-    //       userOneStatus: RelationshipUserStatuses.like,
-    //       userTwoStatus: Not(RelationshipUserStatuses.like),
-    //       userTwo: {
-    //         id: currentUserId,
-    //       },
-    //     },
-    //   ],
-    //   order: {
-    //     statusAt: 'DESC',
-    //   },
-    //   take: 20,
-    // });
+    const { id: currentUserId } = clientData;
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const { after, before } = queryParams;
+    const cursor = this.relationshipModel.extractCursor(after || before);
+    const cursorValue = cursor ? new Date(cursor) : undefined;
+
+    const findResult = this.relationshipModel.model
+      .aggregate([
+        {
+          $match: {
+            ...(cursorValue
+              ? {
+                  statusAt: {
+                    [after ? '$gt' : '$lt']: cursorValue,
+                  },
+                }
+              : {}),
+            $or: [
+              {
+                _userOneId: _currentUserId,
+                userOneStatus: { $ne: RelationshipUserStatuses.like },
+                userTwoStatus: RelationshipUserStatuses.like,
+              },
+              {
+                _userTwoId: _currentUserId,
+                userOneStatus: RelationshipUserStatuses.like,
+                userTwoStatus: { $ne: RelationshipUserStatuses.like },
+              },
+            ],
+          },
+        },
+        {
+          $sort: {
+            statusAt: -1,
+          },
+        },
+        { $limit: 20 },
+        {
+          $set: {
+            isUserOne: {
+              $cond: {
+                if: {
+                  $eq: ['$_userOneId', _currentUserId],
+                },
+                then: true,
+                else: false,
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            let: {
+              targetUserId: {
+                $cond: {
+                  if: {
+                    $eq: ['$isUserOne', true],
+                  },
+                  then: '$_userTwoId',
+                  else: '$_userOneId',
+                },
+              },
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$_id', '$$targetUserId'],
+                  },
+                },
+              },
+              {
+                $limit: 1,
+              },
+              {
+                $lookup: {
+                  from: 'mediafiles',
+                  let: { userId: '$_id' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $eq: ['$_userId', '$$userId'],
+                        },
+                      },
+                    },
+                    { $limit: 6 },
+                    {
+                      $project: {
+                        _id: true,
+                        location: true,
+                      },
+                    },
+                  ],
+                  as: 'mediaFiles',
+                },
+              },
+              {
+                $set: {
+                  age: {
+                    $dateDiff: {
+                      startDate: '$birthday',
+                      endDate: '$$NOW',
+                      unit: 'year',
+                    },
+                  },
+                },
+              },
+              {
+                $project: {
+                  _id: true,
+                  nickname: true,
+                  status: true,
+                  lastActivatedAt: true,
+                  age: 1,
+                  filterGender: true,
+                  filterMaxAge: true,
+                  filterMaxDistance: true,
+                  filterMinAge: true,
+                  gender: true,
+                  introduce: true,
+                  lookingFor: true,
+                  mediaFiles: true,
+                },
+              },
+            ],
+            as: 'targetUser',
+          },
+        },
+      ])
+      .exec();
 
     return {
-      data: [],
+      data: findResult,
       pagination: {
         cursor: this.relationshipModel.getCursors({
           before: null,

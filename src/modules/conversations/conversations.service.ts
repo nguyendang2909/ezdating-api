@@ -29,33 +29,140 @@ export class ConversationsService {
     const cursor = this.relationshipModel.extractCursor(after || before);
     const cursorValue = cursor ? new Date(cursor) : undefined;
 
-    const findResult = await this.relationshipModel.model
-      .aggregate()
-      .match({
-        userOneStatus: RelationshipUserStatuses.like,
-        userTwoStatus: RelationshipUserStatuses.like,
-        _lastMessageUserId: { $ne: null },
-        $or: [
-          {
-            _userOneId: _currentUserId,
-          },
-          {
-            _userTwoId: _currentUserId,
-          },
-        ],
-        ...(cursorValue
-          ? {
-              lastMessageAt: {
-                [after ? '$gte' : '$lte']: cursorValue,
+    const findResult = await this.relationshipModel.model.aggregate([
+      {
+        $match: {
+          userOneStatus: RelationshipUserStatuses.like,
+          userTwoStatus: RelationshipUserStatuses.like,
+          $or: [
+            {
+              _userOneId: _currentUserId,
+            },
+            {
+              _userTwoId: _currentUserId,
+            },
+          ],
+          ...(cursorValue
+            ? {
+                lastMessageAt: {
+                  [after ? '$gte' : '$lte']: cursorValue,
+                },
+              }
+            : { lastMessageAt: { $ne: null } }),
+        },
+      },
+      {
+        $sort: { lastMessageAt: -1 },
+      },
+      { $limit: 20 },
+      {
+        $set: {
+          isUserOne: {
+            $cond: {
+              if: {
+                $eq: ['$_userOneId', _currentUserId],
               },
-            }
-          : {}),
-      })
-      .sort({
-        lastMessageAt: -1,
-      })
-      .limit(25)
-      .exec();
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          let: {
+            targetUserId: {
+              $cond: {
+                if: {
+                  $eq: ['$isUserOne', true],
+                },
+                then: '$_userTwoId',
+                else: '$_userOneId',
+              },
+            },
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', '$$targetUserId'],
+                },
+              },
+            },
+            {
+              $limit: 1,
+            },
+            {
+              $lookup: {
+                from: 'mediafiles',
+                let: { userId: '$_id' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $eq: ['$_userId', '$$userId'],
+                      },
+                    },
+                  },
+                  { $limit: 6 },
+                  {
+                    $project: {
+                      _id: true,
+                      location: true,
+                    },
+                  },
+                ],
+                as: 'mediaFiles',
+              },
+            },
+            {
+              $set: {
+                age: {
+                  $dateDiff: {
+                    startDate: '$birthday',
+                    endDate: '$$NOW',
+                    unit: 'year',
+                  },
+                },
+              },
+            },
+            {
+              $project: {
+                _id: true,
+                nickname: true,
+                status: true,
+                lastActivatedAt: true,
+                age: 1,
+                filterGender: true,
+                filterMaxAge: true,
+                filterMaxDistance: true,
+                filterMinAge: true,
+                gender: true,
+                introduce: true,
+                lookingFor: true,
+                mediaFiles: true,
+              },
+            },
+          ],
+          as: 'targetUser',
+        },
+      },
+      {
+        $set: {
+          targetUser: { $first: '$targetUser' },
+          read: {
+            $cond: {
+              if: {
+                $eq: ['$isUserOne', true],
+              },
+              then: '$userOneRead',
+              else: '$userTwoRead',
+            },
+          },
+        },
+      },
+    ]);
 
     return {
       type: 'conversations',

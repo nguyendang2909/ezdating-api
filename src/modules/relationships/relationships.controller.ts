@@ -66,14 +66,14 @@ export class RelationshipsController {
     };
   }
 
-  @Get('/like-me')
-  findUsersLikeMe(
+  @Get('/liked-me')
+  findManyLikedMe(
     @Query() queryParams: FindUsersLikeMeDto,
-    @CurrentUserId() userId: string,
+    @Client() clientData: ClientData,
   ) {
     return {
       type: 'usersLikeMe',
-      data: this.relationshipsService.findUsersLikeMe(queryParams, userId),
+      data: this.relationshipsService.findManyLikedMe(queryParams, clientData),
     };
   }
 }

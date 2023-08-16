@@ -20,10 +20,10 @@ export class Relationship extends CommonSchema {
   @Prop({ type: SchemaTypes.ObjectId })
   _lastMessageUserId?: Types.ObjectId;
 
-  @Prop({ type: Boolean })
+  @Prop({ type: Boolean, default: false })
   canUserOneChat?: boolean;
 
-  @Prop({ type: Boolean })
+  @Prop({ type: Boolean, default: false })
   canUserTwoChat?: boolean;
 
   @Prop({ type: String, length: 200 })
@@ -32,8 +32,8 @@ export class Relationship extends CommonSchema {
   @Prop({ type: Date })
   lastMessageAt?: Date;
 
-  @Prop({ type: Boolean, default: true })
-  userOneUnread?: boolean;
+  @Prop({ type: Boolean, default: false })
+  userOneRead?: boolean;
 
   @Prop({
     type: Number,
@@ -41,8 +41,8 @@ export class Relationship extends CommonSchema {
   })
   userOneStatus?: RelationshipUserStatus;
 
-  @Prop({ type: Boolean, default: true })
-  userTwoUnread?: boolean;
+  @Prop({ type: Boolean, default: false })
+  userTwoRead?: boolean;
 
   @Prop({
     type: Number,
@@ -63,3 +63,28 @@ export class Relationship extends CommonSchema {
 export const RelationshipSchema = SchemaFactory.createForClass(Relationship);
 
 RelationshipSchema.index({ _userOneId: 1, _userTwoId: 1 }, { unique: true });
+
+RelationshipSchema.index({
+  _userOneId: 1,
+  _userTwoId: 1,
+  userOneStatus: 1,
+  userTwoStatus: 1,
+  lastMessageAt: 1,
+});
+
+RelationshipSchema.index({
+  _userOneId: 1,
+  _userTwoId: 1,
+  userOneStatus: 1,
+  userTwoStatus: 1,
+  lastMessageAt: 1,
+});
+
+RelationshipSchema.index({
+  _userOneId: 1,
+  _userTwoId: 1,
+  userOneStatus: 1,
+  userTwoStatus: 1,
+  lastMessageAt: 1,
+  statusAt: 1,
+});
