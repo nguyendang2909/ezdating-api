@@ -32,8 +32,8 @@ export class Relationship extends CommonSchema {
   @Prop({ type: Date })
   lastMessageAt?: Date;
 
-  @Prop({ type: Boolean, default: false })
-  userOneRead?: boolean;
+  @Prop({ type: Boolean, default: true })
+  userOneUnread?: boolean;
 
   @Prop({
     type: Number,
@@ -41,8 +41,8 @@ export class Relationship extends CommonSchema {
   })
   userOneStatus?: RelationshipUserStatus;
 
-  @Prop({ type: Boolean, default: false })
-  userTwoRead?: boolean;
+  @Prop({ type: Boolean, default: true })
+  userTwoUnread?: boolean;
 
   @Prop({
     type: Number,

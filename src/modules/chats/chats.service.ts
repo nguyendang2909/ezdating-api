@@ -81,8 +81,8 @@ export class ChatsService {
           lastMessage: text,
           _lastMessageUserId: currentUserId,
           ...(isUserOne
-            ? { userTwoRead: false, userOneRead: true }
-            : { userOneRead: false, userTwoRead: true }),
+            ? { userTwoUnread: false, userOneUnread: true }
+            : { userOneUnread: false, userTwoUnread: true }),
         },
       ),
     ]);
