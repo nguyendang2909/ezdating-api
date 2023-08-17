@@ -129,6 +129,11 @@ export class RelationshipsService {
     const updateResult = await this.relationshipModel.model.updateOne(
       { _id },
       {
+        $unset: {
+          _lastMessageUserId: 1,
+          lastMessage: 1,
+          lastMessageAt: 1,
+        },
         ...(this.relationshipModel.areObjectIdEqual(_currentUserId, _userOneId)
           ? {
               userOneStatus: RelationshipUserStatuses.cancel,
