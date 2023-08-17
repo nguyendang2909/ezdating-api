@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -51,7 +55,10 @@ export class RelationshipsService {
         isUserOne,
       )
     ) {
-      return { success: false };
+      throw new ConflictException({
+        errorCode: HttpErrorCodes.CONFLICT_RELATIONSHIP_STATUS,
+        message: 'You already sent like status',
+      });
     }
 
     const now = moment().toDate();

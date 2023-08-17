@@ -33,14 +33,11 @@ export class RelationshipsController {
   @Post('/matched/cancel/:id')
   public async cancelMatched(
     @Client() clientData: ClientData,
-    @Param('targetUserId') targetUserId: string,
+    @Param('id') id: string,
   ) {
     return {
       type: 'cancelMatched',
-      data: await this.relationshipsService.cancelMatched(
-        targetUserId,
-        clientData,
-      ),
+      data: await this.relationshipsService.cancelMatched(id, clientData),
     };
   }
 
