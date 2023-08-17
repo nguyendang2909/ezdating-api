@@ -94,7 +94,6 @@ export class RelationshipModel extends CommonModel {
   //             id: userId,
   //           },
   //           userTwoStatus: Not(RelationshipUserStatuses.block),
-  //           canUserOneChat: true,
   //         },
   //         {
   //           id,

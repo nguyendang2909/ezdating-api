@@ -20,12 +20,6 @@ export class Relationship extends CommonSchema {
   @Prop({ type: SchemaTypes.ObjectId })
   _lastMessageUserId?: Types.ObjectId;
 
-  @Prop({ type: Boolean, default: false })
-  canUserOneChat?: boolean;
-
-  @Prop({ type: Boolean, default: false })
-  canUserTwoChat?: boolean;
-
   @Prop({ type: String, length: 200 })
   lastMessage?: string;
 
