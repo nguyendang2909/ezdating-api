@@ -204,6 +204,7 @@ export class UsersService {
           gender: true,
           lookingFor: true,
           distance: true,
+          mediaFiles: 1,
         },
       },
     ]);
