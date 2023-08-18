@@ -45,7 +45,7 @@ export class ConversationsService {
           ...(cursorValue
             ? {
                 lastMessageAt: {
-                  [after ? '$gte' : '$lte']: cursorValue,
+                  [after ? '$lte' : '$gte']: cursorValue,
                 },
               }
             : { lastMessageAt: { $ne: null } }),
@@ -169,8 +169,8 @@ export class ConversationsService {
       data: findResult,
       pagination: {
         cursors: this.relationshipModel.getCursors({
-          // after: _.first(findResult)?.lastMessageAt,
-          before: _.last(findResult)?.lastMessageAt,
+          after: _.last(findResult)?.lastMessageAt,
+          before: _.first(findResult)?.lastMessageAt,
         }),
       },
     };

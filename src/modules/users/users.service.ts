@@ -122,9 +122,8 @@ export class UsersService {
     const filterMaxBirthday = moment().subtract(filterMinAge, 'years').toDate();
     const filterMinBirthday = moment().subtract(filterMaxAge, 'years').toDate();
 
-    const users = await this.userModel.model
-      .aggregate()
-      .append({
+    const users = await this.userModel.model.aggregate([
+      {
         $geoNear: {
           near: {
             type: 'Point',
@@ -134,166 +133,90 @@ export class UsersService {
             ],
           },
           distanceField: 'distance',
-          // distanceMultiplier: 0.001,
-        },
-      })
-      .match({
-        _id: {
-          $ne: _currentUserId,
-        },
-        status: {
-          $in: [UserStatuses.activated, UserStatuses.verified],
-        },
-        lastActivatedAt: {
-          $gt: moment().subtract(7, 'd').toDate(),
-        },
-        birthday: {
-          $gt: filterMinBirthday,
-          $lt: filterMaxBirthday,
-        },
-        gender: filterGender,
-        distance: {
           ...(cursorValue
             ? {
-                $gt: cursorValue,
+                minDistance: cursorValue,
               }
             : {}),
-          $lte: filterMaxDistance,
+          maxDistance: filterMaxDistance,
+          // distanceMultiplier: 0.001,
+          query: {
+            _id: {
+              $ne: _currentUserId,
+            },
+            status: {
+              $in: [UserStatuses.activated, UserStatuses.verified],
+            },
+            lastActivatedAt: {
+              $gt: moment().subtract(7, 'd').toDate(),
+            },
+            birthday: {
+              $gt: filterMinBirthday,
+              $lt: filterMaxBirthday,
+            },
+            gender: filterGender,
+          },
         },
-      });
+      },
+      {
+        $sort: {
+          distance: 1,
+        },
+      },
+      {
+        $lookup: {
+          from: 'mediafiles',
+          let: {
+            userId: '$_id',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_userId', '$$userId'],
+                },
+              },
+            },
+            {
+              $limit: 6,
+            },
+            {
+              $project: {
+                _id: true,
+                location: true,
+              },
+            },
+          ],
+          as: 'mediaFiles',
+        },
+      },
+      {
+        $project: {
+          nickname: true,
+          status: true,
+          lastActivatedAt: true,
+          createdAt: true,
+          birthday: true,
+          filterGender: true,
+          filterMaxAge: true,
+          filterMaxDistance: true,
+          filterMinAge: true,
+          gender: true,
+          lookingFor: true,
+          distance: true,
+        },
+      },
+    ]);
 
     return {
       data: users,
       pagination: {
         cursors: this.userModel.getCursors({
           after: _.last(users)?.distance?.toString(),
-          before: null,
+          before: _.first(users).distance?.toString(),
         }),
       },
     };
-
-    // // const results = await this.userModel
-    // //   .createQueryBuilder()
-    // //   .leftJoinAndSelect('User.uploadFiles', 'UploadFiles')
-    // //   .addSelect([
-    // //     // User
-    // //     `ST_Distance(ST_MakePoint(${geolocation.coordinates[0]}, ${geolocation.coordinates[1]}), "User"."geolocation") AS "distance"`,
-    // //   ])
-    // //   .where('User.have_basic_info = true')
-    // //   .orderBy('distance', 'ASC')
-    // //   .getRawMany();
-
-    // // const entities = results.reduce(
-    // //   (acc: User[], rawEntity: Record<string, any>) => {
-    // //     let user = acc.find((entity) => entity.id === rawEntity.User_id);
-
-    // //     console.log(rawEntity);
-
-    // //     const uploadFile = new UploadFile({
-    // //       id: rawEntity.UploadFiles_id,
-    // //       userId: rawEntity.UploadFiles_user_id,
-    // //       type: rawEntity.UploadFiles_type,
-    // //       location: rawEntity.UploadFiles_location,
-    // //     });
-
-    // //     if (!user) {
-    // //       user = new User({
-    // //         id: rawEntity.User_id,
-    // //         educationLevel: rawEntity.User_education_level,
-    // //         gender: rawEntity.User_gender,
-    // //         height: rawEntity.User_height,
-    // //         weight: rawEntity.User_weight,
-    // //         introduce: rawEntity.User_introduce,
-    // //         lookingFor: rawEntity.User_looking_for,
-    // //         avatarFileId: rawEntity.User_avatar_file_id,
-    // //         uploadFiles: [],
-    // //         // avatarFile: {
-    // //         //   id: rawEntity.UploadFiles_id,
-    // //         //   userId: rawEntity.UploadFiles_user_id,
-    // //         //   type: rawEntity.UploadFiles_type,
-    // //         //   location: rawEntity.UploadFiles_location,
-    // //         // },
-    // //       });
-    // //       acc.push(user);
-    // //     }
-
-    // //     user.uploadFiles.push(uploadFile);
-
-    // //     if (uploadFile.id === rawEntity.User_avatar_file_id) {
-    // //       user.avatarFile = uploadFile;
-    // //       user.avatar = uploadFile.location;
-    // //     }
-
-    // //     return acc;
-    // //   },
-    // //   [],
-    // // );
-
-    // console.log(user);
-
-    // const rawUsers = await this.userModel.query(
-    //   `SELECT
-    //     "User".*,
-    //     date_part('year',age(birthday)) as age,
-    //     "AvatarFile"."id" AS avatarfile_id,
-    //     "AvatarFile"."location" AS avatarfile_location,
-    //     "AvatarFile"."type" AS avatarfile_type,
-    //     "UploadFiles".*,
-    //     ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") AS distance
-    //   FROM "user" "User"
-    //   LEFT JOIN "upload_file" "AvatarFile" ON "User"."avatar_file_id" = "AvatarFile"."id"
-    //   LEFT JOIN "upload_file" "UploadFiles" ON "User"."id" = "UploadFiles"."user_id"
-    //   WHERE
-    //     ${this.getQueryDistance(extractCursor)}
-    //     AND "User"."have_basic_info" = true
-    //     AND "User"."avatar_file_id" IS NOT NULL
-    //     AND "User"."id" <> $3
-    //     AND "User"."gender"=$4
-    //     AND "User".birthday BETWEEN $5 AND $6
-    //     AND NOT EXISTS (
-    //       SELECT 1 FROM "relationship" "Relationship"
-    //       WHERE
-    //         "Relationship"."user_one_id" = $3
-    //         AND "Relationship"."user_two_id" = "User"."id"
-    //         AND "Relationship"."user_two_status" <> $7
-    //         AND "Relationship"."user_one_status" <> $8
-    //     )
-    //     AND NOT EXISTS (
-    //       SELECT 1 FROM "relationship" "Relationship"
-    //       WHERE
-    //         "Relationship"."user_two_id" = $3
-    //         AND "Relationship"."user_one_id" = "User"."id"
-    //         AND "Relationship"."user_one_status" <> $8
-    //         AND "Relationship"."user_two_status" <> $7
-    //       )
-    //   ORDER BY
-    //     "distance",
-    //     "User"."id"
-    //   LIMIT 20
-    //   ;`,
-    //   [
-    //     geolocation.coordinates[0],
-    //     geolocation.coordinates[1],
-    //     currentUserId,
-    //     filterGender,
-    //     filterMinBirthday,
-    //     filterMaxBirthday,
-    //     RelationshipUserStatuses.block,
-    //     RelationshipUserStatuses.block,
-    //     100000,
-    //   ],
-    // );
-
-    // return {
-    //   type: 'nearbyUsers',
-    //   data: this.userModel.formatRaws(rawUsers),
-    //   pagination: {
-    //     cursors: EntityFactory.getCursors({
-    //       before: _.first<{ distance: number }>(rawUsers)?.distance,
-    //       after: _.last<{ distance: number }>(rawUsers)?.distance,
-    //     }),
-    //   },
-    // };
   }
 
   // public async findOne(findOneUserDto: FindOneUserDto, currentUserId: string) {
