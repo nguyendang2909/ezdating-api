@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import _ from 'lodash';
 import { Types } from 'mongoose';
 
@@ -176,96 +180,115 @@ export class ConversationsService {
     };
   }
 
-  // public async findOneOrFailById(id: string, clientData: ClientData) {
-  //   const currentUserObj = {
-  //     id: clientData.id,
-  //   };
-  //   const lastMessageQuery = { lastMessage: Not(IsNull()) };
-  //   const findResult = await this.relationshipModel.findOne({
-  //     where: [
-  //       {
-  //         ...lastMessageQuery,
-  //         userOneStatus: And(
-  //           Not(RelationshipUserStatuses.block),
-  //           Not(RelationshipUserStatuses.cancel),
-  //         ),
-  //         userTwoStatus: And(
-  //           Not(RelationshipUserStatuses.block),
-  //           Not(RelationshipUserStatuses.cancel),
-  //         ),
-  //         userOne: currentUserObj,
-  //       },
-  //       {
-  //         ...lastMessageQuery,
-  //         userOneStatus: And(
-  //           Not(RelationshipUserStatuses.block),
-  //           Not(RelationshipUserStatuses.cancel),
-  //         ),
-  //         userTwoStatus: And(
-  //           Not(RelationshipUserStatuses.block),
-  //           Not(RelationshipUserStatuses.cancel),
-  //         ),
-  //         userTwo: currentUserObj,
-  //       },
-  //     ],
-  //     order: {
-  //       lastMessageAt: 'DESC',
-  //     },
-  //     relations: [
-  //       'userOne',
-  //       'userOne.avatarFile',
-  //       'userTwo',
-  //       'userTwo.avatarFile',
-  //     ],
-  //     select: {
-  //       userOne: {
-  //         id: true,
-  //         birthday: true,
-  //         gender: true,
-  //         introduce: true,
-  //         lastActivatedAt: true,
-  //         lookingFor: true,
-  //         nickname: true,
-  //         role: true,
-  //         status: true,
-  //         avatarFile: {
-  //           location: true,
-  //         },
-  //       },
-  //       userTwo: {
-  //         id: true,
-  //         birthday: true,
-  //         gender: true,
-  //         introduce: true,
-  //         lastActivatedAt: true,
-  //         lookingFor: true,
-  //         nickname: true,
-  //         role: true,
-  //         status: true,
-  //         avatarFile: {
-  //           location: true,
-  //         },
-  //       },
-  //     },
-  //   });
+  public async findOneOrFailById(id: string, clientData: ClientData) {
+    const { id: currentUserId } = clientData;
+    const _id = this.relationshipModel.getObjectId(id);
+    const _currentUserId = this.relationshipModel.getObjectId(currentUserId);
 
-  //   if (!findResult) {
-  //     throw new NotFoundException({
-  //       errorCode: HttpErrorCodes.CONVERSATION_DOES_NOT_EXIST,
-  //       message: 'Conversation does not exist!',
-  //     });
-  //   }
+    const findResult = await this.relationshipModel.model.aggregate([
+      {
+        $match: {
+          _id,
+          $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
+        },
+      },
+      {
+        $limit: 1,
+      },
+      {
+        $lookup: {
+          from: 'users',
+          let: {
+            targetUserId: {
+              $cond: {
+                if: {
+                  $eq: ['$_userOneId', _currentUserId],
+                },
+                then: '$_userTwoId',
+                else: '$_userOneId',
+              },
+            },
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', '$$targetUserId'],
+                },
+              },
+            },
+            {
+              $limit: 1,
+            },
+            {
+              $lookup: {
+                from: 'mediafiles',
+                let: { userId: '$_id' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $eq: ['$_userId', '$$userId'],
+                      },
+                    },
+                  },
+                  { $limit: 6 },
+                  {
+                    $project: {
+                      _id: true,
+                      location: true,
+                    },
+                  },
+                ],
+                as: 'mediaFiles',
+              },
+            },
+            {
+              $set: {
+                age: {
+                  $dateDiff: {
+                    startDate: '$birthday',
+                    endDate: '$$NOW',
+                    unit: 'year',
+                  },
+                },
+              },
+            },
+            {
+              $project: {
+                _id: true,
+                nickname: true,
+                status: true,
+                lastActivatedAt: true,
+                age: 1,
+                filterGender: true,
+                filterMaxAge: true,
+                filterMaxDistance: true,
+                filterMinAge: true,
+                gender: true,
+                introduce: true,
+                lookingFor: true,
+                mediaFiles: true,
+              },
+            },
+          ],
+          as: 'targetUser',
+        },
+      },
+    ]);
 
-  //   const conversation = this.relationshipModel.formatConversation(
-  //     findResult,
-  //     clientData.id,
-  //   );
+    if (!findResult) {
+      throw new NotFoundException({
+        errorCode: HttpErrorCodes.CONVERSATION_DOES_NOT_EXIST,
+        message: 'Conversation does not exist!',
+      });
+    }
 
-  //   return {
-  //     type: 'conversations',
-  //     data: conversation,
-  //   };
-  // }
+    return {
+      type: 'conversations',
+      data: findResult,
+    };
+  }
 
   public async findManyMessagesByConversationId(
     conversationId: string,
@@ -303,7 +326,7 @@ export class ConversationsService {
           ...(cursorValue
             ? {
                 createdAt: {
-                  [after ? '$gt' : '$lt']: cursorValue,
+                  [after ? '$lt' : '$gt']: cursorValue,
                 },
               }
             : {}),
@@ -328,8 +351,8 @@ export class ConversationsService {
       data: findResult,
       pagination: {
         cursors: this.messageModel.getCursors({
-          // after: _.first(findResult)?.createdAt?.toString(),
-          before: _.last(findResult)?.createdAt?.toString(),
+          after: _.last(findResult)?.createdAt?.toString(),
+          before: _.first(findResult)?.createdAt?.toString(),
         }),
       },
     };

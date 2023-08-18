@@ -31,18 +31,14 @@ export class ConversationsController {
     );
   }
 
-  //   @Get('/:id')
-  //   public async findOneById(
-  //     @Param('id') id: string,
-  //     @Client() clientData: ClientData,
-  //   ) {
-  //     if (!id) {
-  //       throw new BadRequestException();
-  //     }
-
-  //     return {
-  //       type: 'conversation',
-  //       data: await this.conversationsService.findOneOrFailById(id, clientData),
-  //     };
-  //   }
+  @Get('/:id')
+  public async findOneById(
+    @Param('id') id: string,
+    @Client() clientData: ClientData,
+  ) {
+    return {
+      type: 'conversation',
+      data: await this.conversationsService.findOneOrFailById(id, clientData),
+    };
+  }
 }

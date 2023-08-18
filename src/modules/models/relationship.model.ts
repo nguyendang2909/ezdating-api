@@ -62,7 +62,7 @@ export class RelationshipModel extends CommonModel {
     if (_.isEmpty(filter)) {
       return null;
     }
-    return await this.model.findOne(filter, projection, options);
+    return await this.model.findOne(filter, projection, options).exec();
   }
 
   public async findOneOrFail(
