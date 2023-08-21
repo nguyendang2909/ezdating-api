@@ -75,7 +75,7 @@ export class SignInService {
         phoneNumber,
       });
     }
-    const { _id: _userId, role } = user;
+    const { _id: _userId, role, gender } = user;
     if (!_userId || !role) {
       throw new NotFoundException({
         errorCode: HttpErrorCodes.USER_DATA_INCORRECT,
@@ -87,6 +87,7 @@ export class SignInService {
       sub: userId,
       id: userId,
       role,
+      gender,
     });
     const refreshToken = this.encryptionsUtil.signRefreshToken({
       id: userId,
@@ -112,6 +113,7 @@ export class SignInService {
       password: hashedPassword,
       _id: _userId,
       role: userRole,
+      gender,
     } = await this.userModel.findOneOrFail({ phoneNumber });
     if (!hashedPassword || !_userId || !userRole) {
       throw new BadRequestException('Try login with OTP!');
@@ -122,6 +124,7 @@ export class SignInService {
       id: userId,
       sub: userId,
       role: userRole,
+      gender,
     });
     const refreshToken = this.encryptionsUtil.signRefreshToken({
       id: userId,

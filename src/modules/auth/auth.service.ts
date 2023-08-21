@@ -33,7 +33,7 @@ export class AuthService {
     const user = await this.userModel.findOneOrFail({
       _id: _currentUserId,
     });
-    const { role } = user;
+    const { role, gender } = user;
     if (!role) {
       throw new BadRequestException({
         errorCode: HttpErrorCodes.USER_DATA_INCORRECT,
@@ -44,6 +44,7 @@ export class AuthService {
       sub: currentUserId,
       id: currentUserId,
       role: role,
+      gender,
     });
 
     return { accessToken };
