@@ -9,6 +9,7 @@ import moment from 'moment';
 import {
   Constants,
   RelationshipUserStatuses,
+  UserGenders,
 } from '../../commons/constants/constants';
 import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
@@ -17,6 +18,7 @@ import { ChatsGateway } from '../chats/chats.gateway';
 import { MessageModel } from '../models/message.model';
 import { RelationshipModel } from '../models/relationship.model';
 import { UserModel } from '../models/user.model';
+import { CreateMatchDto } from './dto/create-match.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
 
 @Injectable()
@@ -451,5 +453,21 @@ export class RelationshipsService {
         }),
       },
     };
+  }
+
+  public async createMatch(payload: CreateMatchDto, clientData: ClientData) {
+    const { spendCoin, targetUserId } = payload;
+
+    const { id: currentUserId, gender } = clientData;
+
+    const { _userOneId, _userTwoId, isUserOne } =
+      this.relationshipModel.getSortedUserIds({
+        currentUserId,
+        targetUserId,
+      });
+
+    if (gender === UserGenders.female) {
+      return await this.relationshipModel.createOne({});
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import {
@@ -6,6 +6,7 @@ import {
   CurrentUserId,
 } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
+import { CreateMatchDto } from './dto/create-match.dto';
 import { FindMatchedRelationshipsDto } from './dto/find-matches-relationships.dto';
 import { FindUsersLikeMeDto } from './dto/find-user-like-me.dto';
 import { RelationshipsService } from './relationships.service';
@@ -30,7 +31,7 @@ export class RelationshipsController {
     };
   }
 
-  @Post('/matched/cancel/:id')
+  @Post('/matches/cancel/:id')
   public async cancelMatched(
     @Client() clientData: ClientData,
     @Param('id') id: string,
@@ -38,6 +39,17 @@ export class RelationshipsController {
     return {
       type: 'cancelMatched',
       data: await this.relationshipsService.cancelMatched(id, clientData),
+    };
+  }
+
+  @Post('/matches/')
+  public async createMatch(
+    @Body() payload: CreateMatchDto,
+    @Client() clientData: ClientData,
+  ) {
+    return {
+      type: 'cancelMatched',
+      data: await this.relationshipsService.createMatch(payload, clientData),
     };
   }
 
