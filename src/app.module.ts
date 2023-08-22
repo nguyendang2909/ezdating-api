@@ -20,13 +20,15 @@ import { EncryptionsModule } from './modules/encryptions/encryptions.module';
 import { JwtAuthGuard } from './modules/guards/jwt.guard';
 import { RolesGuard } from './modules/guards/roles.guard';
 import { HealthModule } from './modules/health/health.module';
+import { LikesModule } from './modules/likes/likes.module';
 import { LoggedDevicesModule } from './modules/logged-devices/logged-devices.module';
+import { RelationshipsModule } from './modules/matches/matches.module';
 import { MediaFilesModule } from './modules/media-files/media-files.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { ModelsModule } from './modules/models/models.module';
 import { ProfileModule } from './modules/profile/profile.module';
-import { RelationshipsModule } from './modules/relationships/relationships.module';
 import { UsersModule } from './modules/users/users.module';
+import { ViewsModule } from './modules/views/views.module';
 
 @Module({
   imports: [
@@ -152,6 +154,9 @@ import { UsersModule } from './modules/users/users.module';
     LoggedDevicesModule,
     ConversationsModule,
     HealthModule,
+    ViewsModule,
+    LikesModule,
+
     // CoinsModule,
   ],
   providers: [

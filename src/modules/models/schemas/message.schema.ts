@@ -8,7 +8,7 @@ export type MessageDocument = HydratedDocument<Message>;
 @Schema({ timestamps: true })
 export class Message extends CommonSchema {
   @Prop({ type: SchemaTypes.ObjectId, required: true })
-  _relationshipId?: Types.ObjectId;
+  _matchId?: Types.ObjectId;
 
   @Prop({ type: SchemaTypes.ObjectId })
   _replyMessageId?: Types.ObjectId;

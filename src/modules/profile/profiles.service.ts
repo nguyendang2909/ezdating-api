@@ -14,8 +14,8 @@ import {
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { ClientData } from '../auth/auth.type';
 import { CoinAttendanceModel } from '../models/coin-attendance.model';
+import { MatchModel } from '../models/match.model';
 import { MediaFileModel } from '../models/media-file.model';
-import { RelationshipModel } from '../models/relationship.model';
 import { CoinAttendanceDocument } from '../models/schemas/coin-attendance.schema';
 import { UserDocument } from '../models/schemas/user.schema';
 import { UserModel } from '../models/user.model';
@@ -30,7 +30,7 @@ export class ProfileService {
     // private readonly stateModel: StateModel,
     private readonly coinAttendanceModel: CoinAttendanceModel,
     // private readonly countryModel: CountryModel,
-    private readonly relationshipModel: RelationshipModel,
+    private readonly matchModel: MatchModel,
   ) {}
 
   public async getProfile(currentUserId: string) {
