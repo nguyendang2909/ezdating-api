@@ -83,14 +83,6 @@ export const MediaFileTypes = {
 export type MediaFileType =
   (typeof MediaFileTypes)[keyof typeof MediaFileTypes];
 
-// export const UploadFileShares = {
-//   public: 'public',
-//   private: 'private',
-// };
-
-// export type UploadFileShare =
-//   (typeof UploadFileShares)[keyof typeof UploadFileShares];
-
 export const WeeklyCoins = [10, 20, 40, 70, 110, 160, 220];
 
 export const WeeklyCoinsLength = WeeklyCoins.length;

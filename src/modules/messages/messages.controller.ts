@@ -14,9 +14,6 @@ export class MessagesController {
     @Query() queryParams: FindManyMessagesDto,
     @Client() clientData: ClientData,
   ) {
-    return {
-      type: 'messages',
-      data: await this.messagesService.findMany(queryParams, clientData),
-    };
+    return await this.messagesService.findMany(queryParams, clientData);
   }
 }

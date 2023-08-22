@@ -79,7 +79,7 @@ export class MessagesService {
     );
 
     return {
-      type: 'messagesByConversation',
+      type: 'messages',
       _matchId: matchId,
       data: findResult,
       pagination: {
