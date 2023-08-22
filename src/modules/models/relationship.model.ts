@@ -5,20 +5,10 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import _ from 'lodash';
-import {
-  FilterQuery,
-  FlattenMaps,
-  Model,
-  ProjectionType,
-  QueryOptions,
-  UpdateQuery,
-} from 'mongoose';
+import { FilterQuery, Model, ProjectionType, QueryOptions } from 'mongoose';
 import { Types } from 'mongoose';
 
-import {
-  RelationshipUserStatus,
-  RelationshipUserStatuses,
-} from '../../commons/constants/constants';
+import { RelationshipUserStatus } from '../../commons/constants/constants';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { CommonModel } from './common-model';
 import {
@@ -107,20 +97,20 @@ export class RelationshipModel extends CommonModel {
   //     });
   //   }
 
-  public async findAndUpsertOneByUserIds(
-    userIds: { _userOneId: Types.ObjectId; _userTwoId: Types.ObjectId },
-    updateQuery: UpdateQuery<Relationship>,
-    options?: QueryOptions<Relationship> | null,
-  ) {
-    return await this.model
-      .findOneAndUpdate(userIds, updateQuery, {
-        ...options,
-        new: true,
-        upsert: true,
-      })
-      .lean()
-      .exec();
-  }
+  // public async findAndUpsertOneByUserIds(
+  //   userIds: { _userOneId: Types.ObjectId; _userTwoId: Types.ObjectId },
+  //   updateQuery: UpdateQuery<Relationship>,
+  //   options?: QueryOptions<Relationship> | null,
+  // ) {
+  //   return await this.model
+  //     .findOneAndUpdate(userIds, updateQuery, {
+  //       ...options,
+  //       new: true,
+  //       upsert: true,
+  //     })
+  //     .lean()
+  //     .exec();
+  // }
 
   public async deleteOneById(_id: Types.ObjectId) {
     const deleteResult = await this.model.deleteOne({ _id });
@@ -246,14 +236,14 @@ export class RelationshipModel extends CommonModel {
     return false;
   }
 
-  haveBeenLiked(
-    document:
-      | RelationshipDocument
-      | (FlattenMaps<Relationship> & { _id: Types.ObjectId }),
-    isUserOne: boolean,
-  ): boolean {
-    return isUserOne
-      ? document.userTwoStatus === RelationshipUserStatuses.like
-      : document.userOneStatus === RelationshipUserStatuses.like;
-  }
+  // haveBeenLiked(
+  //   document:
+  //     | RelationshipDocument
+  //     | (FlattenMaps<Relationship> & { _id: Types.ObjectId }),
+  //   isUserOne: boolean,
+  // ): boolean {
+  //   return isUserOne
+  //     ? document.userTwoStatus === RelationshipUserStatuses.like
+  //     : document.userOneStatus === RelationshipUserStatuses.like;
+  // }
 }

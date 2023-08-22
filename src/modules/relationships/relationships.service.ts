@@ -44,19 +44,19 @@ export class RelationshipsService {
         targetUserId,
       });
 
-    const existRelationship = await this.relationshipModel.findOne({
+    const existLikedRelationship = await this.relationshipModel.findOne({
       _userOneId,
       _userTwoId,
+      ...(isUserOne
+        ? {
+            userOneStatus: RelationshipUserStatuses.like,
+          }
+        : {
+            userTwoStatus: RelationshipUserStatuses.like,
+          }),
     });
 
-    if (
-      existRelationship &&
-      this.relationshipModel.haveSentStatus(
-        RelationshipUserStatuses.like,
-        existRelationship,
-        isUserOne,
-      )
-    ) {
+    if (existLikedRelationship) {
       throw new ConflictException({
         errorCode: HttpErrorCodes.CONFLICT_RELATIONSHIP_STATUS,
         message: 'You already sent like status',
@@ -65,48 +65,47 @@ export class RelationshipsService {
 
     const now = moment().toDate();
 
-    const relationship = await this.relationshipModel.findAndUpsertOneByUserIds(
-      {
-        _userOneId,
-        _userTwoId,
-      },
-      {
-        _userOneId,
-        _userTwoId,
-        statusAt: now,
-        ...(isUserOne
-          ? {
-              userOneStatus: RelationshipUserStatuses.like,
-              userOneStatusAt: now,
-            }
-          : {
-              userTwoStatus: RelationshipUserStatuses.like,
-              userTwoStatusAt: now,
-            }),
-      },
-      {
-        upsert: true,
-        new: true,
-      },
-    );
+    const relationship = await this.relationshipModel.model
+      .findOneAndUpdate(
+        {
+          _userOneId,
+          _userTwoId,
+          ...(isUserOne
+            ? {
+                userOneStatus: { $ne: RelationshipUserStatuses.like },
+              }
+            : {
+                userTwoStatus: { $ne: RelationshipUserStatuses.like },
+              }),
+        },
+        {
+          statusAt: now,
+          ...(isUserOne
+            ? {
+                userOneStatus: RelationshipUserStatuses.like,
+                userOneStatusAt: now,
+              }
+            : {
+                userTwoStatus: RelationshipUserStatuses.like,
+                userTwoStatusAt: now,
+              }),
+        },
+        {
+          upsert: true,
+          new: true,
+        },
+      )
+      .lean()
+      .exec();
 
-    if (isUserOne) {
-      if (relationship.userTwoStatus === RelationshipUserStatuses.like) {
-        // TODO: Notify by socket
-      }
-    } else {
-      if (relationship.userOneStatus === RelationshipUserStatuses.like) {
-      }
-    }
-
-    const haveBeenLiked = this.relationshipModel.haveBeenLiked(
-      relationship,
-      isUserOne,
-    );
-    if (haveBeenLiked) {
+    if (
+      relationship.userOneStatus === RelationshipUserStatuses.like &&
+      relationship.userTwoStatus
+    ) {
       this.chatsGateway.server.to(currentUserId).emit('matched', relationship);
       this.chatsGateway.server.to(targetUserId).emit('matched', relationship);
-      // TODO: Socket emit event matches
+    } else {
+      this.chatsGateway.server.to(targetUserId).emit('matched', relationship);
     }
 
     return { success: true };
@@ -460,14 +459,60 @@ export class RelationshipsService {
 
     const { id: currentUserId, gender } = clientData;
 
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
+
     const { _userOneId, _userTwoId, isUserOne } =
       this.relationshipModel.getSortedUserIds({
         currentUserId,
         targetUserId,
       });
 
+    const now = moment().toDate();
+
     if (gender === UserGenders.female) {
-      return await this.relationshipModel.createOne({});
+      const relationship = await this.relationshipModel.model
+        .findOneAndUpdate(
+          {
+            _userOneId,
+            _userTwoId,
+          },
+          {
+            statusAt: now,
+            ...(isUserOne
+              ? {
+                  userOneStatus: RelationshipUserStatuses.like,
+                  userOneStatusAt: now,
+                }
+              : {
+                  userTwoStatus: RelationshipUserStatuses.like,
+                  userTwoStatusAt: now,
+                }),
+          },
+        )
+        .lean()
+        .exec();
+
+      // await this.userModel.model.updateOne({
+      //   _id: _currentUserId,
+      // });
+
+      return relationship;
     }
+
+    const requiredCoins = 20;
+
+    const existCurrentUserWithCoins = await this.userModel.model.findOne({
+      _id: _currentUserId,
+      coins: { $gte: requiredCoins },
+    });
+
+    if (!existCurrentUserWithCoins) {
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.COINS_ARE_NOT_ENOUGH,
+        message: "Coins are not enough"
+      });
+    }
+
+    
   }
 }
