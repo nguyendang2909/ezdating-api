@@ -75,16 +75,6 @@ export const UserJobs = {
 
 export type UserJob = (typeof UserJobs)[keyof typeof UserJobs];
 
-export const ReactionStatuses = {
-  like: 1,
-  unlike: 2,
-  cancel: 3,
-  viewed: 4,
-} as const;
-
-export type ReactionStatus =
-  (typeof ReactionStatuses)[keyof typeof ReactionStatuses];
-
 export const MediaFileTypes = {
   photo: 1,
   video: 2,
