@@ -151,7 +151,7 @@ export class MatchesService {
                   filterMinAge: true,
                   gender: true,
                   introduce: true,
-                  lookingFor: true,
+                  relationshipGoal: true,
                   mediaFiles: true,
                 },
               },

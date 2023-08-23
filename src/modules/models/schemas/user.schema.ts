@@ -76,7 +76,7 @@ export class User extends CommonSchema {
   geolocation?: MongoGeoLocation;
 
   @Prop({ type: Number, enum: UserRelationshipGoals })
-  lookingFor?: UserRelationshipGoal;
+  relationshipGoal?: UserRelationshipGoal;
 
   @Prop({ type: Number, enum: UserGenders })
   filterGender?: UserGender;

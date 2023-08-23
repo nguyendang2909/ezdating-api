@@ -214,7 +214,7 @@ export class UsersService {
           filterMaxDistance: 1,
           filterMinAge: 1,
           gender: 1,
-          lookingFor: 1,
+          relationshipGoal: 1,
           distance: 1,
           mediaFiles: 1,
         },

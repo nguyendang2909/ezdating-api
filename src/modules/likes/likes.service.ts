@@ -165,7 +165,7 @@ export class LikesService {
                   filterMinAge: true,
                   gender: true,
                   introduce: true,
-                  lookingFor: true,
+                  relationshipGoal: true,
                   mediaFiles: true,
                 },
               },
