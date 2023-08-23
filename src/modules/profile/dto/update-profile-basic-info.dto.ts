@@ -6,8 +6,8 @@ import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 import {
   UserGender,
   UserGenders,
-  UserLookingFor,
-  UserLookingFors,
+  UserRelationshipGoal,
+  UserRelationshipGoals,
 } from '../../../commons/constants/constants';
 import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 
@@ -35,13 +35,13 @@ export class UpdateMyProfileBasicInfoDto {
   @JoiSchema(Joi.string().max(100).required())
   nickname!: string;
 
-  @ApiProperty({ type: Number, enum: UserLookingFors })
+  @ApiProperty({ type: Number, enum: UserRelationshipGoals })
   @JoiSchema(
     Joi.number()
-      .valid(...Object.values(UserLookingFors))
+      .valid(...Object.values(UserRelationshipGoals))
       .required(),
   )
-  lookingFor!: UserLookingFor;
+  relationshipGoal!: UserRelationshipGoal;
 
   // @ApiProperty({ type: String })
   // @JoiSchema(Joi.number().required())

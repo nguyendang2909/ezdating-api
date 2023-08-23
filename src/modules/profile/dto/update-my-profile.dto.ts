@@ -8,8 +8,8 @@ import {
   UserEducationLevels,
   UserGender,
   UserGenders,
-  UserLookingFor,
-  UserLookingFors,
+  UserRelationshipGoal,
+  UserRelationshipGoals,
   UserRelationshipStatus,
   UserRelationshipStatuses,
 } from '../../../commons/constants/constants';
@@ -47,13 +47,13 @@ export class UpdateMyProfileDto {
   @JoiSchema(Joi.string().max(100).optional())
   nickname?: string;
 
-  @ApiPropertyOptional({ type: Number, enum: UserLookingFors })
+  @ApiPropertyOptional({ type: Number, enum: UserRelationshipGoals })
   @JoiSchema(
     Joi.number()
-      .valid(...Object.values(UserLookingFors))
+      .valid(...Object.values(UserRelationshipGoals))
       .optional(),
   )
-  lookingFor?: UserLookingFor;
+  relationshipGoal?: UserRelationshipGoal;
 
   // @ApiPropertyOptional({ type: String })
   // @JoiSchema(Joi.string().guid().optional())

@@ -23,7 +23,7 @@ export const UserStatuses = {
 
 export type UserStatus = (typeof UserStatuses)[keyof typeof UserStatuses];
 
-export const UserLookingFors = {
+export const UserRelationshipGoals = {
   boyGirlFriend: 1,
   makeFriends: 2,
   sexPartner: 3,
@@ -31,8 +31,8 @@ export const UserLookingFors = {
   oneNightStand: 5,
 } as const;
 
-export type UserLookingFor =
-  (typeof UserLookingFors)[keyof typeof UserLookingFors];
+export type UserRelationshipGoal =
+  (typeof UserRelationshipGoals)[keyof typeof UserRelationshipGoals];
 
 export const UserRelationshipStatuses = {
   single: 1,

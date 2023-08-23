@@ -6,8 +6,8 @@ import {
   UserEducationLevels,
   UserGender,
   UserGenders,
-  UserLookingFor,
-  UserLookingFors,
+  UserRelationshipGoal,
+  UserRelationshipGoals,
   UserRelationshipStatus,
   UserRelationshipStatuses,
   UserRole,
@@ -75,8 +75,8 @@ export class User extends CommonSchema {
   })
   geolocation?: MongoGeoLocation;
 
-  @Prop({ type: Number, enum: UserLookingFors })
-  lookingFor?: UserLookingFor;
+  @Prop({ type: Number, enum: UserRelationshipGoals })
+  lookingFor?: UserRelationshipGoal;
 
   @Prop({ type: Number, enum: UserGenders })
   filterGender?: UserGender;
