@@ -66,7 +66,6 @@ export class ProfileService {
         },
       })
       .project({
-        birthday: false,
         password: false,
       })
       .limit(1)
