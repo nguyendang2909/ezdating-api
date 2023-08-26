@@ -1,4 +1,4 @@
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 import {
@@ -12,7 +12,12 @@ export type MediaFileDocument = HydratedDocument<MediaFile>;
 
 @Schema({ timestamps: true })
 export class MediaFile extends CommonSchema {
-  @Prop({ type: SchemaTypes.ObjectId, ref: User.name, required: true })
+  @Prop({
+    type: SchemaTypes.ObjectId,
+    ref: User.name,
+    required: true,
+    index: true,
+  })
   _userId: Types.ObjectId;
 
   @Prop({ type: String })
@@ -24,3 +29,5 @@ export class MediaFile extends CommonSchema {
   @Prop({ type: Number, enum: MediaFileTypes, required: true })
   type?: MediaFileType;
 }
+
+export const MediaFileSchema = SchemaFactory.createForClass(MediaFile);

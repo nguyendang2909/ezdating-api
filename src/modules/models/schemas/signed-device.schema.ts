@@ -1,4 +1,4 @@
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 import {
@@ -26,3 +26,7 @@ export class SignedDevice extends CommonSchema {
   @Prop({ type: String, enum: DevicePlatforms })
   platform: DevicePlatform;
 }
+
+export const SignedDeviceSchema = SchemaFactory.createForClass(SignedDevice);
+
+SignedDeviceSchema.index({ _userId: 1, refreshToken: 1 });

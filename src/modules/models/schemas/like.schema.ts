@@ -7,10 +7,10 @@ export type LikeDocument = HydratedDocument<Like>;
 
 @Schema({ timestamps: true })
 export class Like extends CommonSchema {
-  @Prop({ type: SchemaTypes.ObjectId, required: true })
+  @Prop({ type: SchemaTypes.ObjectId, required: true, index: true })
   _userId?: Types.ObjectId;
 
-  @Prop({ type: SchemaTypes.ObjectId, required: true })
+  @Prop({ type: SchemaTypes.ObjectId, required: true, index: true })
   _targetUserId?: Types.ObjectId;
 
   @Prop({ type: Date, default: new Date(), required: true })
@@ -20,3 +20,5 @@ export class Like extends CommonSchema {
 export const LikeSchema = SchemaFactory.createForClass(Like);
 
 LikeSchema.index({ _userId: 1, _targetUserId: 1 }, { unique: true });
+
+LikeSchema.index({ _targetUserId: 1, likedAt: 1 });

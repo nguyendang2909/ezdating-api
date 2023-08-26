@@ -1,4 +1,4 @@
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 import { CommonSchema } from '../../../commons/schemas.common';
@@ -31,3 +31,7 @@ export class Message extends CommonSchema {
   @Prop({ type: String })
   video?: string;
 }
+
+export const MessageSchema = SchemaFactory.createForClass(Message);
+
+MessageSchema.index({ _matchId: 1, createdAt: 1 });

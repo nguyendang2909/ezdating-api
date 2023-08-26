@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
+import { MongooseModule } from '@nestjs/mongoose';
 
 import { CoinAttendanceModel } from './coin-attendance.model';
 import { LikeModel } from './like.model';
@@ -12,9 +12,12 @@ import {
 } from './schemas/coin-attendance.schema';
 import { Like, LikeSchema } from './schemas/like.schema';
 import { Match, MatchSchema } from './schemas/match.schema';
-import { MediaFile } from './schemas/media-file.schema';
-import { Message } from './schemas/message.schema';
-import { SignedDevice } from './schemas/signed-device.schema';
+import { MediaFile, MediaFileSchema } from './schemas/media-file.schema';
+import { Message, MessageSchema } from './schemas/message.schema';
+import {
+  SignedDevice,
+  SignedDeviceSchema,
+} from './schemas/signed-device.schema';
 import { User, UserSchema } from './schemas/user.schema';
 import { View, ViewSchema } from './schemas/view.schema';
 import { SignedDeviceModel } from './signed-device.model';
@@ -27,12 +30,9 @@ import { ViewModel } from './view.model';
       { name: CoinAttendance.name, schema: CoinAttendanceSchema },
       { name: Like.name, schema: LikeSchema },
       { name: Match.name, schema: MatchSchema },
-      { name: MediaFile.name, schema: SchemaFactory.createForClass(MediaFile) },
-      { name: Message.name, schema: SchemaFactory.createForClass(Message) },
-      {
-        name: SignedDevice.name,
-        schema: SchemaFactory.createForClass(SignedDevice),
-      },
+      { name: MediaFile.name, schema: MediaFileSchema },
+      { name: Message.name, schema: MessageSchema },
+      { name: SignedDevice.name, schema: SignedDeviceSchema },
       { name: User.name, schema: UserSchema },
       { name: View.name, schema: ViewSchema },
     ]),
