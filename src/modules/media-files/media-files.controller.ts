@@ -74,7 +74,7 @@ export class MediaFilesController {
     };
   }
 
-  @Delete(':id')
+  @Delete('/photos/:id')
   private async remove(
     @Param('id') id: string,
     @CurrentUserId() userId: string,
