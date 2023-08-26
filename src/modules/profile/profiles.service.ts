@@ -78,12 +78,15 @@ export class ProfileService {
     payload: UpdateMyProfileDto,
     currentUserId: string,
   ): Promise<boolean> {
-    const { longitude, latitude, ...updateDto } = payload;
+    const { longitude, latitude, birthday, ...updateDto } = payload;
 
     const _currentUserId = this.userModel.getObjectId(currentUserId);
 
     const updateOptions: UpdateQuery<UserDocument> = {
       ...updateDto,
+      ...(birthday
+        ? { birthday: moment(birthday, 'YYYY-MM-DD').toDate() }
+        : {}),
       ...(longitude && latitude
         ? {
             geolocation: {

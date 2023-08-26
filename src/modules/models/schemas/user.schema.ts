@@ -30,6 +30,9 @@ export class User extends CommonSchema {
   @Prop({ type: Date })
   birthday?: Date;
 
+  @Prop({ type: String })
+  company?: string;
+
   @Prop({ type: Number, default: 0 })
   coins?: number;
 
@@ -54,13 +57,19 @@ export class User extends CommonSchema {
   email?: string;
 
   @Prop({ type: Number, enum: UserGenders })
-  gender?: UserGender;
+  filterGender?: UserGender;
 
   @Prop({ type: Number })
-  height?: number;
+  filterMaxDistance?: number;
 
-  @Prop({ type: String, length: 500 })
-  introduce?: string;
+  @Prop({ type: Number })
+  filterMinAge?: number;
+
+  @Prop({ type: Number })
+  filterMaxAge?: number;
+
+  @Prop({ type: Number, enum: UserGenders })
+  gender?: UserGender;
 
   @Prop({
     type: {
@@ -75,23 +84,26 @@ export class User extends CommonSchema {
   })
   geolocation?: MongoGeoLocation;
 
-  @Prop({ type: Number, enum: UserRelationshipGoals })
-  relationshipGoal?: UserRelationshipGoal;
-
-  @Prop({ type: Number, enum: UserGenders })
-  filterGender?: UserGender;
-
   @Prop({ type: Number })
-  filterMaxDistance?: number;
+  height?: number;
 
-  @Prop({ type: Number })
-  filterMinAge?: number;
+  @Prop({ type: String, length: 500 })
+  introduce?: string;
 
-  @Prop({ type: Number })
-  filterMaxAge?: number;
+  @Prop({ type: String })
+  jobTitle?: string;
+
+  @Prop({ type: Boolean })
+  hideAge?: boolean;
+
+  @Prop({ type: Boolean })
+  hideDistance?: boolean;
 
   @Prop({ type: Date, default: new Date() })
   lastActivatedAt?: Date;
+
+  @Prop({ type: [String] })
+  languages?: string[];
 
   mediaFiles?: MediaFile[];
 
@@ -104,6 +116,9 @@ export class User extends CommonSchema {
   @Prop({ type: String, length: 20 })
   phoneNumber?: string;
 
+  @Prop({ type: Number, enum: UserRelationshipGoals })
+  relationshipGoal?: UserRelationshipGoal;
+
   @Prop({ type: Number, enum: UserRelationshipStatuses })
   relationshipStatus?: UserRelationshipStatus;
 
@@ -114,6 +129,9 @@ export class User extends CommonSchema {
     default: UserRoles.member,
   })
   role?: UserRole;
+
+  @Prop({ type: String })
+  school?: string;
 
   @Prop({ type: Number, enum: UserStatuses, default: UserStatuses.registered })
   status?: UserStatus;
