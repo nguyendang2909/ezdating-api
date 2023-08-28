@@ -81,6 +81,7 @@ export class MediaFileModel extends CommonModel {
     updateQuery: UpdateQuery<MediaFile>,
   ) {
     const updateResult = await this.model.updateOne({ _id }, updateQuery);
+
     return !!updateResult.modifiedCount;
   }
 

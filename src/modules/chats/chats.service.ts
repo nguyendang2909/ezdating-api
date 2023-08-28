@@ -71,12 +71,14 @@ export class ChatsService {
       this.matchModel.model.updateOne(
         { _id: existMatch._id },
         {
-          lastMessageAt: messageCreatedAt,
-          lastMessage: text,
-          _lastMessageUserId: currentUserId,
-          ...(isUserOne
-            ? { userTwoRead: false, userOneRead: true }
-            : { userOneRead: false, userTwoRead: true }),
+          $set: {
+            lastMessageAt: messageCreatedAt,
+            lastMessage: text,
+            _lastMessageUserId: currentUserId,
+            ...(isUserOne
+              ? { userTwoRead: false, userOneRead: true }
+              : { userOneRead: false, userTwoRead: true }),
+          },
         },
       ),
     ]);

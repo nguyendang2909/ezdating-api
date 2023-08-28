@@ -83,18 +83,20 @@ export class ProfileService {
     const _currentUserId = this.userModel.getObjectId(currentUserId);
 
     const updateOptions: UpdateQuery<UserDocument> = {
-      ...updateDto,
-      ...(birthday
-        ? { birthday: moment(birthday, 'YYYY-MM-DD').toDate() }
-        : {}),
-      ...(longitude && latitude
-        ? {
-            geolocation: {
-              type: 'Point',
-              coordinates: [longitude, latitude],
-            },
-          }
-        : {}),
+      $set: {
+        ...updateDto,
+        ...(birthday
+          ? { birthday: moment(birthday, 'YYYY-MM-DD').toDate() }
+          : {}),
+        ...(longitude && latitude
+          ? {
+              geolocation: {
+                type: 'Point',
+                coordinates: [longitude, latitude],
+              },
+            }
+          : {}),
+      },
     };
 
     return await this.userModel.updateOneById(_currentUserId, updateOptions);
@@ -111,19 +113,24 @@ export class ProfileService {
     const { ...updateDto } = payload;
 
     return await this.userModel.updateOneById(_currentUserId, {
-      ...updateDto,
-      filterGender: this.getFilterGender(payload.gender),
-      filterMinAge: age - 10 > 18 ? age - 10 : 18,
-      filterMaxAge: age + 10,
-      filterMaxDistance: AppConfig.USER_FILTER_MAX_DISTANCE,
-      status: UserStatuses.activated,
+      $set: {
+        ...updateDto,
+        filterGender: this.getFilterGender(payload.gender),
+        filterMinAge: age - 10 > 18 ? age - 10 : 18,
+        filterMaxAge: age + 10,
+        filterMaxDistance: AppConfig.USER_FILTER_MAX_DISTANCE,
+        status: UserStatuses.activated,
+      },
     });
   }
 
   public async deactivate(currentUserId: string) {
     const _currentUserId = this.userModel.getObjectId(currentUserId);
+
     return await this.userModel.updateOneById(_currentUserId, {
-      status: UserStatuses.deactivated,
+      $set: {
+        status: UserStatuses.deactivated,
+      },
     });
   }
 

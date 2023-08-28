@@ -74,7 +74,9 @@ export class MessagesService {
     await this.matchModel.model.updateOne(
       { _id: _matchId },
       {
-        ...(isUserOne ? { userOneRead: true } : { userTwoRead: true }),
+        $set: {
+          ...(isUserOne ? { userOneRead: true } : { userTwoRead: true }),
+        },
       },
     );
 
