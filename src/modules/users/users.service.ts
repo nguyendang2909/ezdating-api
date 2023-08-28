@@ -26,9 +26,7 @@ export class UsersService {
     const _currentUserId = this.userModel.getObjectId(currentUserId);
 
     const user = await this.userModel.findOneOrFail({
-      where: {
-        _id: _currentUserId,
-      },
+      _id: _currentUserId,
     });
 
     const {
