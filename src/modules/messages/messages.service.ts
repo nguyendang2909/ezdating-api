@@ -46,8 +46,8 @@ export class MessagesService {
       });
     }
 
-    const { before, after } = queryParams;
-    const cursor = this.matchModel.extractCursor(after || before);
+    const { next, prev } = queryParams;
+    const cursor = this.matchModel.extractCursor(next || prev);
     const cursorValue = cursor ? new Date(cursor) : undefined;
 
     const findResult = await this.messageModel.model
@@ -57,7 +57,7 @@ export class MessagesService {
           ...(cursorValue
             ? {
                 createdAt: {
-                  [after ? '$lt' : '$gt']: cursorValue,
+                  [next ? '$lt' : '$gt']: cursorValue,
                 },
               }
             : {}),
@@ -86,8 +86,8 @@ export class MessagesService {
       data: findResult,
       pagination: {
         cursors: this.messageModel.getCursors({
-          after: _.last(findResult)?.createdAt?.toString(),
-          before: _.first(findResult)?.createdAt?.toString(),
+          next: _.last(findResult)?.createdAt?.toString(),
+          prev: _.first(findResult)?.createdAt?.toString(),
         }),
       },
     };

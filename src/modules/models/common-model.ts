@@ -29,10 +29,10 @@ export class CommonModel {
     return Buffer.from(value, 'base64').toString('utf-8');
   }
 
-  public getCursors({ before, after }: GetCursors): PaginationCursors {
+  public getCursors({ next, prev }: GetCursors): PaginationCursors {
     return {
-      after: !_.isNil(after) ? this.encodeCursor(after) : null,
-      before: !_.isNil(before) ? this.encodeCursor(before) : null,
+      next: !_.isNil(next) ? this.encodeCursor(next) : null,
+      prev: !_.isNil(prev) ? this.encodeCursor(prev) : null,
     };
   }
 }

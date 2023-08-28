@@ -1,16 +1,16 @@
 export type PaginationCursors = {
-  after: string | null;
-  before: string | null;
+  next: string | null;
+  prev: string | null;
 };
 
 export type GetCursors = {
-  after?: string | null;
-  before?: string | null;
+  next?: string | null;
+  prev?: string | null;
 };
 
 export const Cursors = {
-  after: 'after',
-  before: 'before',
+  next: 'next',
+  prev: 'prev',
 };
 
 export type Cursor = (typeof Cursors)[keyof typeof Cursors];
@@ -20,8 +20,8 @@ export type ResponsePagination<T> = {
   data: T[];
   pagination: {
     cursors: {
-      before: null | string;
-      after: null | string;
+      next: null | string;
+      prev: null | string;
     };
   };
 };

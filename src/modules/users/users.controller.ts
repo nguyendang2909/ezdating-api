@@ -18,12 +18,9 @@ export class UsersController {
   @Get('/swipe')
   public async findManySwipe(
     @Query() queryParams: FindManyDatingUsersDto,
-    @CurrentUserId() currentUserId: string,
+    @Client() clientData: ClientData,
   ) {
-    return {
-      type: 'users',
-      ...(await this.usersService.findManySwipe(queryParams, currentUserId)),
-    };
+    return await await this.usersService.findManySwipe(queryParams, clientData);
   }
 
   @Post('/nearby')
