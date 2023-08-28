@@ -20,7 +20,8 @@ import {
 @Injectable()
 export class SignedDeviceModel extends CommonModel {
   constructor(
-    @InjectModel(SignedDevice.name) public readonly model: Model<SignedDevice>,
+    @InjectModel(SignedDevice.name)
+    public readonly model: Model<SignedDevice>,
   ) {
     super();
   }

@@ -19,56 +19,182 @@ export class UsersService {
 
   public async findManySwipe(
     queryParams: FindManyDatingUsersDto,
-    currentUserId: string,
+    clientData: ClientData,
   ) {
+    const { next, prev, filterUserId } = queryParams;
+    const { id: currentUserId } = clientData;
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
+
     const user = await this.userModel.findOneOrFail({
       where: {
-        id: currentUserId,
+        _id: _currentUserId,
       },
     });
+
+    const {
+      geolocation,
+      filterMaxAge,
+      filterMinAge,
+      filterMaxDistance,
+      filterGender,
+      gender,
+    } = user;
 
     if (!user.geolocation) {
       throw new BadRequestException();
     }
 
-    // const rawUsers = await this.userModel.query(
-    //   `SELECT *, ST_Distance(ST_MakePoint(${user.geolocation.coordinates[0]}, ${user.geolocation.coordinates[1]} ), "user"."geolocation") FROM "user";`,
-    // );
+    if (
+      !geolocation?.coordinates[1] ||
+      !filterMaxAge ||
+      !filterMinAge ||
+      !gender ||
+      !filterGender ||
+      !filterMaxDistance
+    ) {
+      throw new BadRequestException({
+        errorCode: HttpErrorCodes.YOU_DO_NOT_HAVE_BASIC_INFO,
+        message: 'You do not have a basic info. Please complete it!',
+      });
+    }
 
-    return [];
+    const cursor = this.userModel.extractCursor(next || prev);
+    const cursorValue = cursor ? +cursor : undefined;
+    if (cursorValue && cursorValue >= filterMaxDistance) {
+      return {
+        data: [],
+        pagination: {
+          cursors: { next: null, prev: null },
+        },
+      };
+    }
 
-    // `SELECT * , ST_Distance(ST_MakePoint(${user.geolocation?.coordinates[0]}, ${user.geolocation.coordinates[1]} ), distance_in_meters) AS dist FROM user ORDER BY dist LIMIT 10;`,
-    // const { cursor } = queryParams;
-    // const whereId = cursor
-    //   ? And(Not(currentUserId), LessThan(cursor))
-    //   : Not(currentUserId);
-    // const findResult = await this.userModel.findMany({
-    //   where: {
-    //     id: whereId,
-    //     haveBasicInfo: true,
-    //     status: UserStatuses.activated,
-    //   },
-    //   relations: ['state', 'state.country'],
-    //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //   // @ts-ignore
-    //   select: {
-    //     id: true,
-    //     birthday: true,
-    //     gender: true,
-    //     introduce: true,
-    //     geolocation: true,
-    //     nickname: true,
-    //     state: {
-    //       id: true,
-    //       country: {
-    //         id: true,
-    //       },
-    //     },
-    //     lastActivatedAt: true,
-    //   },
-    //   order: {},
-    // });
-    // return { data: findResult, pagination: { cursor: {} } };
+    const filterMaxBirthday = moment().subtract(filterMinAge, 'years').toDate();
+    const filterMinBirthday = moment().subtract(filterMaxAge, 'years').toDate();
+
+    const users = await this.userModel.model.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: [
+              geolocation.coordinates[0],
+              geolocation.coordinates[1],
+            ],
+          },
+          distanceField: 'distance',
+          ...(cursorValue
+            ? {
+                minDistance: cursorValue,
+              }
+            : {}),
+          maxDistance: filterMaxDistance,
+          // distanceMultiplier: 0.001,
+          query: {
+            _id: {
+              ...(filterUserId
+                ? {
+                    $nin: [
+                      _currentUserId,
+                      filterUserId.map((item) =>
+                        this.userModel.getObjectId(item),
+                      ),
+                    ],
+                  }
+                : {
+                    $ne: _currentUserId,
+                  }),
+            },
+            status: {
+              $in: [UserStatuses.activated, UserStatuses.verified],
+            },
+            lastActivatedAt: {
+              $gt: moment().subtract(7, 'd').toDate(),
+            },
+            birthday: {
+              $gt: filterMinBirthday,
+              $lt: filterMaxBirthday,
+            },
+            gender: filterGender,
+          },
+        },
+      },
+      {
+        $sort: {
+          lastActivatedAt: -1,
+        },
+      },
+      { $limit: 20 },
+      {
+        $lookup: {
+          from: 'mediafiles',
+          let: {
+            userId: '$_id',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_userId', '$$userId'],
+                },
+              },
+            },
+            {
+              $limit: 6,
+            },
+            {
+              $project: {
+                _id: true,
+                location: true,
+              },
+            },
+          ],
+          as: 'mediaFiles',
+        },
+      },
+      {
+        $set: {
+          age: {
+            $dateDiff: {
+              startDate: '$birthday',
+              endDate: '$$NOW',
+              unit: 'year',
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          age: 1,
+          distance: 1,
+          educationLevel: 1,
+          gender: 1,
+          height: 1,
+          introduce: 1,
+          jobTitle: 1,
+          lastActivatedAt: 1,
+          languages: 1,
+          mediaFiles: 1,
+          nickname: 1,
+          relationshipGoal: 1,
+          relationshipStatus: 1,
+          role: 1,
+          school: 1,
+          status: 1,
+          weight: 1,
+        },
+      },
+    ]);
+
+    return {
+      data: users,
+      pagination: {
+        cursors: this.userModel.getCursors({
+          next: _.last(users)?.distance?.toString(),
+          prev: _.first(users).distance?.toString(),
+        }),
+      },
+    };
   }
 
   // https://stackoverflow.com/questions/67435650/storing-geojson-points-and-finding-points-within-a-given-distance-radius-nodej
@@ -80,7 +206,7 @@ export class UsersService {
     queryParams: FindManyDatingUsersDto,
     clientData: ClientData,
   ): Promise<ResponsePagination<UserDocument>> {
-    const { after, before } = queryParams;
+    const { next, prev } = queryParams;
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
     const {
@@ -108,13 +234,13 @@ export class UsersService {
       });
     }
 
-    const cursor = this.userModel.extractCursor(after || before);
+    const cursor = this.userModel.extractCursor(next || prev);
     const cursorValue = cursor ? +cursor : undefined;
     if (cursorValue && cursorValue >= filterMaxDistance) {
       return {
         data: [],
         pagination: {
-          cursors: { after: null, before: null },
+          cursors: { next: null, prev: null },
         },
       };
     }
@@ -163,6 +289,7 @@ export class UsersService {
           distance: 1,
         },
       },
+      { $limit: 20 },
       {
         $lookup: {
           from: 'mediafiles',
@@ -225,8 +352,8 @@ export class UsersService {
       data: users,
       pagination: {
         cursors: this.userModel.getCursors({
-          after: _.last(users)?.distance?.toString(),
-          before: _.first(users).distance?.toString(),
+          next: _.last(users)?.distance?.toString(),
+          prev: _.first(users).distance?.toString(),
         }),
       },
     };

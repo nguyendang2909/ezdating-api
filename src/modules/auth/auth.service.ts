@@ -14,6 +14,7 @@ import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { SignedDeviceModel } from '../models/signed-device.model';
 import { UserModel } from '../models/user.model';
+import { LogoutDto } from './dto/logout.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -24,6 +25,26 @@ export class AuthService {
     @Inject(REQUEST) private request: Request & { user: { sub: string } },
     private readonly userModel: UserModel,
   ) {}
+
+  public async logout(payload: LogoutDto): Promise<boolean> {
+    const { refreshToken } = payload;
+
+    const { id: currentUserId } =
+      this.encryptionsUtil.verifyRefreshToken(refreshToken);
+
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
+
+    const deleteRResult = await this.signedDeviceModel.model.deleteOne({
+      _userId: _currentUserId,
+      refreshToken,
+    });
+
+    if (!deleteRResult.deletedCount) {
+      return false;
+    }
+
+    return true;
+  }
 
   public async refreshAccessToken(payload: RefreshTokenDto) {
     const { id: currentUserId } = this.encryptionsUtil.verifyRefreshToken(
@@ -63,11 +84,14 @@ export class AuthService {
       id: currentUserId,
       sub: currentUserId,
     });
+
     const isUpdated = await this.signedDeviceModel.updateOneById(
       loggedDevice._id,
       {
-        refreshToken: newRefreshToken,
-        expiresIn: moment().add(AppConfig.REFRESH_TOKEN_EXPIRES, 'days'),
+        $set: {
+          refreshToken: newRefreshToken,
+          expiresIn: moment().add(AppConfig.REFRESH_TOKEN_EXPIRES, 'days'),
+        },
       },
     );
     if (!isUpdated) {

@@ -42,8 +42,8 @@ export class MatchesService {
   ) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
-    const { after, before } = queryParams;
-    const cursor = this.matchModel.extractCursor(after || before);
+    const { next, prev } = queryParams;
+    const cursor = this.matchModel.extractCursor(next || prev);
     const cursorValue = cursor ? new Date(cursor) : undefined;
 
     const findResult = await this.matchModel.model
@@ -54,7 +54,7 @@ export class MatchesService {
             ...(cursorValue
               ? {
                   matchedAt: {
-                    [after ? '$lt' : '$gt']: cursorValue,
+                    [next ? '$lt' : '$gt']: cursorValue,
                   },
                 }
               : {}),
@@ -173,8 +173,8 @@ export class MatchesService {
       data: findResult,
       pagination: {
         cursor: this.matchModel.getCursors({
-          after: _.last(findResult)?.statusAt,
-          before: _.first(findResult)?.statusAt,
+          next: _.last(findResult)?.statusAt,
+          prev: _.first(findResult)?.statusAt,
         }),
       },
     };

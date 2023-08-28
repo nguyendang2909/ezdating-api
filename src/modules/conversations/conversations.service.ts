@@ -22,8 +22,8 @@ export class ConversationsService {
   ) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
-    const { after, before } = queryParams;
-    const cursor = this.matchModel.extractCursor(after || before);
+    const { next, prev } = queryParams;
+    const cursor = this.matchModel.extractCursor(next || prev);
     const cursorValue = cursor ? new Date(cursor) : undefined;
 
     const findResult = await this.matchModel.model.aggregate([
@@ -40,7 +40,7 @@ export class ConversationsService {
           ...(cursorValue
             ? {
                 lastMessageAt: {
-                  [after ? '$lte' : '$gte']: cursorValue,
+                  [next ? '$lte' : '$gte']: cursorValue,
                 },
               }
             : { lastMessageAt: { $ne: null } }),
@@ -164,8 +164,8 @@ export class ConversationsService {
       data: findResult,
       pagination: {
         cursors: this.matchModel.getCursors({
-          after: _.last(findResult)?.lastMessageAt,
-          before: _.first(findResult)?.lastMessageAt,
+          next: _.last(findResult)?.lastMessageAt,
+          prev: _.first(findResult)?.lastMessageAt,
         }),
       },
     };

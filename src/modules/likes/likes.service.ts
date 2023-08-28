@@ -77,8 +77,8 @@ export class LikesService {
   ) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
-    const { after, before } = queryParams;
-    const cursor = this.likeModel.extractCursor(after || before);
+    const { next, prev } = queryParams;
+    const cursor = this.likeModel.extractCursor(next || prev);
     const cursorValue = cursor ? new Date(cursor) : undefined;
 
     const findResult = await this.likeModel.model
@@ -89,7 +89,7 @@ export class LikesService {
             ...(cursorValue
               ? {
                   likedAt: {
-                    [after ? '$lt' : '$gt']: cursorValue,
+                    [next ? '$lt' : '$gt']: cursorValue,
                   },
                 }
               : {}),
@@ -180,8 +180,8 @@ export class LikesService {
       data: findResult,
       pagination: {
         cursor: this.likeModel.getCursors({
-          before: _.first(findResult)?.likedAt.toString(),
-          after: _.last(findResult)?.likedAt.toString(),
+          next: _.last(findResult)?.likedAt.toString(),
+          prev: _.first(findResult)?.likedAt.toString(),
         }),
       },
     };

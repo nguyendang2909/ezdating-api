@@ -19,7 +19,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     this.userModel.updateOneById(
       this.userModel.getObjectId(accessTokenPayload.id),
       {
-        lastActivatedAt: new Date(),
+        $set: {
+          lastActivatedAt: new Date(),
+        },
       },
     );
 
