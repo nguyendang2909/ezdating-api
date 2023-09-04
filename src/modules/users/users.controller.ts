@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import {
@@ -20,10 +20,10 @@ export class UsersController {
     @Query() queryParams: FindManyDatingUsersDto,
     @Client() clientData: ClientData,
   ) {
-    return await await this.usersService.findManySwipe(queryParams, clientData);
+    return await this.usersService.findManySwipe(queryParams, clientData);
   }
 
-  @Post('/nearby')
+  @Get('/nearby')
   public async findManyNearby(
     @Query() queryParams: FindManyDatingUsersDto,
     @Client() clientData: ClientData,

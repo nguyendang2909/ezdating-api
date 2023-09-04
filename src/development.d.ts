@@ -6,7 +6,7 @@ declare global {
       // Node env
       NODE_ENV: 'test' | 'development' | 'production' | 'staging';
       // App
-      API_PORT: number;
+      API_PORT: string;
 
       //  Database
       POSTGRES_DB_HOST: string;
