@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import _ from 'lodash';
+import moment from 'moment';
 
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { ClientData } from '../auth/auth.type';
@@ -20,7 +20,7 @@ export class MessagesService {
     queryParams: FindManyMessagesDto,
     clientData: ClientData,
   ) {
-    const { matchId } = queryParams;
+    const { matchId, lastCreatedAt } = queryParams;
     const _matchId = this.matchModel.getObjectId(matchId);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
@@ -46,18 +46,14 @@ export class MessagesService {
       });
     }
 
-    const { next, prev } = queryParams;
-    const cursor = this.matchModel.extractCursor(next || prev);
-    const cursorValue = cursor ? new Date(cursor) : undefined;
-
     const findResult = await this.messageModel.model
       .find(
         {
           _matchId,
-          ...(cursorValue
+          ...(lastCreatedAt
             ? {
                 createdAt: {
-                  [next ? '$lt' : '$gt']: cursorValue,
+                  $lt: moment(lastCreatedAt).toDate(),
                 },
               }
             : {}),
@@ -84,12 +80,6 @@ export class MessagesService {
       type: 'messages',
       _matchId: matchId,
       data: findResult,
-      pagination: {
-        cursors: this.messageModel.getCursors({
-          next: _.last(findResult)?.createdAt?.toString(),
-          prev: _.first(findResult)?.createdAt?.toString(),
-        }),
-      },
     };
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import _ from 'lodash';
+import moment from 'moment';
 
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { ClientData } from '../auth/auth.type';
@@ -22,9 +22,7 @@ export class ConversationsService {
   ) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
-    const { next, prev } = queryParams;
-    const cursor = this.matchModel.extractCursor(next || prev);
-    const cursorValue = cursor ? new Date(cursor) : undefined;
+    const { lastMessageAt } = queryParams;
 
     const findResult = await this.matchModel.model.aggregate([
       {
@@ -37,10 +35,10 @@ export class ConversationsService {
               _userTwoId: _currentUserId,
             },
           ],
-          ...(cursorValue
+          ...(lastMessageAt
             ? {
                 lastMessageAt: {
-                  [next ? '$lte' : '$gte']: cursorValue,
+                  $lt: moment(lastMessageAt).toDate(),
                 },
               }
             : { lastMessageAt: { $ne: null } }),
@@ -162,12 +160,6 @@ export class ConversationsService {
     return {
       type: 'conversations',
       data: findResult,
-      pagination: {
-        cursors: this.matchModel.getCursors({
-          next: _.last(findResult)?.lastMessageAt,
-          prev: _.first(findResult)?.lastMessageAt,
-        }),
-      },
     };
   }
 

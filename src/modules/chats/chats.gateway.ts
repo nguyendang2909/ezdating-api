@@ -19,6 +19,7 @@ import {
   SendChatMessageDto,
   SendChatMessageSchema,
 } from './dto/send-chat-message.dto';
+import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { WsAuthGuard } from './guards/ws-auth.guard';
 
 @WebSocketGateway({
@@ -50,6 +51,20 @@ export class ChatsGateway
       throw new WsException('Validation failed');
     }
     return await this.chatsService.sendMessage(payload, socket);
+  }
+
+  @SubscribeMessage(Constants.socketEvents.toServer.editMessage)
+  @UseGuards(WsAuthGuard)
+  public async editMessage(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() payload: UpdateChatMessageDto,
+  ) {
+    const { error } = SendChatMessageSchema.validate(payload);
+    if (error) {
+      this.logger.error(`Socket validation failed ${error}`);
+      throw new WsException('Validation failed');
+    }
+    return await this.chatsService.editMessage(payload, socket);
   }
 
   public async handleConnection(socket: Socket) {

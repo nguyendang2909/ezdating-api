@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import _ from 'lodash';
 import moment from 'moment';
 
 import { UserStatuses } from '../../commons/constants/constants';
@@ -10,6 +9,7 @@ import { MediaFileModel } from '../models/media-file.model';
 import { UserDocument } from '../models/schemas/user.schema';
 import { UserModel } from '../models/user.model';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
+import { FindManyNearbyUsersDto } from './dto/find-nearby-users.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -21,7 +21,7 @@ export class UsersService {
     queryParams: FindManyDatingUsersDto,
     clientData: ClientData,
   ) {
-    const { next, prev, filterUserId } = queryParams;
+    const { minDistance, filterUserId } = queryParams;
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
 
@@ -56,17 +56,6 @@ export class UsersService {
       });
     }
 
-    const cursor = this.userModel.extractCursor(next || prev);
-    const cursorValue = cursor ? +cursor : undefined;
-    if (cursorValue && cursorValue >= filterMaxDistance) {
-      return {
-        data: [],
-        pagination: {
-          cursors: { next: null, prev: null },
-        },
-      };
-    }
-
     const filterMaxBirthday = moment().subtract(filterMinAge, 'years').toDate();
     const filterMinBirthday = moment().subtract(filterMaxAge, 'years').toDate();
 
@@ -81,9 +70,9 @@ export class UsersService {
             ],
           },
           distanceField: 'distance',
-          ...(cursorValue
+          ...(minDistance
             ? {
-                minDistance: cursorValue,
+                minDistance: +minDistance,
               }
             : {}),
           maxDistance: filterMaxDistance,
@@ -185,13 +174,8 @@ export class UsersService {
     ]);
 
     return {
+      type: 'swipeUsers',
       data: users,
-      pagination: {
-        cursors: this.userModel.getCursors({
-          next: _.last(users)?.distance?.toString(),
-          prev: _.first(users).distance?.toString(),
-        }),
-      },
     };
   }
 
@@ -201,10 +185,12 @@ export class UsersService {
   //   currentUserId: string,
   // ): Promise<ResponsePagination<User>> {
   public async findManyNearby(
-    queryParams: FindManyDatingUsersDto,
+    queryParams: FindManyNearbyUsersDto,
     clientData: ClientData,
   ): Promise<ResponsePagination<UserDocument>> {
-    const { next, prev } = queryParams;
+    const minDistance = queryParams.minDistance
+      ? +queryParams.minDistance
+      : undefined;
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
     const {
@@ -232,14 +218,9 @@ export class UsersService {
       });
     }
 
-    const cursor = this.userModel.extractCursor(next || prev);
-    const cursorValue = cursor ? +cursor : undefined;
-    if (cursorValue && cursorValue >= filterMaxDistance) {
+    if (minDistance && minDistance >= filterMaxDistance) {
       return {
         data: [],
-        pagination: {
-          cursors: { next: null, prev: null },
-        },
       };
     }
 
@@ -257,9 +238,9 @@ export class UsersService {
             ],
           },
           distanceField: 'distance',
-          ...(cursorValue
+          ...(minDistance
             ? {
-                minDistance: cursorValue,
+                minDistance: minDistance,
               }
             : {}),
           maxDistance: filterMaxDistance,
@@ -347,13 +328,8 @@ export class UsersService {
     ]);
 
     return {
+      type: 'nearbyUsers',
       data: users,
-      pagination: {
-        cursors: this.userModel.getCursors({
-          next: _.last(users)?.distance?.toString(),
-          prev: _.first(users).distance?.toString(),
-        }),
-      },
     };
   }
 

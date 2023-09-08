@@ -35,7 +35,7 @@ async function bootstrap() {
   });
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new CustomReturnFieldsInterceptor());
-  if (NODE_ENV === 'development') {
+  if (NODE_ENV === 'development' || NODE_ENV === 'staging') {
     createSwagger(app);
   }
   const redisIoAdapter = new RedisIoAdapter(app);

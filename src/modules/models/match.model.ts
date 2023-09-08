@@ -15,6 +15,19 @@ export class MatchModel extends CommonModel {
     super();
   }
 
+  public async findOneRelatedToUserId(
+    _id: Types.ObjectId,
+    _currentUserId: Types.ObjectId,
+  ) {
+    return this.model
+      .findOne({
+        _id,
+        $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
+      })
+      .lean()
+      .exec();
+  }
+
   public getSortedUserIds({
     currentUserId,
     targetUserId,
@@ -41,5 +54,15 @@ export class MatchModel extends CommonModel {
       _userOneId: this.getObjectId(userOneId),
       _userTwoId: this.getObjectId(userTwoId),
     };
+  }
+
+  isUserOne({
+    currentUserId,
+    userOneId,
+  }: {
+    currentUserId: string;
+    userOneId: string;
+  }) {
+    return currentUserId === userOneId;
   }
 }

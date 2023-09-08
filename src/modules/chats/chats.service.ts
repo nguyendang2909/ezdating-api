@@ -4,10 +4,12 @@ import { Socket } from 'socket.io';
 
 import { Constants } from '../../commons/constants/constants';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
 import { UserModel } from '../models/user.model';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
+import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 
 @Injectable()
 export class ChatsService {
@@ -26,13 +28,10 @@ export class ChatsService {
     const _currentUserId = this.userModel.getObjectId(currentUserId);
     const _matchId = this.matchModel.getObjectId(matchId);
 
-    const existMatch = await this.matchModel.model
-      .findOne({
-        _id: _matchId,
-        $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
-      })
-      .lean()
-      .exec();
+    const existMatch = await this.matchModel.findOneRelatedToUserId(
+      _matchId,
+      _currentUserId,
+    );
 
     if (!existMatch) {
       socket.emit(Constants.socketEvents.toClient.error, {
@@ -90,5 +89,60 @@ export class ChatsService {
     socket
       .to([userOneId, userTwoId])
       .emit(Constants.socketEvents.toClient.newMessage, message);
+  }
+
+  public async editMessage(payload: UpdateChatMessageDto, socket: Socket) {
+    const { id, text } = payload;
+    const currentUserId = socket.handshake.user.id;
+    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const _id = this.messageModel.getObjectId(id);
+
+    const editResult = await this.messageModel.model
+      .findOneAndUpdate(
+        {
+          _id,
+          _userId: _currentUserId,
+        },
+        {
+          $set: {
+            text,
+            isEdited: true,
+          },
+        },
+        {
+          new: true,
+        },
+      )
+      .lean()
+      .exec();
+
+    if (!editResult) {
+      socket.emit(Constants.socketEvents.toClient.error, {
+        message: HttpErrorMessages.UPDATE_FAILED,
+      });
+
+      return;
+    }
+
+    socket.emit(Constants.socketEvents.toClient.updateMessage, editResult);
+
+    if (!editResult._matchId) {
+      return;
+    }
+
+    const match = await this.matchModel.model
+      .findOne({ _id: editResult._matchId })
+      .lean()
+      .exec();
+
+    if (!match) {
+      return;
+    }
+
+    if (match && match._userOneId && match._userTwoId) {
+      socket
+        .to([match._userOneId.toString(), match._userTwoId.toString()])
+        .emit(Constants.socketEvents.toClient.newMessage, editResult);
+    }
   }
 }

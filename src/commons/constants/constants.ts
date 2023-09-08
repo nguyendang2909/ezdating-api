@@ -101,6 +101,7 @@ export const Constants = {
     toServer: {
       sendMessage: 'sendMsg',
       matched: 'matched',
+      editMessage: 'editMsg',
     },
     toClient: {
       error: 'error',

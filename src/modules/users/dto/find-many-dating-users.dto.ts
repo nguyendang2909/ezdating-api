@@ -8,4 +8,7 @@ import { FindManyCursorDto } from '../../../commons/dto/find-many-cursor.dto';
 export class FindManyDatingUsersDto extends FindManyCursorDto {
   @JoiSchema(Joi.array().items(Joi.string()))
   filterUserId: string[];
+
+  @JoiSchema(Joi.number().optional())
+  minDistance?: string;
 }
