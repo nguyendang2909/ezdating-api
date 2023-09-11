@@ -18,10 +18,10 @@ export type Cursor = (typeof Cursors)[keyof typeof Cursors];
 export type ResponsePagination<T> = {
   type?: string;
   data: T[];
-  pagination: {
-    cursors: {
-      next: null | string;
-      prev: null | string;
+  pagination?: {
+    cursors?: {
+      next?: null | string;
+      prev?: null | string;
     };
   };
 };

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
+import { MongoDocument } from '../../commons/types';
 import { CommonModel } from './common-model';
 import { Message } from './schemas/message.schema';
 import { UserModel } from './user.model';
@@ -10,7 +11,7 @@ import { UserModel } from './user.model';
 export class MessageModel extends CommonModel {
   constructor(
     @InjectModel(Message.name)
-    public readonly model: Model<Message>,
+    public readonly model: Model<MongoDocument<Message>>,
     private readonly userModel: UserModel,
   ) {
     super();

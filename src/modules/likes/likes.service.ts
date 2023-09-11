@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import _ from 'lodash';
 import moment from 'moment';
 
 import { ResponseSuccess } from '../../commons/dto/response.dto';
@@ -77,19 +76,17 @@ export class LikesService {
   ) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
-    const { next, prev } = queryParams;
-    const cursor = this.likeModel.extractCursor(next || prev);
-    const cursorValue = cursor ? new Date(cursor) : undefined;
+    const { lastMatchedAt } = queryParams;
 
     const findResult = await this.likeModel.model
       .aggregate([
         {
           $match: {
             _targetUserId: _currentUserId,
-            ...(cursorValue
+            ...(lastMatchedAt
               ? {
                   likedAt: {
-                    [next ? '$lt' : '$gt']: cursorValue,
+                    $lt: lastMatchedAt,
                   },
                 }
               : {}),
@@ -178,12 +175,6 @@ export class LikesService {
 
     return {
       data: findResult,
-      pagination: {
-        cursor: this.likeModel.getCursors({
-          next: _.last(findResult)?.likedAt.toString(),
-          prev: _.first(findResult)?.likedAt.toString(),
-        }),
-      },
     };
   }
 }

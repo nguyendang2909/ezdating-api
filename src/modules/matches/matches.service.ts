@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import _ from 'lodash';
+import moment from 'moment';
 
 import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { ClientData } from '../auth/auth.type';
@@ -42,19 +42,17 @@ export class MatchesService {
   ) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
-    const { next, prev } = queryParams;
-    const cursor = this.matchModel.extractCursor(next || prev);
-    const cursorValue = cursor ? new Date(cursor) : undefined;
+    const { lastMatchedAt } = queryParams;
 
     const findResult = await this.matchModel.model
       .aggregate([
         {
           $match: {
             lastMessageAt: null,
-            ...(cursorValue
+            ...(lastMatchedAt
               ? {
                   matchedAt: {
-                    [next ? '$lt' : '$gt']: cursorValue,
+                    $lt: moment(lastMatchedAt).toDate(),
                   },
                 }
               : {}),
@@ -171,12 +169,6 @@ export class MatchesService {
     return {
       type: 'matches',
       data: findResult,
-      pagination: {
-        cursor: this.matchModel.getCursors({
-          next: _.last(findResult)?.statusAt,
-          prev: _.first(findResult)?.statusAt,
-        }),
-      },
     };
   }
 }
