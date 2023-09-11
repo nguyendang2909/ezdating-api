@@ -95,9 +95,9 @@ export class UsersService {
             status: {
               $in: [UserStatuses.activated, UserStatuses.verified],
             },
-            lastActivatedAt: {
-              $gt: moment().subtract(7, 'd').toDate(),
-            },
+            // lastActivatedAt: {
+            //   $gt: moment().subtract(7, 'd').toDate(),
+            // },
             birthday: {
               $gt: filterMinBirthday,
               $lt: filterMaxBirthday,
@@ -252,9 +252,9 @@ export class UsersService {
             status: {
               $in: [UserStatuses.activated, UserStatuses.verified],
             },
-            lastActivatedAt: {
-              $gt: moment().subtract(7, 'd').toDate(),
-            },
+            // lastActivatedAt: {
+            //   $gt: moment().subtract(7, 'd').toDate(),
+            // },
             birthday: {
               $gt: filterMinBirthday,
               $lt: filterMaxBirthday,
