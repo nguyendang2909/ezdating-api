@@ -351,7 +351,8 @@ export class UsersService {
   //   return findResult;
   // }
 
-  public async findOneOrFailById(targetUserId: string, currentUserId: string) {
+  public async findOneOrFailById(targetUserId: string, clientData: ClientData) {
+    const { id: currentUserId } = clientData;
     if (targetUserId === currentUserId) {
       throw new BadRequestException({
         errorCode: HttpErrorCodes.CONFLICT_USER,

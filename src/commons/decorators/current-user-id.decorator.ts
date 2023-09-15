@@ -5,14 +5,6 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 
-export const CurrentUserId = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
-
-    return request.user.id;
-  },
-);
-
 export const Client = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const { user } = ctx.switchToHttp().getRequest<Request>();

@@ -2,10 +2,7 @@ import { Body, Controller, Get, Patch, Post, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
-import {
-  Client,
-  CurrentUserId,
-} from '../../commons/decorators/current-user-id.decorator';
+import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
@@ -18,24 +15,24 @@ export class ProfilesController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Get('/')
-  private async getProfile(@CurrentUserId() currentUserId: string) {
+  private async getProfile(@Client() clientData: ClientData) {
     return {
       type: 'profile',
-      data: await this.profileService.getProfile(currentUserId),
+      data: await this.profileService.getProfile(clientData),
     };
   }
 
   @Patch('/')
   private async updateProfile(
     @Body() updateMyProfileDto: UpdateMyProfileDto,
-    @CurrentUserId() currentUserId: string,
+    @Client() clientData: ClientData,
   ) {
     return {
       type: 'updateProfile',
       data: {
         success: await this.profileService.updateProfile(
           updateMyProfileDto,
-          currentUserId,
+          clientData,
         ),
       },
     };
@@ -45,14 +42,14 @@ export class ProfilesController {
   private async updateProfileBasicInfo(
     @Body() payload: UpdateMyProfileBasicInfoDto,
     @Req() req: Request,
-    @CurrentUserId() currentUserId: string,
+    @Client() clientData: ClientData,
   ) {
     return {
       type: 'updateProfileBasicInfo',
       data: await this.profileService.updateProfileBasicInfo(
         payload,
         req,
-        currentUserId,
+        clientData,
       ),
     };
   }
@@ -66,10 +63,10 @@ export class ProfilesController {
   }
 
   @Post('/deactivate')
-  async deactivate(@CurrentUserId() userId: string) {
+  async deactivate(@Client() clientData: ClientData) {
     return {
       type: 'deactivate',
-      data: await this.profileService.deactivate(userId),
+      data: await this.profileService.deactivate(clientData),
     };
   }
 }

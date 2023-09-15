@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { AppConfig } from '../../app.config';
 import { MediaFileTypes } from '../../commons/constants/constants';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { ClientData } from '../auth/auth.type';
 import { MediaFileModel } from '../models/media-file.model';
 import { UserModel } from '../models/user.model';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
@@ -29,8 +30,9 @@ export class MediaFilesService {
   public async uploadPhoto(
     file: Express.Multer.File,
     payload: UploadPhotoDtoDto,
-    currentUserId: string,
+    clientData: ClientData,
   ) {
+    const { id: currentUserId } = clientData;
     const _currentUserId = this.mediaFileModel.getObjectId(currentUserId);
     await this.verifyCanUploadFiles(_currentUserId);
     const fileBufferWithSharp = await sharp(file.buffer)
@@ -54,8 +56,9 @@ export class MediaFilesService {
     });
   }
 
-  public async deleteOne(id: string, currentUserId: string) {
+  public async deleteOne(id: string, clientData: ClientData) {
     const _id = this.mediaFileModel.getObjectId(id);
+    const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
     const deleted = await this.mediaFileModel.deleteOneByIdAndUserId(
       _id,

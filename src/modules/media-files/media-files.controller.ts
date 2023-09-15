@@ -12,7 +12,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { AppConfig } from '../../app.config';
-import { CurrentUserId } from '../../commons/decorators/current-user-id.decorator';
+import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { ClientData } from '../auth/auth.type';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
 import { MediaFilesService } from './media-files.service';
 
@@ -57,7 +58,7 @@ export class MediaFilesController {
     }),
   )
   private async uploadPhoto(
-    @CurrentUserId() userId: string,
+    @Client() clientData: ClientData,
     @Body() payload: UploadPhotoDtoDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
@@ -70,18 +71,18 @@ export class MediaFilesController {
 
     return {
       type: 'uploadPhoto',
-      data: await this.mediaFilesService.uploadPhoto(file, payload, userId),
+      data: await this.mediaFilesService.uploadPhoto(file, payload, clientData),
     };
   }
 
   @Delete('/photos/:id')
   private async remove(
     @Param('id') id: string,
-    @CurrentUserId() userId: string,
+    @Client() clientData: ClientData,
   ) {
     return {
       type: 'removeFileUpload',
-      data: { success: await this.mediaFilesService.deleteOne(id, userId) },
+      data: { success: await this.mediaFilesService.deleteOne(id, clientData) },
     };
   }
 }

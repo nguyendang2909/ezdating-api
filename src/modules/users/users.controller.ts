@@ -1,10 +1,7 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import {
-  Client,
-  CurrentUserId,
-} from '../../commons/decorators/current-user-id.decorator';
+import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
 import { FindManyNearbyUsersDto } from './dto/find-nearby-users.dto';
@@ -35,11 +32,11 @@ export class UsersController {
   @Get('/:id')
   private async findOneById(
     @Param('id') id: string,
-    @CurrentUserId() currentUserId: string,
+    @Client() clientData: ClientData,
   ) {
     return {
       type: 'profile',
-      data: await this.usersService.findOneOrFailById(id, currentUserId),
+      data: await this.usersService.findOneOrFailById(id, clientData),
     };
   }
 }

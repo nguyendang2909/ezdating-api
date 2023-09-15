@@ -33,7 +33,8 @@ export class ProfileService {
     private readonly matchModel: MatchModel,
   ) {}
 
-  public async getProfile(currentUserId: string) {
+  public async getProfile(clientData: ClientData) {
+    const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
 
     const [user] = await this.userModel.model
@@ -76,11 +77,11 @@ export class ProfileService {
 
   public async updateProfile(
     payload: UpdateMyProfileDto,
-    currentUserId: string,
+    clientData: ClientData,
   ): Promise<boolean> {
     const { longitude, latitude, birthday, ...updateDto } = payload;
 
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const _currentUserId = this.userModel.getObjectId(clientData.id);
 
     const updateOptions: UpdateQuery<UserDocument> = {
       $set: {
@@ -105,8 +106,9 @@ export class ProfileService {
   public async updateProfileBasicInfo(
     payload: UpdateMyProfileBasicInfoDto,
     req: Request,
-    currentUserId: string,
+    clientData: ClientData,
   ) {
+    const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
     await this.userModel.findOneOrFail({ _id: _currentUserId });
     const age = moment().diff(moment(payload.birthday, 'YYYY-MM-DD'), 'years');
@@ -124,8 +126,8 @@ export class ProfileService {
     });
   }
 
-  public async deactivate(currentUserId: string) {
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
+  public async deactivate(clientData: ClientData) {
+    const _currentUserId = this.userModel.getObjectId(clientData.id);
 
     return await this.userModel.updateOneById(_currentUserId, {
       $set: {
