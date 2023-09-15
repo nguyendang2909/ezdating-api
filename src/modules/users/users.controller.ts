@@ -23,7 +23,7 @@ export class UsersController {
 
   @Get('/nearby')
   public async findManyNearby(
-    @Body() body: FindManyNearbyUsersQuery,
+    @Body() queryParams: FindManyNearbyUsersQuery,
     @Client() clientData: ClientData,
   ) {
     return await this.usersService.findManyNearby(queryParams, clientData);
