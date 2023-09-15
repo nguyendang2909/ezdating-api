@@ -2,11 +2,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 
 import { UserStatuses } from '../../commons/constants/constants';
-import { ResponsePagination } from '../../commons/constants/paginations';
 import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { ClientData } from '../auth/auth.type';
 import { MediaFileModel } from '../models/media-file.model';
-import { UserDocument } from '../models/schemas/user.schema';
 import { UserModel } from '../models/user.model';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
 import { FindManyNearbyUsersDto } from './dto/find-nearby-users.dto';
@@ -187,7 +185,7 @@ export class UsersService {
   public async findManyNearby(
     queryParams: FindManyNearbyUsersDto,
     clientData: ClientData,
-  ): Promise<ResponsePagination<UserDocument>> {
+  ) {
     const minDistance = queryParams.minDistance
       ? +queryParams.minDistance
       : undefined;
