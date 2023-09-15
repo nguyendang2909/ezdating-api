@@ -3,11 +3,11 @@ import { isArray } from 'lodash';
 import moment from 'moment';
 
 import { UserStatuses } from '../../commons/constants/constants';
-import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ClientData } from '../auth/auth.type';
 import { MediaFileModel } from '../models/media-file.model';
 import { UserModel } from '../models/user.model';
-import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
+import { FindManyDatingUsersQuery } from './dto/find-many-dating-users.dto';
 import { FindManyNearbyUsersQuery } from './dto/find-nearby-users.dto';
 @Injectable()
 export class UsersService {
@@ -17,10 +17,12 @@ export class UsersService {
   ) {}
 
   public async findManySwipe(
-    queryParams: FindManyDatingUsersDto,
+    queryParams: FindManyDatingUsersQuery,
     clientData: ClientData,
   ) {
-    const { minDistance, filterUserId } = queryParams;
+    const { minDistance, excludedUserId } = queryParams;
+    const excludedUserIds =
+      excludedUserId && isArray(excludedUserId) ? excludedUserId : [];
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
 
@@ -50,8 +52,10 @@ export class UsersService {
       !filterMaxDistance
     ) {
       throw new BadRequestException({
-        errorCode: HttpErrorCodes.YOU_DO_NOT_HAVE_BASIC_INFO,
-        message: 'You do not have a basic info. Please complete it!',
+        message:
+          HttpErrorMessages[
+            'You do not have a basic info. Please complete it!'
+          ],
       });
     }
 
@@ -78,11 +82,11 @@ export class UsersService {
           // distanceMultiplier: 0.001,
           query: {
             _id: {
-              ...(filterUserId
+              ...(excludedUserIds.length
                 ? {
                     $nin: [
                       _currentUserId,
-                      filterUserId.map((item) =>
+                      ...excludedUserIds.map((item) =>
                         this.userModel.getObjectId(item),
                       ),
                     ],
@@ -209,8 +213,10 @@ export class UsersService {
       !filterMaxDistance
     ) {
       throw new BadRequestException({
-        errorCode: HttpErrorCodes.YOU_DO_NOT_HAVE_BASIC_INFO,
-        message: 'You do not have a basic info. Please complete it!',
+        message:
+          HttpErrorMessages[
+            'You do not have a basic info. Please complete it!'
+          ],
       });
     }
 
@@ -342,8 +348,7 @@ export class UsersService {
     const { id: currentUserId } = clientData;
     if (targetUserId === currentUserId) {
       throw new BadRequestException({
-        errorCode: HttpErrorCodes.CONFLICT_USER,
-        message: 'You cannot find yourself!',
+        message: HttpErrorMessages['You cannot find yourself!'],
       });
     }
     const _targetUserId = this.userModel.getObjectId(targetUserId);

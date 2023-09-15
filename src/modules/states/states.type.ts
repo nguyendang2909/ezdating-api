@@ -2,17 +2,17 @@ export type StatesResponse = StateOfStatesResponse[];
 
 export type StateOfStatesResponse = {
   id?: 1398;
-  name?: 'Howland Island';
   iso2?: 'UM-84';
+  name?: 'Howland Island';
 };
 
 export type StateResponse = {
-  id?: number;
-  name?: string;
-  country_id?: number;
   country_code?: string;
+  country_id?: number;
+  id?: number;
   iso2?: string;
-  type?: string;
   latitude?: string;
   longitude?: string;
+  name?: string;
+  type?: string;
 };

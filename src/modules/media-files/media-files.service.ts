@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { AppConfig } from '../../app.config';
 import { MediaFileTypes } from '../../commons/constants/constants';
-import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ClientData } from '../auth/auth.type';
 import { MediaFileModel } from '../models/media-file.model';
 import { UserModel } from '../models/user.model';
@@ -76,8 +76,7 @@ export class MediaFilesService {
 
     if (count >= AppConfig.UPLOAD_PHOTOS_LIMIT) {
       throw new BadRequestException({
-        errorCode: HttpErrorCodes.LIMIT_UPLOADED_FILES,
-        message: `You can only upload ${AppConfig.UPLOAD_PHOTOS_LIMIT} media files!`,
+        message: HttpErrorMessages['You can only upload 6 media files!'],
       });
     }
 

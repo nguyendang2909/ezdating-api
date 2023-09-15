@@ -10,7 +10,7 @@ import {
 } from 'mongoose';
 import { Types } from 'mongoose';
 
-import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { CommonModel } from './common-model';
 import { MediaFile, MediaFileDocument } from './schemas/media-file.schema';
 
@@ -57,8 +57,7 @@ export class MediaFileModel extends CommonModel {
     const findResult = await this.findOne(filter, projection, options);
     if (!findResult) {
       throw new NotFoundException({
-        errorCode: HttpErrorCodes.FILE_DOES_NOT_EXIST,
-        message: 'File does not exist!',
+        message: HttpErrorMessages['File does not exist!'],
       });
     }
 

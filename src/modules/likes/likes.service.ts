@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 
 import { ResponseSuccess } from '../../commons/dto/response.dto';
-import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
 import { LikeModel } from '../models/like.model';
@@ -29,8 +29,7 @@ export class LikesService {
 
     if (currentUserId === targetUserId) {
       throw new BadRequestException({
-        errorCode: HttpErrorCodes.CONFLICT_USER,
-        message: 'You cannot like yourself!',
+        message: HttpErrorMessages['You cannot like yourself!'],
       });
     }
 

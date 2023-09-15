@@ -1,4 +1,20 @@
 export const HttpErrorMessages = {
-  MESSAGE_DOES_NOT_EXIST: 'Message does not exist!',
-  UPDATE_FAILED: 'Update failed. Please try again!',
+  'Conversation does not exist!': 'Conversation does not exist!',
+  'Conversation is invalid!': 'Conversation is invalid!',
+  'Match does not exist': 'Match does not exist',
+  'File does not exist!': 'File does not exist!',
+  'Match is invalid': 'Match is invalid',
+  'Message does not exist!': 'Message does not exist!',
+  'Update failed. Please try again!': 'Update failed. Please try again!',
+  'User data is incorrect!': 'User data is incorrect!',
+  'User device does not exist!': 'User device does not exist!',
+  'User does not exist!': 'User does not exist!',
+  'You already got attendance today': 'You already got attendance today',
+  'You can only upload 6 media files!': 'You can only upload 6 media files!',
+  'You cannot find yourself!': 'You can not find yourself!',
+  'You cannot like yourself!': 'You can not like yourself!',
+  'You cannot view yourself!': 'You can not view yourself!',
+  'You do not have a basic info. Please complete it!':
+    'You do not have a basic info. Please complete it!',
+  'You have been banned!': 'You have been banned!',
 } as const;

@@ -3,7 +3,6 @@ import moment from 'moment';
 import { Socket } from 'socket.io';
 
 import { Constants } from '../../commons/constants/constants';
-import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
@@ -35,8 +34,7 @@ export class ChatsService {
 
     if (!existMatch) {
       socket.emit(Constants.socketEvents.toClient.error, {
-        errorCode: HttpErrorCodes.MATCH_DOES_NOT_EXIST,
-        message: 'Match does not exist',
+        message: HttpErrorMessages['Match does not exist'],
       });
 
       return;
@@ -46,8 +44,7 @@ export class ChatsService {
 
     if (!_userOneId || !_userTwoId) {
       socket.emit(Constants.socketEvents.toClient.error, {
-        errorCode: HttpErrorCodes.MATCH_IS_INVALID,
-        message: 'Match is invalid',
+        message: HttpErrorMessages['Match is invalid'],
       });
 
       return;
@@ -118,7 +115,7 @@ export class ChatsService {
 
     if (!editResult) {
       socket.emit(Constants.socketEvents.toClient.error, {
-        message: HttpErrorMessages.UPDATE_FAILED,
+        message: HttpErrorMessages['Update failed. Please try again!'],
       });
 
       return;

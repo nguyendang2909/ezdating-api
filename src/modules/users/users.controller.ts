@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
-import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
+import { FindManyDatingUsersQuery } from './dto/find-many-dating-users.dto';
 import { FindManyNearbyUsersQuery } from './dto/find-nearby-users.dto';
 import { UsersService } from './users.service';
 
@@ -15,7 +15,7 @@ export class UsersController {
 
   @Get('/swipe')
   public async findManySwipe(
-    @Query() queryParams: FindManyDatingUsersDto,
+    @Query() queryParams: FindManyDatingUsersQuery,
     @Client() clientData: ClientData,
   ) {
     return await this.usersService.findManySwipe(queryParams, clientData);

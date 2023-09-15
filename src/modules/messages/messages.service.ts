@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 
-import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
@@ -33,8 +33,7 @@ export class MessagesService {
 
     if (!existMatch) {
       throw new BadRequestException({
-        errorCode: HttpErrorCodes.CONVERSATION_DOES_NOT_EXIST,
-        message: 'Conversation does not exist!',
+        message: HttpErrorMessages['Conversation does not exist!'],
       });
     }
 
@@ -42,8 +41,7 @@ export class MessagesService {
 
     if (!_userOneId || !_userTwoId) {
       throw new BadRequestException({
-        errorCode: HttpErrorCodes.CONVERSATION_IS_INVALID,
-        message: 'Conversation is invalid!',
+        message: HttpErrorMessages['Conversation is invalid!'],
       });
     }
 

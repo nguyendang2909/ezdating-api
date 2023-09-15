@@ -10,7 +10,7 @@ import { Request } from 'express';
 import moment from 'moment';
 
 import { AppConfig } from '../../app.config';
-import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { SignedDeviceModel } from '../models/signed-device.model';
 import { UserModel } from '../models/user.model';
@@ -57,8 +57,7 @@ export class AuthService {
     const { role, gender } = user;
     if (!role) {
       throw new BadRequestException({
-        errorCode: HttpErrorCodes.USER_DATA_INCORRECT,
-        message: 'User data is incorrect!',
+        message: HttpErrorMessages['User data is incorrect!'],
       });
     }
     const accessToken = this.encryptionsUtil.signAccessToken({

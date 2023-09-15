@@ -2,29 +2,29 @@ export type CountriesResponse = CountryOfCountriesResponse[];
 
 export type CountryOfCountriesResponse = {
   id?: number;
-  name?: 'Guernsey and Alderney';
   iso2?: 'GG';
+  name?: 'Guernsey and Alderney';
 };
 
 export type CountryResponse = {
-  id?: number;
-  name?: string;
-  iso3?: string;
-  numeric_code?: string;
-  iso2?: string;
-  phonecode?: string;
   capital?: string;
   currency?: string;
   currency_name?: string;
   currency_symbol?: string;
-  tld?: string;
+  emoji?: string;
+  emojiU?: string;
+  id?: number;
+  iso2?: string;
+  iso3?: string;
+  latitude?: string;
+  longitude?: string;
+  name?: string;
   native?: string;
+  numeric_code?: string;
+  phonecode?: string;
   region?: string;
   subregion?: string;
   timezones?: string;
+  tld?: string;
   translations?: string;
-  latitude?: string;
-  longitude?: string;
-  emoji?: string;
-  emojiU?: string;
 };

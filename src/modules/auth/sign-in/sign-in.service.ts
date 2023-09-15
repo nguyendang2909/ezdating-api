@@ -9,7 +9,7 @@ import moment from 'moment';
 
 import { AppConfig } from '../../../app.config';
 import { UserRoles, UserStatuses } from '../../../commons/constants/constants';
-import { HttpErrorCodes } from '../../../commons/erros/http-error-codes.constant';
+import { HttpErrorMessages } from '../../../commons/erros/http-error-messages.constant';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { SignedDeviceModel } from '../../models/signed-device.model';
 import { UserModel } from '../../models/user.model';
@@ -56,8 +56,7 @@ export class SignInService {
     const phoneNumber = decoded.phone_number;
     if (!phoneNumber) {
       throw new NotFoundException({
-        errorCode: HttpErrorCodes.USER_DOES_NOT_EXIST,
-        message: 'User does not exist!',
+        message: HttpErrorMessages['User does not exist!'],
       });
     }
     let user = await this.userModel.findOne({ phoneNumber });
@@ -65,8 +64,7 @@ export class SignInService {
       const { status } = user;
       if (!status || status === UserStatuses.banned) {
         throw new ForbiddenException({
-          statusCode: HttpErrorCodes.USER_HAS_BEEN_BANNED,
-          message: 'You have been banned!',
+          message: HttpErrorMessages['You have been banned!'],
         });
       }
       // TODO: If user is deactivated => activate user
@@ -78,7 +76,6 @@ export class SignInService {
     const { _id: _userId, role, gender } = user;
     if (!_userId || !role) {
       throw new NotFoundException({
-        errorCode: HttpErrorCodes.USER_DATA_INCORRECT,
         message: 'User data is incorrect!',
       });
     }

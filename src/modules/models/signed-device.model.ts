@@ -10,7 +10,7 @@ import {
 } from 'mongoose';
 import { Types } from 'mongoose';
 
-import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { CommonModel } from './common-model';
 import {
   SignedDevice,
@@ -51,8 +51,7 @@ export class SignedDeviceModel extends CommonModel {
     const findResult = await this.findOne(filter, projection, options);
     if (!findResult) {
       throw new NotFoundException({
-        errorCode: HttpErrorCodes.USER_DEVICE_DOES_NOT_EXIST,
-        message: "User device doesn't exist!",
+        message: HttpErrorMessages['User device does not exist!'],
       });
     }
 

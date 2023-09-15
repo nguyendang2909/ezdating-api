@@ -1,25 +1,25 @@
 import { UserGender, UserRole } from '../../commons/constants/constants';
 
 export type ClientData = AccessTokenSignPayload & {
-  iat: number;
   exp: number;
+  iat: number;
 };
 
 export type AccessTokenSignPayload = {
-  sub: string;
+  gender?: UserGender;
   id: string;
   role: UserRole;
-  gender?: UserGender;
+  sub: string;
 };
 
 export type RefreshTokenSignPayload = {
-  sub: string;
   id: string;
+  sub: string;
 };
 
 export type RefreshTokenPayload = {
-  sub: string;
   id: string;
+  sub: string;
 };
 
 export type FindOneAuthUserConditions = {

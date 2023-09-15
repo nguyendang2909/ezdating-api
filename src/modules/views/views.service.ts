@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 
 import { ResponseSuccess } from '../../commons/dto/response.dto';
-import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ClientData } from '../auth/auth.type';
 import { UserModel } from '../models/user.model';
 import { ViewModel } from '../models/view.model';
@@ -24,8 +24,7 @@ export class ViewsService {
 
     if (currentUserId === targetUserId) {
       throw new BadRequestException({
-        errorCode: HttpErrorCodes.CONFLICT_USER,
-        message: 'You cannot view yourself!',
+        message: HttpErrorMessages['You cannot view yourself!'],
       });
     }
 

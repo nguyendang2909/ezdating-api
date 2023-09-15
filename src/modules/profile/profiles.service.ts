@@ -11,7 +11,7 @@ import {
   WeeklyCoins,
   WeeklyCoinsLength,
 } from '../../commons/constants/constants';
-import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ClientData } from '../auth/auth.type';
 import { CoinAttendanceModel } from '../models/coin-attendance.model';
 import { MatchModel } from '../models/match.model';
@@ -175,8 +175,7 @@ export class ProfileService {
 
     if (moment(lastCoinAttendance.receivedDate).isSame(moment(todayDate))) {
       throw new BadRequestException({
-        errorCode: HttpErrorCodes.YOU_ALREADY_TOOK_ATTENDANCE_TODAY,
-        message: 'You already took attendance today',
+        message: HttpErrorMessages['You already got attendance today'],
       });
     }
 
