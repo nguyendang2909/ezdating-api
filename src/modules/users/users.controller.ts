@@ -1,10 +1,10 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
-import { FindManyNearbyUsersDto } from './dto/find-nearby-users.dto';
+import { FindManyNearbyUsersQuery } from './dto/find-nearby-users.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -23,7 +23,7 @@ export class UsersController {
 
   @Get('/nearby')
   public async findManyNearby(
-    @Query() queryParams: FindManyNearbyUsersDto,
+    @Body() body: FindManyNearbyUsersQuery,
     @Client() clientData: ClientData,
   ) {
     return await this.usersService.findManyNearby(queryParams, clientData);

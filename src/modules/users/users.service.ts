@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { isArray } from 'lodash';
 import moment from 'moment';
 
 import { UserStatuses } from '../../commons/constants/constants';
@@ -7,7 +8,7 @@ import { ClientData } from '../auth/auth.type';
 import { MediaFileModel } from '../models/media-file.model';
 import { UserModel } from '../models/user.model';
 import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
-import { FindManyNearbyUsersDto } from './dto/find-nearby-users.dto';
+import { FindManyNearbyUsersQuery } from './dto/find-nearby-users.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -177,18 +178,15 @@ export class UsersService {
     };
   }
 
-  // https://stackoverflow.com/questions/67435650/storing-geojson-points-and-finding-points-within-a-given-distance-radius-nodej
-  // public async findManyNearby(
-  //   queryParams: FindManyDatingUsersDto,
-  //   currentUserId: string,
-  // ): Promise<ResponsePagination<User>> {
   public async findManyNearby(
-    queryParams: FindManyNearbyUsersDto,
+    queryParams: FindManyNearbyUsersQuery,
     clientData: ClientData,
   ) {
-    const minDistance = queryParams.minDistance
-      ? +queryParams.minDistance
-      : undefined;
+    const { excludedUserId, _next, _prev } = queryParams;
+    const excludedUserIds =
+      excludedUserId && isArray(excludedUserId) ? excludedUserId : [];
+    const cursorAsString = _next || _prev;
+    const cursor = cursorAsString ? +cursorAsString : undefined;
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
     const {
@@ -216,7 +214,7 @@ export class UsersService {
       });
     }
 
-    if (minDistance && minDistance >= filterMaxDistance) {
+    if (cursor && cursor >= filterMaxDistance) {
       return {
         data: [],
       };
@@ -236,17 +234,26 @@ export class UsersService {
             ],
           },
           distanceField: 'distance',
-          ...(minDistance
+          ...(cursor
             ? {
-                minDistance: minDistance,
+                minDistance: cursor,
               }
             : {}),
           maxDistance: filterMaxDistance,
           // distanceMultiplier: 0.001,
           query: {
-            _id: {
-              $ne: _currentUserId,
-            },
+            _id: excludedUserIds.length
+              ? {
+                  $nin: [
+                    ...excludedUserIds.map((item) =>
+                      this.userModel.getObjectId(item),
+                    ),
+                    _currentUserId,
+                  ],
+                }
+              : {
+                  $ne: _currentUserId,
+                },
             status: {
               $in: [UserStatuses.activated, UserStatuses.verified],
             },
@@ -331,26 +338,6 @@ export class UsersService {
     };
   }
 
-  // public async findOne(findOneUserDto: FindOneUserDto, currentUserId: string) {
-  //   let phoneNumber = findOneUserDto.phoneNumber;
-  //   if (!phoneNumber) {
-  //     return null;
-  //   }
-  //   if (!phoneNumber.startsWith('+')) {
-  //     phoneNumber = `+${phoneNumber.trim()}`;
-  //   }
-  //   const findResult = await this.userModel.findOne({
-  //     where: {
-  //       ...(phoneNumber ? { phoneNumber } : {}),
-  //     },
-  //     select: {
-  //       id: true,
-  //     },
-  //   });
-
-  //   return findResult;
-  // }
-
   public async findOneOrFailById(targetUserId: string, clientData: ClientData) {
     const { id: currentUserId } = clientData;
     if (targetUserId === currentUserId) {
@@ -366,16 +353,4 @@ export class UsersService {
 
     return findResult;
   }
-
-  // getQueryDistance(extractCursor: ExtractCursor) {
-  //   if (!extractCursor) {
-  //     return `ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") <= $9`;
-  //   }
-
-  //   if (extractCursor.type === Cursors.before) {
-  //     throw new BadRequestException('Not implemented');
-  //   }
-
-  //   return `ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") > ${+extractCursor.value} AND ST_Distance(ST_MakePoint($1, $2 ), "User"."geolocation") <= $9`;
-  // }
 }
