@@ -5,7 +5,7 @@ import { JoiSchemaOptions } from 'nestjs-joi';
 import { DEFAULT_VALIDATION_OPTIONS } from './default-validation-options';
 
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
-export class FindManyDto {
+export class FindManyQuery {
   @ApiPropertyOptional({ type: Number })
   @IsOptional()
   @IsString()

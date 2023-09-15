@@ -3,7 +3,7 @@ import { Controller, Get, Param, Query } from '@nestjs/common';
 import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
 import { ConversationsService } from './conversations.service';
-import { FindManyConversations } from './dto/find-many-conversations.dto';
+import { FindManyConversationsQuery } from './dto/find-many-conversations.dto';
 
 @Controller('/conversations')
 export class ConversationsController {
@@ -11,7 +11,7 @@ export class ConversationsController {
 
   @Get('/')
   public async findMany(
-    @Query() queryParams: FindManyConversations,
+    @Query() queryParams: FindManyConversationsQuery,
     @Client() clientData: ClientData,
   ) {
     return await this.conversationsService.findMany(queryParams, clientData);

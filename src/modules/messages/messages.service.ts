@@ -6,7 +6,7 @@ import { ClientData } from '../auth/auth.type';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
 import { UserModel } from '../models/user.model';
-import { FindManyMessagesDto } from './dto/find-many-messages.dto';
+import { FindManyMessagesQuery } from './dto/find-many-messages.dto';
 
 @Injectable()
 export class MessagesService {
@@ -17,10 +17,11 @@ export class MessagesService {
   ) {}
 
   public async findMany(
-    queryParams: FindManyMessagesDto,
+    queryParams: FindManyMessagesQuery,
     clientData: ClientData,
   ) {
-    const { matchId, lastCreatedAt } = queryParams;
+    const { matchId, _next, _prev } = queryParams;
+    const cursor = _next || _prev;
     const _matchId = this.matchModel.getObjectId(matchId);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
@@ -50,10 +51,10 @@ export class MessagesService {
       .find(
         {
           _matchId,
-          ...(lastCreatedAt
+          ...(cursor
             ? {
                 createdAt: {
-                  $lt: moment(lastCreatedAt).toDate(),
+                  [_next ? '$lt' : '$gt']: moment(cursor).toDate(),
                 },
               }
             : {}),

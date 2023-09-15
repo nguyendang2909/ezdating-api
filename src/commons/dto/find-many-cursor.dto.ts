@@ -5,7 +5,7 @@ import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 import { DEFAULT_VALIDATION_OPTIONS } from './default-validation-options';
 
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
-export class FindManyCursorDto {
+export class FindManyCursorQuery {
   @ApiPropertyOptional({ type: String })
   @JoiSchema(
     Joi.string().optional().allow(null).when('prev', {
@@ -13,9 +13,9 @@ export class FindManyCursorDto {
       then: Joi.forbidden(),
     }),
   )
-  next?: string;
+  _next?: string;
 
   @ApiPropertyOptional({ type: String })
   @JoiSchema(Joi.string().optional().allow(null))
-  prev?: string;
+  _prev?: string;
 }

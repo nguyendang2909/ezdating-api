@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
-import { FindMatchesDto } from './dto/find-matches-relationships.dto';
+import { FindManyMatchesQuery } from './dto/find-matches-relationships.dto';
 import { MatchesService } from './matches.service';
 
 @Controller('/matches')
@@ -25,7 +25,7 @@ export class MatchesController {
 
   @Get('/')
   public async findMatched(
-    @Query() queryParams: FindMatchesDto,
+    @Query() queryParams: FindManyMatchesQuery,
     @Client() clientData: ClientData,
   ) {
     return await this.service.findMatched(queryParams, clientData);

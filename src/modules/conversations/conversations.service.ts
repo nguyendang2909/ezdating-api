@@ -6,7 +6,7 @@ import { ClientData } from '../auth/auth.type';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
 import { UserModel } from '../models/user.model';
-import { FindManyConversations } from './dto/find-many-conversations.dto';
+import { FindManyConversationsQuery } from './dto/find-many-conversations.dto';
 
 @Injectable()
 export class ConversationsService {
@@ -17,12 +17,13 @@ export class ConversationsService {
   ) {}
 
   public async findMany(
-    queryParams: FindManyConversations,
+    queryParams: FindManyConversationsQuery,
     clientData: ClientData,
   ) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
-    const { lastMessageAt } = queryParams;
+    const { _next, _prev } = queryParams;
+    const cursor = _next || _prev;
 
     const findResult = await this.matchModel.model.aggregate([
       {
@@ -35,10 +36,10 @@ export class ConversationsService {
               _userTwoId: _currentUserId,
             },
           ],
-          ...(lastMessageAt
+          ...(cursor
             ? {
                 lastMessageAt: {
-                  $lt: moment(lastMessageAt).toDate(),
+                  [_next ? '$lt' : '$gt']: moment(cursor).toDate(),
                 },
               }
             : { lastMessageAt: { $ne: null } }),

@@ -76,17 +76,18 @@ export class LikesService {
   ) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
-    const { lastMatchedAt } = queryParams;
+    const { _next, _prev } = queryParams;
+    const cursor = _next || _prev;
 
     const findResult = await this.likeModel.model
       .aggregate([
         {
           $match: {
             _targetUserId: _currentUserId,
-            ...(lastMatchedAt
+            ...(cursor
               ? {
                   likedAt: {
-                    $lt: lastMatchedAt,
+                    [_next ? '$lt' : '$gt']: cursor,
                   },
                 }
               : {}),

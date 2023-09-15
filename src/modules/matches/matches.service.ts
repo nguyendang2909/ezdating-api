@@ -7,7 +7,7 @@ import { ChatsGateway } from '../chats/chats.gateway';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
 import { UserModel } from '../models/user.model';
-import { FindMatchesDto } from './dto/find-matches-relationships.dto';
+import { FindManyMatchesQuery } from './dto/find-matches-relationships.dto';
 
 @Injectable()
 export class MatchesService {
@@ -37,22 +37,23 @@ export class MatchesService {
   }
 
   public async findMatched(
-    queryParams: FindMatchesDto,
+    queryParams: FindManyMatchesQuery,
     clientData: ClientData,
   ) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
-    const { lastMatchedAt } = queryParams;
+    const { _next, _prev } = queryParams;
+    const cursor = _next || _prev;
 
     const findResult = await this.matchModel.model
       .aggregate([
         {
           $match: {
             lastMessageAt: null,
-            ...(lastMatchedAt
+            ...(cursor
               ? {
                   matchedAt: {
-                    $lt: moment(lastMatchedAt).toDate(),
+                    [_next ? '$lt' : '$gt']: moment(cursor).toDate(),
                   },
                 }
               : {}),
