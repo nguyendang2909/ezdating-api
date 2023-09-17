@@ -140,9 +140,6 @@ export class MatchesService {
               {
                 $project: {
                   _id: true,
-                  nickname: true,
-                  status: true,
-                  lastActivatedAt: true,
                   age: 1,
                   filterGender: true,
                   filterMaxAge: true,
@@ -150,8 +147,11 @@ export class MatchesService {
                   filterMinAge: true,
                   gender: true,
                   introduce: true,
-                  relationshipGoal: true,
+                  lastActivatedAt: true,
                   mediaFiles: true,
+                  nickname: true,
+                  relationshipGoal: true,
+                  status: true,
                 },
               },
             ],

@@ -1,3 +1,4 @@
+/* eslint-disable sort-keys */
 export const UserRoles = {
   admin: 1,
   manager: 2,

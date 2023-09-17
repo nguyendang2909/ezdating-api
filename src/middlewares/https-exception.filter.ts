@@ -21,7 +21,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   async prepareException(
     exc: any,
-  ): Promise<{ status: number; json: Record<any, any> }> {
+  ): Promise<{ json: Record<any, any>; status: number }> {
     const error =
       exc instanceof HttpException
         ? exc

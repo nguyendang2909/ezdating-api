@@ -31,11 +31,20 @@ export class ViewsService {
     const _currentUserId = this.userModel.getObjectId(currentUserId);
     const _targetUserId = this.userModel.getObjectId(targetUserId);
 
+    const existView = await this.viewModel.model.findOne({
+      _userId: _currentUserId,
+      _targetUserId,
+    });
+
+    if (existView) {
+      return { success: true };
+    }
+
     const now = moment().toDate();
 
     await this.viewModel.model.create({
-      _userId: _currentUserId,
       _targetUserId,
+      _userId: _currentUserId,
       viewedAt: now,
     });
 

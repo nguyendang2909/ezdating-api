@@ -1,7 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { LoggedDevicesService } from './logged-devices.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+
 import { CreateLoggedDeviceDto } from './dto/create-logged-device.dto';
 import { UpdateLoggedDeviceDto } from './dto/update-logged-device.dto';
+import { LoggedDevicesService } from './logged-devices.service';
 
 @Controller('logged-devices')
 export class LoggedDevicesController {
@@ -23,7 +32,10 @@ export class LoggedDevicesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLoggedDeviceDto: UpdateLoggedDeviceDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateLoggedDeviceDto: UpdateLoggedDeviceDto,
+  ) {
     return this.loggedDevicesService.update(+id, updateLoggedDeviceDto);
   }
 

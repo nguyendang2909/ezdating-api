@@ -35,12 +35,12 @@ export class MatchModel extends CommonModel {
     currentUserId: string;
     targetUserId: string;
   }): {
-    sortedUserIds: string[];
-    isUserOne: boolean;
-    userOneId: string;
-    userTwoId: string;
     _userOneId: Types.ObjectId;
     _userTwoId: Types.ObjectId;
+    isUserOne: boolean;
+    sortedUserIds: string[];
+    userOneId: string;
+    userTwoId: string;
   } {
     const sortedUserIds = [currentUserId, targetUserId].sort();
     const userOneId = sortedUserIds[0];

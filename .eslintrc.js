@@ -37,6 +37,6 @@ module.exports = {
     ],
     "typescript-sort-keys/interface": "error",
     "typescript-sort-keys/string-enum": "error",
-    "sort-keys": ["warning", "asc", {"caseSensitive": true, "natural": false, "minKeys": 2}]
+    "sort-keys": [2, "asc", {"caseSensitive": true, "natural": false, "minKeys": 10}]
   },
 };

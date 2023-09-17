@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { LoggedDevicesController } from './logged-devices.controller';
 import { LoggedDevicesService } from './logged-devices.service';
 

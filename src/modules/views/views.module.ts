@@ -5,9 +5,9 @@ import { ViewsController } from './views.controller';
 import { ViewsService } from './views.service';
 
 @Module({
-  imports: [ModelsModule],
-  exports: [],
   controllers: [ViewsController],
+  exports: [],
+  imports: [ModelsModule],
   providers: [ViewsService],
 })
 export class ViewsModule {}

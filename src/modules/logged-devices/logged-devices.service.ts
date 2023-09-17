@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+
 import { CreateLoggedDeviceDto } from './dto/create-logged-device.dto';
 import { UpdateLoggedDeviceDto } from './dto/update-logged-device.dto';
 

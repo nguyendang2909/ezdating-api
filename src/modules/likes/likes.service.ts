@@ -38,6 +38,15 @@ export class LikesService {
 
     const now = moment().toDate();
 
+    const existLike = await this.likeModel.model.findOne({
+      _userId: _currentUserId,
+      _targetUserId,
+    });
+
+    if (existLike) {
+      return { success: true };
+    }
+
     await this.likeModel.model.create({
       _userId: _currentUserId,
       _targetUserId,
@@ -152,9 +161,6 @@ export class LikesService {
               {
                 $project: {
                   _id: true,
-                  nickname: true,
-                  status: true,
-                  lastActivatedAt: true,
                   age: 1,
                   filterGender: true,
                   filterMaxAge: true,
@@ -162,8 +168,11 @@ export class LikesService {
                   filterMinAge: true,
                   gender: true,
                   introduce: true,
-                  relationshipGoal: true,
+                  lastActivatedAt: true,
                   mediaFiles: true,
+                  nickname: true,
+                  relationshipGoal: true,
+                  status: true,
                 },
               },
             ],

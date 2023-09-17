@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { LoggedDevicesService } from './logged-devices.service';
 
 describe('LoggedDevicesService', () => {
