@@ -183,6 +183,7 @@ export class LikesService {
       .exec();
 
     return {
+      type: 'likedMe',
       data: findResult,
     };
   }
