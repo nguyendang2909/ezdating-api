@@ -25,13 +25,10 @@ export class LikesController {
   }
 
   @Get('/me')
-  findMany(
+  public async findMany(
     @Query() queryParams: FindManyLikedMeDto,
     @Client() clientData: ClientData,
   ) {
-    return {
-      type: 'likes',
-      data: this.service.findManyLikedMe(queryParams, clientData),
-    };
+    return await this.service.findManyLikedMe(queryParams, clientData);
   }
 }
