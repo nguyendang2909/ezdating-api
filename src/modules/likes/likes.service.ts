@@ -178,7 +178,15 @@ export class LikesService {
                 },
               },
             ],
-            as: 'user',
+            as: 'users',
+          },
+        },
+        {
+          $project: {
+            likedAt: true,
+            user: {
+              $first: '$users',
+            },
           },
         },
       ])
