@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 import { CommonSchema } from '../../../commons/schemas.common';
+import { User } from './user.schema';
 
 export type LikeDocument = HydratedDocument<Like>;
 
@@ -18,6 +19,8 @@ export class Like extends CommonSchema {
 
   @Prop({ type: Date, default: new Date(), required: true })
   likedAt?: Date;
+
+  user?: User;
 }
 
 export const LikeSchema = SchemaFactory.createForClass(Like);

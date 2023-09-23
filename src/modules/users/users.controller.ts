@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
@@ -23,7 +23,7 @@ export class UsersController {
 
   @Get('/nearby')
   public async findManyNearby(
-    @Body() queryParams: FindManyNearbyUsersQuery,
+    @Query() queryParams: FindManyNearbyUsersQuery,
     @Client() clientData: ClientData,
   ) {
     return await this.usersService.findManyNearby(queryParams, clientData);
