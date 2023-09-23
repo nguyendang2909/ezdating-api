@@ -47,15 +47,16 @@ export class LikesService {
       return { success: true };
     }
 
+    const reverseLike = await this.likeModel.model.findOne({
+      _userId: _targetUserId,
+      _targetUserId: _currentUserId,
+    });
+
     await this.likeModel.model.create({
       _userId: _currentUserId,
       _targetUserId,
       likedAt: now,
-    });
-
-    const reverseLike = await this.likeModel.model.findOne({
-      _userId: _targetUserId,
-      _targetUserId: _currentUserId,
+      ...(reverseLike ? { isMatched: true } : {}),
     });
 
     if (reverseLike) {
@@ -92,6 +93,7 @@ export class LikesService {
         {
           $match: {
             _targetUserId: _currentUserId,
+            isMatched: false,
             ...(cursor
               ? {
                   likedAt: {

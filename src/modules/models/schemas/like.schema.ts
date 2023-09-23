@@ -13,6 +13,9 @@ export class Like extends CommonSchema {
   @Prop({ type: SchemaTypes.ObjectId, required: true, index: true })
   _targetUserId?: Types.ObjectId;
 
+  @Prop({ type: Boolean, required: false, default: false })
+  isMatched?: boolean;
+
   @Prop({ type: Date, default: new Date(), required: true })
   likedAt?: Date;
 }
@@ -21,4 +24,4 @@ export const LikeSchema = SchemaFactory.createForClass(Like);
 
 LikeSchema.index({ _userId: 1, _targetUserId: 1 }, { unique: true });
 
-LikeSchema.index({ _targetUserId: 1, likedAt: 1 });
+LikeSchema.index({ _targetUserId: 1, isMatched: 1, likedAt: 1 });
