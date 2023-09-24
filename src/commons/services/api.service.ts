@@ -25,6 +25,11 @@ export class ApiService extends DbService {
     const lastData = data[dataLength - 1];
 
     if (_.isArray(field)) {
+      if (!field.length) {
+        return {
+          _next: null,
+        };
+      }
       const obj: Record<string, any> = {};
       for (const item of field) {
         obj[item] = lastData[item];
@@ -36,8 +41,6 @@ export class ApiService extends DbService {
     }
 
     const lastField = lastData[field]?.toString();
-
-    console.log(lastField);
 
     return {
       _next: lastField ? this.encodeFromString(lastField) : null,
