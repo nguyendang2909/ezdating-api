@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import _ from 'lodash';
 
 import { ResponseSuccess } from '../../commons/dto/response.dto';
+import { PaginatedResponse } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
+import { LikeDocument } from '../models/schemas/like.schema';
+import { Match } from '../models/schemas/match.schema';
 import { UserModel } from '../models/user.model';
 import { FindManyMatchesQuery } from './dto/find-matches-relationships.dto';
 
@@ -38,13 +42,13 @@ export class MatchesService {
   public async findMatched(
     queryParams: FindManyMatchesQuery,
     clientData: ClientData,
-  ) {
+  ): Promise<PaginatedResponse<Match>> {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
     const { _next, _prev } = queryParams;
     const cursor = _next || _prev;
 
-    const findResult = await this.matchModel.model
+    const findResults: LikeDocument[] = await this.matchModel.model
       .aggregate([
         {
           $match: {
@@ -169,7 +173,11 @@ export class MatchesService {
 
     return {
       type: 'matches',
-      data: findResult,
+      data: findResults,
+      pagination: {
+        _next: _.last(findResults)?._id?.toString() || null,
+        _prev: _.first(findResults)?._id.toString() || null,
+      },
     };
   }
 }

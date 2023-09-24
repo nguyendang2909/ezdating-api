@@ -12,7 +12,7 @@ import {
   UserRelationshipGoals,
   UserRelationshipStatus,
   UserRelationshipStatuses,
-} from '../../../commons/constants/constants';
+} from '../../../commons/constants';
 import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 
 const JoiExtendDate = Joi.extend(JoiDate);

@@ -1,11 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import _ from 'lodash';
 
 import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { PaginatedResponse } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
+import { Like, LikeDocument } from '../models/schemas/like.schema';
 import { UserModel } from '../models/user.model';
 import { FindManyLikedMeDto } from './dto/find-user-like-me.dto';
 import { SendLikeDto } from './dto/send-like.dto';
@@ -77,13 +80,13 @@ export class LikesService {
   public async findManyLikedMe(
     queryParams: FindManyLikedMeDto,
     clientData: ClientData,
-  ) {
+  ): Promise<PaginatedResponse<Like>> {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
     const { _next, _prev } = queryParams;
     const cursor = _next || _prev;
 
-    const findResult = await this.likeModel.model
+    const findResults: LikeDocument[] = await this.likeModel.model
       .aggregate([
         {
           $match: {
@@ -189,7 +192,11 @@ export class LikesService {
 
     return {
       type: 'likedMe',
-      data: findResult,
+      data: findResults,
+      pagination: {
+        _next: _.last(findResults)?._id?.toString() || null,
+        _prev: _.first(findResults)?.id?.toString() || null,
+      },
     };
   }
 }

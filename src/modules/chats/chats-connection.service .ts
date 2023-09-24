@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import _ from 'lodash';
 import { Socket } from 'socket.io';
 
-import { UserStatuses } from '../../commons/constants/constants';
+import { UserStatuses } from '../../commons/constants';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { UserModel } from '../models/user.model';
 

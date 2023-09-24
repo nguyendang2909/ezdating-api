@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import moment from 'moment';
 import { Socket } from 'socket.io';
 
-import { Constants } from '../../commons/constants/constants';
+import { Constants } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';

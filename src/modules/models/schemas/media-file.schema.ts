@@ -1,10 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
-import {
-  MediaFileType,
-  MediaFileTypes,
-} from '../../../commons/constants/constants';
+import { MediaFileType, MediaFileTypes } from '../../../commons/constants';
 import { CommonSchema } from '../../../commons/schemas.common';
 import { User } from './user.schema';
 

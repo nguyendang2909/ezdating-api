@@ -4,7 +4,7 @@ import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 import {
   DevicePlatform,
   DevicePlatforms,
-} from '../../../commons/constants/constants';
+} from '../../../commons/constants';
 import { CommonSchema } from '../../../commons/schemas.common';
 
 export type SignedDeviceDocument = HydratedDocument<SignedDevice>;

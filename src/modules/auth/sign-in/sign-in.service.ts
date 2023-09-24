@@ -8,7 +8,7 @@ import {
 import moment from 'moment';
 
 import { AppConfig } from '../../../app.config';
-import { UserRoles, UserStatuses } from '../../../commons/constants/constants';
+import { UserRoles, UserStatuses } from '../../../commons/constants';
 import { HttpErrorMessages } from '../../../commons/erros/http-error-messages.constant';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { SignedDeviceModel } from '../../models/signed-device.model';

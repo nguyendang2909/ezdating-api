@@ -14,7 +14,7 @@ import {
   UserRoles,
   UserStatus,
   UserStatuses,
-} from '../../../commons/constants/constants';
+} from '../../../commons/constants';
 import { CommonSchema } from '../../../commons/schemas.common';
 import { MediaFile } from './media-file.schema';
 

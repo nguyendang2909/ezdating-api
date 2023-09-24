@@ -5,7 +5,7 @@ import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 
 import { AppConfig } from '../../app.config';
-import { MediaFileTypes } from '../../commons/constants/constants';
+import { MediaFileTypes } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ClientData } from '../auth/auth.type';
 import { MediaFileModel } from '../models/media-file.model';

@@ -1,4 +1,4 @@
-import { UserGender, UserRole } from '../../commons/constants/constants';
+import { UserGender, UserRole } from '../../commons/constants';
 
 export type ClientData = AccessTokenSignPayload & {
   exp: number;

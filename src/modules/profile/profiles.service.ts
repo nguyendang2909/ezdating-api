@@ -10,7 +10,7 @@ import {
   UserStatuses,
   WeeklyCoins,
   WeeklyCoinsLength,
-} from '../../commons/constants/constants';
+} from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ClientData } from '../auth/auth.type';
 import { CoinAttendanceModel } from '../models/coin-attendance.model';

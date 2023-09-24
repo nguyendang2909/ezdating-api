@@ -14,7 +14,7 @@ import {
 } from 'mongoose';
 import { Types } from 'mongoose';
 
-import { UserStatuses } from '../../commons/constants/constants';
+import { UserStatuses } from '../../commons/constants';
 import { CommonModel } from './common-model';
 import { User, UserDocument } from './schemas/user.schema';
 
