@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import moment from 'moment';
 
 import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { ClientData } from '../auth/auth.type';
@@ -52,8 +51,9 @@ export class MatchesService {
             lastMessageAt: null,
             ...(cursor
               ? {
-                  createdAt: {
-                    [_next ? '$lt' : '$gt']: moment(cursor).toDate(),
+                  _id: {
+                    [_next ? '$lt' : '$gt']:
+                      this.matchModel.getObjectId(cursor),
                   },
                 }
               : {}),
@@ -61,7 +61,7 @@ export class MatchesService {
         },
         {
           $sort: {
-            createdAt: -1,
+            _id: -1,
           },
         },
         { $limit: 20 },

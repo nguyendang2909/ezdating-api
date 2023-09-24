@@ -91,8 +91,8 @@ export class LikesService {
             isMatched: false,
             ...(cursor
               ? {
-                  createdAt: {
-                    [_next ? '$lt' : '$gt']: cursor,
+                  _id: {
+                    [_next ? '$lt' : '$gt']: this.likeModel.getObjectId(cursor),
                   },
                 }
               : {}),
@@ -100,7 +100,7 @@ export class LikesService {
         },
         {
           $sort: {
-            createdAt: -1,
+            _id: -1,
           },
         },
         { $limit: 20 },
