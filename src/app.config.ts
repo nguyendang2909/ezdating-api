@@ -1,4 +1,4 @@
-export const AppConfig = {
+export const APP_CONFIG = {
   ACCESS_TOKEN_EXPIRES: '60m',
   APP_NAME: 'Research',
   PUBLIC_ENDPOINT_METADATA: 'isPublic',
@@ -7,4 +7,10 @@ export const AppConfig = {
   UPLOAD_PHOTO_MAX_FILE_SIZE: 10 * 1024 * 1024,
   USER_FILTER_MAX_DISTANCE: 2000000,
   USER_ROLES_KEY: 'roles',
+  PAGINATION_LIMIT: {
+    DEFAULT: 20,
+    MATCHES: 20,
+    NEARBY_USERS: 20,
+    LIKES: 20,
+  },
 };

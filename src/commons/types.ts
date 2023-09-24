@@ -25,9 +25,10 @@ export type MongoDocument<T> = T & {
 
 export type PaginatedResponse<T> = {
   data: T[];
-  pagination: {
-    _next?: null | string;
-    _prev?: null | string;
-  };
+  pagination: Pagination;
   type: string;
+};
+
+export type Pagination = {
+  _next?: null | string;
 };

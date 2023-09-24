@@ -195,7 +195,6 @@ export class LikesService {
       data: findResults,
       pagination: {
         _next: _.last(findResults)?._id?.toString() || null,
-        _prev: _.first(findResults)?.id?.toString() || null,
       },
     };
   }

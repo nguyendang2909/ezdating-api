@@ -6,7 +6,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 
-import { AppConfig } from '../../app.config';
+import { APP_CONFIG } from '../../app.config';
 import { ClientData } from '../auth/auth.type';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class JwtAuthGuard extends AuthGuard(['jwt']) {
 
   canActivate(context: ExecutionContext) {
     const isPublic = this.reflector.getAllAndOverride<boolean>(
-      AppConfig.PUBLIC_ENDPOINT_METADATA,
+      APP_CONFIG.PUBLIC_ENDPOINT_METADATA,
       [context.getHandler(), context.getClass()],
     );
 

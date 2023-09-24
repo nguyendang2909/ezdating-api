@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 
-import { AppConfig } from '../../app.config';
+import { APP_CONFIG } from '../../app.config';
 import { MediaFileTypes } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ClientData } from '../auth/auth.type';
@@ -74,7 +74,7 @@ export class MediaFilesService {
       { limit: 6 },
     );
 
-    if (count >= AppConfig.UPLOAD_PHOTOS_LIMIT) {
+    if (count >= APP_CONFIG.UPLOAD_PHOTOS_LIMIT) {
       throw new BadRequestException({
         message: HttpErrorMessages['You can only upload 6 media files!'],
       });

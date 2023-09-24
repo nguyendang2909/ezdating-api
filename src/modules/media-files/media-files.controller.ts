@@ -11,7 +11,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { AppConfig } from '../../app.config';
+import { APP_CONFIG } from '../../app.config';
 import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
@@ -27,7 +27,7 @@ export class MediaFilesController {
   @UseInterceptors(
     FileInterceptor('file', {
       limits: {
-        fileSize: AppConfig.UPLOAD_PHOTO_MAX_FILE_SIZE,
+        fileSize: APP_CONFIG.UPLOAD_PHOTO_MAX_FILE_SIZE,
       },
       fileFilter: (req, file, cb) => {
         if (!file.mimetype.startsWith('image/')) {

@@ -10,10 +10,9 @@ import {
   WinstonModule,
 } from 'nest-winston';
 import { JoiPipeModule } from 'nestjs-joi';
-import path from 'path';
 import winston from 'winston';
 
-import { AppConfig } from './app.config';
+import { APP_CONFIG } from './app.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { ConversationsModule } from './modules/conversations/conversations.module';
@@ -74,59 +73,59 @@ import { ViewsModule } from './modules/views/views.module';
           format: winston.format.combine(
             winston.format.timestamp(),
             winston.format.ms(),
-            nestWinstonModuleUtilities.format.nestLike(AppConfig.APP_NAME, {
+            nestWinstonModuleUtilities.format.nestLike(APP_CONFIG.APP_NAME, {
               prettyPrint: true,
             }),
           ),
         }),
-        new winston.transports.File({
-          format: winston.format.combine(
-            winston.format.timestamp(),
-            winston.format.ms(),
-            nestWinstonModuleUtilities.format.nestLike(AppConfig.APP_NAME, {
-              prettyPrint: true,
-            }),
-          ),
-          dirname: path.join(__dirname, './../log/'),
-          filename: 'info.log',
-          level: 'info',
-        }),
-        new winston.transports.File({
-          format: winston.format.combine(
-            winston.format.timestamp(),
-            winston.format.ms(),
-            nestWinstonModuleUtilities.format.nestLike(AppConfig.APP_NAME, {
-              prettyPrint: true,
-            }),
-          ),
-          dirname: path.join(__dirname, './../log/'),
-          filename: 'warning.log',
-          level: 'warning',
-        }),
-        new winston.transports.File({
-          format: winston.format.combine(
-            winston.format.timestamp(),
-            winston.format.ms(),
-            nestWinstonModuleUtilities.format.nestLike(AppConfig.APP_NAME, {
-              prettyPrint: true,
-            }),
-          ),
-          dirname: path.join(__dirname, './../log/'),
-          filename: 'error.log',
-          level: 'error',
-        }),
-        new winston.transports.File({
-          format: winston.format.combine(
-            winston.format.timestamp(),
-            winston.format.ms(),
-            nestWinstonModuleUtilities.format.nestLike(AppConfig.APP_NAME, {
-              prettyPrint: true,
-            }),
-          ),
-          dirname: path.join(__dirname, './../log/'),
-          filename: 'debug.log',
-          level: 'debug',
-        }),
+        // new winston.transports.File({
+        //   format: winston.format.combine(
+        //     winston.format.timestamp(),
+        //     winston.format.ms(),
+        //     nestWinstonModuleUtilities.format.nestLike(APP_CONFIG.APP_NAME, {
+        //       prettyPrint: true,
+        //     }),
+        //   ),
+        //   dirname: path.join(__dirname, './../log/'),
+        //   filename: 'info.log',
+        //   level: 'info',
+        // }),
+        // new winston.transports.File({
+        //   format: winston.format.combine(
+        //     winston.format.timestamp(),
+        //     winston.format.ms(),
+        //     nestWinstonModuleUtilities.format.nestLike(APP_CONFIG.APP_NAME, {
+        //       prettyPrint: true,
+        //     }),
+        //   ),
+        //   dirname: path.join(__dirname, './../log/'),
+        //   filename: 'warning.log',
+        //   level: 'warning',
+        // }),
+        // new winston.transports.File({
+        //   format: winston.format.combine(
+        //     winston.format.timestamp(),
+        //     winston.format.ms(),
+        //     nestWinstonModuleUtilities.format.nestLike(APP_CONFIG.APP_NAME, {
+        //       prettyPrint: true,
+        //     }),
+        //   ),
+        //   dirname: path.join(__dirname, './../log/'),
+        //   filename: 'error.log',
+        //   level: 'error',
+        // }),
+        // new winston.transports.File({
+        //   format: winston.format.combine(
+        //     winston.format.timestamp(),
+        //     winston.format.ms(),
+        //     nestWinstonModuleUtilities.format.nestLike(APP_CONFIG.APP_NAME, {
+        //       prettyPrint: true,
+        //     }),
+        //   ),
+        //   dirname: path.join(__dirname, './../log/'),
+        //   filename: 'debug.log',
+        //   level: 'debug',
+        // }),
         // other transports...
       ],
       // other options

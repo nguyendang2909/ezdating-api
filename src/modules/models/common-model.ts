@@ -1,6 +1,10 @@
 import { Types } from 'mongoose';
 
+import { APP_CONFIG } from '../../app.config';
+
 export class CommonModel {
+  public limitRecordsPerQuery: number = APP_CONFIG.PAGINATION_LIMIT.DEFAULT;
+
   public areObjectIdEqual(
     first: Types.ObjectId,
     second: Types.ObjectId,

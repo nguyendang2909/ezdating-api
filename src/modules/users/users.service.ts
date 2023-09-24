@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import _, { isArray } from 'lodash';
 import moment from 'moment';
 
+import { CommonService } from '../../commons/common.service';
 import { UserStatuses } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { PaginatedResponse } from '../../commons/types';
@@ -12,11 +13,13 @@ import { UserModel } from '../models/user.model';
 import { FindManyDatingUsersQuery } from './dto/find-many-dating-users.dto';
 import { FindManyNearbyUsersQuery } from './dto/find-nearby-users.dto';
 @Injectable()
-export class UsersService {
+export class UsersService extends CommonService {
   constructor(
     private readonly userModel: UserModel,
     private readonly mediaFileModel: MediaFileModel, // private readonly stateModel: StateModel, // private readonly countryModel: CountryModel,
-  ) {}
+  ) {
+    super();
+  }
 
   public async findManySwipe(
     queryParams: FindManyDatingUsersQuery,
@@ -228,7 +231,6 @@ export class UsersService {
         type: 'nearbyUsers',
         pagination: {
           _next: null,
-          _prev: null,
         },
       };
     }
@@ -352,7 +354,6 @@ export class UsersService {
       data: users,
       pagination: {
         _next: _.last(users)?.distance || null,
-        _prev: _.first(users)?.distance || null,
       },
     };
   }

@@ -9,7 +9,7 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import moment from 'moment';
 
-import { AppConfig } from '../../app.config';
+import { APP_CONFIG } from '../../app.config';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { SignedDeviceModel } from '../models/signed-device.model';
@@ -89,7 +89,7 @@ export class AuthService {
       {
         $set: {
           refreshToken: newRefreshToken,
-          expiresIn: moment().add(AppConfig.REFRESH_TOKEN_EXPIRES, 'days'),
+          expiresIn: moment().add(APP_CONFIG.REFRESH_TOKEN_EXPIRES, 'days'),
         },
       },
     );

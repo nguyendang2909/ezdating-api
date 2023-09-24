@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import moment from 'moment';
 
-import { AppConfig } from '../../../app.config';
+import { APP_CONFIG } from '../../../app.config';
 import { UserRoles, UserStatuses } from '../../../commons/constants';
 import { HttpErrorMessages } from '../../../commons/erros/http-error-messages.constant';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
@@ -93,7 +93,9 @@ export class SignInService {
     await this.signedDeviceModel.createOne({
       _userId,
       refreshToken: refreshToken,
-      expiresIn: moment().add(AppConfig.REFRESH_TOKEN_EXPIRES, 'days').toDate(),
+      expiresIn: moment()
+        .add(APP_CONFIG.REFRESH_TOKEN_EXPIRES, 'days')
+        .toDate(),
     });
 
     return {

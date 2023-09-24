@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import _ from 'lodash';
 
+import { APP_CONFIG } from '../../app.config';
 import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { PaginatedResponse } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
@@ -68,7 +69,7 @@ export class MatchesService {
             _id: -1,
           },
         },
-        { $limit: 20 },
+        { $limit: APP_CONFIG.PAGINATION_LIMIT.MATCHES },
         {
           $set: {
             isUserOne: {
@@ -171,12 +172,13 @@ export class MatchesService {
       ])
       .exec();
 
+    const findResultLength = findResults.length;
+
     return {
       type: 'matches',
       data: findResults,
       pagination: {
         _next: _.last(findResults)?._id?.toString() || null,
-        _prev: _.first(findResults)?._id.toString() || null,
       },
     };
   }

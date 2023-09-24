@@ -5,13 +5,17 @@ import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
 import { FindManyDatingUsersQuery } from './dto/find-many-dating-users.dto';
 import { FindManyNearbyUsersQuery } from './dto/find-nearby-users.dto';
+import { NearbyUsersService } from './nearby-users.service';
 import { UsersService } from './users.service';
 
 @Controller('users')
 @ApiTags('users')
 @ApiBearerAuth('JWT')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly nearbyUsersService: NearbyUsersService,
+  ) {}
 
   @Get('/swipe')
   public async findManySwipe(
@@ -26,7 +30,7 @@ export class UsersController {
     @Query() queryParams: FindManyNearbyUsersQuery,
     @Client() clientData: ClientData,
   ) {
-    return await this.usersService.findManyNearby(queryParams, clientData);
+    return await this.nearbyUsersService.findMany(queryParams, clientData);
   }
 
   @Get('/:id')

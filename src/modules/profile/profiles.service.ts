@@ -3,7 +3,7 @@ import { Request } from 'express';
 import moment from 'moment';
 import { UpdateQuery } from 'mongoose';
 
-import { AppConfig } from '../../app.config';
+import { APP_CONFIG } from '../../app.config';
 import {
   UserGender,
   UserGenders,
@@ -120,7 +120,7 @@ export class ProfileService {
         filterGender: this.getFilterGender(payload.gender),
         filterMinAge: age - 10 > 18 ? age - 10 : 18,
         filterMaxAge: age + 10,
-        filterMaxDistance: AppConfig.USER_FILTER_MAX_DISTANCE,
+        filterMaxDistance: APP_CONFIG.USER_FILTER_MAX_DISTANCE,
         status: UserStatuses.activated,
       },
     });

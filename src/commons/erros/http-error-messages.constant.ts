@@ -5,6 +5,7 @@ export const HttpErrorMessages = {
   'Match does not exist': 'Match does not exist',
   'Match is invalid': 'Match is invalid',
   'Message does not exist!': 'Message does not exist!',
+  'Not implemented!': 'Not implemented!',
   'Update failed. Please try again!': 'Update failed. Please try again!',
   'User data is incorrect!': 'User data is incorrect!',
   'User device does not exist!': 'User device does not exist!',
