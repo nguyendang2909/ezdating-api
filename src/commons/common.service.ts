@@ -22,10 +22,8 @@ export class CommonService {
 
     const lastData = data[dataLength - 1];
 
-    const lastValue = lastData[field]?.toString();
-
     return {
-      _next: lastValue || null,
+      _next: lastData[field]?.toString() || null,
     };
   }
 }

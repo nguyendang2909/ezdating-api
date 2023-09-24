@@ -2,25 +2,30 @@ import { Injectable } from '@nestjs/common';
 import _ from 'lodash';
 
 import { APP_CONFIG } from '../../app.config';
+import { CommonService } from '../../commons/common.service';
 import { ResponseSuccess } from '../../commons/dto/response.dto';
-import { PaginatedResponse } from '../../commons/types';
+import { PaginatedResponse, Pagination } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
 import { LikeDocument } from '../models/schemas/like.schema';
-import { Match } from '../models/schemas/match.schema';
+import { Match, MatchDocument } from '../models/schemas/match.schema';
 import { UserModel } from '../models/user.model';
 import { FindManyMatchesQuery } from './dto/find-matches-relationships.dto';
 
 @Injectable()
-export class MatchesService {
+export class MatchesService extends CommonService {
   constructor(
     private readonly matchModel: MatchModel,
     private readonly userModel: UserModel,
     private readonly messageModel: MessageModel,
     private readonly chatsGateway: ChatsGateway,
-  ) {}
+  ) {
+    super();
+
+    this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MATCHES;
+  }
 
   public async cancel(
     id: string,
@@ -172,8 +177,6 @@ export class MatchesService {
       ])
       .exec();
 
-    const findResultLength = findResults.length;
-
     return {
       type: 'matches',
       data: findResults,
@@ -181,5 +184,9 @@ export class MatchesService {
         _next: _.last(findResults)?._id?.toString() || null,
       },
     };
+  }
+
+  public getPagination(data: MatchDocument[]): Pagination {
+    return this.getPaginationByField('_id', data);
   }
 }

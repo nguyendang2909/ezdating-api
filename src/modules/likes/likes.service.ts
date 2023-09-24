@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import _ from 'lodash';
 
+import { APP_CONFIG } from '../../app.config';
+import { CommonService } from '../../commons/common.service';
 import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
-import { PaginatedResponse } from '../../commons/types';
+import { PaginatedResponse, Pagination } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
 import { LikeModel } from '../models/like.model';
@@ -14,13 +15,17 @@ import { FindManyLikedMeDto } from './dto/find-user-like-me.dto';
 import { SendLikeDto } from './dto/send-like.dto';
 
 @Injectable()
-export class LikesService {
+export class LikesService extends CommonService {
   constructor(
     private readonly likeModel: LikeModel,
     private readonly userModel: UserModel,
     private readonly chatsGateway: ChatsGateway,
     private readonly matchModel: MatchModel,
-  ) {}
+  ) {
+    super();
+
+    this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.LIKES;
+  }
 
   public async send(
     payload: SendLikeDto,
@@ -193,9 +198,11 @@ export class LikesService {
     return {
       type: 'likedMe',
       data: findResults,
-      pagination: {
-        _next: _.last(findResults)?._id?.toString() || null,
-      },
+      pagination: this.getPagination(findResults),
     };
+  }
+
+  public getPagination(data: LikeDocument[]): Pagination {
+    return this.getPaginationByField('_id', data);
   }
 }
