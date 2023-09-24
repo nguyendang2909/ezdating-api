@@ -52,7 +52,7 @@ export class MatchesService {
             lastMessageAt: null,
             ...(cursor
               ? {
-                  matchedAt: {
+                  createdAt: {
                     [_next ? '$lt' : '$gt']: moment(cursor).toDate(),
                   },
                 }
@@ -61,7 +61,7 @@ export class MatchesService {
         },
         {
           $sort: {
-            matchedAt: -1,
+            createdAt: -1,
           },
         },
         { $limit: 20 },

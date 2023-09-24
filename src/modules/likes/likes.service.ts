@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import moment from 'moment';
 
 import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
@@ -36,8 +35,6 @@ export class LikesService {
     const _currentUserId = this.userModel.getObjectId(currentUserId);
     const _targetUserId = this.userModel.getObjectId(targetUserId);
 
-    const now = moment().toDate();
-
     const existLike = await this.likeModel.model.findOne({
       _userId: _currentUserId,
       _targetUserId,
@@ -55,7 +52,6 @@ export class LikesService {
     await this.likeModel.model.create({
       _userId: _currentUserId,
       _targetUserId,
-      likedAt: now,
       ...(reverseLike ? { isMatched: true } : {}),
     });
 
@@ -68,7 +64,6 @@ export class LikesService {
       const createMatch = await this.matchModel.model.create({
         _userOneId,
         _userTwoId,
-        matchedAt: now,
       });
 
       this.chatsGateway.server
@@ -96,7 +91,7 @@ export class LikesService {
             isMatched: false,
             ...(cursor
               ? {
-                  likedAt: {
+                  createdAt: {
                     [_next ? '$lt' : '$gt']: cursor,
                   },
                 }
@@ -105,7 +100,7 @@ export class LikesService {
         },
         {
           $sort: {
-            statusAt: -1,
+            createdAt: -1,
           },
         },
         { $limit: 20 },
@@ -183,7 +178,7 @@ export class LikesService {
         },
         {
           $project: {
-            likedAt: true,
+            createdAt: true,
             user: {
               $first: '$users',
             },

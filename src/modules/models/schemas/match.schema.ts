@@ -23,9 +23,6 @@ export class Match extends CommonSchema {
   @Prop({ type: Date })
   lastMessageAt?: Date;
 
-  @Prop({ type: Date, required: true })
-  matchedAt?: Date;
-
   @Prop({ type: Boolean, default: false })
   userOneRead?: boolean;
 
@@ -40,7 +37,7 @@ MatchSchema.index({ _userOneId: 1, _userTwoId: 1 }, { unique: true });
 MatchSchema.index({
   _userOneId: 1,
   _userTwoId: 1,
-  matchedAt: 1,
+  createdAt: 1,
 });
 
 MatchSchema.index({
