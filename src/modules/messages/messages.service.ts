@@ -1,11 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import moment from 'moment';
 
+import { APP_CONFIG } from '../../app.config';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
+import { PaginatedResponse, Pagination } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
+import { MessageDocument } from '../models/schemas/message.schema';
 import { UserModel } from '../models/user.model';
 import { FindManyMessagesQuery } from './dto/find-many-messages.dto';
 
@@ -17,14 +19,17 @@ export class MessagesService extends ApiService {
     private readonly messageModel: MessageModel,
   ) {
     super();
+
+    this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MESSAGES;
   }
 
   public async findMany(
     queryParams: FindManyMessagesQuery,
     clientData: ClientData,
-  ) {
+  ): Promise<PaginatedResponse<MessageDocument> & { _matchId: string }> {
     const { matchId, _next } = queryParams;
-    const cursor = _next;
+    const cursor = this.decodeToString(_next);
+
     const _matchId = this.getObjectId(matchId);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
@@ -48,23 +53,25 @@ export class MessagesService extends ApiService {
       });
     }
 
-    const findResult = await this.messageModel.model
+    const findResults = await this.messageModel.model
       .find(
         {
           _matchId,
           ...(cursor
             ? {
-                createdAt: {
-                  [_next ? '$lt' : '$gt']: moment(cursor).toDate(),
+                _id: {
+                  $lt: this.getObjectId(cursor),
                 },
               }
             : {}),
         },
         {},
+        {
+          lean: true,
+        },
       )
-      .sort({ createdAt: -1 })
-      .limit(25)
-      .lean()
+      .sort({ _id: -1 })
+      .limit(this.limitRecordsPerQuery)
       .exec();
 
     const isUserOne = currentUserId === _userOneId.toString();
@@ -81,7 +88,12 @@ export class MessagesService extends ApiService {
     return {
       type: 'messages',
       _matchId: matchId,
-      data: findResult,
+      data: findResults,
+      pagination: this.getPagination(findResults),
     };
+  }
+
+  public getPagination(data: MessageDocument[]): Pagination {
+    return this.getPaginationByField(data, '_id');
   }
 }

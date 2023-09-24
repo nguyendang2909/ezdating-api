@@ -124,7 +124,7 @@ export class MatchesService extends ApiService {
                         },
                       },
                     },
-                    { $limit: 6 },
+                    { $limit: APP_CONFIG.PAGINATION_LIMIT.MEDIA_FILES },
                     {
                       $project: {
                         _id: true,

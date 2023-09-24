@@ -10,6 +10,7 @@ import {
 } from 'mongoose';
 import { Types } from 'mongoose';
 
+import { APP_CONFIG } from '../../app.config';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { CommonModel } from './common-model';
 import { MediaFile, MediaFileDocument } from './schemas/media-file.schema';
@@ -34,7 +35,10 @@ export class MediaFileModel extends CommonModel {
     options?: QueryOptions<MediaFileDocument>,
   ) {
     return await this.model
-      .countDocuments(filter, { ...options, limit: 6 })
+      .countDocuments(filter, {
+        ...options,
+        limit: APP_CONFIG.PAGINATION_LIMIT.MEDIA_FILES,
+      })
       .exec();
   }
 
@@ -70,7 +74,10 @@ export class MediaFileModel extends CommonModel {
     options?: QueryOptions<MediaFileDocument> | null | undefined,
   ) {
     return await this.model
-      .find(filter, projection, { ...options, limit: 6 })
+      .find(filter, projection, {
+        ...options,
+        limit: APP_CONFIG.PAGINATION_LIMIT.MEDIA_FILES,
+      })
       .lean()
       .exec();
   }

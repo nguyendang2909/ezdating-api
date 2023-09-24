@@ -1,11 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import moment from 'moment';
 
+import { APP_CONFIG } from '../../app.config';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
+import { PaginatedResponse, Pagination } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
+import { MatchDocument } from '../models/schemas/match.schema';
 import { UserModel } from '../models/user.model';
 import { FindManyConversationsQuery } from './dto/find-many-conversations.dto';
 
@@ -17,18 +20,20 @@ export class ConversationsService extends ApiService {
     private readonly messageModel: MessageModel,
   ) {
     super();
+
+    this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.CONVERSATIONS;
   }
 
   public async findMany(
     queryParams: FindManyConversationsQuery,
     clientData: ClientData,
-  ) {
+  ): Promise<PaginatedResponse<MatchDocument>> {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
-    const cursor = _next;
+    const cursor = this.decodeToString(_next);
 
-    const findResult = await this.matchModel.model.aggregate([
+    const findResults: MatchDocument[] = await this.matchModel.model.aggregate([
       {
         $match: {
           $or: [
@@ -42,7 +47,7 @@ export class ConversationsService extends ApiService {
           ...(cursor
             ? {
                 lastMessageAt: {
-                  [_next ? '$lt' : '$gt']: moment(cursor).toDate(),
+                  $lt: moment(cursor).toDate(),
                 },
               }
             : { lastMessageAt: { $ne: null } }),
@@ -51,7 +56,7 @@ export class ConversationsService extends ApiService {
       {
         $sort: { lastMessageAt: -1 },
       },
-      { $limit: 20 },
+      { $limit: this.limitRecordsPerQuery },
       {
         $set: {
           isUserOne: {
@@ -102,7 +107,7 @@ export class ConversationsService extends ApiService {
                       },
                     },
                   },
-                  { $limit: 6 },
+                  { $limit: APP_CONFIG.PAGINATION_LIMIT.MEDIA_FILES },
                   {
                     $project: {
                       _id: true,
@@ -163,7 +168,8 @@ export class ConversationsService extends ApiService {
 
     return {
       type: 'conversations',
-      data: findResult,
+      data: findResults,
+      pagination: this.getPagination(findResults),
     };
   }
 
@@ -219,7 +225,7 @@ export class ConversationsService extends ApiService {
                       },
                     },
                   },
-                  { $limit: 6 },
+                  { $limit: APP_CONFIG.PAGINATION_LIMIT.MEDIA_FILES },
                   {
                     $project: {
                       _id: true,
@@ -271,5 +277,9 @@ export class ConversationsService extends ApiService {
     }
 
     return findResult;
+  }
+
+  public getPagination(data: MatchDocument[]): Pagination {
+    return this.getPaginationByField(data, 'lastMessageAt');
   }
 }

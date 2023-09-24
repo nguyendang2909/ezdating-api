@@ -11,6 +11,11 @@ export const APP_CONFIG = {
     DEFAULT: 20,
     MATCHES: 20,
     NEARBY_USERS: 20,
+    SWIPE_USERS: 20,
     LIKES: 20,
+    CONVERSATIONS: 20,
+    MESSAGES: 25,
+    MEDIA_FILES: 6,
+    SIGNED_DEVICES: 10,
   },
 };

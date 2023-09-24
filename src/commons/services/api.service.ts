@@ -6,15 +6,15 @@ import { Pagination } from '../types';
 import { DbService } from './db.service';
 
 export class ApiService extends DbService {
-  public getPagination(data: any[]): Pagination {
+  public getPagination(data: unknown[]): Pagination {
     throw new InternalServerErrorException(
       HttpErrorMessages['Not implemented!'],
     );
   }
 
-  public getPaginationByField(
-    data: any[],
-    field: string | string[],
+  public getPaginationByField<T>(
+    data: T[],
+    field: keyof T | (keyof T)[],
   ): Pagination {
     const dataLength = data.length;
 
@@ -30,7 +30,7 @@ export class ApiService extends DbService {
           _next: null,
         };
       }
-      const obj: Record<string, any> = {};
+      const obj: Partial<T> = {};
       for (const item of field) {
         obj[item] = lastData[item];
       }

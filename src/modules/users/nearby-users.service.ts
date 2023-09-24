@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 
+import { APP_CONFIG } from '../../app.config';
 import { UserStatuses } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
@@ -13,6 +14,8 @@ import { FindManyNearbyUsersQuery } from './dto/find-nearby-users.dto';
 export class NearbyUsersService extends ApiService {
   constructor(private readonly userModel: UserModel) {
     super();
+
+    this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.NEARBY_USERS;
   }
 
   public async findMany(
@@ -114,7 +117,7 @@ export class NearbyUsersService extends ApiService {
             _id: 1,
           },
         },
-        { $limit: 20 },
+        { $limit: this.limitRecordsPerQuery },
         {
           $lookup: {
             from: 'mediafiles',
@@ -130,7 +133,7 @@ export class NearbyUsersService extends ApiService {
                 },
               },
               {
-                $limit: 6,
+                $limit: APP_CONFIG.PAGINATION_LIMIT.MEDIA_FILES,
               },
               {
                 $project: {

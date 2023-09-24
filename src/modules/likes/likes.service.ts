@@ -89,7 +89,7 @@ export class LikesService extends ApiService {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
-    const cursor = _next;
+    const cursor = this.decodeToString(_next);
 
     const findResults: LikeDocument[] = await this.likeModel.model
       .aggregate([
@@ -100,7 +100,7 @@ export class LikesService extends ApiService {
             ...(cursor
               ? {
                   _id: {
-                    [_next ? '$lt' : '$gt']: this.getObjectId(cursor),
+                    $lt: this.getObjectId(cursor),
                   },
                 }
               : {}),
@@ -111,7 +111,7 @@ export class LikesService extends ApiService {
             _id: -1,
           },
         },
-        { $limit: 20 },
+        { $limit: this.limitRecordsPerQuery },
         {
           $lookup: {
             from: 'users',
@@ -141,7 +141,7 @@ export class LikesService extends ApiService {
                         },
                       },
                     },
-                    { $limit: 6 },
+                    { $limit: APP_CONFIG.PAGINATION_LIMIT.MEDIA_FILES },
                     {
                       $project: {
                         _id: true,

@@ -56,7 +56,7 @@ export class ProfileService extends ApiService {
               },
             },
           },
-          { $limit: 6 },
+          { $limit: APP_CONFIG.PAGINATION_LIMIT.MEDIA_FILES },
         ],
         as: 'mediaFiles',
       })

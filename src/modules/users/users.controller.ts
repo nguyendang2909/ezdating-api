@@ -6,6 +6,7 @@ import { ClientData } from '../auth/auth.type';
 import { FindManyDatingUsersQuery } from './dto/find-many-dating-users.dto';
 import { FindManyNearbyUsersQuery } from './dto/find-nearby-users.dto';
 import { NearbyUsersService } from './nearby-users.service';
+import { SwipeUsersService } from './swipe-users.service';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -15,6 +16,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly nearbyUsersService: NearbyUsersService,
+    private readonly swipeUsersService: SwipeUsersService,
   ) {}
 
   @Get('/swipe')
@@ -22,7 +24,7 @@ export class UsersController {
     @Query() queryParams: FindManyDatingUsersQuery,
     @Client() clientData: ClientData,
   ) {
-    return await this.usersService.findManySwipe(queryParams, clientData);
+    return await this.swipeUsersService.findMany(queryParams, clientData);
   }
 
   @Get('/nearby')

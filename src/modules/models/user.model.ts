@@ -83,19 +83,19 @@ export class UserModel extends CommonModel {
   //   }
   // }
 
-  public async findMany(
-    filter: FilterQuery<UserDocument>,
-    projection?: ProjectionType<UserDocument> | null | undefined,
-    options?: QueryOptions<UserDocument> | null | undefined,
-  ): Promise<User[]> {
-    return await this.model
-      .find(filter, projection, {
-        limit: 10,
-        ...options,
-      })
-      .lean()
-      .exec();
-  }
+  // public async findMany(
+  //   filter: FilterQuery<UserDocument>,
+  //   projection?: ProjectionType<UserDocument> | null | undefined,
+  //   options?: QueryOptions<UserDocument> | null | undefined,
+  // ): Promise<User[]> {
+  //   return await this.model
+  //     .find(filter, projection, {
+  //       limit: 10,
+  //       ...options,
+  //     })
+  //     .lean()
+  //     .exec();
+  // }
 
   public async updateOneById(
     _id: Types.ObjectId,

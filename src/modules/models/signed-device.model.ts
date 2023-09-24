@@ -58,19 +58,19 @@ export class SignedDeviceModel extends CommonModel {
     return findResult;
   }
 
-  public async findMany(
-    filter: FilterQuery<SignedDeviceDocument>,
-    projection?: ProjectionType<SignedDeviceDocument> | null | undefined,
-    options?: QueryOptions<SignedDeviceDocument> | null | undefined,
-  ) {
-    return await this.model
-      .find(filter, projection, {
-        limit: 10,
-        ...options,
-      })
-      .lean()
-      .exec();
-  }
+  // public async findMany(
+  //   filter: FilterQuery<SignedDeviceDocument>,
+  //   projection?: ProjectionType<SignedDeviceDocument> | null | undefined,
+  //   options?: QueryOptions<SignedDeviceDocument> | null | undefined,
+  // ) {
+  //   return await this.model
+  //     .find(filter, projection, {
+  //       limit: APP_CONFIG.PAGINATION_LIMIT.SIGNED_DEVICES,
+  //       ...options,
+  //     })
+  //     .lean()
+  //     .exec();
+  // }
 
   public async updateOneById(
     _id: Types.ObjectId,
