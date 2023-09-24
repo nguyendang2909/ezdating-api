@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import _ from 'lodash';
 
 import { APP_CONFIG } from '../../app.config';
 import { ResponseSuccess } from '../../commons/dto/response.dto';
@@ -45,7 +44,7 @@ export class MatchesService extends ApiService {
     return { success: !!deleteResult.deletedCount };
   }
 
-  public async findMatched(
+  public async findMany(
     queryParams: FindManyMatchesQuery,
     clientData: ClientData,
   ): Promise<PaginatedResponse<Match>> {
@@ -179,9 +178,7 @@ export class MatchesService extends ApiService {
     return {
       type: 'matches',
       data: findResults,
-      pagination: {
-        _next: _.last(findResults)?._id?.toString() || null,
-      },
+      pagination: this.getPagination(findResults),
     };
   }
 

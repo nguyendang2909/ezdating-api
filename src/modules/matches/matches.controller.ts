@@ -28,6 +28,6 @@ export class MatchesController {
     @Query() queryParams: FindManyMatchesQuery,
     @Client() clientData: ClientData,
   ) {
-    return await this.service.findMatched(queryParams, clientData);
+    return await this.service.findMany(queryParams, clientData);
   }
 }
