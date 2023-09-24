@@ -3,15 +3,18 @@ import _ from 'lodash';
 import { Socket } from 'socket.io';
 
 import { UserStatuses } from '../../commons/constants';
+import { DbService } from '../../commons/services/db.service';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { UserModel } from '../models/user.model';
 
 @Injectable()
-export class ChatsConnectionService {
+export class ChatsConnectionService extends DbService {
   constructor(
     private readonly encryptionsUtil: EncryptionsUtil,
     private readonly userModel: UserModel,
-  ) {}
+  ) {
+    super();
+  }
 
   private readonly logger = new Logger(ChatsConnectionService.name);
 
@@ -25,7 +28,7 @@ export class ChatsConnectionService {
       }
       const clientData = this.encryptionsUtil.verifyAccessToken(token);
       const { id: userId } = clientData;
-      const _currentUserId = this.userModel.getObjectId(userId);
+      const _currentUserId = this.getObjectId(userId);
       const user = await this.userModel.findOneOrFail({ _id: _currentUserId });
       if (!user || user.status === UserStatuses.banned) {
         socket.disconnect();

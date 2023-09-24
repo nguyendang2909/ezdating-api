@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { APP_CONFIG } from '../../app.config';
-import { CommonService } from '../../commons/common.service';
 import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ApiService } from '../../commons/services/api.service';
 import { PaginatedResponse, Pagination } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
@@ -15,7 +15,7 @@ import { FindManyLikedMeDto } from './dto/find-user-like-me.dto';
 import { SendLikeDto } from './dto/send-like.dto';
 
 @Injectable()
-export class LikesService extends CommonService {
+export class LikesService extends ApiService {
   constructor(
     private readonly likeModel: LikeModel,
     private readonly userModel: UserModel,
@@ -40,8 +40,8 @@ export class LikesService extends CommonService {
       });
     }
 
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
-    const _targetUserId = this.userModel.getObjectId(targetUserId);
+    const _currentUserId = this.getObjectId(currentUserId);
+    const _targetUserId = this.getObjectId(targetUserId);
 
     const existLike = await this.likeModel.model.findOne({
       _userId: _currentUserId,
@@ -87,7 +87,7 @@ export class LikesService extends CommonService {
     clientData: ClientData,
   ): Promise<PaginatedResponse<Like>> {
     const { id: currentUserId } = clientData;
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
     const cursor = _next;
 
@@ -100,7 +100,7 @@ export class LikesService extends CommonService {
             ...(cursor
               ? {
                   _id: {
-                    [_next ? '$lt' : '$gt']: this.likeModel.getObjectId(cursor),
+                    [_next ? '$lt' : '$gt']: this.getObjectId(cursor),
                   },
                 }
               : {}),
@@ -203,6 +203,6 @@ export class LikesService extends CommonService {
   }
 
   public getPagination(data: LikeDocument[]): Pagination {
-    return this.getPaginationByField('_id', data);
+    return this.getPaginationByField(data, '_id');
   }
 }

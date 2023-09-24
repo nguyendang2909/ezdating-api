@@ -51,8 +51,8 @@ export class MatchModel extends CommonModel {
       isUserOne: sortedUserIds[0] === currentUserId,
       userOneId,
       userTwoId,
-      _userOneId: this.getObjectId(userOneId),
-      _userTwoId: this.getObjectId(userTwoId),
+      _userOneId: new Types.ObjectId(userOneId),
+      _userTwoId: new Types.ObjectId(userTwoId),
     };
   }
 

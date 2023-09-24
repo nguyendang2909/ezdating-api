@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import _ from 'lodash';
 
 import { APP_CONFIG } from '../../app.config';
-import { CommonService } from '../../commons/common.service';
 import { ResponseSuccess } from '../../commons/dto/response.dto';
+import { ApiService } from '../../commons/services/api.service';
 import { PaginatedResponse, Pagination } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
@@ -15,7 +15,7 @@ import { UserModel } from '../models/user.model';
 import { FindManyMatchesQuery } from './dto/find-matches-relationships.dto';
 
 @Injectable()
-export class MatchesService extends CommonService {
+export class MatchesService extends ApiService {
   constructor(
     private readonly matchModel: MatchModel,
     private readonly userModel: UserModel,
@@ -31,9 +31,9 @@ export class MatchesService extends CommonService {
     id: string,
     clientData: ClientData,
   ): Promise<ResponseSuccess> {
-    const _id = this.matchModel.getObjectId(id);
+    const _id = this.getObjectId(id);
     const { id: currentUserId } = clientData;
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const _currentUserId = this.getObjectId(currentUserId);
 
     const deleteResult = await this.matchModel.model.deleteOne({
       _id,
@@ -50,9 +50,9 @@ export class MatchesService extends CommonService {
     clientData: ClientData,
   ): Promise<PaginatedResponse<Match>> {
     const { id: currentUserId } = clientData;
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
-    const cursor = _next;
+    const cursor = this.decodeToString(_next);
 
     const findResults: LikeDocument[] = await this.matchModel.model
       .aggregate([
@@ -62,8 +62,7 @@ export class MatchesService extends CommonService {
             ...(cursor
               ? {
                   _id: {
-                    [_next ? '$lt' : '$gt']:
-                      this.matchModel.getObjectId(cursor),
+                    $lt: this.getObjectId(cursor),
                   },
                 }
               : {}),
@@ -187,6 +186,6 @@ export class MatchesService extends CommonService {
   }
 
   public getPagination(data: MatchDocument[]): Pagination {
-    return this.getPaginationByField('_id', data);
+    return this.getPaginationByField(data, '_id');
   }
 }

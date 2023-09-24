@@ -4,6 +4,7 @@ import { Socket } from 'socket.io';
 
 import { Constants } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { DbService } from '../../commons/services/db.service';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
 import { UserModel } from '../models/user.model';
@@ -11,21 +12,23 @@ import { SendChatMessageDto } from './dto/send-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 
 @Injectable()
-export class ChatsService {
+export class ChatsService extends DbService {
   constructor(
     private readonly matchModel: MatchModel,
     // private readonly relationshipModel: RelationshipModel,
     private readonly messageModel: MessageModel,
     private readonly userModel: UserModel,
-  ) {}
+  ) {
+    super();
+  }
 
   private readonly logger = new Logger(ChatsService.name);
 
   public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
     const { matchId, text, uuid } = payload;
     const currentUserId = socket.handshake.user.id;
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
-    const _matchId = this.matchModel.getObjectId(matchId);
+    const _currentUserId = this.getObjectId(currentUserId);
+    const _matchId = this.getObjectId(matchId);
 
     const existMatch = await this.matchModel.findOneRelatedToUserId(
       _matchId,
@@ -91,8 +94,8 @@ export class ChatsService {
   public async editMessage(payload: UpdateChatMessageDto, socket: Socket) {
     const { id, text } = payload;
     const currentUserId = socket.handshake.user.id;
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
-    const _id = this.messageModel.getObjectId(id);
+    const _currentUserId = this.getObjectId(currentUserId);
+    const _id = this.getObjectId(id);
 
     const editResult = await this.messageModel.model
       .findOneAndUpdate(

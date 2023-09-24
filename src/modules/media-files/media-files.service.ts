@@ -7,17 +7,20 @@ import { v4 as uuidv4 } from 'uuid';
 import { APP_CONFIG } from '../../app.config';
 import { MediaFileTypes } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
 import { MediaFileModel } from '../models/media-file.model';
 import { UserModel } from '../models/user.model';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
 
 @Injectable()
-export class MediaFilesService {
+export class MediaFilesService extends ApiService {
   constructor(
     private readonly mediaFileModel: MediaFileModel,
     private readonly userModel: UserModel,
-  ) {}
+  ) {
+    super();
+  }
 
   private readonly s3 = new S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -33,7 +36,7 @@ export class MediaFilesService {
     clientData: ClientData,
   ) {
     const { id: currentUserId } = clientData;
-    const _currentUserId = this.mediaFileModel.getObjectId(currentUserId);
+    const _currentUserId = this.getObjectId(currentUserId);
     await this.verifyCanUploadFiles(_currentUserId);
     const fileBufferWithSharp = await sharp(file.buffer)
       .resize(640, 860)
@@ -57,9 +60,9 @@ export class MediaFilesService {
   }
 
   public async deleteOne(id: string, clientData: ClientData) {
-    const _id = this.mediaFileModel.getObjectId(id);
+    const _id = this.getObjectId(id);
     const { id: currentUserId } = clientData;
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const _currentUserId = this.getObjectId(currentUserId);
     const deleted = await this.mediaFileModel.deleteOneByIdAndUserId(
       _id,
       _currentUserId,

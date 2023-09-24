@@ -1,16 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 
-import { CommonService } from '../../commons/common.service';
 import { UserStatuses } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ApiService } from '../../commons/services/api.service';
 import { PaginatedResponse, Pagination } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { User, UserDocument } from '../models/schemas/user.schema';
 import { UserModel } from '../models/user.model';
 import { FindManyNearbyUsersQuery } from './dto/find-nearby-users.dto';
 @Injectable()
-export class NearbyUsersService extends CommonService {
+export class NearbyUsersService extends ApiService {
   constructor(private readonly userModel: UserModel) {
     super();
   }
@@ -21,13 +21,13 @@ export class NearbyUsersService extends CommonService {
   ): Promise<PaginatedResponse<User>> {
     const { _next } = queryParams;
 
-    const cursor = _next ? JSON.parse(_next) : undefined;
-    const minDistance = cursor ? cursor.distance : undefined;
-    const _minUserId =
-      cursor && cursor.id ? this.userModel.getObjectId(cursor.id) : undefined;
+    const cursor = this.decodeToObj<{ _id: string; distance: number }>(_next);
+
+    const minDistance = cursor?.distance || undefined;
+    const _minUserId = cursor?._id ? this.getObjectId(cursor._id) : undefined;
 
     const { id: currentUserId } = clientData;
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const _currentUserId = this.getObjectId(currentUserId);
     const {
       geolocation,
       filterMaxAge,
@@ -182,6 +182,6 @@ export class NearbyUsersService extends CommonService {
   }
 
   public getPagination(data: UserDocument[]): Pagination {
-    return this.getPaginationByField('distance', data);
+    return this.getPaginationByField(data, ['_id', 'distance']);
   }
 }

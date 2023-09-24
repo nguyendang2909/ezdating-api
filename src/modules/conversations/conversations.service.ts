@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import moment from 'moment';
 
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
@@ -9,19 +10,21 @@ import { UserModel } from '../models/user.model';
 import { FindManyConversationsQuery } from './dto/find-many-conversations.dto';
 
 @Injectable()
-export class ConversationsService {
+export class ConversationsService extends ApiService {
   constructor(
     private readonly matchModel: MatchModel,
     private readonly userModel: UserModel,
     private readonly messageModel: MessageModel,
-  ) {}
+  ) {
+    super();
+  }
 
   public async findMany(
     queryParams: FindManyConversationsQuery,
     clientData: ClientData,
   ) {
     const { id: currentUserId } = clientData;
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
     const cursor = _next;
 
@@ -166,8 +169,8 @@ export class ConversationsService {
 
   public async findOneOrFailById(id: string, clientData: ClientData) {
     const { id: currentUserId } = clientData;
-    const _id = this.matchModel.getObjectId(id);
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const _id = this.getObjectId(id);
+    const _currentUserId = this.getObjectId(currentUserId);
 
     const findResult = await this.matchModel.model.aggregate([
       {

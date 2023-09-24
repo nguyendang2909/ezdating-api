@@ -7,7 +7,7 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
 @Module({
-  imports: [EncryptionsModule, ModelsModule],
+  imports: [EncryptionsModule, ModelsModule, EncryptionsModule],
   exports: [],
   controllers: [UsersController],
   providers: [UsersService, NearbyUsersService],

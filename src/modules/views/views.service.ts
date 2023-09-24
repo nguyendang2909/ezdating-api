@@ -3,17 +3,20 @@ import moment from 'moment';
 
 import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
 import { UserModel } from '../models/user.model';
 import { ViewModel } from '../models/view.model';
 import { SendViewDto } from './dto/send-view.dto';
 
 @Injectable()
-export class ViewsService {
+export class ViewsService extends ApiService {
   constructor(
     private readonly viewModel: ViewModel,
     private readonly userModel: UserModel,
-  ) {}
+  ) {
+    super();
+  }
 
   public async send(
     payload: SendViewDto,
@@ -28,8 +31,8 @@ export class ViewsService {
       });
     }
 
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
-    const _targetUserId = this.userModel.getObjectId(targetUserId);
+    const _currentUserId = this.getObjectId(currentUserId);
+    const _targetUserId = this.getObjectId(targetUserId);
 
     const existView = await this.viewModel.model.findOne({
       _userId: _currentUserId,

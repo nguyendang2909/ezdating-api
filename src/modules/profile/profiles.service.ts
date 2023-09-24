@@ -12,6 +12,7 @@ import {
   WeeklyCoinsLength,
 } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
 import { CoinAttendanceModel } from '../models/coin-attendance.model';
 import { MatchModel } from '../models/match.model';
@@ -23,7 +24,7 @@ import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
 
 @Injectable()
-export class ProfileService {
+export class ProfileService extends ApiService {
   constructor(
     private readonly userModel: UserModel,
     private readonly mediaFileModel: MediaFileModel,
@@ -31,11 +32,13 @@ export class ProfileService {
     private readonly coinAttendanceModel: CoinAttendanceModel,
     // private readonly countryModel: CountryModel,
     private readonly matchModel: MatchModel,
-  ) {}
+  ) {
+    super();
+  }
 
   public async getProfile(clientData: ClientData) {
     const { id: currentUserId } = clientData;
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const _currentUserId = this.getObjectId(currentUserId);
 
     const [user] = await this.userModel.model
       .aggregate()
@@ -81,7 +84,7 @@ export class ProfileService {
   ): Promise<boolean> {
     const { longitude, latitude, birthday, ...updateDto } = payload;
 
-    const _currentUserId = this.userModel.getObjectId(clientData.id);
+    const _currentUserId = this.getObjectId(clientData.id);
 
     const updateOptions: UpdateQuery<UserDocument> = {
       $set: {
@@ -109,7 +112,7 @@ export class ProfileService {
     clientData: ClientData,
   ) {
     const { id: currentUserId } = clientData;
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const _currentUserId = this.getObjectId(currentUserId);
     await this.userModel.findOneOrFail({ _id: _currentUserId });
     const age = moment().diff(moment(payload.birthday, 'YYYY-MM-DD'), 'years');
     const { ...updateDto } = payload;
@@ -127,7 +130,7 @@ export class ProfileService {
   }
 
   public async deactivate(clientData: ClientData) {
-    const _currentUserId = this.userModel.getObjectId(clientData.id);
+    const _currentUserId = this.getObjectId(clientData.id);
 
     return await this.userModel.updateOneById(_currentUserId, {
       $set: {
@@ -140,7 +143,7 @@ export class ProfileService {
     clientData: ClientData,
   ): Promise<CoinAttendanceDocument> {
     const { id: currentUserId } = clientData;
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const _currentUserId = this.getObjectId(currentUserId);
     const todayDate = moment().startOf('date').toDate();
 
     const lastCoinAttendance = await this.coinAttendanceModel.model

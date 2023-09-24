@@ -2,15 +2,15 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { isArray } from 'lodash';
 import moment from 'moment';
 
-import { CommonService } from '../../commons/common.service';
 import { UserStatuses } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
 import { MediaFileModel } from '../models/media-file.model';
 import { UserModel } from '../models/user.model';
 import { FindManyDatingUsersQuery } from './dto/find-many-dating-users.dto';
 @Injectable()
-export class UsersService extends CommonService {
+export class UsersService extends ApiService {
   constructor(
     private readonly userModel: UserModel,
     private readonly mediaFileModel: MediaFileModel, // private readonly stateModel: StateModel, // private readonly countryModel: CountryModel,
@@ -26,7 +26,7 @@ export class UsersService extends CommonService {
     const excludedUserIds =
       excludedUserId && isArray(excludedUserId) ? excludedUserId : [];
     const { id: currentUserId } = clientData;
-    const _currentUserId = this.userModel.getObjectId(currentUserId);
+    const _currentUserId = this.getObjectId(currentUserId);
 
     const user = await this.userModel.findOneOrFail({
       _id: _currentUserId,
@@ -88,9 +88,7 @@ export class UsersService extends CommonService {
                 ? {
                     $nin: [
                       _currentUserId,
-                      ...excludedUserIds.map((item) =>
-                        this.userModel.getObjectId(item),
-                      ),
+                      ...excludedUserIds.map((item) => this.getObjectId(item)),
                     ],
                   }
                 : {
@@ -361,7 +359,7 @@ export class UsersService extends CommonService {
         message: HttpErrorMessages['You cannot find yourself!'],
       });
     }
-    const _targetUserId = this.userModel.getObjectId(targetUserId);
+    const _targetUserId = this.getObjectId(targetUserId);
     const findResult = await this.userModel.findOneOrFail({
       _id: _targetUserId,
     });

@@ -12,20 +12,20 @@ export class CommonModel {
     return first.toString() === second.toString();
   }
 
-  public getObjectId(id: string): Types.ObjectId {
-    return new Types.ObjectId(id);
-  }
+  // public getObjectId(id: string): Types.ObjectId {
+  //   return new Types.ObjectId(id);
+  // }
 
-  public encodeCursor(str: string): string {
-    return Buffer.from(str, 'utf-8').toString('base64');
-  }
+  // public encodeCursor(str: string): string {
+  //   return Buffer.from(str, 'utf-8').toString('base64');
+  // }
 
-  public extractCursor(value?: string): string | undefined {
-    if (!value) {
-      return;
-    }
-    return Buffer.from(value, 'base64').toString('utf-8');
-  }
+  // public extractCursor(value?: string): string | undefined {
+  //   if (!value) {
+  //     return;
+  //   }
+  //   return Buffer.from(value, 'base64').toString('utf-8');
+  // }
 
   // public getCursors({ next, prev }: GetCursors): PaginationCursors {
   //   return {
