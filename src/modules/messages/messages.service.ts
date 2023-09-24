@@ -20,8 +20,8 @@ export class MessagesService {
     queryParams: FindManyMessagesQuery,
     clientData: ClientData,
   ) {
-    const { matchId, _next, _prev } = queryParams;
-    const cursor = _next || _prev;
+    const { matchId, _next } = queryParams;
+    const cursor = _next;
     const _matchId = this.matchModel.getObjectId(matchId);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);

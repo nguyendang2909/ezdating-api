@@ -15,7 +15,7 @@ export class FindManyCursorQuery {
   )
   _next?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @JoiSchema(Joi.string().optional().allow(null))
-  _prev?: string;
+  // @ApiPropertyOptional({ type: String })
+  // @JoiSchema(Joi.string().optional().allow(null))
+  // _prev?: string;
 }

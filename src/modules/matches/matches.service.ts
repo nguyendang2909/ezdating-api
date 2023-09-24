@@ -51,8 +51,8 @@ export class MatchesService extends CommonService {
   ): Promise<PaginatedResponse<Match>> {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
-    const { _next, _prev } = queryParams;
-    const cursor = _next || _prev;
+    const { _next } = queryParams;
+    const cursor = _next;
 
     const findResults: LikeDocument[] = await this.matchModel.model
       .aggregate([

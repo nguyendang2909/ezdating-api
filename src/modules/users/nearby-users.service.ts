@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { isArray } from 'lodash';
 import moment from 'moment';
 
 import { CommonService } from '../../commons/common.service';
@@ -20,11 +19,13 @@ export class NearbyUsersService extends CommonService {
     queryParams: FindManyNearbyUsersQuery,
     clientData: ClientData,
   ): Promise<PaginatedResponse<User>> {
-    const { excludedUserId, _next, _prev } = queryParams;
-    const excludedUserIds =
-      excludedUserId && isArray(excludedUserId) ? excludedUserId : [];
-    const cursorAsString = _next || _prev;
-    const cursor = cursorAsString ? +cursorAsString : undefined;
+    const { _next } = queryParams;
+
+    const cursor = _next ? JSON.parse(_next) : undefined;
+    const minDistance = cursor ? cursor.distance : undefined;
+    const _minUserId =
+      cursor && cursor.id ? this.userModel.getObjectId(cursor.id) : undefined;
+
     const { id: currentUserId } = clientData;
     const _currentUserId = this.userModel.getObjectId(currentUserId);
     const {
@@ -54,7 +55,7 @@ export class NearbyUsersService extends CommonService {
       });
     }
 
-    if (cursor && cursor >= filterMaxDistance) {
+    if (minDistance && minDistance >= filterMaxDistance) {
       return {
         data: [],
         type: 'nearbyUsers',
@@ -79,26 +80,20 @@ export class NearbyUsersService extends CommonService {
               ],
             },
             distanceField: 'distance',
-            ...(cursor
+            ...(minDistance
               ? {
-                  minDistance: cursor,
+                  minDistance: minDistance,
                 }
               : {}),
             maxDistance: filterMaxDistance,
             // distanceMultiplier: 0.001,
             query: {
-              _id: excludedUserIds.length
-                ? {
-                    $nin: [
-                      ...excludedUserIds.map((item) =>
-                        this.userModel.getObjectId(item),
-                      ),
-                      _currentUserId,
-                    ],
-                  }
-                : {
-                    $ne: _currentUserId,
-                  },
+              _id: {
+                ...(!minDistance || minDistance === 0
+                  ? { $ne: _currentUserId }
+                  : {}),
+                ...(_minUserId ? { $gt: _minUserId } : {}),
+              },
               status: {
                 $in: [UserStatuses.activated, UserStatuses.verified],
               },
@@ -116,6 +111,7 @@ export class NearbyUsersService extends CommonService {
         {
           $sort: {
             distance: 1,
+            _id: 1,
           },
         },
         { $limit: 20 },
