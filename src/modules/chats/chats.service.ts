@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import moment from 'moment';
 import { Socket } from 'socket.io';
 
-import { Constants } from '../../commons/constants';
+import { SOCKET_TO_CLIENT_EVENTS } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { DbService } from '../../commons/services/db.service';
 import { MatchModel } from '../models/match.model';
@@ -36,7 +36,7 @@ export class ChatsService extends DbService {
     );
 
     if (!existMatch) {
-      socket.emit(Constants.socketEvents.toClient.error, {
+      socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
         message: HttpErrorMessages['Match does not exist'],
       });
 
@@ -46,7 +46,7 @@ export class ChatsService extends DbService {
     const { _userOneId, _userTwoId } = existMatch;
 
     if (!_userOneId || !_userTwoId) {
-      socket.emit(Constants.socketEvents.toClient.error, {
+      socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
         message: HttpErrorMessages['Match is invalid'],
       });
 
@@ -84,11 +84,11 @@ export class ChatsService extends DbService {
 
     const message = createdMessage.toJSON();
 
-    socket.emit(Constants.socketEvents.toClient.updateMessage, message);
+    socket.emit(SOCKET_TO_CLIENT_EVENTS.UPDATE_MESSAGE, message);
 
     socket
       .to([userOneId, userTwoId])
-      .emit(Constants.socketEvents.toClient.newMessage, message);
+      .emit(SOCKET_TO_CLIENT_EVENTS.NEW_MESSAGE, message);
   }
 
   public async editMessage(payload: UpdateChatMessageDto, socket: Socket) {
@@ -117,14 +117,14 @@ export class ChatsService extends DbService {
       .exec();
 
     if (!editResult) {
-      socket.emit(Constants.socketEvents.toClient.error, {
+      socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
         message: HttpErrorMessages['Update failed. Please try again!'],
       });
 
       return;
     }
 
-    socket.emit(Constants.socketEvents.toClient.updateMessage, editResult);
+    socket.emit(SOCKET_TO_CLIENT_EVENTS.UPDATE_MESSAGE, editResult);
 
     if (!editResult._matchId) {
       return;
@@ -142,7 +142,7 @@ export class ChatsService extends DbService {
     if (match && match._userOneId && match._userTwoId) {
       socket
         .to([match._userOneId.toString(), match._userTwoId.toString()])
-        .emit(Constants.socketEvents.toClient.newMessage, editResult);
+        .emit(SOCKET_TO_CLIENT_EVENTS.NEW_MESSAGE, editResult);
     }
   }
 }
