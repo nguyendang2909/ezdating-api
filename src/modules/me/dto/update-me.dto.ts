@@ -40,15 +40,15 @@ export class UpdateMeDto {
   filterGender?: UserGender;
 
   @ApiPropertyOptional({ type: Number })
-  @JoiSchema(Joi.number())
+  @JoiSchema(Joi.number().min(1).max(100))
   filterMaxDistance?: number;
 
   @ApiPropertyOptional({ type: Number })
-  @JoiSchema(Joi.number().min(18).max(99))
+  @JoiSchema(Joi.number().min(18).max(100))
   filterMinAge?: number;
 
   @ApiPropertyOptional({ type: Number })
-  @JoiSchema(Joi.number().min(18).max(99))
+  @JoiSchema(Joi.number().min(18).max(100))
   filterMaxAge?: number;
 
   @ApiPropertyOptional({ type: Number, enum: UserGenders })
