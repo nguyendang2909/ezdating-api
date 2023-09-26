@@ -35,7 +35,7 @@ export class NearbyUsersService extends ApiService {
       geolocation,
       filterMaxAge,
       filterMinAge,
-      filterMaxDistance,
+      filterMaxDistance: filterMaxDistanceAsKm,
       filterGender,
       gender,
     } = await this.userModel.findOneOrFail({
@@ -48,7 +48,7 @@ export class NearbyUsersService extends ApiService {
       !filterMinAge ||
       !gender ||
       !filterGender ||
-      !filterMaxDistance
+      !filterMaxDistanceAsKm
     ) {
       throw new BadRequestException({
         message:
@@ -57,6 +57,8 @@ export class NearbyUsersService extends ApiService {
           ],
       });
     }
+
+    const filterMaxDistance = filterMaxDistanceAsKm * 1000;
 
     if (minDistance && minDistance >= filterMaxDistance) {
       return {
