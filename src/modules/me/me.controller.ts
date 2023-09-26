@@ -8,8 +8,8 @@ import { UpdateMeDto } from './dto/update-me.dto';
 import { UpdateMyProfileBasicInfoDto } from './dto/update-me-basic-info.dto';
 import { MeService } from './me.service';
 
-@Controller('/profile')
-@ApiTags('/profile')
+@Controller('/me')
+@ApiTags('/me')
 @ApiBearerAuth('JWT')
 export class MeController {
   constructor(private readonly service: MeService) {}
