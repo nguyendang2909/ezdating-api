@@ -118,7 +118,7 @@ export class ChatsService extends DbService {
 
     if (!editResult) {
       socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
-        message: HttpErrorMessages['Update failed. Please try again!'],
+        message: HttpErrorMessages['Update failed. Please try again.'],
       });
 
       return;

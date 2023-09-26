@@ -272,7 +272,7 @@ export class ConversationsService extends ApiService {
 
     if (!findResult) {
       throw new NotFoundException({
-        message: HttpErrorMessages['Conversation does not exist!'],
+        message: HttpErrorMessages['Conversation does not exist.'],
       });
     }
 

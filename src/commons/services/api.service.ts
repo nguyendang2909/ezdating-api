@@ -8,7 +8,7 @@ import { DbService } from './db.service';
 export class ApiService extends DbService {
   public getPagination(data: unknown[]): Pagination {
     throw new InternalServerErrorException(
-      HttpErrorMessages['Not implemented!'],
+      HttpErrorMessages['Not implemented.'],
     );
   }
 

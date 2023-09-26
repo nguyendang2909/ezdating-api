@@ -41,7 +41,7 @@ export class MessagesService extends ApiService {
 
     if (!existMatch) {
       throw new BadRequestException({
-        message: HttpErrorMessages['Conversation does not exist!'],
+        message: HttpErrorMessages['Conversation does not exist.'],
       });
     }
 
@@ -49,7 +49,7 @@ export class MessagesService extends ApiService {
 
     if (!_userOneId || !_userTwoId) {
       throw new BadRequestException({
-        message: HttpErrorMessages['Conversation is invalid!'],
+        message: HttpErrorMessages['Conversation is invalid.'],
       });
     }
 

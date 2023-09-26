@@ -18,7 +18,7 @@ import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validat
 const JoiExtendDate = Joi.extend(JoiDate);
 
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
-export class UpdateMyProfileDto {
+export class UpdateMeDto {
   @ApiPropertyOptional({ type: String })
   @JoiSchema(JoiExtendDate.date().format('YYYY-MM-DD').optional().raw())
   birthday?: string;

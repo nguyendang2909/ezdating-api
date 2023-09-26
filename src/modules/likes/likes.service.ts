@@ -36,7 +36,7 @@ export class LikesService extends ApiService {
 
     if (currentUserId === targetUserId) {
       throw new BadRequestException({
-        message: HttpErrorMessages['You cannot like yourself!'],
+        message: HttpErrorMessages['You cannot like yourself.'],
       });
     }
 

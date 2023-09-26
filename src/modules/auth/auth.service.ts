@@ -60,7 +60,7 @@ export class AuthService extends ApiService {
     const { role, gender } = user;
     if (!role) {
       throw new BadRequestException({
-        message: HttpErrorMessages['User data is incorrect!'],
+        message: HttpErrorMessages['User data is incorrect.'],
       });
     }
     const accessToken = this.encryptionsUtil.signAccessToken({

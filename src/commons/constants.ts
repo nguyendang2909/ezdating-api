@@ -1,4 +1,8 @@
 /* eslint-disable sort-keys */
+export const DATE_FORMATS = {
+  RAW_BIRTHDAY: 'YYYY-MM-DD',
+};
+
 export const UserRoles = {
   admin: 1,
   manager: 2,

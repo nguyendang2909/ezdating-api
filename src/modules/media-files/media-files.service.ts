@@ -79,7 +79,7 @@ export class MediaFilesService extends ApiService {
 
     if (count >= APP_CONFIG.UPLOAD_PHOTOS_LIMIT) {
       throw new BadRequestException({
-        message: HttpErrorMessages['You can only upload 6 media files!'],
+        message: HttpErrorMessages['You can only upload 6 media files.'],
       });
     }
 

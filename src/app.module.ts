@@ -23,10 +23,10 @@ import { HealthModule } from './modules/health/health.module';
 import { LikesModule } from './modules/likes/likes.module';
 import { LoggedDevicesModule } from './modules/logged-devices/logged-devices.module';
 import { RelationshipsModule } from './modules/matches/matches.module';
+import { MeModule } from './modules/me/me.module';
 import { MediaFilesModule } from './modules/media-files/media-files.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { ModelsModule } from './modules/models/models.module';
-import { ProfileModule } from './modules/profile/profile.module';
 import { UsersModule } from './modules/users/users.module';
 import { ViewsModule } from './modules/views/views.module';
 
@@ -142,7 +142,7 @@ import { ViewsModule } from './modules/views/views.module';
     JoiPipeModule.forRoot(),
     ModelsModule,
     AuthModule,
-    ProfileModule,
+    MeModule,
     UsersModule,
     ChatsModule,
     EncryptionsModule,

@@ -352,7 +352,7 @@ export class UsersService extends ApiService {
     const { id: currentUserId } = clientData;
     if (targetUserId === currentUserId) {
       throw new BadRequestException({
-        message: HttpErrorMessages['You cannot find yourself!'],
+        message: HttpErrorMessages['You cannot find yourself.'],
       });
     }
     const _targetUserId = this.getObjectId(targetUserId);

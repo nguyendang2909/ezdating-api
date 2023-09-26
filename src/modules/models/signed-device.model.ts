@@ -51,7 +51,7 @@ export class SignedDeviceModel extends CommonModel {
     const findResult = await this.findOne(filter, projection, options);
     if (!findResult) {
       throw new NotFoundException({
-        message: HttpErrorMessages['User device does not exist!'],
+        message: HttpErrorMessages['User device does not exist.'],
       });
     }
 

@@ -12,7 +12,6 @@ import {
   WeeklyCoinsLength,
 } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
-import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
 import { CoinAttendanceModel } from '../models/coin-attendance.model';
 import { MatchModel } from '../models/match.model';
@@ -20,11 +19,12 @@ import { MediaFileModel } from '../models/media-file.model';
 import { CoinAttendanceDocument } from '../models/schemas/coin-attendance.schema';
 import { UserDocument } from '../models/schemas/user.schema';
 import { UserModel } from '../models/user.model';
-import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
-import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
+import { UsersCommonService } from '../users/users.common.service';
+import { UpdateMeDto } from './dto/update-me.dto';
+import { UpdateMyProfileBasicInfoDto } from './dto/update-me-basic-info.dto';
 
 @Injectable()
-export class ProfileService extends ApiService {
+export class MeService extends UsersCommonService {
   constructor(
     private readonly userModel: UserModel,
     private readonly mediaFileModel: MediaFileModel,
@@ -36,7 +36,7 @@ export class ProfileService extends ApiService {
     super();
   }
 
-  public async getProfile(clientData: ClientData) {
+  public async get(clientData: ClientData) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
 
@@ -79,19 +79,26 @@ export class ProfileService extends ApiService {
   }
 
   public async updateProfile(
-    payload: UpdateMyProfileDto,
+    payload: UpdateMeDto,
     clientData: ClientData,
   ): Promise<boolean> {
-    const { longitude, latitude, birthday, ...updateDto } = payload;
+    const {
+      longitude,
+      latitude,
+      birthday: rawBirthday,
+      ...updateDto
+    } = payload;
 
     const _currentUserId = this.getObjectId(clientData.id);
+
+    const birthday = rawBirthday
+      ? this.getAndCheckValidBirthdayFromRaw(rawBirthday)
+      : undefined;
 
     const updateOptions: UpdateQuery<UserDocument> = {
       $set: {
         ...updateDto,
-        ...(birthday
-          ? { birthday: moment(birthday, 'YYYY-MM-DD').toDate() }
-          : {}),
+        ...(birthday ? { birthday } : {}),
         ...(longitude && latitude
           ? {
               geolocation: {
@@ -114,8 +121,10 @@ export class ProfileService extends ApiService {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
     await this.userModel.findOneOrFail({ _id: _currentUserId });
-    const age = moment().diff(moment(payload.birthday, 'YYYY-MM-DD'), 'years');
-    const { ...updateDto } = payload;
+
+    const { birthday: rawBirthday, ...updateDto } = payload;
+    const birthday = this.getAndCheckValidBirthdayFromRaw(rawBirthday);
+    const age = moment().diff(birthday, 'years');
 
     return await this.userModel.updateOneById(_currentUserId, {
       $set: {

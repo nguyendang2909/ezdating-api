@@ -55,7 +55,7 @@ export class SwipeUsersService extends ApiService {
       throw new BadRequestException({
         message:
           HttpErrorMessages[
-            'You do not have a basic info. Please complete it!'
+            'You do not have a basic info. Please complete it.'
           ],
       });
     }

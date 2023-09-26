@@ -56,7 +56,7 @@ export class SignInService {
     const phoneNumber = decoded.phone_number;
     if (!phoneNumber) {
       throw new NotFoundException({
-        message: HttpErrorMessages['User does not exist!'],
+        message: HttpErrorMessages['User does not exist.'],
       });
     }
     let user = await this.userModel.findOne({ phoneNumber });
@@ -64,7 +64,7 @@ export class SignInService {
       const { status } = user;
       if (!status || status === UserStatuses.banned) {
         throw new ForbiddenException({
-          message: HttpErrorMessages['You have been banned!'],
+          message: HttpErrorMessages['You have been banned.'],
         });
       }
       // TODO: If user is deactivated => activate user

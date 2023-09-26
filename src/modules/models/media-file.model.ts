@@ -61,7 +61,7 @@ export class MediaFileModel extends CommonModel {
     const findResult = await this.findOne(filter, projection, options);
     if (!findResult) {
       throw new NotFoundException({
-        message: HttpErrorMessages['File does not exist!'],
+        message: HttpErrorMessages['File does not exist.'],
       });
     }
 

@@ -63,10 +63,10 @@ export class User extends CommonSchema {
   filterMaxDistance?: number;
 
   @Prop({ type: Number })
-  filterMinAge?: number;
+  filterMaxAge?: number;
 
   @Prop({ type: Number })
-  filterMaxAge?: number;
+  filterMinAge?: number;
 
   @Prop({ type: Number, enum: UserGenders })
   gender?: UserGender;

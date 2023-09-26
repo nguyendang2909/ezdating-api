@@ -27,7 +27,7 @@ export class ViewsService extends ApiService {
 
     if (currentUserId === targetUserId) {
       throw new BadRequestException({
-        message: HttpErrorMessages['You cannot view yourself!'],
+        message: HttpErrorMessages['You cannot view yourself.'],
       });
     }
 
