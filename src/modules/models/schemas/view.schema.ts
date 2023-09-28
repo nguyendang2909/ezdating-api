@@ -13,6 +13,9 @@ export class View extends CommonSchema {
   @Prop({ type: SchemaTypes.ObjectId, required: true })
   _targetUserId?: Types.ObjectId;
 
+  @Prop({ type: Boolean, required: false, default: false })
+  isLiked?: boolean;
+
   @Prop({ type: Date, default: new Date(), required: true })
   viewedAt?: Date;
 }

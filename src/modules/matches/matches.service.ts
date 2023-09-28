@@ -1,16 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { APP_CONFIG } from '../../app.config';
+import { SOCKET_TO_CLIENT_EVENTS } from '../../commons/constants';
 import { ResponseSuccess } from '../../commons/dto/response.dto';
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
 import { PaginatedResponse, Pagination } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
+import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
 import { LikeDocument } from '../models/schemas/like.schema';
 import { Match, MatchDocument } from '../models/schemas/match.schema';
 import { UserModel } from '../models/user.model';
+import { ViewModel } from '../models/view.model';
 import { FindManyMatchesQuery } from './dto/find-matches-relationships.dto';
 
 @Injectable()
@@ -20,6 +24,8 @@ export class MatchesService extends ApiService {
     private readonly userModel: UserModel,
     private readonly messageModel: MessageModel,
     private readonly chatsGateway: ChatsGateway,
+    private readonly likeModel: LikeModel,
+    private readonly viewModel: ViewModel,
   ) {
     super();
 
@@ -34,12 +40,67 @@ export class MatchesService extends ApiService {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
 
+    const existMatch = await this.matchModel.model
+      .findOne(
+        {
+          $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
+        },
+        {},
+        {
+          lean: true,
+        },
+      )
+      .exec();
+
+    if (!existMatch || !existMatch._userOneId || !existMatch._userTwoId) {
+      throw new BadRequestException(HttpErrorMessages['Match does not exist']);
+    }
+    const userOneId = existMatch._userOneId.toString();
+    const userTwoId = existMatch._userTwoId.toString();
+
+    // TODO: transaction
     const deleteResult = await this.matchModel.model.deleteOne({
       _id,
       $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
     });
 
-    // TODO: socket to users
+    this.likeModel.model.deleteMany(
+      {
+        $or: [
+          {
+            _userId: existMatch._userOneId,
+            _targetUserId: existMatch._userTwoId,
+          },
+          {
+            _userId: existMatch._userTwoId,
+            _targetUserId: existMatch._userOneId,
+          },
+        ],
+      },
+      { limit: 2 },
+    );
+
+    this.viewModel.model.deleteMany(
+      {
+        $or: [
+          {
+            _userId: existMatch._userOneId,
+            _targetUserId: existMatch._userTwoId,
+          },
+          {
+            _userId: existMatch._userTwoId,
+            _targetUserId: existMatch._userOneId,
+          },
+        ],
+      },
+      { limit: 2 },
+    );
+
+    this.chatsGateway.server
+      .to([userOneId, userTwoId])
+      .emit(SOCKET_TO_CLIENT_EVENTS.CANCEL_MATCHED, {
+        _id: existMatch._id,
+      });
 
     return { success: !!deleteResult.deletedCount };
   }

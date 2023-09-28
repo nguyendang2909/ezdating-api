@@ -11,6 +11,7 @@ import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import { Like, LikeDocument } from '../models/schemas/like.schema';
 import { UserModel } from '../models/user.model';
+import { ViewModel } from '../models/view.model';
 import { FindManyLikedMeDto } from './dto/find-user-like-me.dto';
 import { SendLikeDto } from './dto/send-like.dto';
 
@@ -21,6 +22,7 @@ export class LikesService extends ApiService {
     private readonly userModel: UserModel,
     private readonly chatsGateway: ChatsGateway,
     private readonly matchModel: MatchModel,
+    private readonly viewModel: ViewModel,
   ) {
     super();
 
@@ -52,15 +54,29 @@ export class LikesService extends ApiService {
       return { success: true };
     }
 
-    const reverseLike = await this.likeModel.model.findOne({
-      _userId: _targetUserId,
-      _targetUserId: _currentUserId,
-    });
+    // TODO: transaction
+    const reverseLike = await this.likeModel.model.findOneAndUpdate(
+      {
+        _userId: _targetUserId,
+        _targetUserId: _currentUserId,
+      },
+      {
+        $set: {
+          isMatched: true,
+        },
+      },
+    );
 
     await this.likeModel.model.create({
       _userId: _currentUserId,
       _targetUserId,
       ...(reverseLike ? { isMatched: true } : {}),
+    });
+
+    this.viewModel.model.create({
+      _userId: _currentUserId,
+      _targetUserId,
+      isLiked: true,
     });
 
     if (reverseLike) {
