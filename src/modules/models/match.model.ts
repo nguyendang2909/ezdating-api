@@ -65,4 +65,26 @@ export class MatchModel extends CommonModel {
   }) {
     return currentUserId === userOneId;
   }
+
+  getTargetUserId({
+    currentUserId,
+    userOneId,
+    userTwoId,
+  }: {
+    currentUserId: string;
+    userOneId: string;
+    userTwoId: string;
+  }): { _targetUserId: Types.ObjectId; targetUserId: string } {
+    if (this.isUserOne({ currentUserId, userOneId })) {
+      return {
+        targetUserId: userTwoId,
+        _targetUserId: new Types.ObjectId(userTwoId),
+      };
+    }
+
+    return {
+      targetUserId: userOneId,
+      _targetUserId: new Types.ObjectId(userOneId),
+    };
+  }
 }

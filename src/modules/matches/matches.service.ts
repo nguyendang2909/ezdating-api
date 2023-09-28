@@ -64,37 +64,33 @@ export class MatchesService extends ApiService {
       $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
     });
 
-    this.likeModel.model.deleteMany(
+    const { _targetUserId } = this.matchModel.getTargetUserId({
+      currentUserId,
+      userOneId,
+      userTwoId,
+    });
+
+    this.likeModel.model.deleteOne({
+      _userId: _currentUserId,
+      _targetUserId,
+    });
+
+    this.likeModel.model.updateOne(
       {
-        $or: [
-          {
-            _userId: existMatch._userOneId,
-            _targetUserId: existMatch._userTwoId,
-          },
-          {
-            _userId: existMatch._userTwoId,
-            _targetUserId: existMatch._userOneId,
-          },
-        ],
+        _userId: _targetUserId,
+        _targetUserId: _currentUserId,
       },
-      { limit: 2 },
+      {
+        $set: {
+          isMatched: false,
+        },
+      },
     );
 
-    this.viewModel.model.deleteMany(
-      {
-        $or: [
-          {
-            _userId: existMatch._userOneId,
-            _targetUserId: existMatch._userTwoId,
-          },
-          {
-            _userId: existMatch._userTwoId,
-            _targetUserId: existMatch._userOneId,
-          },
-        ],
-      },
-      { limit: 2 },
-    );
+    this.viewModel.model.deleteOne({
+      _userId: _currentUserId,
+      _targetUserId,
+    });
 
     this.chatsGateway.server
       .to([userOneId, userTwoId])
