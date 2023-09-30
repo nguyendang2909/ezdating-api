@@ -25,6 +25,9 @@ export class Message extends CommonSchema {
   @Prop({ type: Boolean, default: false })
   isEdited?: boolean;
 
+  @Prop({ type: Date })
+  lastEditAt?: Date;
+
   @Prop({ type: String })
   text?: string;
 
