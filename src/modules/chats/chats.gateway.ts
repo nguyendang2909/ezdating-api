@@ -16,6 +16,10 @@ import { SOCKET_TO_SERVER_EVENTS } from '../../commons/constants';
 import { ChatsService } from './chats.service';
 import { ChatsConnectionService } from './chats-connection.service ';
 import {
+  ReadChatMessageDto,
+  ReadChatMessageSchema,
+} from './dto/read-chat-message.dto';
+import {
   SendChatMessageDto,
   SendChatMessageSchema,
 } from './dto/send-chat-message.dto';
@@ -51,6 +55,20 @@ export class ChatsGateway
       throw new WsException('Validation failed');
     }
     return await this.chatsService.sendMessage(payload, socket);
+  }
+
+  @SubscribeMessage(SOCKET_TO_SERVER_EVENTS.SEND_MESSAGE)
+  @UseGuards(WsAuthGuard)
+  public async readMsg(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() payload: ReadChatMessageDto,
+  ) {
+    const { error } = ReadChatMessageSchema.validate(payload);
+    if (error) {
+      this.logger.error(`Socket validation failed ${error}`);
+      throw new WsException('Validation failed');
+    }
+    return await this.chatsService.readMessage(payload, socket);
   }
 
   @SubscribeMessage(SOCKET_TO_SERVER_EVENTS.EDIT_MESSAGE)

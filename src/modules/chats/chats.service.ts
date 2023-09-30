@@ -8,6 +8,7 @@ import { DbService } from '../../commons/services/db.service';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
 import { UserModel } from '../models/user.model';
+import { ReadChatMessageDto } from './dto/read-chat-message.dto';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 
@@ -26,6 +27,9 @@ export class ChatsService extends DbService {
 
   public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
     const { matchId, text, uuid } = payload;
+    if (!text) {
+      return;
+    }
     const currentUserId = socket.handshake.user.id;
     const _currentUserId = this.getObjectId(currentUserId);
     const _matchId = this.getObjectId(matchId);
@@ -59,28 +63,30 @@ export class ChatsService extends DbService {
 
     const messageCreatedAt = moment().toDate();
     // TODO: transaction
-    const [createdMessage] = await Promise.all([
-      this.messageModel.model.create({
-        _userId: _currentUserId,
-        _matchId: existMatch._id,
-        text,
-        uuid,
-        createdAt: messageCreatedAt,
-      }),
-      this.matchModel.model.updateOne(
+    const createdMessage = await this.messageModel.model.create({
+      _userId: _currentUserId,
+      _matchId: existMatch._id,
+      text,
+      uuid,
+      createdAt: messageCreatedAt,
+    });
+
+    await this.matchModel.model
+      .updateOne(
         { _id: existMatch._id },
         {
           $set: {
             lastMessageAt: messageCreatedAt,
-            lastMessage: text,
-            _lastMessageUserId: currentUserId,
+            lastMessage: text?.slice(0, 100),
+            _lastMessageId: createdMessage._id,
+            _lastMessageUserId: _currentUserId,
             ...(isUserOne
               ? { userTwoRead: false, userOneRead: true }
               : { userOneRead: false, userTwoRead: true }),
           },
         },
-      ),
-    ]);
+      )
+      .exec();
 
     const message = createdMessage.toJSON();
 
@@ -89,6 +95,32 @@ export class ChatsService extends DbService {
     socket
       .to([userOneId, userTwoId])
       .emit(SOCKET_TO_CLIENT_EVENTS.NEW_MESSAGE, message);
+  }
+
+  public async readMessage(payload: ReadChatMessageDto, socket: Socket) {
+    const { matchId, lastMessageId } = payload;
+    const currentUserId = socket.handshake.user.id;
+    const _currentUserId = this.getObjectId(currentUserId);
+    const _lastMessageId = this.getObjectId(lastMessageId);
+
+    const _id = this.getObjectId(matchId);
+
+    await this.matchModel.model.updateOne(
+      {
+        _id,
+        _lastMessageId,
+        $or: [
+          { _userOneId: _currentUserId, userOneRead: false },
+          { _userOneId: _currentUserId, userTwoRead: false },
+        ],
+      },
+      {
+        $set: {
+          userOneRead: true,
+          userTwoRead: true,
+        },
+      },
+    );
   }
 
   public async editMessage(payload: UpdateChatMessageDto, socket: Socket) {

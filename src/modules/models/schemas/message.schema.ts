@@ -22,7 +22,7 @@ export class Message extends CommonSchema {
   @Prop({ type: String })
   image?: string;
 
-  @Prop({ type: Boolean })
+  @Prop({ type: Boolean, default: false })
   isEdited?: boolean;
 
   @Prop({ type: String })

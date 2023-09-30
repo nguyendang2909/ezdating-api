@@ -105,6 +105,7 @@ export const SOCKET_TO_SERVER_EVENTS = {
   SEND_MESSAGE: 'sendMsg',
   MATCHED: 'matched',
   EDIT_MESSAGE: 'editMsg',
+  READ_MESSAGE: 'readMsg',
 } as const;
 
 export const SOCKET_TO_CLIENT_EVENTS = {

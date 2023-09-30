@@ -46,15 +46,15 @@ export class ConversationsService extends ApiService {
           ],
           ...(cursor
             ? {
-                lastMessageAt: {
+                _lastMessageId: {
                   $lt: moment(cursor).toDate(),
                 },
               }
-            : { lastMessageAt: { $ne: null } }),
+            : { _lastMessageId: { $ne: null } }),
         },
       },
       {
-        $sort: { lastMessageAt: -1 },
+        $sort: { _lastMessageId: -1 },
       },
       { $limit: this.limitRecordsPerQuery },
       {
@@ -280,6 +280,6 @@ export class ConversationsService extends ApiService {
   }
 
   public getPagination(data: MatchDocument[]): Pagination {
-    return this.getPaginationByField(data, 'lastMessageAt');
+    return this.getPaginationByField(data, '_lastMessageId');
   }
 }

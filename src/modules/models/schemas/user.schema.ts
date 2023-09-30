@@ -93,10 +93,10 @@ export class User extends CommonSchema {
   @Prop({ type: String })
   jobTitle?: string;
 
-  @Prop({ type: Boolean })
+  @Prop({ type: Boolean, default: false })
   hideAge?: boolean;
 
-  @Prop({ type: Boolean })
+  @Prop({ type: Boolean, default: false })
   hideDistance?: boolean;
 
   @Prop({ type: Date, default: new Date() })

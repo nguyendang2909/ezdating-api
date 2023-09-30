@@ -4,13 +4,13 @@ import { Model } from 'mongoose';
 import { Types } from 'mongoose';
 
 import { CommonModel } from './common-model';
-import { Match } from './schemas/match.schema';
+import { Match, MatchDocument } from './schemas/match.schema';
 
 @Injectable()
 export class MatchModel extends CommonModel {
   constructor(
     @InjectModel(Match.name)
-    public readonly model: Model<Match>,
+    public readonly model: Model<MatchDocument>,
   ) {
     super();
   }

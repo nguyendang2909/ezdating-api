@@ -9,6 +9,7 @@ export const UpdateChatMessageSchema = Joi.object({
   id: Joi.string().required(),
   text: Joi.string().optional(),
 }).options({
-  allowUnknown: false,
+  allowUnknown: true,
+  stripUnknown: true,
   abortEarly: true,
 });

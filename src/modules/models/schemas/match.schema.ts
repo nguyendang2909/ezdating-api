@@ -15,6 +15,9 @@ export class Match extends CommonSchema {
   _userTwoId?: Types.ObjectId;
 
   @Prop({ type: SchemaTypes.ObjectId })
+  _lastMessageId?: Types.ObjectId;
+
+  @Prop({ type: SchemaTypes.ObjectId })
   _lastMessageUserId?: Types.ObjectId;
 
   @Prop({ type: String, length: 200 })
