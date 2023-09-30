@@ -90,7 +90,7 @@ export class ChatsService extends DbService {
 
     const message = createdMessage.toJSON();
 
-    socket.emit(SOCKET_TO_CLIENT_EVENTS.UPDATE_MESSAGE, message);
+    socket.emit(SOCKET_TO_CLIENT_EVENTS.UPDATE_SENT_MESSAGE, message);
 
     socket
       .to([userOneId, userTwoId])
@@ -156,7 +156,7 @@ export class ChatsService extends DbService {
       return;
     }
 
-    socket.emit(SOCKET_TO_CLIENT_EVENTS.UPDATE_MESSAGE, editResult);
+    socket.emit(SOCKET_TO_CLIENT_EVENTS.UPDATE_SENT_MESSAGE, editResult);
 
     if (!editResult._matchId) {
       return;

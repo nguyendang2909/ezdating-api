@@ -112,5 +112,5 @@ export const SOCKET_TO_CLIENT_EVENTS = {
   CANCEL_MATCHED: 'cancelMatched',
   ERROR: 'error',
   NEW_MESSAGE: 'msg',
-  UPDATE_MESSAGE: 'updateMsg',
+  UPDATE_SENT_MESSAGE: 'updateSentMsg',
 } as const;
