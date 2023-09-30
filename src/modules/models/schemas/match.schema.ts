@@ -46,5 +46,5 @@ MatchSchema.index({
 MatchSchema.index({
   _userOneId: 1,
   _userTwoId: 1,
-  lastMessageAt: 1,
+  _lastMessageId: 1,
 });

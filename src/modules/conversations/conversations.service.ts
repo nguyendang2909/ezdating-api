@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
@@ -32,6 +31,7 @@ export class ConversationsService extends ApiService {
     const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
     const cursor = this.decodeToString(_next);
+    console.log(111, cursor);
 
     const findResults: MatchDocument[] = await this.matchModel.model.aggregate([
       {
@@ -47,7 +47,7 @@ export class ConversationsService extends ApiService {
           ...(cursor
             ? {
                 _lastMessageId: {
-                  $lt: moment(cursor).toDate(),
+                  $lt: this.getObjectId(cursor),
                 },
               }
             : { _lastMessageId: { $ne: null } }),
