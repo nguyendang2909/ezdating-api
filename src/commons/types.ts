@@ -32,3 +32,8 @@ export type PaginatedResponse<T> = {
 export type Pagination = {
   _next?: null | string;
 };
+
+export type NearbyUserCursor = {
+  excludedUserIds?: string[];
+  minDistance?: number;
+};

@@ -105,7 +105,7 @@ export class LikesService extends ApiCursorDateService {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
-    const cursor = this.getCursor(_next);
+    const cursor = _next ? this.getCursor(_next) : undefined;
 
     const findResults: LikeDocument[] = await this.likeModel.model
       .aggregate([

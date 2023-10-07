@@ -1,4 +1,7 @@
-import { InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import _ from 'lodash';
 
 import { HttpErrorMessages } from '../erros/http-error-messages.constant';
@@ -17,13 +20,10 @@ export class ApiService extends DbService {
     field: keyof T | (keyof T)[],
   ): Pagination {
     const dataLength = data.length;
-
     if (!dataLength || dataLength < this.limitRecordsPerQuery) {
       return { _next: null };
     }
-
     const lastData = data[dataLength - 1];
-
     if (_.isArray(field)) {
       if (!field.length) {
         return {
@@ -39,7 +39,6 @@ export class ApiService extends DbService {
         _next: this.encodeFromObj(obj),
       };
     }
-
     const lastField = lastData[field]?.toString();
 
     return {
@@ -47,45 +46,41 @@ export class ApiService extends DbService {
     };
   }
 
-  public encodeFromString(value?: string): string | null {
-    if (!value) {
-      return null;
-    }
-
+  public encodeFromString(value: string): string {
     return Buffer.from(value, 'utf-8').toString('base64');
   }
 
-  public encodeFromObj(value?: Record<string, any>): string | null {
-    if (!value || _.isEmpty(value)) {
-      return null;
-    }
-
+  public encodeFromObj(value: Record<string, any>): string {
     return this.encodeFromString(JSON.stringify(value));
   }
 
-  public decodeToString(value?: string | null): string | undefined {
-    if (!value) {
-      return undefined;
-    }
-
+  public decodeToString(value: string): string {
     return Buffer.from(value, 'base64').toString('utf-8');
   }
 
-  public decodeToObj<T extends Record<string, any>>(
-    value?: string,
-  ): T | undefined {
+  public decodeToObj<T extends Record<string, any>>(value: string): T {
     const decoded = this.decodeToString(value);
-
-    if (!decoded) {
-      return undefined;
-    }
 
     try {
       const obj = JSON.parse(decoded) as T;
 
-      return _.isEmpty(obj) ? undefined : obj;
+      if (!_.isObject(obj)) {
+        throw new BadRequestException(
+          HttpErrorMessages['Input data was not correct.'],
+        );
+      }
+
+      return obj;
     } catch (err) {
-      return undefined;
+      throw new BadRequestException(
+        HttpErrorMessages['Input data was not correct.'],
+      );
     }
+  }
+
+  protected getCursor(_cursor: string): any {
+    const cursor = this.decodeToString(_cursor);
+
+    return cursor;
   }
 }

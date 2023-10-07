@@ -5,7 +5,11 @@ import { APP_CONFIG } from '../../app.config';
 import { UserStatuses } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
-import { PaginatedResponse, Pagination } from '../../commons/types';
+import {
+  NearbyUserCursor,
+  PaginatedResponse,
+  Pagination,
+} from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { User, UserDocument } from '../models/schemas/user.schema';
 import { UserModel } from '../models/user.model';
@@ -23,11 +27,11 @@ export class NearbyUsersService extends ApiService {
     clientData: ClientData,
   ): Promise<PaginatedResponse<User>> {
     const { _next } = queryParams;
-
-    const cursor = this.decodeToObj<{ _id: string; distance: number }>(_next);
-
-    const minDistance = cursor?.distance || undefined;
-    const _minUserId = cursor?._id ? this.getObjectId(cursor._id) : undefined;
+    const cursor = _next ? this.getCursor(_next) : undefined;
+    const minDistance = cursor ? cursor.minDistance : undefined;
+    const excludedUserIds = cursor
+      ? cursor.excludedUserIds?.map((e) => this.getObjectId(e))
+      : undefined;
 
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
@@ -94,10 +98,13 @@ export class NearbyUsersService extends ApiService {
             // distanceMultiplier: 0.001,
             query: {
               _id: {
-                ...(!minDistance || minDistance === 0
-                  ? { $ne: _currentUserId }
-                  : {}),
-                ...(_minUserId ? { $gt: _minUserId } : {}),
+                ...(excludedUserIds?.length
+                  ? {
+                      $nin: [_currentUserId, ...excludedUserIds],
+                    }
+                  : {
+                      $ne: _currentUserId,
+                    }),
               },
               status: {
                 $in: [UserStatuses.activated, UserStatuses.verified],
@@ -188,5 +195,11 @@ export class NearbyUsersService extends ApiService {
 
   public getPagination(data: UserDocument[]): Pagination {
     return this.getPaginationByField(data, ['_id', 'distance']);
+  }
+
+  protected getCursor(_cursor: string): NearbyUserCursor {
+    const cursor = this.decodeToObj<NearbyUserCursor>(_cursor);
+
+    return cursor;
   }
 }

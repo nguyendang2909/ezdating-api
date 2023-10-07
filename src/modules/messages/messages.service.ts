@@ -28,7 +28,7 @@ export class MessagesService extends ApiCursorDateService {
     clientData: ClientData,
   ): Promise<PaginatedResponse<MessageDocument> & { _matchId: string }> {
     const { matchId, _next } = queryParams;
-    const cursor = this.getCursor(_next);
+    const cursor = _next ? this.getCursor(_next) : undefined;
 
     const _matchId = this.getObjectId(matchId);
     const { id: currentUserId } = clientData;
