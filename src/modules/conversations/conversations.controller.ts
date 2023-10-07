@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
@@ -17,14 +17,14 @@ export class ConversationsController {
     return await this.conversationsService.findMany(queryParams, clientData);
   }
 
-  @Get('/:id')
-  public async findOneById(
-    @Param('id') id: string,
-    @Client() clientData: ClientData,
-  ) {
-    return {
-      type: 'conversation',
-      data: await this.conversationsService.findOneOrFailById(id, clientData),
-    };
-  }
+  // @Get('/:id')
+  // public async findOneById(
+  //   @Param('id') id: string,
+  //   @Client() clientData: ClientData,
+  // ) {
+  //   return {
+  //     type: 'conversation',
+  //     data: await this.conversationsService.findOneOrFailById(id, clientData),
+  //   };
+  // }
 }

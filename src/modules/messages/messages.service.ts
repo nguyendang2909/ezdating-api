@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { APP_CONFIG } from '../../app.config';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
-import { ApiService } from '../../commons/services/api.service';
+import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { PaginatedResponse, Pagination } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel } from '../models/match.model';
@@ -12,7 +12,7 @@ import { UserModel } from '../models/user.model';
 import { FindManyMessagesQuery } from './dto/find-many-messages.dto';
 
 @Injectable()
-export class MessagesService extends ApiService {
+export class MessagesService extends ApiCursorDateService {
   constructor(
     private readonly matchModel: MatchModel,
     private readonly userModel: UserModel,
@@ -28,7 +28,7 @@ export class MessagesService extends ApiService {
     clientData: ClientData,
   ): Promise<PaginatedResponse<MessageDocument> & { _matchId: string }> {
     const { matchId, _next } = queryParams;
-    const cursor = this.decodeToString(_next);
+    const cursor = this.getCursor(_next);
 
     const _matchId = this.getObjectId(matchId);
     const { id: currentUserId } = clientData;
@@ -59,8 +59,8 @@ export class MessagesService extends ApiService {
           _matchId,
           ...(cursor
             ? {
-                _id: {
-                  $lt: this.getObjectId(cursor),
+                createdAt: {
+                  $lt: cursor,
                 },
               }
             : {}),

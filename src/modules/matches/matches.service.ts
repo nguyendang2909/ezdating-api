@@ -4,7 +4,7 @@ import { APP_CONFIG } from '../../app.config';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../commons/constants';
 import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
-import { ApiService } from '../../commons/services/api.service';
+import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { PaginatedResponse, Pagination } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
@@ -18,7 +18,7 @@ import { ViewModel } from '../models/view.model';
 import { FindManyMatchesQuery } from './dto/find-matches-relationships.dto';
 
 @Injectable()
-export class MatchesService extends ApiService {
+export class MatchesService extends ApiCursorDateService {
   constructor(
     private readonly matchModel: MatchModel,
     private readonly userModel: UserModel,
@@ -108,7 +108,7 @@ export class MatchesService extends ApiService {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
-    const cursor = this.decodeToString(_next);
+    const cursor = this.getCursor(_next);
 
     const findResults: LikeDocument[] = await this.matchModel.model
       .aggregate([
@@ -117,8 +117,8 @@ export class MatchesService extends ApiService {
             lastMessageAt: null,
             ...(cursor
               ? {
-                  _id: {
-                    $lt: this.getObjectId(cursor),
+                  createdAt: {
+                    $lt: cursor,
                   },
                 }
               : {}),

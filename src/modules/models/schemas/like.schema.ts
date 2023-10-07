@@ -24,4 +24,4 @@ export const LikeSchema = SchemaFactory.createForClass(Like);
 
 LikeSchema.index({ _userId: 1, _targetUserId: 1 }, { unique: true });
 
-LikeSchema.index({ _targetUserId: 1, isMatched: 1, _id: 1 });
+LikeSchema.index({ _targetUserId: 1, isMatched: 1, createdAt: 1 });

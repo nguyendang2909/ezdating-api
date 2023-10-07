@@ -3,7 +3,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { APP_CONFIG } from '../../app.config';
 import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
-import { ApiService } from '../../commons/services/api.service';
+import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { PaginatedResponse, Pagination } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
@@ -16,7 +16,7 @@ import { FindManyLikedMeDto } from './dto/find-user-like-me.dto';
 import { SendLikeDto } from './dto/send-like.dto';
 
 @Injectable()
-export class LikesService extends ApiService {
+export class LikesService extends ApiCursorDateService {
   constructor(
     private readonly likeModel: LikeModel,
     private readonly userModel: UserModel,
@@ -105,7 +105,7 @@ export class LikesService extends ApiService {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
-    const cursor = this.decodeToString(_next);
+    const cursor = this.getCursor(_next);
 
     const findResults: LikeDocument[] = await this.likeModel.model
       .aggregate([
@@ -115,8 +115,8 @@ export class LikesService extends ApiService {
             isMatched: false,
             ...(cursor
               ? {
-                  _id: {
-                    $lt: this.getObjectId(cursor),
+                  createdAt: {
+                    $lt: cursor,
                   },
                 }
               : {}),
