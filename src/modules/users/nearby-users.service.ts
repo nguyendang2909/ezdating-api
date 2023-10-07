@@ -176,6 +176,7 @@ export class NearbyUsersService extends ApiService {
             filterMaxDistance: 1,
             filterMinAge: 1,
             gender: 1,
+            introduce: 1,
             lastActivatedAt: 1,
             mediaFiles: 1,
             nickname: 1,
