@@ -44,10 +44,10 @@ export class MatchesController {
   }
 
   @Get('/:id')
-  public async findMatched(
+  public async findOneById(
     @Param('id') id: string,
     @Client() clientData: ClientData,
   ) {
-    return await this.service.findMany(id, clientData);
+    return await this.service.findOneOrFailById(id, clientData);
   }
 }

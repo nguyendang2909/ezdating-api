@@ -239,7 +239,7 @@ export class MatchesService extends ApiCursorDateService {
     return this.getPaginationByField(data, '_id');
   }
 
-  public async findOneById(id: string, client: ClientData) {
+  public async findOneOrFailById(id: string, client: ClientData) {
     const { id: currentUserId } = client;
     const _currentUserId = this.getObjectId(currentUserId);
 
@@ -364,15 +364,10 @@ export class MatchesService extends ApiCursorDateService {
         {
           $lookup: {
             from: 'users',
-            let: {
-              targetUserId: _userOneId,
-            },
             pipeline: [
               {
                 $match: {
-                  $expr: {
-                    $eq: ['$_id', '$$targetUserId'],
-                  },
+                  _id: _userOneId,
                 },
               },
               {
@@ -399,15 +394,10 @@ export class MatchesService extends ApiCursorDateService {
         {
           $lookup: {
             from: 'users',
-            let: {
-              targetUserId: _userTwoId,
-            },
             pipeline: [
               {
                 $match: {
-                  $expr: {
-                    $eq: ['$_id', '$$targetUserId'],
-                  },
+                  _id: _userTwoId,
                 },
               },
               {
