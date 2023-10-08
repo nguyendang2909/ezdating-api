@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
+import { CreateMatchDto } from './dto/create-match.dto';
 import { FindManyMatchesQuery } from './dto/find-matches-relationships.dto';
 import { MatchesService } from './matches.service';
 
@@ -11,6 +12,17 @@ import { MatchesService } from './matches.service';
 @ApiBearerAuth('JWT')
 export class MatchesController {
   constructor(private readonly service: MatchesService) {}
+
+  @Post('/')
+  public async createMatch(
+    payload: CreateMatchDto,
+    @Client() client: ClientData,
+  ) {
+    return {
+      type: 'createMatch',
+      data: await this.service.create(payload, client),
+    };
+  }
 
   @Post('/cancel/:id')
   public async cancel(

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 
 import { APP_CONFIG } from '../../app.config';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../commons/constants';
@@ -15,6 +19,7 @@ import { LikeDocument } from '../models/schemas/like.schema';
 import { Match, MatchDocument } from '../models/schemas/match.schema';
 import { UserModel } from '../models/user.model';
 import { ViewModel } from '../models/view.model';
+import { CreateMatchDto } from './dto/create-match.dto';
 import { FindManyMatchesQuery } from './dto/find-matches-relationships.dto';
 
 @Injectable()
@@ -30,6 +35,35 @@ export class MatchesService extends ApiCursorDateService {
     super();
 
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MATCHES;
+  }
+
+  public async create(payload: CreateMatchDto, clientData: ClientData) {
+    const { targetUserId } = payload;
+    const { id: currentUserId } = clientData;
+    const { _userOneId, _userTwoId } = this.matchModel.getSortedUserIds({
+      currentUserId,
+      targetUserId,
+    });
+    const existMatch = await this.matchModel.model
+      .findOne({
+        _userOneId,
+        _userTwoId,
+      })
+      .exec();
+    if (existMatch) {
+      throw new ConflictException(
+        HttpErrorMessages['You are already got matched'],
+      );
+    }
+    const createResult = await this.matchModel.model.create({
+      _userOneId,
+      _userTwoId,
+    });
+    const match = createResult.toJSON();
+    this.chatsGateway.server
+      .to([currentUserId, targetUserId])
+      .emit('matched', match);
+    return match;
   }
 
   public async cancel(

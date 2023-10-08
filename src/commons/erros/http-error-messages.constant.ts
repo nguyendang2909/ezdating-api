@@ -16,6 +16,7 @@ export const HttpErrorMessages = {
   'User device does not exist.': 'User device does not exist.',
   'User does not exist.': 'User does not exist.',
   'You already got attendance today': 'You already got attendance today',
+  'You are already got matched': 'You are already got matched',
   'You can only upload 6 media files.': 'You can only upload 6 media files.',
   'You cannot find yourself.': 'You can not find yourself.',
   'You cannot like yourself.': 'You can not like yourself.',
