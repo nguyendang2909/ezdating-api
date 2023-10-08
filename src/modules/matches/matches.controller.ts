@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
@@ -15,7 +15,7 @@ export class MatchesController {
 
   @Post('/')
   public async createMatch(
-    payload: CreateMatchDto,
+    @Body() payload: CreateMatchDto,
     @Client() client: ClientData,
   ) {
     return {
