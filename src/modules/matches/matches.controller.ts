@@ -42,4 +42,12 @@ export class MatchesController {
   ) {
     return await this.service.findMany(queryParams, clientData);
   }
+
+  @Get('/:id')
+  public async findMatched(
+    @Param('id') id: string,
+    @Client() clientData: ClientData,
+  ) {
+    return await this.service.findMany(id, clientData);
+  }
 }

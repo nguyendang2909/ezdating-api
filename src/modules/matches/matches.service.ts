@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
@@ -43,7 +47,6 @@ export class MatchesService extends ApiCursorDateService {
       _userOneId,
       _userTwoId,
     });
-    console.log(111, existMatch);
     if (existMatch) {
       return existMatch;
     }
@@ -55,11 +58,12 @@ export class MatchesService extends ApiCursorDateService {
       _userOneId,
       _userTwoId,
     });
-
+    if (!match) {
+      throw new NotFoundException(HttpErrorMessages['Match does not exist']);
+    }
     this.chatsGateway.server
       .to([currentUserId, targetUserId])
       .emit('matched', match);
-
     return match;
   }
 
@@ -233,6 +237,112 @@ export class MatchesService extends ApiCursorDateService {
 
   public getPagination(data: MatchDocument[]): Pagination {
     return this.getPaginationByField(data, '_id');
+  }
+
+  public async findOneById(id: string, client: ClientData) {
+    const { id: currentUserId } = client;
+    const _currentUserId = this.getObjectId(currentUserId);
+
+    const matches: LikeDocument[] = await this.matchModel.model
+      .aggregate([
+        {
+          $match: {
+            _id: this.getObjectId(id),
+            $or: [
+              {
+                _userOneId: _currentUserId,
+              },
+              {
+                _userTwoId: _currentUserId,
+              },
+            ],
+          },
+        },
+        { $limit: 1 },
+        {
+          $lookup: {
+            from: 'users',
+            let: {
+              targetUserId: '$_userOneId',
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$_id', '$$targetUserId'],
+                  },
+                },
+              },
+              {
+                $limit: 1,
+              },
+              {
+                $set: {
+                  age: {
+                    $dateDiff: {
+                      startDate: '$birthday',
+                      endDate: '$$NOW',
+                      unit: 'year',
+                    },
+                  },
+                },
+              },
+              {
+                $project: this.matchModel.projectUserFields,
+              },
+            ],
+            as: 'userOne',
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            let: {
+              targetUserId: '$_userTwoId',
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$_id', '$$targetUserId'],
+                  },
+                },
+              },
+              {
+                $limit: 1,
+              },
+              {
+                $set: {
+                  age: {
+                    $dateDiff: {
+                      startDate: '$birthday',
+                      endDate: '$$NOW',
+                      unit: 'year',
+                    },
+                  },
+                },
+              },
+              {
+                $project: this.matchModel.projectUserFields,
+              },
+            ],
+            as: 'userTwo',
+          },
+        },
+        {
+          $set: {
+            userOne: { $first: '$userOne' },
+            userTwo: { $first: '$userTwo' },
+          },
+        },
+      ])
+      .exec();
+
+    const match = matches[0];
+    if (!match) {
+      throw new NotFoundException(HttpErrorMessages['Match does not exist']);
+    }
+    return match;
   }
 
   public async findOneByUserIds({
