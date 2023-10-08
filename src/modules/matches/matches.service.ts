@@ -71,7 +71,6 @@ export class MatchesService extends ApiCursorDateService {
     const _id = this.getObjectId(id);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-
     const existMatch = await this.matchModel.model
       .findOne(
         {

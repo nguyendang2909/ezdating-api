@@ -12,7 +12,6 @@ import {
 } from './schemas/coin-attendance.schema';
 import { Like, LikeSchema } from './schemas/like.schema';
 import { Match, MatchSchema } from './schemas/match.schema';
-import { MediaFile, MediaFileSchema } from './schemas/media-file.schema';
 import { Message, MessageSchema } from './schemas/message.schema';
 import {
   SignedDevice,
@@ -30,7 +29,6 @@ import { ViewModel } from './view.model';
       { name: CoinAttendance.name, schema: CoinAttendanceSchema },
       { name: Like.name, schema: LikeSchema },
       { name: Match.name, schema: MatchSchema },
-      { name: MediaFile.name, schema: MediaFileSchema },
       { name: Message.name, schema: MessageSchema },
       { name: SignedDevice.name, schema: SignedDeviceSchema },
       { name: User.name, schema: UserSchema },
