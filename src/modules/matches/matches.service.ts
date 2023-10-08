@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { APP_CONFIG } from '../../app.config';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../commons/constants';
@@ -45,15 +41,17 @@ export class MatchesService extends ApiCursorDateService {
       targetUserId,
     });
     const existMatch = await this.matchModel.model
-      .findOne({
-        _userOneId,
-        _userTwoId,
-      })
+      .findOne(
+        {
+          _userOneId,
+          _userTwoId,
+        },
+        {},
+        { lean: true },
+      )
       .exec();
     if (existMatch) {
-      throw new ConflictException(
-        HttpErrorMessages['You are already got matched'],
-      );
+      return existMatch;
     }
     const createResult = await this.matchModel.model.create({
       _userOneId,
