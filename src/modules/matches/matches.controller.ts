@@ -14,13 +14,13 @@ export class MatchesController {
   constructor(private readonly service: MatchesService) {}
 
   @Post('/')
-  public async createMatch(
+  public async createOne(
     @Body() payload: CreateMatchDto,
     @Client() client: ClientData,
   ) {
     return {
       type: 'createMatch',
-      data: await this.service.create(payload, client),
+      data: await this.service.createOne(payload, client),
     };
   }
 

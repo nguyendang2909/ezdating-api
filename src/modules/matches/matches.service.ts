@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../commons/constants';
@@ -10,7 +11,6 @@ import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
-import { MessageModel } from '../models/message.model';
 import { LikeDocument } from '../models/schemas/like.schema';
 import { Match, MatchDocument } from '../models/schemas/match.schema';
 import { UserModel } from '../models/user.model';
@@ -23,7 +23,6 @@ export class MatchesService extends ApiCursorDateService {
   constructor(
     private readonly matchModel: MatchModel,
     private readonly userModel: UserModel,
-    private readonly messageModel: MessageModel,
     private readonly chatsGateway: ChatsGateway,
     private readonly likeModel: LikeModel,
     private readonly viewModel: ViewModel,
@@ -33,34 +32,33 @@ export class MatchesService extends ApiCursorDateService {
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MATCHES;
   }
 
-  public async create(payload: CreateMatchDto, clientData: ClientData) {
+  public async createOne(payload: CreateMatchDto, clientData: ClientData) {
     const { targetUserId } = payload;
     const { id: currentUserId } = clientData;
     const { _userOneId, _userTwoId } = this.matchModel.getSortedUserIds({
       currentUserId,
       targetUserId,
     });
-    const existMatch = await this.matchModel.model
-      .findOne(
-        {
-          _userOneId,
-          _userTwoId,
-        },
-        {},
-        { lean: true },
-      )
-      .exec();
-    if (existMatch) {
-      return existMatch;
-    }
-    const createResult = await this.matchModel.model.create({
+    const existMatch = this.findOneByUserIds({
       _userOneId,
       _userTwoId,
     });
-    const match = createResult.toJSON();
+    if (existMatch) {
+      return existMatch;
+    }
+    await this.matchModel.model.create({
+      _userOneId,
+      _userTwoId,
+    });
+    const match = await this.findOneByUserIds({
+      _userOneId,
+      _userTwoId,
+    });
+
     this.chatsGateway.server
       .to([currentUserId, targetUserId])
       .emit('matched', match);
+
     return match;
   }
 
@@ -211,21 +209,7 @@ export class MatchesService extends ApiCursorDateService {
                 },
               },
               {
-                $project: {
-                  _id: true,
-                  age: 1,
-                  filterGender: true,
-                  filterMaxAge: true,
-                  filterMaxDistance: true,
-                  filterMinAge: true,
-                  gender: true,
-                  introduce: true,
-                  lastActivatedAt: true,
-                  mediaFiles: true,
-                  nickname: true,
-                  relationshipGoal: true,
-                  status: true,
-                },
+                $project: this.matchModel.projectUserFields,
               },
             ],
             as: 'targetUser',
@@ -234,7 +218,6 @@ export class MatchesService extends ApiCursorDateService {
         {
           $set: {
             targetUser: { $first: '$targetUser' },
-            read: false,
           },
         },
       ])
@@ -249,5 +232,103 @@ export class MatchesService extends ApiCursorDateService {
 
   public getPagination(data: MatchDocument[]): Pagination {
     return this.getPaginationByField(data, '_id');
+  }
+
+  public async findOneByUserIds({
+    _userOneId,
+    _userTwoId,
+  }: {
+    _userOneId: Types.ObjectId;
+    _userTwoId: Types.ObjectId;
+  }) {
+    const matches: LikeDocument[] = await this.matchModel.model
+      .aggregate([
+        {
+          $match: {
+            _userOneId,
+            _userTwoId,
+          },
+        },
+        { $limit: 1 },
+        {
+          $lookup: {
+            from: 'users',
+            let: {
+              targetUserId: _userOneId,
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$_id', '$$targetUserId'],
+                  },
+                },
+              },
+              {
+                $limit: 1,
+              },
+              {
+                $set: {
+                  age: {
+                    $dateDiff: {
+                      startDate: '$birthday',
+                      endDate: '$$NOW',
+                      unit: 'year',
+                    },
+                  },
+                },
+              },
+              {
+                $project: this.matchModel.projectUserFields,
+              },
+            ],
+            as: 'userOne',
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            let: {
+              targetUserId: _userTwoId,
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$_id', '$$targetUserId'],
+                  },
+                },
+              },
+              {
+                $limit: 1,
+              },
+              {
+                $set: {
+                  age: {
+                    $dateDiff: {
+                      startDate: '$birthday',
+                      endDate: '$$NOW',
+                      unit: 'year',
+                    },
+                  },
+                },
+              },
+              {
+                $project: this.matchModel.projectUserFields,
+              },
+            ],
+            as: 'userTwo',
+          },
+        },
+        {
+          $set: {
+            userOne: { $first: '$userOne' },
+            userTwo: { $first: '$userTwo' },
+          },
+        },
+      ])
+      .exec();
+
+    return matches[0];
   }
 }
