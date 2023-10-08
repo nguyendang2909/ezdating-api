@@ -115,33 +115,6 @@ export class SwipeUsersService extends ApiService {
       },
       { $limit: this.limitRecordsPerQuery },
       {
-        $lookup: {
-          from: 'mediafiles',
-          let: {
-            userId: '$_id',
-          },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: ['$_userId', '$$userId'],
-                },
-              },
-            },
-            {
-              $limit: 6,
-            },
-            {
-              $project: {
-                _id: true,
-                location: true,
-              },
-            },
-          ],
-          as: 'mediaFiles',
-        },
-      },
-      {
         $set: {
           age: {
             $dateDiff: {

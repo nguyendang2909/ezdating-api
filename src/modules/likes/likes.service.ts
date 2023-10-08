@@ -146,29 +146,6 @@ export class LikesService extends ApiCursorDateService {
                 $limit: 1,
               },
               {
-                $lookup: {
-                  from: 'mediafiles',
-                  let: { userId: '$_id' },
-                  pipeline: [
-                    {
-                      $match: {
-                        $expr: {
-                          $eq: ['$_userId', '$$userId'],
-                        },
-                      },
-                    },
-                    { $limit: APP_CONFIG.PAGINATION_LIMIT.MEDIA_FILES },
-                    {
-                      $project: {
-                        _id: true,
-                        location: true,
-                      },
-                    },
-                  ],
-                  as: 'mediaFiles',
-                },
-              },
-              {
                 $set: {
                   age: {
                     $dateDiff: {

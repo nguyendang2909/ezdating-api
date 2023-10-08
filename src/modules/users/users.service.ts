@@ -3,13 +3,11 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
-import { MediaFileModel } from '../models/media-file.model';
 import { UserModel } from '../models/user.model';
 @Injectable()
 export class UsersService extends ApiService {
   constructor(
-    private readonly userModel: UserModel,
-    private readonly mediaFileModel: MediaFileModel, // private readonly stateModel: StateModel, // private readonly countryModel: CountryModel,
+    private readonly userModel: UserModel, // private readonly stateModel: StateModel, // private readonly countryModel: CountryModel,
   ) {
     super();
   }

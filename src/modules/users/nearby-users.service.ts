@@ -128,33 +128,6 @@ export class NearbyUsersService extends ApiService {
         },
         { $limit: this.limitRecordsPerQuery },
         {
-          $lookup: {
-            from: 'mediafiles',
-            let: {
-              userId: '$_id',
-            },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $eq: ['$_userId', '$$userId'],
-                  },
-                },
-              },
-              {
-                $limit: APP_CONFIG.PAGINATION_LIMIT.MEDIA_FILES,
-              },
-              {
-                $project: {
-                  _id: true,
-                  location: true,
-                },
-              },
-            ],
-            as: 'mediaFiles',
-          },
-        },
-        {
           $set: {
             age: {
               $dateDiff: {

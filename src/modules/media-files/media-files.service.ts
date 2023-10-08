@@ -13,17 +13,13 @@ import { MediaFileTypes } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
-import { MediaFileModel } from '../models/media-file.model';
 import { User, UserDocument } from '../models/schemas/user.schema';
 import { UserModel } from '../models/user.model';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
 
 @Injectable()
 export class MediaFilesService extends ApiService {
-  constructor(
-    private readonly mediaFileModel: MediaFileModel,
-    private readonly userModel: UserModel,
-  ) {
+  constructor(private readonly userModel: UserModel) {
     super();
   }
 

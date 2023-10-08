@@ -4,7 +4,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CoinAttendanceModel } from './coin-attendance.model';
 import { LikeModel } from './like.model';
 import { MatchModel } from './match.model';
-import { MediaFileModel } from './media-file.model';
 import { MessageModel } from './message.model';
 import {
   CoinAttendance,
@@ -39,7 +38,6 @@ import { ViewModel } from './view.model';
     CoinAttendanceModel,
     LikeModel,
     MatchModel,
-    MediaFileModel,
     MessageModel,
     SignedDeviceModel,
     UserModel,
@@ -50,7 +48,6 @@ import { ViewModel } from './view.model';
     CoinAttendanceModel,
     LikeModel,
     MatchModel,
-    MediaFileModel,
     MessageModel,
     SignedDeviceModel,
     UserModel,

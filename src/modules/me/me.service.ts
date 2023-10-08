@@ -15,7 +15,6 @@ import { HttpErrorMessages } from '../../commons/erros/http-error-messages.const
 import { ClientData } from '../auth/auth.type';
 import { CoinAttendanceModel } from '../models/coin-attendance.model';
 import { MatchModel } from '../models/match.model';
-import { MediaFileModel } from '../models/media-file.model';
 import { CoinAttendanceDocument } from '../models/schemas/coin-attendance.schema';
 import { UserDocument } from '../models/schemas/user.schema';
 import { UserModel } from '../models/user.model';
@@ -27,7 +26,6 @@ import { UpdateMyProfileBasicInfoDto } from './dto/update-me-basic-info.dto';
 export class MeService extends UsersCommonService {
   constructor(
     private readonly userModel: UserModel,
-    private readonly mediaFileModel: MediaFileModel,
     // private readonly stateModel: StateModel,
     private readonly coinAttendanceModel: CoinAttendanceModel,
     // private readonly countryModel: CountryModel,
@@ -44,21 +42,6 @@ export class MeService extends UsersCommonService {
       .aggregate()
       .match({
         _id: _currentUserId,
-      })
-      .lookup({
-        from: 'mediafiles',
-        let: { userId: '$_id' },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $eq: ['$_userId', '$$userId'],
-              },
-            },
-          },
-          { $limit: APP_CONFIG.PAGINATION_LIMIT.MEDIA_FILES },
-        ],
-        as: 'mediaFiles',
       })
       .addFields({
         age: {
