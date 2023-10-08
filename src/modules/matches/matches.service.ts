@@ -39,10 +39,11 @@ export class MatchesService extends ApiCursorDateService {
       currentUserId,
       targetUserId,
     });
-    const existMatch = this.findOneByUserIds({
+    const existMatch = await this.findOneByUserIds({
       _userOneId,
       _userTwoId,
     });
+    console.log(111, existMatch);
     if (existMatch) {
       return existMatch;
     }
