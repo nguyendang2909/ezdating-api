@@ -35,26 +35,20 @@ export class LikesService extends ApiCursorDateService {
   ): Promise<ResponseSuccess> {
     const currentUserId = clientData.id;
     const { targetUserId } = payload;
-
     if (currentUserId === targetUserId) {
       throw new BadRequestException({
         message: HttpErrorMessages['You cannot like yourself.'],
       });
     }
-
     const _currentUserId = this.getObjectId(currentUserId);
     const _targetUserId = this.getObjectId(targetUserId);
-
     const existLike = await this.likeModel.model.findOne({
       _userId: _currentUserId,
       _targetUserId,
     });
-
     if (existLike) {
       return { success: true };
     }
-
-    // TODO: transaction
     const reverseLike = await this.likeModel.model.findOneAndUpdate(
       {
         _userId: _targetUserId,
@@ -66,30 +60,36 @@ export class LikesService extends ApiCursorDateService {
         },
       },
     );
-
     await this.likeModel.model.create({
       _userId: _currentUserId,
       _targetUserId,
       ...(reverseLike ? { isMatched: true } : {}),
     });
-
-    this.viewModel.model.create({
-      _userId: _currentUserId,
-      _targetUserId,
-      isLiked: true,
-    });
-
+    this.viewModel.model.findOneAndUpdate(
+      { _userId: _currentUserId, _targetUserId },
+      {
+        isLiked: true,
+        ...(reverseLike ? { isMatched: true } : {}),
+      },
+      { upsert: true },
+    );
     if (reverseLike) {
       const { _userOneId, _userTwoId } = this.matchModel.getSortedUserIds({
         currentUserId,
         targetUserId,
       });
-
+      this.viewModel.model.findOneAndUpdate(
+        { _userId: _targetUserId, _targetUserId: _currentUserId },
+        {
+          isLiked: true,
+          isMatched: true,
+        },
+        { upsert: true },
+      );
       const createMatch = await this.matchModel.model.create({
         _userOneId,
         _userTwoId,
       });
-
       this.chatsGateway.server
         .to([currentUserId, targetUserId])
         .emit('matched', createMatch.toJSON());

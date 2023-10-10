@@ -16,6 +16,9 @@ export class View extends CommonSchema {
   @Prop({ type: Boolean, required: false, default: false })
   isLiked?: boolean;
 
+  @Prop({ type: Boolean, required: false, default: false })
+  isMatched?: boolean;
+
   @Prop({ type: Date, default: new Date(), required: true })
   viewedAt?: Date;
 }
