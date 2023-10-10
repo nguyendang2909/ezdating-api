@@ -29,6 +29,7 @@ import { MessagesModule } from './modules/messages/messages.module';
 import { ModelsModule } from './modules/models/models.module';
 import { UsersModule } from './modules/users/users.module';
 import { ViewsModule } from './modules/views/views.module';
+import { PushNotificationsModule } from './modules/push-notifications/push-notifications.module';
 
 @Module({
   imports: [
@@ -156,6 +157,7 @@ import { ViewsModule } from './modules/views/views.module';
     HealthModule,
     ViewsModule,
     LikesModule,
+    PushNotificationsModule,
 
     // CoinsModule,
   ],
