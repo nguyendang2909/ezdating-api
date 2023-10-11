@@ -61,3 +61,11 @@ function createSwagger(app: INestApplication) {
 }
 
 bootstrap();
+
+process.on('unhandledRejection', (error, cb) => {
+  logger.error(error);
+});
+
+process.on('SIGTERM', () => {
+  logger.log('SIGTERM signal received: closing HTTP server');
+});
