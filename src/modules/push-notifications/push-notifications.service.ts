@@ -1,22 +1,34 @@
 import { Injectable } from '@nestjs/common';
 
+import { SendPushNotificationPayload } from '../../commons';
+import { DevicePlatforms } from '../../commons/constants';
+import { AndroidPushNotificationsService } from './android-push-notifications.service';
+import { IosPushNotificationsService } from './ios-push-notifications.service';
+
 @Injectable()
 export class PushNotificationsService {
-  create(createPushNotificationDto) {}
+  constructor(
+    private readonly iosService: IosPushNotificationsService,
+    private readonly androidService: AndroidPushNotificationsService,
+  ) {}
 
-  findAll() {
-    return `This action returns all pushNotifications`;
-  }
+  async send(payload: SendPushNotificationPayload) {
+    if (payload.platform === DevicePlatforms.ios) {
+      await this.iosService.send(payload.deviceId, {
+        title: payload.title,
+        content: payload.content,
+      });
 
-  findOne(id: number) {
-    return `This action returns a #${id} pushNotification`;
-  }
+      return;
+    }
 
-  update(id: number, updatePushNotificationDto) {
-    return `This action updates a #${id} pushNotification`;
-  }
+    if (payload.platform === DevicePlatforms.android) {
+      await this.androidService.send(payload.deviceId, {
+        title: payload.title,
+        content: payload.content,
+      });
 
-  remove(id: number) {
-    return `This action removes a #${id} pushNotification`;
+      return;
+    }
   }
 }

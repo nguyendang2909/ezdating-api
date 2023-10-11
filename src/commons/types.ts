@@ -2,6 +2,8 @@
 
 import mongoose from 'mongoose';
 
+import { DevicePlatform } from './constants';
+
 export type MongoDocument<T> = T & {
   _id: mongoose.Types.ObjectId;
 };
@@ -36,4 +38,11 @@ export type Pagination = {
 export type NearbyUserCursor = {
   excludedUserIds?: string[];
   minDistance?: number;
+};
+
+export type SendPushNotificationPayload = {
+  content: string;
+  deviceId: string;
+  platform: DevicePlatform;
+  title: string;
 };
