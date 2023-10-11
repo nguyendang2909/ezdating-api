@@ -6,6 +6,7 @@ export type ClientData = AccessTokenSignPayload & {
 };
 
 export type AccessTokenSignPayload = {
+  deviceId?: string;
   gender?: UserGender;
   id: string;
   role: UserRole;

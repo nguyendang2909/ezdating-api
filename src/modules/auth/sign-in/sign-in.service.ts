@@ -51,7 +51,7 @@ export class SignInService {
   public async signInWithPhoneNumber(
     payload: SignInWithPhoneNumberDto,
   ): Promise<SignInData> {
-    const { token } = payload;
+    const { token, deviceId } = payload;
     const decoded = await this.firebaseService.decodeToken(token);
     const phoneNumber = decoded.phone_number;
     if (!phoneNumber) {
@@ -85,6 +85,7 @@ export class SignInService {
       id: userId,
       role,
       gender,
+      ...(deviceId ? { deviceId } : {}),
     });
     const refreshToken = this.encryptionsUtil.signRefreshToken({
       id: userId,
@@ -96,6 +97,7 @@ export class SignInService {
       expiresIn: moment()
         .add(APP_CONFIG.REFRESH_TOKEN_EXPIRES, 'days')
         .toDate(),
+      ...(deviceId ? { deviceId } : {}),
     });
 
     return {

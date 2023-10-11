@@ -3,10 +3,11 @@ import Joi from 'joi';
 import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 
 import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
+import { SignInDto } from './sign-in.dto';
 
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
-export class SignInWithPhoneNumberDto {
+export class SignInWithPhoneNumberDto extends SignInDto {
   @ApiProperty({ type: String })
   @JoiSchema(Joi.string().required())
-  token!: string;
+  token: string;
 }
