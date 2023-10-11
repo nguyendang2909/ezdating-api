@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 
-import { firebase } from '../auth/firebase';
+import { FirebaseService } from '../firebase/firebase.service';
 
 @Injectable()
 export class AndroidPushNotificationsService {
+  constructor(private readonly firebaseService: FirebaseService) {}
+
   async send(deviceToken: string, message: { content: string; title: string }) {
-    return await firebase.messaging().send({
+    return await this.firebaseService.app.messaging().send({
       android: {
         priority: 'normal',
         ttl: 360000,

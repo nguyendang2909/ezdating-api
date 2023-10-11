@@ -30,6 +30,7 @@ import { ModelsModule } from './modules/models/models.module';
 import { UsersModule } from './modules/users/users.module';
 import { ViewsModule } from './modules/views/views.module';
 import { PushNotificationsModule } from './modules/push-notifications/push-notifications.module';
+import { FirebaseModule } from './modules/firebase/firebase.module';
 
 @Module({
   imports: [
@@ -158,6 +159,7 @@ import { PushNotificationsModule } from './modules/push-notifications/push-notif
     ViewsModule,
     LikesModule,
     PushNotificationsModule,
+    FirebaseModule,
 
     // CoinsModule,
   ],

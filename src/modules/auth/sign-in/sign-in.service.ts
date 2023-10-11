@@ -11,12 +11,12 @@ import { APP_CONFIG } from '../../../app.config';
 import { UserRoles, UserStatuses } from '../../../commons/constants';
 import { HttpErrorMessages } from '../../../commons/erros/http-error-messages.constant';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
+import { FirebaseService } from '../../firebase/firebase.service';
 import { SignedDeviceModel } from '../../models/signed-device.model';
 import { UserModel } from '../../models/user.model';
 import { SignInData } from '../auth.type';
 import { SignInWithPhoneNumberDto } from '../dto/sign-in-with-phone-number.dto';
 import { SignInWithPhoneNumberAndPasswordDto } from '../dto/sign-in-with-phone-number-and-password.dto';
-import { FirebaseService } from '../firebase.service';
 
 @Injectable()
 export class SignInService {
