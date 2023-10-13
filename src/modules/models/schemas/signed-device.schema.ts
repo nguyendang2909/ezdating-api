@@ -18,10 +18,10 @@ export class SignedDevice extends CommonSchema {
   expiresIn?: Date;
 
   @Prop({ type: String })
-  deviceId: string;
+  deviceId?: string;
 
   @Prop({ type: String, enum: DevicePlatforms })
-  platform: DevicePlatform;
+  platform?: DevicePlatform;
 }
 
 export const SignedDeviceSchema = SchemaFactory.createForClass(SignedDevice);

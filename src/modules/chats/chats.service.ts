@@ -7,7 +7,9 @@ import { HttpErrorMessages } from '../../commons/erros/http-error-messages.const
 import { DbService } from '../../commons/services/db.service';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
+import { SignedDeviceModel } from '../models/signed-device.model';
 import { UserModel } from '../models/user.model';
+import { PushNotificationsService } from '../push-notifications/push-notifications.service';
 import { ReadChatMessageDto } from './dto/read-chat-message.dto';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
@@ -19,6 +21,8 @@ export class ChatsService extends DbService {
     // private readonly relationshipModel: RelationshipModel,
     private readonly messageModel: MessageModel,
     private readonly userModel: UserModel,
+    private readonly signedDeviceModel: SignedDeviceModel,
+    private readonly pushNotificationsService: PushNotificationsService,
   ) {
     super();
   }
@@ -33,12 +37,10 @@ export class ChatsService extends DbService {
     const currentUserId = socket.handshake.user.id;
     const _currentUserId = this.getObjectId(currentUserId);
     const _matchId = this.getObjectId(matchId);
-
     const existMatch = await this.matchModel.findOneRelatedToUserId(
       _matchId,
       _currentUserId,
     );
-
     if (!existMatch) {
       socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
         message: HttpErrorMessages['Match does not exist'],
@@ -46,21 +48,16 @@ export class ChatsService extends DbService {
 
       return;
     }
-
     const { _userOneId, _userTwoId } = existMatch;
-
     if (!_userOneId || !_userTwoId) {
       socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
         message: HttpErrorMessages['Match is invalid'],
       });
-
       return;
     }
-
     const userOneId = _userOneId.toString();
     const userTwoId = _userTwoId.toString();
     const isUserOne = currentUserId === userOneId;
-
     const messageCreatedAt = moment().toDate();
     // TODO: transaction
     const createdMessage = await this.messageModel.model.create({
@@ -70,7 +67,6 @@ export class ChatsService extends DbService {
       uuid,
       createdAt: messageCreatedAt,
     });
-
     await this.matchModel.model
       .updateOne(
         { _id: existMatch._id },
@@ -87,14 +83,26 @@ export class ChatsService extends DbService {
         },
       )
       .exec();
-
     const message = createdMessage.toJSON();
-
     socket.emit(SOCKET_TO_CLIENT_EVENTS.UPDATE_SENT_MESSAGE, message);
-
     socket
       .to([userOneId, userTwoId])
       .emit(SOCKET_TO_CLIENT_EVENTS.NEW_MESSAGE, message);
+    const { _targetUserId } = this.matchModel.getTargetUserId({
+      currentUserId,
+      userOneId,
+      userTwoId,
+    });
+    const receivedSignedDevices = await this.signedDeviceModel.model.find({
+      _id: _targetUserId,
+    });
+    await this.pushNotificationsService.sendByDevices(
+      {
+        content: text,
+        title: 'You have received new message',
+      },
+      receivedSignedDevices,
+    );
   }
 
   public async readMessage(payload: ReadChatMessageDto, socket: Socket) {

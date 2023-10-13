@@ -46,3 +46,8 @@ export type SendPushNotificationPayload = {
   platform: DevicePlatform;
   title: string;
 };
+
+export type SendPushNotificationContent = {
+  content: string;
+  title: string;
+};

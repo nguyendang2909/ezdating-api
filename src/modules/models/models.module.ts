@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { CoinAttendanceModel } from './coin-attendance.model';
@@ -22,6 +22,7 @@ import { SignedDeviceModel } from './signed-device.model';
 import { UserModel } from './user.model';
 import { ViewModel } from './view.model';
 
+@Global()
 @Module({
   imports: [
     MongooseModule.forFeature([
