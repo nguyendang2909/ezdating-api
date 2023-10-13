@@ -1,4 +1,4 @@
-import { DevicePlatform, UserGender, UserRole } from '../../commons/constants';
+import { UserGender, UserRole } from '../../commons/constants';
 
 export type ClientData = AccessTokenSignPayload & {
   exp: number;
@@ -6,10 +6,8 @@ export type ClientData = AccessTokenSignPayload & {
 };
 
 export type AccessTokenSignPayload = {
-  deviceId?: string;
   gender?: UserGender;
   id: string;
-  platform?: DevicePlatform;
   role: UserRole;
   sub: string;
 };

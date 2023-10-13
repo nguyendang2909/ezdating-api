@@ -85,8 +85,6 @@ export class SignInService {
       id: userId,
       role,
       gender,
-      ...(deviceId ? { deviceId } : {}),
-      ...(platform ? { platform } : {}),
     });
     const refreshToken = this.encryptionsUtil.signRefreshToken({
       id: userId,
