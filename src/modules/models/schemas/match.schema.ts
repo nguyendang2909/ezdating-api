@@ -40,11 +40,5 @@ MatchSchema.index({ _userOneId: 1, _userTwoId: 1 }, { unique: true });
 MatchSchema.index({
   _userOneId: 1,
   _userTwoId: 1,
-  _id: 1,
-});
-
-MatchSchema.index({
-  _userOneId: 1,
-  _userTwoId: 1,
   lastMessageAt: 1,
 });
