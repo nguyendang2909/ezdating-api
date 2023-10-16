@@ -1,8 +1,6 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
-import { ClientData } from '../auth/auth.type';
 import { UserModel } from '../models/user.model';
 @Injectable()
 export class UsersService extends ApiService {
@@ -346,17 +344,32 @@ export class UsersService extends ApiService {
   //   };
   // }
 
-  public async findOneOrFailById(targetUserId: string, clientData: ClientData) {
-    const { id: currentUserId } = clientData;
-    if (targetUserId === currentUserId) {
-      throw new BadRequestException({
-        message: HttpErrorMessages['You cannot find yourself.'],
-      });
-    }
+  public async findOneOrFailById(targetUserId: string) {
     const _targetUserId = this.getObjectId(targetUserId);
-    const findResult = await this.userModel.findOneOrFail({
-      _id: _targetUserId,
-    });
+    const findResult = await this.userModel.model.aggregate([
+      {
+        $match: {
+          _id: _targetUserId,
+        },
+      },
+      {
+        $limit: 1,
+      },
+      {
+        $set: {
+          age: {
+            $dateDiff: {
+              startDate: '$birthday',
+              endDate: '$$NOW',
+              unit: 'year',
+            },
+          },
+        },
+      },
+      {
+        $project: this.userModel.matchUserFields,
+      },
+    ]);
 
     return findResult;
   }

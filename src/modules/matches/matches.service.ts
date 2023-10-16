@@ -214,7 +214,7 @@ export class MatchesService extends ApiCursorDateService {
                 },
               },
               {
-                $project: this.matchModel.projectUserFields,
+                $project: this.userModel.matchUserFields,
               },
             ],
             as: 'targetUser',
@@ -288,7 +288,7 @@ export class MatchesService extends ApiCursorDateService {
                 },
               },
               {
-                $project: this.matchModel.projectUserFields,
+                $project: this.userModel.matchUserFields,
               },
             ],
             as: 'userOne',
@@ -323,7 +323,7 @@ export class MatchesService extends ApiCursorDateService {
                 },
               },
               {
-                $project: this.matchModel.projectUserFields,
+                $project: this.userModel.matchUserFields,
               },
             ],
             as: 'userTwo',
@@ -385,7 +385,7 @@ export class MatchesService extends ApiCursorDateService {
                 },
               },
               {
-                $project: this.matchModel.projectUserFields,
+                $project: this.userModel.matchUserFields,
               },
             ],
             as: 'userOne',
@@ -415,7 +415,7 @@ export class MatchesService extends ApiCursorDateService {
                 },
               },
               {
-                $project: this.matchModel.projectUserFields,
+                $project: this.userModel.matchUserFields,
               },
             ],
             as: 'userTwo',

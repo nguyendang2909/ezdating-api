@@ -36,13 +36,10 @@ export class UsersController {
   }
 
   @Get('/:id')
-  private async findOneById(
-    @Param('id') id: string,
-    @Client() clientData: ClientData,
-  ) {
+  private async findOneById(@Param('id') id: string) {
     return {
       type: 'profile',
-      data: await this.usersService.findOneOrFailById(id, clientData),
+      data: await this.usersService.findOneOrFailById(id),
     };
   }
 }

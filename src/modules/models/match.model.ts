@@ -15,22 +15,6 @@ export class MatchModel extends CommonModel {
     super();
   }
 
-  public projectUserFields = {
-    _id: true,
-    age: true,
-    filterGender: true,
-    filterMaxAge: true,
-    filterMaxDistance: true,
-    filterMinAge: true,
-    gender: true,
-    introduce: true,
-    lastActivatedAt: true,
-    mediaFiles: true,
-    nickname: true,
-    relationshipGoal: true,
-    status: true,
-  };
-
   public async findOneRelatedToUserId(
     _id: Types.ObjectId,
     _currentUserId: Types.ObjectId,

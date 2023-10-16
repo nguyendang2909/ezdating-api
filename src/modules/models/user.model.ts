@@ -24,6 +24,22 @@ export class UserModel extends CommonModel {
     super();
   }
 
+  public matchUserFields = {
+    _id: true,
+    age: true,
+    filterGender: true,
+    filterMaxAge: true,
+    filterMaxDistance: true,
+    filterMinAge: true,
+    gender: true,
+    introduce: true,
+    lastActivatedAt: true,
+    mediaFiles: true,
+    nickname: true,
+    relationshipGoal: true,
+    status: true,
+  };
+
   public async createOne(entity: User) {
     const { phoneNumber } = entity;
     if (!phoneNumber) {
