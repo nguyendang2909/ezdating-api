@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Types } from 'mongoose';
 
 import {
   SendPushNotificationContent,
@@ -20,7 +21,7 @@ export class PushNotificationsService {
 
   async send(payload: SendPushNotificationPayload) {
     if (payload.platform === DevicePlatforms.ios) {
-      await this.iosService.send(payload.deviceId, {
+      return await this.iosService.send(payload.deviceId, {
         title: payload.title,
         content: payload.content,
       });
@@ -29,7 +30,7 @@ export class PushNotificationsService {
     }
 
     if (payload.platform === DevicePlatforms.android) {
-      await this.androidService.send(payload.deviceId, {
+      return await this.androidService.send(payload.deviceId, {
         title: payload.title,
         content: payload.content,
       });
@@ -39,10 +40,10 @@ export class PushNotificationsService {
   }
 
   async sendByDevices(
-    payload: SendPushNotificationContent,
     devices: SignedDevice[],
+    payload: SendPushNotificationContent,
   ) {
-    await Promise.all(
+    return await Promise.all(
       devices
         .map((e) => {
           if (!e.deviceId || !e.platform) {
@@ -57,5 +58,22 @@ export class PushNotificationsService {
         })
         .filter((e) => !!e),
     );
+  }
+
+  async sendByUserId(
+    _userId: Types.ObjectId,
+    payload: SendPushNotificationContent,
+  ) {
+    const signedDevides = await this.signedDeviceModel.model
+      .find(
+        {
+          _userId,
+        },
+        {},
+        { lean: true },
+      )
+      .exec();
+
+    return await this.sendByDevices(signedDevides, payload);
   }
 }

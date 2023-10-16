@@ -93,16 +93,10 @@ export class ChatsService extends DbService {
       userOneId,
       userTwoId,
     });
-    const receivedSignedDevices = await this.signedDeviceModel.model.find({
-      _id: _targetUserId,
+    await this.pushNotificationsService.sendByUserId(_targetUserId, {
+      content: text,
+      title: 'You have received new message',
     });
-    await this.pushNotificationsService.sendByDevices(
-      {
-        content: text,
-        title: 'You have received new message',
-      },
-      receivedSignedDevices,
-    );
   }
 
   public async readMessage(payload: ReadChatMessageDto, socket: Socket) {
