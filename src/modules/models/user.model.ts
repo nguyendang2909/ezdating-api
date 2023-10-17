@@ -40,7 +40,7 @@ export class UserModel extends CommonModel {
     status: true,
   };
 
-  public async createOne(entity: User) {
+  public async createOne(entity: Partial<User>) {
     const { phoneNumber } = entity;
     if (!phoneNumber) {
       throw new BadRequestException('Phone number does not exist!');

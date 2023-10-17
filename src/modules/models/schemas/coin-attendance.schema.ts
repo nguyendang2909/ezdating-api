@@ -7,16 +7,16 @@ export type CoinAttendanceDocument = HydratedDocument<CoinAttendance>;
 @Schema({ timestamps: true })
 export class CoinAttendance extends CommonSchema {
   @Prop({ type: SchemaTypes.ObjectId, required: true })
-  _userId?: Types.ObjectId;
+  _userId: Types.ObjectId;
 
   @Prop({ type: Date, required: true })
-  receivedDate?: Date;
+  receivedDate: Date;
 
   @Prop({ type: Number, required: true })
-  receivedDateIndex?: number;
+  receivedDateIndex: number;
 
   @Prop({ type: Number, required: true })
-  value?: number;
+  value: number;
 }
 
 export const CoinAttendanceSchema =

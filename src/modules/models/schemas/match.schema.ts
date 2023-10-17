@@ -9,10 +9,10 @@ export type MatchDocument = MongoDocument<Match>;
 @Schema({ timestamps: true })
 export class Match extends CommonSchema {
   @Prop({ type: SchemaTypes.ObjectId, required: true })
-  _userOneId?: Types.ObjectId;
+  _userOneId: Types.ObjectId;
 
   @Prop({ type: SchemaTypes.ObjectId, required: true })
-  _userTwoId?: Types.ObjectId;
+  _userTwoId: Types.ObjectId;
 
   @Prop({ type: SchemaTypes.ObjectId })
   _lastMessageId?: Types.ObjectId;
@@ -20,17 +20,17 @@ export class Match extends CommonSchema {
   @Prop({ type: SchemaTypes.ObjectId })
   _lastMessageUserId?: Types.ObjectId;
 
-  @Prop({ type: String, length: 200 })
+  @Prop({ type: String })
   lastMessage?: string;
 
   @Prop({ type: Date })
   lastMessageAt?: Date;
 
   @Prop({ type: Boolean, default: false })
-  userOneRead?: boolean;
+  userOneRead: boolean;
 
   @Prop({ type: Boolean, default: false })
-  userTwoRead?: boolean;
+  userTwoRead: boolean;
 }
 
 export const MatchSchema = SchemaFactory.createForClass(Match);

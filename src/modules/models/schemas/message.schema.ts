@@ -8,7 +8,7 @@ export type MessageDocument = HydratedDocument<Message>;
 @Schema({ timestamps: true })
 export class Message extends CommonSchema {
   @Prop({ type: SchemaTypes.ObjectId, required: true })
-  _matchId?: Types.ObjectId;
+  _matchId: Types.ObjectId;
 
   @Prop({ type: SchemaTypes.ObjectId })
   _replyMessageId?: Types.ObjectId;
@@ -23,7 +23,7 @@ export class Message extends CommonSchema {
   image?: string;
 
   @Prop({ type: Boolean, default: false })
-  isEdited?: boolean;
+  isEdited: boolean;
 
   @Prop({ type: Date })
   lastEditAt?: Date;

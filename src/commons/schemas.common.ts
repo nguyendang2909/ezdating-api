@@ -2,7 +2,7 @@ import { Schema } from '@nestjs/mongoose';
 
 @Schema({ timestamps: true })
 export class CommonSchema {
-  createdAt?: Date;
+  createdAt: Date;
 
-  updatedAt?: Date;
+  updatedAt: Date;
 }

@@ -9,13 +9,13 @@ export type SignedDeviceDocument = HydratedDocument<SignedDevice>;
 @Schema({ timestamps: true })
 export class SignedDevice extends CommonSchema {
   @Prop({ type: SchemaTypes.ObjectId, required: true })
-  _userId?: Types.ObjectId;
+  _userId: Types.ObjectId;
 
   @Prop({ type: String, required: true })
-  refreshToken?: string;
+  refreshToken: string;
 
   @Prop({ type: Date, required: true })
-  expiresIn?: Date;
+  expiresIn: Date;
 
   @Prop({ type: String })
   deviceId?: string;

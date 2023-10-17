@@ -34,7 +34,7 @@ export class User extends CommonSchema {
   company?: string;
 
   @Prop({ type: Number, default: 0 })
-  coins?: number;
+  coins: number;
 
   @Prop({ type: Number, enum: UserEducationLevels })
   educationLevel?: UserEducationLevel;
@@ -94,13 +94,13 @@ export class User extends CommonSchema {
   jobTitle?: string;
 
   @Prop({ type: Boolean, default: false })
-  hideAge?: boolean;
+  hideAge: boolean;
 
   @Prop({ type: Boolean, default: false })
-  hideDistance?: boolean;
+  hideDistance: boolean;
 
   @Prop({ type: Date, default: new Date() })
-  lastActivatedAt?: Date;
+  lastActivatedAt: Date;
 
   @Prop({ type: [String] })
   languages?: string[];
@@ -129,13 +129,13 @@ export class User extends CommonSchema {
     required: true,
     default: UserRoles.member,
   })
-  role?: UserRole;
+  role: UserRole;
 
   @Prop({ type: String })
   school?: string;
 
   @Prop({ type: Number, enum: UserStatuses, default: UserStatuses.registered })
-  status?: UserStatus;
+  status: UserStatus;
 
   @Prop({ type: Number })
   weight?: number;

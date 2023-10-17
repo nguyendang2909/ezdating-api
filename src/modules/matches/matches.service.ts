@@ -144,7 +144,7 @@ export class MatchesService extends ApiCursorDateService {
     const { _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;
 
-    const findResults: LikeDocument[] = await this.matchModel.model
+    const findResults: MatchDocument[] = await this.matchModel.model
       .aggregate([
         {
           $match: {
