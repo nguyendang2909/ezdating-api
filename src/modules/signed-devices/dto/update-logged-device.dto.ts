@@ -15,9 +15,9 @@ export class UpdateSignedDeviceDto {
   @JoiSchema(Joi.string().required())
   deviceToken: string;
 
-  @ApiProperty({ type: String })
+  @ApiProperty({ type: Number })
   @JoiSchema(
-    Joi.string()
+    Joi.number()
       .valid(...Object.values(DevicePlatforms))
       .required(),
   )
