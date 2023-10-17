@@ -20,8 +20,8 @@ export class PushNotificationsService {
   ) {}
 
   async send(payload: SendPushNotificationPayload) {
-    if (payload.platform === DevicePlatforms.ios) {
-      return await this.iosService.send(payload.deviceId, {
+    if (payload.devicePlatform === DevicePlatforms.ios) {
+      return await this.iosService.send(payload.deviceToken, {
         title: payload.title,
         content: payload.content,
       });
@@ -29,8 +29,8 @@ export class PushNotificationsService {
       return;
     }
 
-    if (payload.platform === DevicePlatforms.android) {
-      return await this.androidService.send(payload.deviceId, {
+    if (payload.devicePlatform === DevicePlatforms.android) {
+      return await this.androidService.send(payload.deviceToken, {
         title: payload.title,
         content: payload.content,
       });
@@ -46,14 +46,14 @@ export class PushNotificationsService {
     return await Promise.all(
       devices
         .map((e) => {
-          if (!e.deviceId || !e.platform) {
+          if (!e.token || !e.platform) {
             return;
           }
           return this.send({
             content: payload.content,
             title: 'You have received new message',
-            deviceId: e.deviceId,
-            platform: e.platform,
+            deviceToken: e.token,
+            devicePlatform: e.platform,
           });
         })
         .filter((e) => !!e),

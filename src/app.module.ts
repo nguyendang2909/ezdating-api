@@ -21,7 +21,7 @@ import { JwtAuthGuard } from './modules/guards/jwt.guard';
 import { RolesGuard } from './modules/guards/roles.guard';
 import { HealthModule } from './modules/health/health.module';
 import { LikesModule } from './modules/likes/likes.module';
-import { LoggedDevicesModule } from './modules/logged-devices/logged-devices.module';
+import { LoggedDevicesModule } from './modules/signed-devices/signed-devices.module';
 import { RelationshipsModule } from './modules/matches/matches.module';
 import { MeModule } from './modules/me/me.module';
 import { MediaFilesModule } from './modules/media-files/media-files.module';

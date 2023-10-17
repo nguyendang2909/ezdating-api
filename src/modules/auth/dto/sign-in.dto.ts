@@ -7,8 +7,8 @@ import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validat
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
 export class SignInDto {
   @JoiSchema(Joi.string())
-  deviceId?: string;
+  deviceToken?: string;
 
   @JoiSchema(Joi.string().valid(...Object.values(DevicePlatforms)))
-  platform?: DevicePlatform;
+  devicePlatform?: DevicePlatform;
 }

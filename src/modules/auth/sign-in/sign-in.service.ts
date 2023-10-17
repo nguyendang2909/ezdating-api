@@ -51,7 +51,7 @@ export class SignInService {
   public async signInWithPhoneNumber(
     payload: SignInWithPhoneNumberDto,
   ): Promise<SignInData> {
-    const { token, deviceId, platform } = payload;
+    const { token, deviceToken, devicePlatform } = payload;
     const decoded = await this.firebaseService.decodeToken(token);
     const phoneNumber = decoded.phone_number;
     if (!phoneNumber) {
@@ -96,8 +96,8 @@ export class SignInService {
       expiresIn: moment()
         .add(APP_CONFIG.REFRESH_TOKEN_EXPIRES, 'days')
         .toDate(),
-      ...(deviceId ? { deviceId } : {}),
-      ...(platform ? { platform } : {}),
+      ...(deviceToken ? { token } : {}),
+      ...(devicePlatform ? { platform: devicePlatform } : {}),
     });
 
     return {

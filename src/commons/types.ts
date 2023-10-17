@@ -42,8 +42,8 @@ export type NearbyUserCursor = {
 
 export type SendPushNotificationPayload = {
   content: string;
-  deviceId: string;
-  platform: DevicePlatform;
+  devicePlatform: DevicePlatform;
+  deviceToken: string;
   title: string;
 };
 

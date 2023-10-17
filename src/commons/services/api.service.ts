@@ -4,6 +4,7 @@ import {
 } from '@nestjs/common';
 import _ from 'lodash';
 
+import { ClientData } from '../../modules/auth/auth.type';
 import { HttpErrorMessages } from '../erros/http-error-messages.constant';
 import { Pagination } from '../types';
 import { DbService } from './db.service';
@@ -82,5 +83,12 @@ export class ApiService extends DbService {
     const cursor = this.decodeToString(_cursor);
 
     return cursor;
+  }
+
+  getClient(client: ClientData) {
+    const { id: currentUserId } = client;
+    const _currentUserId = this.getObjectId(currentUserId);
+
+    return { currentUserId, _currentUserId };
   }
 }

@@ -18,7 +18,7 @@ export class SignedDevice extends CommonSchema {
   expiresIn: Date;
 
   @Prop({ type: String })
-  deviceId?: string;
+  token?: string;
 
   @Prop({ type: String, enum: DevicePlatforms })
   platform?: DevicePlatform;
