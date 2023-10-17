@@ -25,17 +25,13 @@ export class PushNotificationsService {
         title: payload.title,
         content: payload.content,
       });
-
-      return;
     }
 
     if (payload.devicePlatform === DevicePlatforms.android) {
-      return await this.androidService.send(payload.deviceToken, {
+      await this.androidService.send(payload.deviceToken, {
         title: payload.title,
         content: payload.content,
       });
-
-      return;
     }
   }
 
@@ -64,16 +60,19 @@ export class PushNotificationsService {
     _userId: Types.ObjectId,
     payload: SendPushNotificationContent,
   ) {
-    const signedDevides = await this.signedDeviceModel.model
+    const devices = await this.signedDeviceModel.model
       .find(
         {
           _userId,
+          token: {
+            $exists: true,
+          },
         },
         {},
         { lean: true },
       )
       .exec();
 
-    return await this.sendByDevices(signedDevides, payload);
+    return await this.sendByDevices(devices, payload);
   }
 }

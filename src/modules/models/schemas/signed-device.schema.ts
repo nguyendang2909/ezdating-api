@@ -20,7 +20,7 @@ export class SignedDevice extends CommonSchema {
   @Prop({ type: String })
   token?: string;
 
-  @Prop({ type: String, enum: DevicePlatforms })
+  @Prop({ type: Number, enum: DevicePlatforms })
   platform?: DevicePlatform;
 }
 
