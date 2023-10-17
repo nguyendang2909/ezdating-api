@@ -4,13 +4,13 @@ import { Model } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { CommonModel } from './common-model';
-import { Like } from './schemas/like.schema';
+import { Like, LikeDocument } from './schemas/like.schema';
 
 @Injectable()
 export class LikeModel extends CommonModel {
   constructor(
     @InjectModel(Like.name)
-    public readonly model: Model<Like>,
+    public readonly model: Model<LikeDocument>,
   ) {
     super();
 

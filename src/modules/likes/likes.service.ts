@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { ResponseSuccess } from '../../commons/dto/response.dto';
@@ -35,11 +36,7 @@ export class LikesService extends ApiCursorDateService {
   ): Promise<ResponseSuccess> {
     const currentUserId = clientData.id;
     const { targetUserId } = payload;
-    if (currentUserId === targetUserId) {
-      throw new BadRequestException({
-        message: HttpErrorMessages['You cannot like yourself.'],
-      });
-    }
+    this.verifyNotSameUserById(currentUserId, targetUserId);
     const _currentUserId = this.getObjectId(currentUserId);
     const _targetUserId = this.getObjectId(targetUserId);
     const existLike = await this.likeModel.model.findOne({
@@ -49,51 +46,31 @@ export class LikesService extends ApiCursorDateService {
     if (existLike) {
       return { success: true };
     }
-    const reverseLike = await this.likeModel.model.findOneAndUpdate(
-      {
-        _userId: _targetUserId,
-        _targetUserId: _currentUserId,
-      },
-      {
-        $set: {
-          isMatched: true,
+    const reverseLike = await this.likeModel.model
+      .findOneAndUpdate(
+        {
+          _userId: _targetUserId,
+          _targetUserId: _currentUserId,
         },
-      },
-    );
+        {
+          $set: {
+            isMatched: true,
+          },
+        },
+      )
+      .exec();
     await this.likeModel.model.create({
       _userId: _currentUserId,
       _targetUserId,
       ...(reverseLike ? { isMatched: true } : {}),
     });
-    this.viewModel.model.findOneAndUpdate(
-      { _userId: _currentUserId, _targetUserId },
-      {
-        isLiked: true,
-        ...(reverseLike ? { isMatched: true } : {}),
-      },
-      { upsert: true },
-    );
-    if (reverseLike) {
-      const { _userOneId, _userTwoId } = this.matchModel.getSortedUserIds({
-        currentUserId,
-        targetUserId,
-      });
-      this.viewModel.model.findOneAndUpdate(
-        { _userId: _targetUserId, _targetUserId: _currentUserId },
-        {
-          isLiked: true,
-          isMatched: true,
-        },
-        { upsert: true },
-      );
-      const createMatch = await this.matchModel.model.create({
-        _userOneId,
-        _userTwoId,
-      });
-      this.chatsGateway.server
-        .to([currentUserId, targetUserId])
-        .emit('matched', createMatch.toJSON());
-    }
+    this.handleAfterSendLike({
+      _currentUserId,
+      _targetUserId,
+      hasReverseLike: !!reverseLike,
+      currentUserId,
+      targetUserId,
+    });
 
     return { success: true };
   }
@@ -197,5 +174,61 @@ export class LikesService extends ApiCursorDateService {
 
   public getPagination(data: LikeDocument[]): Pagination {
     return this.getPaginationByField(data, '_id');
+  }
+
+  async handleAfterSendLike({
+    _currentUserId,
+    _targetUserId,
+    hasReverseLike,
+    currentUserId,
+    targetUserId,
+  }: {
+    _currentUserId: Types.ObjectId;
+    _targetUserId: Types.ObjectId;
+    currentUserId: string;
+    hasReverseLike: boolean;
+    targetUserId: string;
+  }) {
+    this.viewModel.model.updateOne(
+      { _userId: _currentUserId, _targetUserId },
+      {
+        isLiked: true,
+        ...(hasReverseLike ? { isMatched: true } : {}),
+      },
+      { upsert: true },
+    );
+    if (hasReverseLike) {
+      this.handleMatch({
+        currentUserId,
+        targetUserId,
+      });
+    }
+  }
+  async handleMatch({
+    currentUserId,
+    targetUserId,
+  }: {
+    currentUserId: string;
+    targetUserId: string;
+  }) {
+    const { _userOneId, _userTwoId } = this.matchModel.getSortedUserIds({
+      currentUserId,
+      targetUserId,
+    });
+    const createMatch = await this.matchModel.model.create({
+      _userOneId,
+      _userTwoId,
+    });
+    this.chatsGateway.server
+      .to([currentUserId, targetUserId])
+      .emit('matched', createMatch.toJSON());
+  }
+
+  public verifyNotSameUserById(userOne: string, userTwo: string) {
+    if (userOne === userTwo) {
+      throw new BadRequestException({
+        message: HttpErrorMessages['You cannot like yourself.'],
+      });
+    }
   }
 }

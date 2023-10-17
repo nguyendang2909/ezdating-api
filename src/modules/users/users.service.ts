@@ -344,7 +344,7 @@ export class UsersService extends ApiService {
   //   };
   // }
 
-  public async findOneOrFailById(targetUserId: string) {
+  public async findOneById(targetUserId: string) {
     const _targetUserId = this.getObjectId(targetUserId);
     const findResult = await this.userModel.model.aggregate([
       {

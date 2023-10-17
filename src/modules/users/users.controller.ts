@@ -39,7 +39,7 @@ export class UsersController {
   private async findOneById(@Param('id') id: string) {
     return {
       type: 'profile',
-      data: await this.usersService.findOneOrFailById(id),
+      data: await this.usersService.findOneById(id),
     };
   }
 }
