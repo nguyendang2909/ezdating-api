@@ -71,7 +71,10 @@ export class MatchesService extends ApiCursorDateService {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
     const existMatch = await this.matchModel.findOneOrFail(
-      { $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }] },
+      {
+        _id,
+        $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
+      },
       {
         _id: true,
         _userOneId: true,
