@@ -32,7 +32,7 @@ export class MatchesController {
     };
   }
 
-  @Delete('/cancel/:id')
+  @Delete(':id')
   public async cancel(
     @Param('id') id: string,
     @Client() clientData: ClientData,
