@@ -428,10 +428,6 @@ export class MatchesService extends ApiCursorDateService {
         },
       },
     );
-    this.viewModel.model.deleteOne({
-      _userId: _currentUserId,
-      _targetUserId,
-    });
     this.chatsGateway.server
       .to([userOneId, userTwoId])
       .emit(SOCKET_TO_CLIENT_EVENTS.CANCEL_MATCHED, {
