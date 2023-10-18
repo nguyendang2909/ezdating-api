@@ -27,7 +27,6 @@ export class MatchModel extends CommonModel {
     if (!findResult) {
       throw new NotFoundException(HttpErrorMessages['Match does not exist']);
     }
-    console.log(222);
     return findResult;
   }
 
