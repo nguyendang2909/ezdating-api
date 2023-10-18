@@ -1,9 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../commons/constants';
-import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { PaginatedResponse, Pagination } from '../../commons/types';
@@ -63,62 +66,35 @@ export class MatchesService extends ApiCursorDateService {
     return match;
   }
 
-  public async cancel(
-    id: string,
-    clientData: ClientData,
-  ): Promise<ResponseSuccess> {
+  public async cancel(id: string, clientData: ClientData) {
     const _id = this.getObjectId(id);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
     const existMatch = await this.matchModel.findOneOrFail(
       { $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }] },
-      {},
+      {
+        _id: true,
+        _userOneId: true,
+        _userTwoId: true,
+      },
       { lean: true },
     );
-    const userOneId = existMatch._userOneId.toString();
-    const userTwoId = existMatch._userTwoId.toString();
-
-    // TODO: transaction
     const deleteResult = await this.matchModel.model.deleteOne({
       _id,
       $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
     });
-
-    const { _targetUserId } = this.matchModel.getTargetUserId({
+    if (!deleteResult.deletedCount) {
+      throw new InternalServerErrorException(
+        HttpErrorMessages['Delete failed. Please try again.'],
+      );
+    }
+    this.handleAfterUnmatch({
       currentUserId,
-      userOneId,
-      userTwoId,
+      userOneId: existMatch._userOneId.toString(),
+      userTwoId: existMatch._userOneId.toString(),
+      _currentUserId,
+      matchId: existMatch._id.toString(),
     });
-
-    this.likeModel.model.deleteOne({
-      _userId: _currentUserId,
-      _targetUserId,
-    });
-
-    this.likeModel.model.updateOne(
-      {
-        _userId: _targetUserId,
-        _targetUserId: _currentUserId,
-      },
-      {
-        $set: {
-          isMatched: false,
-        },
-      },
-    );
-
-    this.viewModel.model.deleteOne({
-      _userId: _currentUserId,
-      _targetUserId,
-    });
-
-    this.chatsGateway.server
-      .to([userOneId, userTwoId])
-      .emit(SOCKET_TO_CLIENT_EVENTS.CANCEL_MATCHED, {
-        _id: existMatch._id,
-      });
-
-    return { success: !!deleteResult.deletedCount };
   }
 
   public async findMany(
@@ -417,5 +393,49 @@ export class MatchesService extends ApiCursorDateService {
       .exec();
 
     return matches[0];
+  }
+
+  async handleAfterUnmatch({
+    currentUserId,
+    userOneId,
+    userTwoId,
+    _currentUserId,
+    matchId,
+  }: {
+    _currentUserId: Types.ObjectId;
+    currentUserId: string;
+    matchId: string;
+    userOneId: string;
+    userTwoId: string;
+  }) {
+    const { _targetUserId } = this.matchModel.getTargetUserId({
+      currentUserId,
+      userOneId,
+      userTwoId,
+    });
+    this.likeModel.model.deleteOne({
+      _userId: _currentUserId,
+      _targetUserId,
+    });
+    this.likeModel.model.updateOne(
+      {
+        _userId: _targetUserId,
+        _targetUserId: _currentUserId,
+      },
+      {
+        $set: {
+          isMatched: false,
+        },
+      },
+    );
+    this.viewModel.model.deleteOne({
+      _userId: _currentUserId,
+      _targetUserId,
+    });
+    this.chatsGateway.server
+      .to([userOneId, userTwoId])
+      .emit(SOCKET_TO_CLIENT_EVENTS.CANCEL_MATCHED, {
+        _id: matchId,
+      });
   }
 }

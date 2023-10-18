@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
@@ -24,7 +32,7 @@ export class MatchesController {
     };
   }
 
-  @Post('/cancel/:id')
+  @Delete('/cancel/:id')
   public async cancel(
     @Param('id') id: string,
     @Client() clientData: ClientData,
