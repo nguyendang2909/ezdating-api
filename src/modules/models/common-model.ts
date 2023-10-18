@@ -1,6 +1,8 @@
-import { Types } from 'mongoose';
+import { InternalServerErrorException } from '@nestjs/common';
+import { FilterQuery, ProjectionType, QueryOptions, Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 
 export class CommonModel {
   public limitRecordsPerQuery: number = APP_CONFIG.PAGINATION_LIMIT.DEFAULT;
@@ -10,6 +12,28 @@ export class CommonModel {
     second: Types.ObjectId,
   ): boolean {
     return first.toString() === second.toString();
+  }
+
+  async createOne(payload: Record<string, any>): Promise<any> {}
+
+  async findOne(
+    filter?: FilterQuery<any>,
+    projection?: ProjectionType<any> | null,
+    options?: QueryOptions<any> | null,
+  ): Promise<any> {
+    throw new InternalServerErrorException(
+      HttpErrorMessages['Not implemented.'],
+    );
+  }
+
+  async findOneOrFail(
+    filter?: FilterQuery<any>,
+    projection?: ProjectionType<any> | null,
+    options?: QueryOptions<any> | null,
+  ): Promise<any> {
+    throw new InternalServerErrorException(
+      HttpErrorMessages['Not implemented.'],
+    );
   }
 
   // public getObjectId(id: string): Types.ObjectId {

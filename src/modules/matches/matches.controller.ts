@@ -26,8 +26,8 @@ export class MatchesController {
 
   @Post('/cancel/:id')
   public async cancel(
-    @Client() clientData: ClientData,
     @Param('id') id: string,
+    @Client() clientData: ClientData,
   ) {
     return {
       type: 'cancelMatched',

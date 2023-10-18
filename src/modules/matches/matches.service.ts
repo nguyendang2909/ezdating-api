@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
@@ -74,21 +70,11 @@ export class MatchesService extends ApiCursorDateService {
     const _id = this.getObjectId(id);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-    const existMatch = await this.matchModel.model
-      .findOne(
-        {
-          $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
-        },
-        {},
-        {
-          lean: true,
-        },
-      )
-      .exec();
-
-    if (!existMatch || !existMatch._userOneId || !existMatch._userTwoId) {
-      throw new BadRequestException(HttpErrorMessages['Match does not exist']);
-    }
+    const existMatch = await this.matchModel.findOneOrFail(
+      { $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }] },
+      {},
+      { lean: true },
+    );
     const userOneId = existMatch._userOneId.toString();
     const userTwoId = existMatch._userTwoId.toString();
 

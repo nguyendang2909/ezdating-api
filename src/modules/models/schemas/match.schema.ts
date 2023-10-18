@@ -1,10 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { SchemaTypes, Types } from 'mongoose';
+import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 import { CommonSchema } from '../../../commons/schemas.common';
-import { MongoDocument } from '../../../commons/types';
 
-export type MatchDocument = MongoDocument<Match>;
+export type MatchDocument = HydratedDocument<Match>;
 
 @Schema({ timestamps: true })
 export class Match extends CommonSchema {
