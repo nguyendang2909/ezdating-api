@@ -95,6 +95,9 @@ export class MatchesService extends ApiCursorDateService {
       _currentUserId,
       matchId: existMatch._id.toString(),
     });
+    return {
+      _id: existMatch._id,
+    };
   }
 
   public async findMany(
