@@ -31,21 +31,18 @@ export class AuthService extends ApiService {
 
   public async logout(payload: LogoutDto): Promise<boolean> {
     const { refreshToken } = payload;
-
     const { id: currentUserId } =
       this.encryptionsUtil.verifyRefreshToken(refreshToken);
-
     const _currentUserId = this.getObjectId(currentUserId);
-
     const deleteRResult = await this.signedDeviceModel.model.deleteOne({
       _userId: _currentUserId,
       refreshToken,
     });
-
     if (!deleteRResult.deletedCount) {
-      return false;
+      throw new BadRequestException(
+        HttpErrorMessages['Delete failed. Please try again.'],
+      );
     }
-
     return true;
   }
 

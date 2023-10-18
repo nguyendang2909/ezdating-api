@@ -13,6 +13,10 @@ import { Like, LikeSchema } from './schemas/like.schema';
 import { Match, MatchSchema } from './schemas/match.schema';
 import { Message, MessageSchema } from './schemas/message.schema';
 import {
+  PushNotification,
+  PushNotificationSchema,
+} from './schemas/push-notification.schema';
+import {
   SignedDevice,
   SignedDeviceSchema,
 } from './schemas/signed-device.schema';
@@ -33,6 +37,7 @@ import { ViewModel } from './view.model';
       { name: SignedDevice.name, schema: SignedDeviceSchema },
       { name: User.name, schema: UserSchema },
       { name: View.name, schema: ViewSchema },
+      { name: PushNotification.name, schema: PushNotificationSchema },
     ]),
   ],
   exports: [

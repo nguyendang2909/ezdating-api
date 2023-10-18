@@ -1,6 +1,7 @@
 export const HttpErrorMessages = {
   'Conversation does not exist.': 'Conversation does not exist.',
   'Conversation is invalid.': 'Conversation is invalid.',
+  'Delete failed. Please try again.': 'Delete failed. Please try again.',
   'File does not exist.': 'File does not exist.',
   'Input data was not correct.': 'Input data was not correct.',
   'Match does not exist': 'Match does not exist',

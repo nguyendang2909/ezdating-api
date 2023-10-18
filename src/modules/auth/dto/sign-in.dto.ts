@@ -6,7 +6,12 @@ import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validat
 
 @JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
 export class SignInDto {
-  @JoiSchema(Joi.string())
+  @JoiSchema(
+    Joi.string().when('prev', {
+      not: Joi.forbidden(),
+      then: Joi.required(),
+    }),
+  )
   deviceToken?: string;
 
   @JoiSchema(Joi.string().valid(...Object.values(DevicePlatforms)))

@@ -96,8 +96,9 @@ export class SignInService {
       expiresIn: moment()
         .add(APP_CONFIG.REFRESH_TOKEN_EXPIRES, 'days')
         .toDate(),
-      ...(deviceToken ? { token } : {}),
-      ...(devicePlatform ? { platform: devicePlatform } : {}),
+      ...(deviceToken && devicePlatform
+        ? { token, platform: devicePlatform }
+        : {}),
     });
 
     return {
