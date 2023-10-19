@@ -8,7 +8,7 @@ import { Message } from './schemas/message.schema';
 import { UserModel } from './user.model';
 
 @Injectable()
-export class MessageModel extends CommonModel {
+export class MessageModel extends CommonModel<Message> {
   constructor(
     @InjectModel(Message.name)
     public readonly model: Model<MongoDocument<Message>>,

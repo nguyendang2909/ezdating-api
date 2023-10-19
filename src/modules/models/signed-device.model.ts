@@ -18,7 +18,7 @@ import {
 } from './schemas/signed-device.schema';
 
 @Injectable()
-export class SignedDeviceModel extends CommonModel {
+export class SignedDeviceModel extends CommonModel<SignedDevice> {
   constructor(
     @InjectModel(SignedDevice.name)
     public readonly model: Model<SignedDeviceDocument>,
@@ -27,9 +27,7 @@ export class SignedDeviceModel extends CommonModel {
   }
 
   public async createOne(entity: Partial<SignedDevice>) {
-    const user = await this.model.create(entity);
-
-    return user.toJSON();
+    return await this.model.create(entity);
   }
 
   public async findOne(

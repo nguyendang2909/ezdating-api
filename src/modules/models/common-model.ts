@@ -1,10 +1,27 @@
 import { InternalServerErrorException } from '@nestjs/common';
-import { FilterQuery, ProjectionType, QueryOptions, Types } from 'mongoose';
+import {
+  FilterQuery,
+  HydratedDocument,
+  ProjectionType,
+  QueryOptions,
+  Types,
+} from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 
-export class CommonModel {
+export class CommonModel<
+  TRawDocType,
+  TQueryHelpers = {},
+  TInstanceMethods = {},
+  TVirtuals = {},
+  THydratedDocumentType = HydratedDocument<
+    TRawDocType,
+    TVirtuals & TInstanceMethods,
+    TQueryHelpers
+  >,
+  TSchema = any,
+> {
   public limitRecordsPerQuery: number = APP_CONFIG.PAGINATION_LIMIT.DEFAULT;
 
   public areObjectIdEqual(
@@ -14,7 +31,11 @@ export class CommonModel {
     return first.toString() === second.toString();
   }
 
-  async createOne(payload: Record<string, any>): Promise<any> {}
+  async createOne(doc: Partial<TRawDocType>): Promise<THydratedDocumentType> {
+    throw new InternalServerErrorException(
+      HttpErrorMessages['Not implemented.'],
+    );
+  }
 
   async findOne(
     filter?: FilterQuery<any>,

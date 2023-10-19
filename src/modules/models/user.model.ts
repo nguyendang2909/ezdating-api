@@ -6,6 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import _ from 'lodash';
 import {
+  Document,
   FilterQuery,
   Model,
   ProjectionType,
@@ -19,7 +20,7 @@ import { CommonModel } from './common-model';
 import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
-export class UserModel extends CommonModel {
+export class UserModel extends CommonModel<User> {
   constructor(
     @InjectModel(User.name) public readonly model: Model<UserDocument>,
   ) {
@@ -42,15 +43,27 @@ export class UserModel extends CommonModel {
     status: true,
   };
 
-  public async createOne(entity: Partial<User>) {
-    const { phoneNumber } = entity;
+  async createOne(
+    doc: Partial<User>,
+  ): Promise<Document<unknown, {}, User> & User & { _id: Types.ObjectId }> {
+    const { phoneNumber } = doc;
     if (!phoneNumber) {
       throw new BadRequestException('Phone number does not exist!');
     }
-    const user = await this.model.create(entity);
+    const user = await this.model.create(doc);
 
     return user.toJSON();
   }
+
+  // public async createOne(entity: Partial<User>) {
+  //   const { phoneNumber } = entity;
+  //   if (!phoneNumber) {
+  //     throw new BadRequestException('Phone number does not exist!');
+  //   }
+  //   const user = await this.model.create(entity);
+
+  //   return user.toJSON();
+  // }
 
   public async findOne(
     filter: FilterQuery<UserDocument>,

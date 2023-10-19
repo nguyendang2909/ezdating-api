@@ -6,7 +6,7 @@ import { CommonModel } from './common-model';
 import { View } from './schemas/view.schema';
 
 @Injectable()
-export class ViewModel extends CommonModel {
+export class ViewModel extends CommonModel<View> {
   constructor(
     @InjectModel(View.name)
     public readonly model: Model<View>,

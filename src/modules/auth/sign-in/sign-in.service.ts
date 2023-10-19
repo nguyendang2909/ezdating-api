@@ -69,9 +69,11 @@ export class SignInService {
       }
       // TODO: If user is deactivated => activate user
     } else {
-      user = await this.userModel.createOne({
-        phoneNumber,
-      });
+      user = (
+        await this.userModel.createOne({
+          phoneNumber,
+        })
+      ).toJSON();
     }
     const { _id: _userId, role, gender } = user;
     if (!_userId || !role) {

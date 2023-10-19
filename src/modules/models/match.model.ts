@@ -8,7 +8,7 @@ import { CommonModel } from './common-model';
 import { Match, MatchDocument } from './schemas/match.schema';
 
 @Injectable()
-export class MatchModel extends CommonModel {
+export class MatchModel extends CommonModel<Match> {
   constructor(
     @InjectModel(Match.name)
     public readonly model: Model<MatchDocument>,

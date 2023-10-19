@@ -7,7 +7,7 @@ import { CommonModel } from './common-model';
 import { Like, LikeDocument } from './schemas/like.schema';
 
 @Injectable()
-export class LikeModel extends CommonModel {
+export class LikeModel extends CommonModel<Like> {
   constructor(
     @InjectModel(Like.name)
     public readonly model: Model<LikeDocument>,
