@@ -1,12 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import _ from 'lodash';
 import {
+  Document,
   FilterQuery,
+  FlattenMaps,
   Model,
   ProjectionType,
   QueryOptions,
   UpdateQuery,
+  UpdateWithAggregationPipeline,
+  UpdateWriteOpResult,
 } from 'mongoose';
 import { Types } from 'mongoose';
 
@@ -26,20 +34,41 @@ export class SignedDeviceModel extends CommonModel<SignedDevice> {
     super();
   }
 
-  public async createOne(entity: Partial<SignedDevice>) {
-    return await this.model.create(entity);
+  async createOne(
+    doc: Partial<SignedDevice>,
+  ): Promise<
+    FlattenMaps<
+      Document<unknown, {}, SignedDevice> &
+        SignedDevice & { _id: Types.ObjectId }
+    >
+  > {
+    const createResult = await this.model.create(doc);
+    return createResult.toJSON();
   }
 
-  public async findOne(
-    filter: FilterQuery<SignedDeviceDocument>,
-    projection?: ProjectionType<SignedDeviceDocument> | null,
-    options?: QueryOptions<SignedDeviceDocument> | null,
-  ) {
+  async findOne(
+    filter?: FilterQuery<any> | undefined,
+    projection?: ProjectionType<any> | null | undefined,
+    options?: QueryOptions<any> | null | undefined,
+  ): Promise<null | FlattenMaps<
+    Document<unknown, {}, SignedDevice> & SignedDevice & { _id: Types.ObjectId }
+  >> {
     if (_.isEmpty(filter)) {
       return null;
     }
     return await this.model.findOne(filter, projection, options).lean().exec();
   }
+
+  // public async findOne(
+  //   filter: FilterQuery<SignedDeviceDocument>,
+  //   projection?: ProjectionType<SignedDeviceDocument> | null,
+  //   options?: QueryOptions<SignedDeviceDocument> | null,
+  // ) {
+  //   if (_.isEmpty(filter)) {
+  //     return null;
+  //   }
+  //   return await this.model.findOne(filter, projection, options).lean().exec();
+  // }
 
   public async findOneOrFail(
     filter: FilterQuery<SignedDeviceDocument>,
@@ -69,6 +98,32 @@ export class SignedDeviceModel extends CommonModel<SignedDevice> {
   //     .lean()
   //     .exec();
   // }
+  async updateOne(
+    filter?: FilterQuery<SignedDevice> | undefined,
+    update?:
+      | UpdateWithAggregationPipeline
+      | UpdateQuery<SignedDevice>
+      | undefined,
+    options?: QueryOptions<SignedDevice> | null | undefined,
+  ): Promise<UpdateWriteOpResult> {
+    return await this.model.updateOne(filter, update, options).exec();
+  }
+
+  async updateOneOrFail(
+    filter?: FilterQuery<SignedDevice> | undefined,
+    update?:
+      | UpdateWithAggregationPipeline
+      | UpdateQuery<SignedDevice>
+      | undefined,
+    options?: QueryOptions<SignedDevice> | null | undefined,
+  ): Promise<void> {
+    const updateResult = await this.updateOne(filter, update, options);
+    if (!updateResult.modifiedCount) {
+      throw new BadRequestException(
+        HttpErrorMessages['Update failed. Please try again.'],
+      );
+    }
+  }
 
   public async updateOneById(
     _id: Types.ObjectId,

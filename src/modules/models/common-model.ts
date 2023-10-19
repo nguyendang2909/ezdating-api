@@ -1,10 +1,14 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import {
   FilterQuery,
+  FlattenMaps,
   HydratedDocument,
   ProjectionType,
   QueryOptions,
   Types,
+  UpdateQuery,
+  UpdateWithAggregationPipeline,
+  UpdateWriteOpResult,
 } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
@@ -31,7 +35,9 @@ export class CommonModel<
     return first.toString() === second.toString();
   }
 
-  async createOne(doc: Partial<TRawDocType>): Promise<THydratedDocumentType> {
+  async createOne(
+    doc: Partial<TRawDocType>,
+  ): Promise<FlattenMaps<THydratedDocumentType>> {
     throw new InternalServerErrorException(
       HttpErrorMessages['Not implemented.'],
     );
@@ -41,7 +47,7 @@ export class CommonModel<
     filter?: FilterQuery<any>,
     projection?: ProjectionType<any> | null,
     options?: QueryOptions<any> | null,
-  ): Promise<any> {
+  ): Promise<FlattenMaps<THydratedDocumentType> | null> {
     throw new InternalServerErrorException(
       HttpErrorMessages['Not implemented.'],
     );
@@ -51,13 +57,27 @@ export class CommonModel<
     filter?: FilterQuery<any>,
     projection?: ProjectionType<any> | null,
     options?: QueryOptions<any> | null,
-  ): Promise<any> {
+  ): Promise<FlattenMaps<THydratedDocumentType>> {
     throw new InternalServerErrorException(
       HttpErrorMessages['Not implemented.'],
     );
   }
 
-  async updateOneOrFail() {
+  async updateOne(
+    filter?: FilterQuery<TRawDocType>,
+    update?: UpdateQuery<TRawDocType> | UpdateWithAggregationPipeline,
+    options?: QueryOptions<TRawDocType> | null,
+  ): Promise<UpdateWriteOpResult> {
+    throw new InternalServerErrorException(
+      HttpErrorMessages['Not implemented.'],
+    );
+  }
+
+  async updateOneOrFail(
+    filter?: FilterQuery<TRawDocType>,
+    update?: UpdateQuery<TRawDocType> | UpdateWithAggregationPipeline,
+    options?: QueryOptions<TRawDocType> | null,
+  ): Promise<void> {
     throw new InternalServerErrorException(
       HttpErrorMessages['Not implemented.'],
     );
@@ -90,4 +110,12 @@ export class CommonModel<
   //     prev: !_.isNil(prev) ? this.encodeCursor(prev) : null,
   //   };
   // }
+
+  verifyUpdateResult(updateResult: UpdateWriteOpResult) {
+    if (!updateResult.modifiedCount) {
+      throw new InternalServerErrorException(
+        HttpErrorMessages['Update failed. Please try again.'],
+      );
+    }
+  }
 }

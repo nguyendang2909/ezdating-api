@@ -23,6 +23,7 @@ export class MatchModel extends CommonModel<Match> {
   ) {
     const findResult = await this.model
       .findOne(filter, projection, options)
+      .lean()
       .exec();
     if (!findResult) {
       throw new NotFoundException(HttpErrorMessages['Match does not exist']);

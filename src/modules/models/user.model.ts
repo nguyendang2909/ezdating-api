@@ -8,14 +8,18 @@ import _ from 'lodash';
 import {
   Document,
   FilterQuery,
+  FlattenMaps,
   Model,
   ProjectionType,
   QueryOptions,
   UpdateQuery,
+  UpdateWithAggregationPipeline,
+  UpdateWriteOpResult,
 } from 'mongoose';
 import { Types } from 'mongoose';
 
 import { UserStatuses } from '../../commons/constants';
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { CommonModel } from './common-model';
 import { User, UserDocument } from './schemas/user.schema';
 
@@ -45,13 +49,14 @@ export class UserModel extends CommonModel<User> {
 
   async createOne(
     doc: Partial<User>,
-  ): Promise<Document<unknown, {}, User> & User & { _id: Types.ObjectId }> {
+  ): Promise<
+    FlattenMaps<Document<unknown, {}, User> & User & { _id: Types.ObjectId }>
+  > {
     const { phoneNumber } = doc;
     if (!phoneNumber) {
       throw new BadRequestException('Phone number does not exist!');
     }
     const user = await this.model.create(doc);
-
     return user.toJSON();
   }
 
@@ -127,6 +132,27 @@ export class UserModel extends CommonModel<User> {
   //     .lean()
   //     .exec();
   // }
+
+  async updateOne(
+    filter?: FilterQuery<User> | undefined,
+    update?: any,
+    options?: QueryOptions<User> | null | undefined,
+  ): Promise<UpdateWriteOpResult> {
+    return await this.model.updateOne(filter, update, options).exec();
+  }
+
+  async updateOneOrFail(
+    filter?: FilterQuery<User> | undefined,
+    update?: UpdateWithAggregationPipeline | UpdateQuery<User> | undefined,
+    options?: QueryOptions<User> | null | undefined,
+  ): Promise<void> {
+    const updateResult = await this.updateOne(filter, update, options);
+    if (!updateResult.modifiedCount) {
+      throw new BadRequestException(
+        HttpErrorMessages['Update failed. Please try again.'],
+      );
+    }
+  }
 
   public async updateOneById(
     _id: Types.ObjectId,
