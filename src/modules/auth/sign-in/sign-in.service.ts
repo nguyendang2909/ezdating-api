@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   Logger,
@@ -110,36 +111,38 @@ export class SignInService {
 
   public async signInWithPhoneNumberAndPassword(
     payload: SignInWithPhoneNumberAndPasswordDto,
-  ) {
+  ): Promise<SignInData> {
     const { phoneNumber, password } = payload;
-    const user = await this.userModel.findOneOrFail({ phoneNumber });
+    const {
+      password: hashedPassword,
+      _id: _userId,
+      role: userRole,
+      gender,
+    } = await this.userModel.findOneOrFail({ phoneNumber });
+    if (!hashedPassword || !_userId || !userRole) {
+      throw new BadRequestException('Try login with OTP!');
+    }
+    this.encryptionsUtil.verifyMatchPassword(password, hashedPassword);
+    const userId = _userId.toString();
+    const accessToken = this.encryptionsUtil.signAccessToken({
+      id: userId,
+      sub: userId,
+      role: userRole,
+      gender,
+    });
+    const refreshToken = this.encryptionsUtil.signRefreshToken({
+      id: userId,
+      sub: userId,
+    });
+    await this.signedDeviceModel.createOne({
+      _userId,
+      refreshToken: refreshToken,
+      expiresIn: moment().add(100, 'days').toDate(),
+    });
 
-    return user;
-
-    // if (!hashedPassword || !_userId || !userRole) {
-    //   throw new BadRequestException('Try login with OTP!');
-    // }
-    // this.encryptionsUtil.verifyMatchPassword(password, hashedPassword);
-    // const userId = _userId.toString();
-    // const accessToken = this.encryptionsUtil.signAccessToken({
-    //   id: userId,
-    //   sub: userId,
-    //   role: userRole,
-    //   gender,
-    // });
-    // const refreshToken = this.encryptionsUtil.signRefreshToken({
-    //   id: userId,
-    //   sub: userId,
-    // });
-    // await this.signedDeviceModel.createOne({
-    //   _userId,
-    //   refreshToken: refreshToken,
-    //   expiresIn: moment().add(100, 'days').toDate(),
-    // });
-
-    // return {
-    //   accessToken,
-    //   refreshToken,
-    // };
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }
