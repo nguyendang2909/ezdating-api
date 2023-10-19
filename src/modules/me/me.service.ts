@@ -74,14 +74,12 @@ export class MeService extends UsersCommonService {
 
     const _currentUserId = this.getObjectId(clientData.id);
 
-    const birthday = rawBirthday
-      ? this.getAndCheckValidBirthdayFromRaw(rawBirthday)
-      : undefined;
-
     const updateOptions: UpdateQuery<UserDocument> = {
       $set: {
         ...updateDto,
-        ...(birthday ? { birthday } : {}),
+        ...(rawBirthday
+          ? { birthday: this.getAndCheckValidBirthdayFromRaw(rawBirthday) }
+          : {}),
         ...(longitude && latitude
           ? {
               geolocation: {

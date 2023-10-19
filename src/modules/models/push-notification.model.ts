@@ -11,7 +11,7 @@ import {
 import { UserModel } from './user.model';
 
 @Injectable()
-export class MessageModel extends CommonModel {
+export class PushNotificationModel extends CommonModel {
   constructor(
     @InjectModel(PushNotification.name)
     public readonly pushNotificationModel: Model<

@@ -36,6 +36,18 @@ export class CommonModel {
     );
   }
 
+  async updateOneOrFail() {
+    throw new InternalServerErrorException(
+      HttpErrorMessages['Not implemented.'],
+    );
+  }
+
+  async deleteOneOrFail() {
+    throw new InternalServerErrorException(
+      HttpErrorMessages['Not implemented.'],
+    );
+  }
+
   // public getObjectId(id: string): Types.ObjectId {
   //   return new Types.ObjectId(id);
   // }

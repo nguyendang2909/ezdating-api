@@ -20,7 +20,9 @@ import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
 export class UserModel extends CommonModel {
-  constructor(@InjectModel(User.name) public readonly model: Model<User>) {
+  constructor(
+    @InjectModel(User.name) public readonly model: Model<UserDocument>,
+  ) {
     super();
   }
 
