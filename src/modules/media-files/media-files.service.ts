@@ -57,30 +57,28 @@ export class MediaFilesService extends ApiService {
         ACL: 'public-read',
       })
       .promise();
-    const createResult = await this.userModel.model
-      .findOneAndUpdate(
-        {
-          _id: _currentUserId,
-        },
-        {
-          $push: {
-            mediaFiles: {
-              _userId: _currentUserId,
-              key: photo.Key,
-              type: MediaFileTypes.photo,
-              location: photo.Location,
-            },
+    const createResult = await this.userModel.findOneAndUpdate(
+      {
+        _id: _currentUserId,
+      },
+      {
+        $push: {
+          mediaFiles: {
+            _userId: _currentUserId,
+            key: photo.Key,
+            type: MediaFileTypes.photo,
+            location: photo.Location,
           },
         },
-        {
-          new: true,
-          projection: {
-            mediaFiles: true,
-          },
-          lean: true,
+      },
+      {
+        new: true,
+        projection: {
+          mediaFiles: true,
         },
-      )
-      .exec();
+        lean: true,
+      },
+    );
 
     return createResult?.mediaFiles?.find((e) => e.key === photo.Key);
   }

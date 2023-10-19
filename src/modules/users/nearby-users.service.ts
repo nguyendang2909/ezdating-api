@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import moment from 'moment';
+import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { UserStatuses } from '../../commons/constants';
@@ -11,7 +12,7 @@ import {
   Pagination,
 } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
-import { User, UserDocument } from '../models/schemas/user.schema';
+import { User } from '../models/schemas/user.schema';
 import { UserModel } from '../models/user.model';
 import { FindManyNearbyUsersQuery } from './dto/find-nearby-users.dto';
 @Injectable()
@@ -77,92 +78,90 @@ export class NearbyUsersService extends ApiService {
     const filterMaxBirthday = moment().subtract(filterMinAge, 'years').toDate();
     const filterMinBirthday = moment().subtract(filterMaxAge, 'years').toDate();
 
-    const findResults: UserDocument[] = await this.userModel.model
-      .aggregate([
-        {
-          $geoNear: {
-            near: {
-              type: 'Point',
-              coordinates: [
-                geolocation.coordinates[0],
-                geolocation.coordinates[1],
-              ],
+    const findResults = await this.userModel.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: [
+              geolocation.coordinates[0],
+              geolocation.coordinates[1],
+            ],
+          },
+          distanceField: 'distance',
+          ...(minDistance
+            ? {
+                minDistance: minDistance,
+              }
+            : {}),
+          maxDistance: filterMaxDistance,
+          // distanceMultiplier: 0.001,
+          query: {
+            _id: {
+              ...(excludedUserIds?.length
+                ? {
+                    $nin: [_currentUserId, ...excludedUserIds],
+                  }
+                : {
+                    $ne: _currentUserId,
+                  }),
             },
-            distanceField: 'distance',
-            ...(minDistance
-              ? {
-                  minDistance: minDistance,
-                }
-              : {}),
-            maxDistance: filterMaxDistance,
-            // distanceMultiplier: 0.001,
-            query: {
-              _id: {
-                ...(excludedUserIds?.length
-                  ? {
-                      $nin: [_currentUserId, ...excludedUserIds],
-                    }
-                  : {
-                      $ne: _currentUserId,
-                    }),
-              },
-              status: {
-                $in: [UserStatuses.activated, UserStatuses.verified],
-              },
-              // lastActivatedAt: {
-              //   $gt: moment().subtract(7, 'd').toDate(),
-              // },
-              birthday: {
-                $gt: filterMinBirthday,
-                $lt: filterMaxBirthday,
-              },
-              gender: filterGender,
+            status: {
+              $in: [UserStatuses.activated, UserStatuses.verified],
             },
+            // lastActivatedAt: {
+            //   $gt: moment().subtract(7, 'd').toDate(),
+            // },
+            birthday: {
+              $gt: filterMinBirthday,
+              $lt: filterMaxBirthday,
+            },
+            gender: filterGender,
           },
         },
-        {
-          $sort: {
-            distance: 1,
-            _id: 1,
-          },
+      },
+      {
+        $sort: {
+          distance: 1,
+          _id: 1,
         },
-        { $limit: this.limitRecordsPerQuery },
-        {
-          $set: {
-            age: {
-              $dateDiff: {
-                startDate: '$birthday',
-                endDate: '$$NOW',
-                unit: 'year',
-              },
+      },
+      { $limit: this.limitRecordsPerQuery },
+      {
+        $set: {
+          age: {
+            $dateDiff: {
+              startDate: '$birthday',
+              endDate: '$$NOW',
+              unit: 'year',
             },
           },
         },
-        {
-          $project: {
-            age: 1,
-            birthday: 1,
-            createdAt: 1,
-            distance: 1,
-            educationLevel: 1,
-            filterGender: 1,
-            filterMaxAge: 1,
-            filterMaxDistance: 1,
-            filterMinAge: 1,
-            gender: 1,
-            height: 1,
-            introduce: 1,
-            lastActivatedAt: 1,
-            mediaFiles: 1,
-            nickname: 1,
-            relationshipGoal: 1,
-            relationshipStatus: 1,
-            status: 1,
-            weight: 1,
-          },
+      },
+      {
+        $project: {
+          age: 1,
+          birthday: 1,
+          createdAt: 1,
+          distance: 1,
+          educationLevel: 1,
+          filterGender: 1,
+          filterMaxAge: 1,
+          filterMaxDistance: 1,
+          filterMinAge: 1,
+          gender: 1,
+          height: 1,
+          introduce: 1,
+          lastActivatedAt: 1,
+          mediaFiles: 1,
+          nickname: 1,
+          relationshipGoal: 1,
+          relationshipStatus: 1,
+          status: 1,
+          weight: 1,
         },
-      ])
-      .exec();
+      },
+    ]);
 
     return {
       type: 'nearbyUsers',
@@ -171,7 +170,7 @@ export class NearbyUsersService extends ApiService {
     };
   }
 
-  public getPagination(data: UserDocument[]): Pagination {
+  public getPagination(data: (User & { _id: Types.ObjectId })[]): Pagination {
     return this.getPaginationByField(data, ['_id', 'distance']);
   }
 

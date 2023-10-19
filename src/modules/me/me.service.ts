@@ -37,25 +37,30 @@ export class MeService extends UsersCommonService {
   public async get(clientData: ClientData) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-    const [user] = await this.userModel.model
-      .aggregate()
-      .match({
-        _id: _currentUserId,
-      })
-      .addFields({
-        age: {
-          $dateDiff: {
-            startDate: '$birthday',
-            endDate: '$$NOW',
-            unit: 'year',
+    const [user] = await this.userModel.aggregate([
+      {
+        $limit: 1,
+      },
+      {
+        $match: {
+          _id: _currentUserId,
+        },
+      },
+      {
+        $addFields: {
+          age: {
+            $dateDiff: {
+              startDate: '$birthday',
+              endDate: '$$NOW',
+              unit: 'year',
+            },
           },
         },
-      })
-      .project({
-        password: false,
-      })
-      .limit(1)
-      .exec();
+      },
+      {
+        $project: { password: false },
+      },
+    ]);
 
     return user;
   }
