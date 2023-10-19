@@ -43,10 +43,18 @@ export class UserModel extends CommonModel<User> {
     return await this.model.create(doc);
   }
 
+  async findOne(
+    filter?: FilterQuery<User> | undefined,
+    projection?: ProjectionType<User> | null | undefined,
+    options?: QueryOptions<User> | null | undefined,
+  ) {
+    return await this.model.findOne(filter, projection, options);
+  }
+
   public async findOneOrFail(
-    filter: FilterQuery<UserDocument>,
-    projection?: ProjectionType<UserDocument> | null,
-    options?: QueryOptions<UserDocument> | null,
+    filter: FilterQuery<User>,
+    projection?: ProjectionType<User> | null,
+    options?: QueryOptions<User> | null,
   ) {
     const findResult = await this.findOne(filter, projection, options);
     if (!findResult) {

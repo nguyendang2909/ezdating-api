@@ -56,7 +56,7 @@ export class UsersService extends ApiService {
   //   const filterMaxBirthday = moment().subtract(filterMinAge, 'years').toDate();
   //   const filterMinBirthday = moment().subtract(filterMaxAge, 'years').toDate();
 
-  //   const users = await this.userModel.model.aggregate([
+  //   const users = await this.userModel.aggregate([
   //     {
   //       $geoNear: {
   //         near: {
