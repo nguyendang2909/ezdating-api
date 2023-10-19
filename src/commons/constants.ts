@@ -115,3 +115,10 @@ export const SOCKET_TO_CLIENT_EVENTS = {
   NEW_MESSAGE: 'msg',
   UPDATE_SENT_MESSAGE: 'updateSentMsg',
 } as const;
+
+export const FILE_UPLOAD_FOLDERS = {
+  PHOTOS: 'photos',
+} as const;
+
+export const FILE_UPLOAD_FOLDERS_ARR: string[] =
+  Object.values(FILE_UPLOAD_FOLDERS);

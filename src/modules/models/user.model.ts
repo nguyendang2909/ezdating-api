@@ -56,7 +56,6 @@ export class UserModel extends CommonModel<User> {
     if (status === UserStatuses.banned) {
       throw new BadRequestException({
         message: 'User has been banned',
-        errorCode: 'USER_BANNED',
       });
     }
     return findResult;

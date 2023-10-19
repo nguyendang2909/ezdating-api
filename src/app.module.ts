@@ -17,20 +17,21 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { ConversationsModule } from './modules/conversations/conversations.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
+import { FirebaseModule } from './modules/firebase/firebase.module';
 import { JwtAuthGuard } from './modules/guards/jwt.guard';
 import { RolesGuard } from './modules/guards/roles.guard';
 import { HealthModule } from './modules/health/health.module';
 import { LikesModule } from './modules/likes/likes.module';
-import { LoggedDevicesModule } from './modules/signed-devices/signed-devices.module';
 import { RelationshipsModule } from './modules/matches/matches.module';
 import { MeModule } from './modules/me/me.module';
 import { MediaFilesModule } from './modules/media-files/media-files.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { ModelsModule } from './modules/models/models.module';
+import { PushNotificationsModule } from './modules/push-notifications/push-notifications.module';
+import { LoggedDevicesModule } from './modules/signed-devices/signed-devices.module';
 import { UsersModule } from './modules/users/users.module';
 import { ViewsModule } from './modules/views/views.module';
-import { PushNotificationsModule } from './modules/push-notifications/push-notifications.module';
-import { FirebaseModule } from './modules/firebase/firebase.module';
+import { LibsModule } from './libs/libs.module';
 
 @Module({
   imports: [
@@ -160,6 +161,7 @@ import { FirebaseModule } from './modules/firebase/firebase.module';
     LikesModule,
     PushNotificationsModule,
     FirebaseModule,
+    LibsModule,
 
     // CoinsModule,
   ],

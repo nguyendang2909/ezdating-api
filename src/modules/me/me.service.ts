@@ -72,9 +72,7 @@ export class MeService extends UsersCommonService {
       birthday: rawBirthday,
       ...updateDto
     } = payload;
-
     const _currentUserId = this.getObjectId(clientData.id);
-
     const updateOptions: UpdateQuery<UserDocument> = {
       $set: {
         ...updateDto,
@@ -91,8 +89,7 @@ export class MeService extends UsersCommonService {
           : {}),
       },
     };
-
-    await this.userModel.updateOneOrFailById(_currentUserId, updateOptions);
+    await this.userModel.updateOneById(_currentUserId, updateOptions);
   }
 
   public async updateProfileBasicInfo(
@@ -103,12 +100,10 @@ export class MeService extends UsersCommonService {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
     await this.userModel.findOneOrFail({ _id: _currentUserId });
-
     const { birthday: rawBirthday, ...updateDto } = payload;
     const birthday = this.getAndCheckValidBirthdayFromRaw(rawBirthday);
     const age = moment().diff(birthday, 'years');
-
-    await this.userModel.updateOneOrFailById(_currentUserId, {
+    await this.userModel.updateOneById(_currentUserId, {
       $set: {
         ...updateDto,
         filterGender: this.getFilterGender(payload.gender),
@@ -123,7 +118,7 @@ export class MeService extends UsersCommonService {
   public async deactivate(clientData: ClientData) {
     const _currentUserId = this.getObjectId(clientData.id);
 
-    return await this.userModel.updateOneOrFailById(_currentUserId, {
+    return await this.userModel.updateOneById(_currentUserId, {
       $set: {
         status: UserStatuses.deactivated,
       },

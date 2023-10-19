@@ -27,11 +27,9 @@ export class MeController {
     @Body() payload: UpdateMeDto,
     @Client() clientData: ClientData,
   ) {
+    await this.service.updateProfile(payload, clientData);
     return {
       type: 'updateProfile',
-      data: {
-        success: await this.service.updateProfile(payload, clientData),
-      },
     };
   }
 

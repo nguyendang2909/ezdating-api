@@ -1,13 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { S3 } from 'aws-sdk';
 import { FlattenMaps, Types } from 'mongoose';
-import sharp from 'sharp';
-import { v4 as uuidv4 } from 'uuid';
 
 import { APP_CONFIG } from '../../app.config';
 import { MediaFileTypes } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
+import { FilesService } from '../../libs/files.service';
 import { ClientData } from '../auth/auth.type';
 import { User, UserDocument } from '../models/schemas/user.schema';
 import { UserModel } from '../models/user.model';
@@ -15,17 +13,12 @@ import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
 
 @Injectable()
 export class MediaFilesService extends ApiService {
-  constructor(private readonly userModel: UserModel) {
+  constructor(
+    private readonly userModel: UserModel,
+    private readonly filesService: FilesService,
+  ) {
     super();
   }
-
-  private readonly s3 = new S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: 'ap-southeast-1',
-  });
-
-  private readonly awsBucketName = process.env.AWS_BUCKET_NAME;
 
   public async uploadPhoto(
     file: Express.Multer.File,
@@ -35,9 +28,7 @@ export class MediaFilesService extends ApiService {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
     const user = await this.userModel.findOneOrFail(
-      {
-        _id: _currentUserId,
-      },
+      { _id: _currentUserId },
       {
         _id: true,
         mediaFiles: true,
@@ -45,22 +36,9 @@ export class MediaFilesService extends ApiService {
       },
     );
     this.verifyCanUploadFiles(user);
-    const fileBufferWithSharp = await sharp(file.buffer)
-      .resize(640, 860)
-      .toFormat('webp')
-      .toBuffer();
-    const photo = await this.s3
-      .upload({
-        Bucket: this.awsBucketName,
-        Key: `photos/${uuidv4()}.webp`,
-        Body: fileBufferWithSharp,
-        ACL: 'public-read',
-      })
-      .promise();
+    const photo = await this.filesService.updatePhoto(file);
     const createResult = await this.userModel.findOneAndUpdate(
-      {
-        _id: _currentUserId,
-      },
+      { _id: _currentUserId },
       {
         $push: {
           mediaFiles: {
@@ -80,6 +58,7 @@ export class MediaFilesService extends ApiService {
       },
     );
 
+    console.log(createResult);
     return createResult?.mediaFiles?.find((e) => e.key === photo.Key);
   }
 
@@ -87,6 +66,20 @@ export class MediaFilesService extends ApiService {
     const _id = this.getObjectId(id);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
+    const user = await this.userModel.findOneOrFail(
+      {
+        _id: _currentUserId,
+        'mediaFiles._id': _id,
+      },
+      {
+        _id: true,
+        status: true,
+        mediaFiles: {
+          _id: true,
+          key: true,
+        },
+      },
+    );
     await this.userModel.updateOneOrFailById(_currentUserId, {
       $pull: {
         mediaFiles: {
@@ -94,8 +87,10 @@ export class MediaFilesService extends ApiService {
         },
       },
     });
-    // TODO: Remove s3
-    return { success: true };
+    const filePath = user.mediaFiles?.find((e) => e._id.toString() === id)?.key;
+    if (filePath) {
+      await this.filesService.removeOne(filePath);
+    }
   }
 
   public verifyCanUploadFiles(

@@ -16,7 +16,7 @@ import {
   UserStatuses,
 } from '../../../commons/constants';
 import { CommonSchema } from '../../../commons/schemas.common';
-import { MediaFile, MediaFileSchema } from './media-file.schema';
+import { MediaFileDocument, MediaFileSchema } from './media-file.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -106,7 +106,7 @@ export class User extends CommonSchema {
   languages?: string[];
 
   @Prop({ type: [MediaFileSchema] })
-  mediaFiles?: MediaFile[];
+  mediaFiles?: MediaFileDocument[];
 
   @Prop({ type: String, length: 100 })
   nickname?: string;

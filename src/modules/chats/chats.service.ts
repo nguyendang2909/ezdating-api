@@ -103,7 +103,7 @@ export class ChatsService extends DbService {
     const _currentUserId = this.getObjectId(currentUserId);
     const _lastMessageId = this.getObjectId(lastMessageId);
     const _id = this.getObjectId(matchId);
-    await this.matchModel.updateOneOrFail(
+    await this.matchModel.updateOne(
       {
         _id,
         _lastMessageId,

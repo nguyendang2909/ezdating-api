@@ -7,7 +7,9 @@ import { ApiService } from '../../commons/services/api.service';
 
 export class UsersCommonService extends ApiService {
   getAndCheckValidBirthdayFromRaw(rawBirthday: string): Date {
-    const birthdayMoment = moment(rawBirthday, DATE_FORMATS.RAW_BIRTHDAY);
+    const birthdayMoment = moment(rawBirthday, DATE_FORMATS.RAW_BIRTHDAY).utc(
+      true,
+    );
 
     if (birthdayMoment) {
       const momentNow = moment();
