@@ -14,9 +14,10 @@ import { User, UserDocument } from './schemas/user.schema';
 @Injectable()
 export class UserModel extends CommonModel<User> {
   constructor(
-    @InjectModel(User.name) public readonly model: Model<UserDocument>,
+    @InjectModel(User.name) public readonly userModel: Model<UserDocument>,
   ) {
     super();
+    this.model = userModel;
   }
 
   public matchUserFields = {
