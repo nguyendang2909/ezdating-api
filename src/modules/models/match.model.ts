@@ -10,7 +10,7 @@ import { Match, MatchDocument } from './schemas/match.schema';
 export class MatchModel extends CommonModel<Match> {
   constructor(
     @InjectModel(Match.name)
-    public readonly model: Model<MatchDocument>,
+    readonly model: Model<MatchDocument>,
   ) {
     super();
   }

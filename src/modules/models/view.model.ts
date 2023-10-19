@@ -9,7 +9,7 @@ import { View, ViewDocument } from './schemas/view.schema';
 export class ViewModel extends CommonModel<View> {
   constructor(
     @InjectModel(View.name)
-    public readonly model: Model<ViewDocument>,
+    readonly model: Model<ViewDocument>,
   ) {
     super();
   }

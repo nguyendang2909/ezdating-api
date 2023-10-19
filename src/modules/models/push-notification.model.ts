@@ -13,14 +13,9 @@ import { UserModel } from './user.model';
 export class PushNotificationModel extends CommonModel<PushNotification> {
   constructor(
     @InjectModel(PushNotification.name)
-    public readonly pushNotificationModel: Model<PushNotificationDocument>,
+    readonly model: Model<PushNotificationDocument>,
     private readonly userModel: UserModel,
   ) {
     super();
-  }
-
-  async createOne(payload: Partial<PushNotification>) {
-    const result = await this.pushNotificationModel.create(payload);
-    return result.toJSON();
   }
 }

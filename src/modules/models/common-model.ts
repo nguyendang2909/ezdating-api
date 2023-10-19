@@ -58,7 +58,7 @@ export class CommonModel<
     projection?: ProjectionType<TRawDocType> | null,
     options?: QueryOptions<TRawDocType> | null,
   ) {
-    if (!_.isEmpty(filter)) {
+    if (_.isEmpty(filter)) {
       return null;
     }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

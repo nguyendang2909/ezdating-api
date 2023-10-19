@@ -10,7 +10,7 @@ import { Like, LikeDocument } from './schemas/like.schema';
 export class LikeModel extends CommonModel<Like> {
   constructor(
     @InjectModel(Like.name)
-    public readonly model: Model<LikeDocument>,
+    readonly model: Model<LikeDocument>,
   ) {
     super();
 

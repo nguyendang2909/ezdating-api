@@ -13,7 +13,7 @@ import {
 export class SignedDeviceModel extends CommonModel<SignedDevice> {
   constructor(
     @InjectModel(SignedDevice.name)
-    public readonly model: Model<SignedDeviceDocument>,
+    readonly model: Model<SignedDeviceDocument>,
   ) {
     super();
   }
