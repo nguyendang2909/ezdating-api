@@ -60,29 +60,27 @@ export class ChatsService extends DbService {
     const isUserOne = currentUserId === userOneId;
     const messageCreatedAt = moment().toDate();
     // TODO: transaction
-    const createdMessage = await this.messageModel.model.create({
+    const createdMessage = await this.messageModel.createOne({
       _userId: _currentUserId,
       _matchId: existMatch._id,
       text,
       uuid,
       createdAt: messageCreatedAt,
     });
-    await this.matchModel.model
-      .updateOne(
-        { _id: existMatch._id },
-        {
-          $set: {
-            lastMessageAt: messageCreatedAt,
-            lastMessage: text?.slice(0, 100),
-            _lastMessageId: createdMessage._id,
-            _lastMessageUserId: _currentUserId,
-            ...(isUserOne
-              ? { userTwoRead: false, userOneRead: true }
-              : { userOneRead: false, userTwoRead: true }),
-          },
+    await this.matchModel.updateOne(
+      { _id: existMatch._id },
+      {
+        $set: {
+          lastMessageAt: messageCreatedAt,
+          lastMessage: text?.slice(0, 100),
+          _lastMessageId: createdMessage._id,
+          _lastMessageUserId: _currentUserId,
+          ...(isUserOne
+            ? { userTwoRead: false, userOneRead: true }
+            : { userOneRead: false, userTwoRead: true }),
         },
-      )
-      .exec();
+      },
+    );
     const message = createdMessage.toJSON();
     socket.emit(SOCKET_TO_CLIENT_EVENTS.UPDATE_SENT_MESSAGE, message);
     socket
@@ -104,10 +102,8 @@ export class ChatsService extends DbService {
     const currentUserId = socket.handshake.user.id;
     const _currentUserId = this.getObjectId(currentUserId);
     const _lastMessageId = this.getObjectId(lastMessageId);
-
     const _id = this.getObjectId(matchId);
-
-    await this.matchModel.model.updateOne(
+    await this.matchModel.updateOneOrFail(
       {
         _id,
         _lastMessageId,
@@ -130,26 +126,21 @@ export class ChatsService extends DbService {
     const currentUserId = socket.handshake.user.id;
     const _currentUserId = this.getObjectId(currentUserId);
     const _id = this.getObjectId(id);
-
-    const editResult = await this.messageModel.model
-      .findOneAndUpdate(
-        {
-          _id,
-          _userId: _currentUserId,
+    const editResult = await this.messageModel.findOneAndUpdate(
+      {
+        _id,
+        _userId: _currentUserId,
+      },
+      {
+        $set: {
+          text,
+          isEdited: true,
         },
-        {
-          $set: {
-            text,
-            isEdited: true,
-          },
-        },
-        {
-          new: true,
-        },
-      )
-      .lean()
-      .exec();
-
+      },
+      {
+        new: true,
+      },
+    );
     if (!editResult) {
       socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
         message: HttpErrorMessages['Update failed. Please try again.'],
@@ -157,22 +148,17 @@ export class ChatsService extends DbService {
 
       return;
     }
-
     socket.emit(SOCKET_TO_CLIENT_EVENTS.UPDATE_SENT_MESSAGE, editResult);
-
     if (!editResult._matchId) {
       return;
     }
-
     const match = await this.matchModel.model
       .findOne({ _id: editResult._matchId })
       .lean()
       .exec();
-
     if (!match) {
       return;
     }
-
     if (match && match._userOneId && match._userTwoId) {
       socket
         .to([match._userOneId.toString(), match._userTwoId.toString()])

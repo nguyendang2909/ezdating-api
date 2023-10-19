@@ -25,7 +25,7 @@
 //     const { id: currentUserId } = clientData;
 //     const _currentUserId = this.userModel.getObjectId(currentUserId);
 
-//     const existMatch = await this.matchModel.model.findOne({
+//     const existMatch = await this.matchModel.findOne({
 //       _id: _matchId,
 //       $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
 //     });

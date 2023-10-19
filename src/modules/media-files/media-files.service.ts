@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { S3 } from 'aws-sdk';
 import { FlattenMaps, Types } from 'mongoose';
 import sharp from 'sharp';
@@ -93,21 +89,13 @@ export class MediaFilesService extends ApiService {
     const _id = this.getObjectId(id);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-    const deleted = await this.userModel.model.updateOne(
-      {
-        _id: _currentUserId,
-      },
-      {
-        $pull: {
-          mediaFiles: {
-            _id,
-          },
+    await this.userModel.updateOneOrFailById(_currentUserId, {
+      $pull: {
+        mediaFiles: {
+          _id,
         },
       },
-    );
-    if (!deleted.modifiedCount) {
-      throw new InternalServerErrorException();
-    }
+    });
     // TODO: Remove s3
     return { success: true };
   }
@@ -118,7 +106,7 @@ export class MediaFilesService extends ApiService {
     const count = user.mediaFiles?.length || 0;
     if (count >= APP_CONFIG.UPLOAD_PHOTOS_LIMIT) {
       throw new BadRequestException({
-        message: HttpErrorMessages['You can only upload 6 media files.'],
+        message: HttpErrorMessages['You can only upload 6 media files'],
       });
     }
     return count;

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
@@ -6,7 +7,7 @@ import { PaginatedResponse, Pagination } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
-import { MatchDocument } from '../models/schemas/match.schema';
+import { Match, MatchDocument } from '../models/schemas/match.schema';
 import { UserModel } from '../models/user.model';
 import { FindManyConversationsQuery } from './dto/find-many-conversations.dto';
 
@@ -24,13 +25,15 @@ export class ConversationsService extends ApiCursorDateService {
   public async findMany(
     queryParams: FindManyConversationsQuery,
     clientData: ClientData,
-  ): Promise<PaginatedResponse<MatchDocument>> {
+  ): Promise<
+    PaginatedResponse<MatchDocument | (Match & { _id: Types.ObjectId })>
+  > {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;
 
-    const findResults: MatchDocument[] = await this.matchModel.model.aggregate([
+    const findResults = await this.matchModel.aggregate([
       {
         $match: {
           $or: [
@@ -150,7 +153,7 @@ export class ConversationsService extends ApiCursorDateService {
   //   const { id: currentUserId } = clientData;
   //   const _id = this.getObjectId(id);
   //   const _currentUserId = this.getObjectId(currentUserId);
-  //   const findResult = await this.matchModel.model.aggregate([
+  //   const findResult = await this.matchModel.aggregate([
   //     {
   //       $match: {
   //         _id,
@@ -249,7 +252,9 @@ export class ConversationsService extends ApiCursorDateService {
   //   return findResult;
   // }
 
-  public getPagination(data: MatchDocument[]): Pagination {
+  public getPagination(
+    data: Array<MatchDocument | (Match & { _id: Types.ObjectId })>,
+  ): Pagination {
     return this.getPaginationByField(data, '_lastMessageId');
   }
 }

@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
@@ -49,7 +45,7 @@ export class MatchesService extends ApiCursorDateService {
     if (existMatch) {
       return existMatch;
     }
-    await this.matchModel.model.create({
+    await this.matchModel.createOne({
       _userOneId,
       _userTwoId,
     });
@@ -82,15 +78,11 @@ export class MatchesService extends ApiCursorDateService {
       },
       { lean: true },
     );
-    const deleteResult = await this.matchModel.model.deleteOne({
+    await this.matchModel.deleteOneOrFail({
       _id,
       $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
     });
-    if (!deleteResult.deletedCount) {
-      throw new InternalServerErrorException(
-        HttpErrorMessages['Delete failed. Please try again.'],
-      );
-    }
+
     this.handleAfterUnmatch({
       currentUserId,
       userOneId: existMatch._userOneId.toString(),
@@ -419,11 +411,11 @@ export class MatchesService extends ApiCursorDateService {
       userOneId,
       userTwoId,
     });
-    this.likeModel.model.deleteOne({
+    this.likeModel.deleteOne({
       _userId: _currentUserId,
       _targetUserId,
     });
-    this.likeModel.model.updateOne(
+    this.likeModel.updateOne(
       {
         _userId: _targetUserId,
         _targetUserId: _currentUserId,

@@ -12,7 +12,7 @@ import { DbService } from './db.service';
 export class ApiService extends DbService {
   public getPagination(data: unknown[]): Pagination {
     throw new InternalServerErrorException(
-      HttpErrorMessages['Not implemented.'],
+      HttpErrorMessages['Not implemented'],
     );
   }
 
@@ -67,14 +67,14 @@ export class ApiService extends DbService {
 
       if (!_.isObject(obj)) {
         throw new BadRequestException(
-          HttpErrorMessages['Input data was not correct.'],
+          HttpErrorMessages['Input data was not correct'],
         );
       }
 
       return obj;
     } catch (err) {
       throw new BadRequestException(
-        HttpErrorMessages['Input data was not correct.'],
+        HttpErrorMessages['Input data was not correct'],
       );
     }
   }

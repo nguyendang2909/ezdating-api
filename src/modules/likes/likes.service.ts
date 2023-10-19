@@ -2,7 +2,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
-import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { PaginatedResponse, Pagination } from '../../commons/types';
@@ -30,21 +29,18 @@ export class LikesService extends ApiCursorDateService {
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.LIKES;
   }
 
-  public async send(
-    payload: SendLikeDto,
-    clientData: ClientData,
-  ): Promise<ResponseSuccess> {
+  public async send(payload: SendLikeDto, clientData: ClientData) {
     const currentUserId = clientData.id;
     const { targetUserId } = payload;
     this.verifyNotSameUserById(currentUserId, targetUserId);
     const _currentUserId = this.getObjectId(currentUserId);
     const _targetUserId = this.getObjectId(targetUserId);
-    const existLike = await this.likeModel.model.findOne({
+    const existLike = await this.likeModel.findOne({
       _userId: _currentUserId,
       _targetUserId,
     });
     if (existLike) {
-      return { success: true };
+      return existLike;
     }
     const reverseLike = await this.likeModel.model
       .findOneAndUpdate(
@@ -59,7 +55,7 @@ export class LikesService extends ApiCursorDateService {
         },
       )
       .exec();
-    await this.likeModel.model.create({
+    await this.likeModel.createOne({
       _userId: _currentUserId,
       _targetUserId,
       ...(reverseLike ? { isMatched: true } : {}),
@@ -72,7 +68,7 @@ export class LikesService extends ApiCursorDateService {
       targetUserId,
     });
 
-    return { success: true };
+    return existLike;
   }
 
   public async findManyLikedMe(
@@ -189,7 +185,7 @@ export class LikesService extends ApiCursorDateService {
     hasReverseLike: boolean;
     targetUserId: string;
   }) {
-    this.viewModel.model.updateOne(
+    this.viewModel.updateOne(
       { _userId: _currentUserId, _targetUserId },
       {
         isLiked: true,
@@ -215,19 +211,19 @@ export class LikesService extends ApiCursorDateService {
       currentUserId,
       targetUserId,
     });
-    const createMatch = await this.matchModel.model.create({
+    const createMatch = await this.matchModel.createOne({
       _userOneId,
       _userTwoId,
     });
     this.chatsGateway.server
       .to([currentUserId, targetUserId])
-      .emit('matched', createMatch.toJSON());
+      .emit('matched', createMatch);
   }
 
   public verifyNotSameUserById(userOne: string, userTwo: string) {
     if (userOne === userTwo) {
       throw new BadRequestException({
-        message: HttpErrorMessages['You cannot like yourself.'],
+        message: HttpErrorMessages['You cannot like yourself'],
       });
     }
   }

@@ -1,8 +1,14 @@
-import { InternalServerErrorException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import _ from 'lodash';
 import {
   FilterQuery,
   FlattenMaps,
   HydratedDocument,
+  Model,
+  PipelineStage,
   ProjectionType,
   QueryOptions,
   Types,
@@ -28,6 +34,8 @@ export class CommonModel<
 > {
   public limitRecordsPerQuery: number = APP_CONFIG.PAGINATION_LIMIT.DEFAULT;
 
+  protected model: Model<HydratedDocument<TRawDocType>>;
+
   public areObjectIdEqual(
     first: Types.ObjectId,
     second: Types.ObjectId,
@@ -35,42 +43,65 @@ export class CommonModel<
     return first.toString() === second.toString();
   }
 
-  async createOne(
-    doc: Partial<TRawDocType>,
-  ): Promise<FlattenMaps<THydratedDocumentType>> {
-    throw new InternalServerErrorException(
-      HttpErrorMessages['Not implemented.'],
-    );
+  async aggregate(
+    pipeline: PipelineStage[],
+  ): Promise<Array<TRawDocType & { _id: Types.ObjectId }>> {
+    return await this.model.aggregate(pipeline).exec();
+  }
+
+  async createOne(doc: Partial<TRawDocType>) {
+    return await this.model.create(doc);
   }
 
   async findOne(
-    filter?: FilterQuery<any>,
-    projection?: ProjectionType<any> | null,
-    options?: QueryOptions<any> | null,
-  ): Promise<FlattenMaps<THydratedDocumentType> | null> {
-    throw new InternalServerErrorException(
-      HttpErrorMessages['Not implemented.'],
-    );
+    filter?: FilterQuery<TRawDocType>,
+    projection?: ProjectionType<TRawDocType> | null,
+    options?: QueryOptions<TRawDocType> | null,
+  ) {
+    if (!_.isEmpty(filter)) {
+      return null;
+    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return this.model.findOne(filter, projection, options).exec();
   }
 
   async findOneOrFail(
-    filter?: FilterQuery<any>,
-    projection?: ProjectionType<any> | null,
-    options?: QueryOptions<any> | null,
-  ): Promise<FlattenMaps<THydratedDocumentType>> {
-    throw new InternalServerErrorException(
-      HttpErrorMessages['Not implemented.'],
-    );
+    filter?: FilterQuery<TRawDocType>,
+    projection?: ProjectionType<TRawDocType> | null,
+    options?: QueryOptions<TRawDocType> | null,
+  ) {
+    const findResult = await this.findOne(filter, projection, options);
+    if (!findResult) {
+      throw new NotFoundException(HttpErrorMessages['Document does not exist']);
+    }
+    return findResult;
+  }
+
+  async findOneOrFailById(
+    _id: Types.ObjectId,
+    projection?: ProjectionType<TRawDocType> | null,
+    options?: QueryOptions<TRawDocType> | null,
+  ) {
+    return await this.findOneOrFail({ _id }, projection, options);
   }
 
   async updateOne(
     filter?: FilterQuery<TRawDocType>,
+    update?: UpdateQuery<TRawDocType>,
+    options?: QueryOptions<TRawDocType> | null,
+  ): Promise<UpdateWriteOpResult> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    return await this.model.updateOne(filter, update, options);
+  }
+
+  async updateOneById(
+    _id?: Types.ObjectId,
     update?: UpdateQuery<TRawDocType> | UpdateWithAggregationPipeline,
     options?: QueryOptions<TRawDocType> | null,
   ): Promise<UpdateWriteOpResult> {
-    throw new InternalServerErrorException(
-      HttpErrorMessages['Not implemented.'],
-    );
+    return await this.updateOne({ _id }, update, options);
   }
 
   async updateOneOrFail(
@@ -78,43 +109,47 @@ export class CommonModel<
     update?: UpdateQuery<TRawDocType> | UpdateWithAggregationPipeline,
     options?: QueryOptions<TRawDocType> | null,
   ): Promise<void> {
-    throw new InternalServerErrorException(
-      HttpErrorMessages['Not implemented.'],
-    );
-  }
-
-  async deleteOneOrFail() {
-    throw new InternalServerErrorException(
-      HttpErrorMessages['Not implemented.'],
-    );
-  }
-
-  // public getObjectId(id: string): Types.ObjectId {
-  //   return new Types.ObjectId(id);
-  // }
-
-  // public encodeCursor(str: string): string {
-  //   return Buffer.from(str, 'utf-8').toString('base64');
-  // }
-
-  // public extractCursor(value?: string): string | undefined {
-  //   if (!value) {
-  //     return;
-  //   }
-  //   return Buffer.from(value, 'base64').toString('utf-8');
-  // }
-
-  // public getCursors({ next, prev }: GetCursors): PaginationCursors {
-  //   return {
-  //     next: !_.isNil(next) ? this.encodeCursor(next) : null,
-  //     prev: !_.isNil(prev) ? this.encodeCursor(prev) : null,
-  //   };
-  // }
-
-  verifyUpdateResult(updateResult: UpdateWriteOpResult) {
+    const updateResult = await this.updateOne(filter, update, options);
     if (!updateResult.modifiedCount) {
       throw new InternalServerErrorException(
         HttpErrorMessages['Update failed. Please try again.'],
+      );
+    }
+  }
+
+  async updateOneOrFailById(
+    _id?: Types.ObjectId,
+    update?: UpdateQuery<TRawDocType> | UpdateWithAggregationPipeline,
+    options?: QueryOptions<TRawDocType> | null,
+  ): Promise<void> {
+    return await this.updateOneOrFail({ _id }, update, options);
+  }
+
+  async findOneAndUpdate(
+    filter?: FilterQuery<TRawDocType>,
+    update?: UpdateQuery<TRawDocType>,
+    options?: QueryOptions<TRawDocType> | null,
+  ): Promise<FlattenMaps<THydratedDocumentType> | null> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return await this.model.findOneAndUpdate(filter, update, options).exec();
+  }
+
+  async deleteOne(
+    filter?: FilterQuery<TRawDocType>,
+    options?: QueryOptions<TRawDocType>,
+  ) {
+    return await this.model.deleteOne(filter, options).exec();
+  }
+
+  async deleteOneOrFail(
+    filter?: FilterQuery<TRawDocType>,
+    options?: QueryOptions<TRawDocType>,
+  ) {
+    const deteResult = await this.deleteOne(filter, options);
+    if (!deteResult.deletedCount) {
+      throw new InternalServerErrorException(
+        HttpErrorMessages['Delete failed. Please try again.'],
       );
     }
   }

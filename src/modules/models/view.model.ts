@@ -3,13 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { CommonModel } from './common-model';
-import { View } from './schemas/view.schema';
+import { View, ViewDocument } from './schemas/view.schema';
 
 @Injectable()
 export class ViewModel extends CommonModel<View> {
   constructor(
     @InjectModel(View.name)
-    public readonly model: Model<View>,
+    public readonly model: Model<ViewDocument>,
   ) {
     super();
   }

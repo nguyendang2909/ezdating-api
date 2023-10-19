@@ -4,19 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import _ from 'lodash';
-import {
-  Document,
-  FilterQuery,
-  FlattenMaps,
-  Model,
-  ProjectionType,
-  QueryOptions,
-  UpdateQuery,
-  UpdateWithAggregationPipeline,
-  UpdateWriteOpResult,
-} from 'mongoose';
-import { Types } from 'mongoose';
+import { FilterQuery, Model, ProjectionType, QueryOptions } from 'mongoose';
 
 import { UserStatuses } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
@@ -47,38 +35,12 @@ export class UserModel extends CommonModel<User> {
     status: true,
   };
 
-  async createOne(
-    doc: Partial<User>,
-  ): Promise<
-    FlattenMaps<Document<unknown, {}, User> & User & { _id: Types.ObjectId }>
-  > {
+  async createOne(doc: Partial<User>) {
     const { phoneNumber } = doc;
     if (!phoneNumber) {
       throw new BadRequestException('Phone number does not exist!');
     }
-    const user = await this.model.create(doc);
-    return user.toJSON();
-  }
-
-  // public async createOne(entity: Partial<User>) {
-  //   const { phoneNumber } = entity;
-  //   if (!phoneNumber) {
-  //     throw new BadRequestException('Phone number does not exist!');
-  //   }
-  //   const user = await this.model.create(entity);
-
-  //   return user.toJSON();
-  // }
-
-  public async findOne(
-    filter: FilterQuery<UserDocument>,
-    projection?: ProjectionType<UserDocument> | null,
-    options?: QueryOptions<UserDocument> | null,
-  ) {
-    if (_.isEmpty(filter)) {
-      return null;
-    }
-    return await this.model.findOne(filter, projection, options).lean().exec();
+    return await this.model.create(doc);
   }
 
   public async findOneOrFail(
@@ -89,8 +51,7 @@ export class UserModel extends CommonModel<User> {
     const findResult = await this.findOne(filter, projection, options);
     if (!findResult) {
       throw new NotFoundException({
-        errorCode: 'USER_DOES_NOT_EXIST',
-        message: "User doesn't exist!",
+        message: HttpErrorMessages['User does not exist'],
       });
     }
     const { status } = findResult;
@@ -104,7 +65,7 @@ export class UserModel extends CommonModel<User> {
   }
 
   // public async findOneAndValidateBasicInfoById(id: string) {
-  //   const user = await this.model.findOne({
+  //   const user = await this.findOne({
   //     where: {
   //       id: id,
   //       status: UserStatuses.activated,
@@ -132,41 +93,6 @@ export class UserModel extends CommonModel<User> {
   //     .lean()
   //     .exec();
   // }
-
-  async updateOne(
-    filter?: FilterQuery<User> | undefined,
-    update?: any,
-    options?: QueryOptions<User> | null | undefined,
-  ): Promise<UpdateWriteOpResult> {
-    return await this.model.updateOne(filter, update, options).exec();
-  }
-
-  async updateOneOrFail(
-    filter?: FilterQuery<User> | undefined,
-    update?: UpdateWithAggregationPipeline | UpdateQuery<User> | undefined,
-    options?: QueryOptions<User> | null | undefined,
-  ): Promise<void> {
-    const updateResult = await this.updateOne(filter, update, options);
-    if (!updateResult.modifiedCount) {
-      throw new BadRequestException(
-        HttpErrorMessages['Update failed. Please try again.'],
-      );
-    }
-  }
-
-  public async updateOneById(
-    _id: Types.ObjectId,
-    updateOptions: UpdateQuery<UserDocument>,
-  ): Promise<boolean> {
-    const updateResult = await this.model.updateOne(
-      {
-        _id,
-      },
-      updateOptions,
-    );
-
-    return !!updateResult.modifiedCount;
-  }
 
   // public formatInConversation(user: Partial<User>) {
   //   // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars

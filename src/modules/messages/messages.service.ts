@@ -1,7 +1,6 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import { APP_CONFIG } from '../../app.config';
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
 import { PaginatedResponse, Pagination } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
@@ -29,30 +28,19 @@ export class MessagesService extends ApiService {
   ): Promise<PaginatedResponse<MessageDocument> & { _matchId: string }> {
     const { matchId, _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;
-
     const _matchId = this.getObjectId(matchId);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-
-    const existMatch = await this.matchModel.model.findOne({
-      _id: _matchId,
-      $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
-    });
-
-    if (!existMatch) {
-      throw new BadRequestException({
-        message: HttpErrorMessages['Conversation does not exist.'],
-      });
-    }
-
-    const { _userOneId, _userTwoId } = existMatch;
-
-    if (!_userOneId || !_userTwoId) {
-      throw new BadRequestException({
-        message: HttpErrorMessages['Conversation is invalid.'],
-      });
-    }
-
+    const { _userOneId } = await this.matchModel.findOneOrFail(
+      {
+        _id: _matchId,
+        $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
+      },
+      {
+        _userOneId: true,
+        _userTwoId: true,
+      },
+    );
     const findResults = await this.messageModel.model
       .find(
         {
@@ -73,10 +61,8 @@ export class MessagesService extends ApiService {
       .sort({ _id: -1 })
       .limit(this.limitRecordsPerQuery)
       .exec();
-
     const isUserOne = currentUserId === _userOneId.toString();
-
-    await this.matchModel.model.updateOne(
+    await this.matchModel.updateOne(
       { _id: _matchId },
       {
         $set: {
@@ -84,7 +70,6 @@ export class MessagesService extends ApiService {
         },
       },
     );
-
     return {
       type: 'messages',
       _matchId: matchId,

@@ -16,13 +16,13 @@ export class UsersCommonService extends ApiService {
 
       if (age < 18) {
         throw new BadRequestException(
-          HttpErrorMessages['Please make sure you are over 18 years old.'],
+          HttpErrorMessages['Please make sure you are over 18 years old'],
         );
       }
 
       if (age > 100) {
         throw new BadRequestException(
-          HttpErrorMessages['Please make sure you are under 100 years old.'],
+          HttpErrorMessages['Please make sure you are under 100 years old'],
         );
       }
     }

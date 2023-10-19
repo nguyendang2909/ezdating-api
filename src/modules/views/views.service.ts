@@ -24,33 +24,26 @@ export class ViewsService extends ApiService {
   ): Promise<ResponseSuccess> {
     const currentUserId = clientData.id;
     const { targetUserId } = payload;
-
     if (currentUserId === targetUserId) {
       throw new BadRequestException({
-        message: HttpErrorMessages['You cannot view yourself.'],
+        message: HttpErrorMessages['You cannot view yourself'],
       });
     }
-
     const _currentUserId = this.getObjectId(currentUserId);
     const _targetUserId = this.getObjectId(targetUserId);
-
-    const existView = await this.viewModel.model.findOne({
+    const existView = await this.viewModel.findOne({
       _userId: _currentUserId,
       _targetUserId,
     });
-
     if (existView) {
       return { success: true };
     }
-
     const now = moment().toDate();
-
-    await this.viewModel.model.create({
+    await this.viewModel.createOne({
       _targetUserId,
       _userId: _currentUserId,
       viewedAt: now,
     });
-
     return { success: true };
   }
 }

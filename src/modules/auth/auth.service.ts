@@ -29,21 +29,15 @@ export class AuthService extends ApiService {
     super();
   }
 
-  public async logout(payload: LogoutDto): Promise<boolean> {
+  public async logout(payload: LogoutDto) {
     const { refreshToken } = payload;
     const { id: currentUserId } =
       this.encryptionsUtil.verifyRefreshToken(refreshToken);
     const _currentUserId = this.getObjectId(currentUserId);
-    const deleteRResult = await this.signedDeviceModel.model.deleteOne({
+    await this.signedDeviceModel.deleteOneOrFail({
       _userId: _currentUserId,
       refreshToken,
     });
-    if (!deleteRResult.deletedCount) {
-      throw new BadRequestException(
-        HttpErrorMessages['Delete failed. Please try again.'],
-      );
-    }
-    return true;
   }
 
   public async refreshAccessToken(payload: RefreshTokenDto) {
@@ -57,7 +51,7 @@ export class AuthService extends ApiService {
     const { role, gender } = user;
     if (!role) {
       throw new BadRequestException({
-        message: HttpErrorMessages['User data is incorrect.'],
+        message: HttpErrorMessages['User data is incorrect'],
       });
     }
     const accessToken = this.encryptionsUtil.signAccessToken({
@@ -84,7 +78,7 @@ export class AuthService extends ApiService {
       sub: currentUserId,
     });
 
-    const isUpdated = await this.signedDeviceModel.updateOneById(
+    const updateResult = await this.signedDeviceModel.updateOneById(
       loggedDevice._id,
       {
         $set: {
@@ -93,7 +87,7 @@ export class AuthService extends ApiService {
         },
       },
     );
-    if (!isUpdated) {
+    if (!updateResult.modifiedCount) {
       throw new UnauthorizedException({
         message: 'Update refresh token failed!',
       });

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { MongoDocument } from '../../commons/types';
 import { CommonModel } from './common-model';
 import {
   PushNotification,
@@ -14,9 +13,7 @@ import { UserModel } from './user.model';
 export class PushNotificationModel extends CommonModel<PushNotification> {
   constructor(
     @InjectModel(PushNotification.name)
-    public readonly pushNotificationModel: Model<
-      MongoDocument<PushNotificationDocument>
-    >,
+    public readonly pushNotificationModel: Model<PushNotificationDocument>,
     private readonly userModel: UserModel,
   ) {
     super();

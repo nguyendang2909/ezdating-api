@@ -37,7 +37,6 @@ export class MeService extends UsersCommonService {
   public async get(clientData: ClientData) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-
     const [user] = await this.userModel.model
       .aggregate()
       .match({
@@ -61,10 +60,7 @@ export class MeService extends UsersCommonService {
     return user;
   }
 
-  public async updateProfile(
-    payload: UpdateMeDto,
-    clientData: ClientData,
-  ): Promise<boolean> {
+  public async updateProfile(payload: UpdateMeDto, clientData: ClientData) {
     const {
       longitude,
       latitude,
@@ -91,7 +87,7 @@ export class MeService extends UsersCommonService {
       },
     };
 
-    return await this.userModel.updateOneById(_currentUserId, updateOptions);
+    await this.userModel.updateOneOrFailById(_currentUserId, updateOptions);
   }
 
   public async updateProfileBasicInfo(
@@ -107,7 +103,7 @@ export class MeService extends UsersCommonService {
     const birthday = this.getAndCheckValidBirthdayFromRaw(rawBirthday);
     const age = moment().diff(birthday, 'years');
 
-    return await this.userModel.updateOneById(_currentUserId, {
+    await this.userModel.updateOneOrFailById(_currentUserId, {
       $set: {
         ...updateDto,
         filterGender: this.getFilterGender(payload.gender),
@@ -122,7 +118,7 @@ export class MeService extends UsersCommonService {
   public async deactivate(clientData: ClientData) {
     const _currentUserId = this.getObjectId(clientData.id);
 
-    return await this.userModel.updateOneById(_currentUserId, {
+    return await this.userModel.updateOneOrFailById(_currentUserId, {
       $set: {
         status: UserStatuses.deactivated,
       },
@@ -145,17 +141,15 @@ export class MeService extends UsersCommonService {
 
     if (!lastCoinAttendance) {
       // TODO: transaction
-      const firstCoinAttendance = await this.coinAttendanceModel.model.create({
+      const firstCoinAttendance = await this.coinAttendanceModel.createOne({
         _userId: _currentUserId,
         receivedDate: todayDate,
         value: WeeklyCoins[0],
         receivedDateIndex: 0,
       });
 
-      await this.userModel.model.updateOne(
-        {
-          _id: _currentUserId,
-        },
+      await this.userModel.updateOne(
+        { _id: _currentUserId },
         {
           $inc: {
             coins: WeeklyCoins[0],
@@ -180,7 +174,7 @@ export class MeService extends UsersCommonService {
         ? lastReceivedDayIndex + 1
         : 0;
 
-    const createResult = await this.coinAttendanceModel.model.create({
+    const createResult = await this.coinAttendanceModel.createOne({
       _userId: _currentUserId,
       receivedDate: todayDate,
       receivedDateIndex: newReceiveDayIndex,

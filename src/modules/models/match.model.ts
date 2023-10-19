@@ -1,9 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, ProjectionType, QueryOptions } from 'mongoose';
+import { Model } from 'mongoose';
 import { Types } from 'mongoose';
 
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { CommonModel } from './common-model';
 import { Match, MatchDocument } from './schemas/match.schema';
 
@@ -14,21 +13,6 @@ export class MatchModel extends CommonModel<Match> {
     public readonly model: Model<MatchDocument>,
   ) {
     super();
-  }
-
-  async findOneOrFail(
-    filter?: FilterQuery<MatchDocument>,
-    projection?: ProjectionType<MatchDocument> | null,
-    options?: QueryOptions<MatchDocument> | null,
-  ) {
-    const findResult = await this.model
-      .findOne(filter, projection, options)
-      .lean()
-      .exec();
-    if (!findResult) {
-      throw new NotFoundException(HttpErrorMessages['Match does not exist']);
-    }
-    return findResult;
   }
 
   public async findOneRelatedToUserId(

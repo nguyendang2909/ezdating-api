@@ -346,30 +346,32 @@ export class UsersService extends ApiService {
 
   public async findOneById(targetUserId: string) {
     const _targetUserId = this.getObjectId(targetUserId);
-    const findResult = await this.userModel.model.aggregate([
-      {
-        $match: {
-          _id: _targetUserId,
+    const findResult = await this.userModel.model
+      .aggregate([
+        {
+          $match: {
+            _id: _targetUserId,
+          },
         },
-      },
-      {
-        $limit: 1,
-      },
-      {
-        $set: {
-          age: {
-            $dateDiff: {
-              startDate: '$birthday',
-              endDate: '$$NOW',
-              unit: 'year',
+        {
+          $limit: 1,
+        },
+        {
+          $set: {
+            age: {
+              $dateDiff: {
+                startDate: '$birthday',
+                endDate: '$$NOW',
+                unit: 'year',
+              },
             },
           },
         },
-      },
-      {
-        $project: this.userModel.matchUserFields,
-      },
-    ]);
+        {
+          $project: this.userModel.matchUserFields,
+        },
+      ])
+      .exec();
 
     return findResult;
   }

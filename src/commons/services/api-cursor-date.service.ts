@@ -9,7 +9,7 @@ export class ApiCursorDateService extends ApiService {
     const cursor = moment(this.decodeToString(_cursor));
     if (!cursor.isValid()) {
       throw new BadRequestException(
-        HttpErrorMessages['Input data was not correct.'],
+        HttpErrorMessages['Input data was not correct'],
       );
     }
 
