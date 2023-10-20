@@ -168,8 +168,25 @@ export class NearbyUsersService extends ApiService {
     };
   }
 
-  public getPagination(data: (User & { _id: Types.ObjectId })[]): Pagination {
-    return this.getPaginationByField(data, ['_id', 'distance']);
+  public getPagination(
+    data: (User & { _id: Types.ObjectId; excludedUserIds?: string[] })[],
+  ): Pagination {
+    const dataLength = data.length;
+    if (!dataLength || dataLength < this.limitRecordsPerQuery) {
+      return { _next: null };
+    }
+    const lastData = data[dataLength - 1];
+    const minDistance = data[data.length - 1].distance;
+    const excludedUserIds = data
+      .filter((e) => e.distance === minDistance)
+      .map((e) => e._id.toString());
+
+    return {
+      _next: this.encodeFromObj({
+        distance: lastData.distance,
+        excludedUserIds,
+      }),
+    };
   }
 
   protected getCursor(_cursor: string): NearbyUserCursor {
