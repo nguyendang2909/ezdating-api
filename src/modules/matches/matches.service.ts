@@ -45,21 +45,16 @@ export class MatchesService extends ApiCursorDateService {
     if (existMatch) {
       return existMatch;
     }
-    await this.matchModel.createOne({
+    const createResult = await this.matchModel.createOne({
       _userOneId,
       _userTwoId,
     });
-    const match = await this.findOneByUserIds({
-      _userOneId,
-      _userTwoId,
-    });
-    if (!match) {
-      throw new NotFoundException(HttpErrorMessages['Match does not exist']);
-    }
     this.chatsGateway.server
       .to([currentUserId, targetUserId])
-      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, match);
-    return match;
+      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, {
+        _id: createResult.id,
+      });
+    return { _id: createResult._id };
   }
 
   public async cancel(id: string, clientData: ClientData) {

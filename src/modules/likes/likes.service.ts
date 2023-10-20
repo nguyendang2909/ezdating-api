@@ -218,7 +218,9 @@ export class LikesService extends ApiCursorDateService {
     });
     this.chatsGateway.server
       .to([currentUserId, targetUserId])
-      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, createMatch);
+      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, {
+        _id: createMatch._id,
+      });
   }
 
   public verifyNotSameUserById(userOne: string, userTwo: string) {
