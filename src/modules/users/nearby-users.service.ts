@@ -36,6 +36,7 @@ export class NearbyUsersService extends ApiService {
 
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
+
     const {
       geolocation,
       filterMaxAge,
@@ -47,8 +48,18 @@ export class NearbyUsersService extends ApiService {
       _id: _currentUserId,
     });
 
+    console.log(
+      111,
+      geolocation,
+      filterMaxAge,
+      filterMinAge,
+      filterMaxDistanceAsKm,
+      filterGender,
+      gender,
+    );
+
     if (
-      !geolocation?.coordinates[1] ||
+      !geolocation?.coordinates ||
       !filterMaxAge ||
       !filterMinAge ||
       !gender ||
