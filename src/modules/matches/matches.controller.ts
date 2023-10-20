@@ -30,7 +30,7 @@ export class MatchesController {
     @Client() clientData: ClientData,
   ) {
     return {
-      type: 'cancelMatched',
+      type: 'unmatch',
       data: await this.service.cancel(id, clientData),
     };
   }

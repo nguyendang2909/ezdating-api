@@ -58,7 +58,7 @@ export class MatchesService extends ApiCursorDateService {
     }
     this.chatsGateway.server
       .to([currentUserId, targetUserId])
-      .emit('matched', match);
+      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, match);
     return match;
   }
 

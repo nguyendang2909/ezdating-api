@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
+import { SOCKET_TO_CLIENT_EVENTS } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { PaginatedResponse, Pagination } from '../../commons/types';
@@ -217,7 +218,7 @@ export class LikesService extends ApiCursorDateService {
     });
     this.chatsGateway.server
       .to([currentUserId, targetUserId])
-      .emit('matched', createMatch);
+      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, createMatch);
   }
 
   public verifyNotSameUserById(userOne: string, userTwo: string) {

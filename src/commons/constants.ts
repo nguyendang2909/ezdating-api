@@ -104,16 +104,16 @@ export type DevicePlatform =
 
 export const SOCKET_TO_SERVER_EVENTS = {
   SEND_MESSAGE: 'sendMsg',
-  MATCHED: 'matched',
   EDIT_MESSAGE: 'editMsg',
   READ_MESSAGE: 'readMsg',
 } as const;
 
 export const SOCKET_TO_CLIENT_EVENTS = {
-  CANCEL_MATCHED: 'cancelMatched',
+  CANCEL_MATCH: 'cancelMatch',
   ERROR: 'error',
   NEW_MESSAGE: 'msg',
   UPDATE_SENT_MESSAGE: 'updateSentMsg',
+  MATCH: 'match',
 } as const;
 
 export const FILE_UPLOAD_FOLDERS = {
