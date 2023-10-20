@@ -33,10 +33,8 @@ export class NearbyUsersService extends ApiService {
     const excludedUserIds = cursor
       ? cursor.excludedUserIds?.map((e) => this.getObjectId(e))
       : undefined;
-
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-
     const {
       geolocation,
       filterMaxAge,
@@ -47,33 +45,22 @@ export class NearbyUsersService extends ApiService {
     } = await this.userModel.findOneOrFail({
       _id: _currentUserId,
     });
-
-    console.log(
-      111,
-      geolocation,
-      filterMaxAge,
-      filterMinAge,
-      filterMaxDistanceAsKm,
-      filterGender,
-      gender,
-    );
-
     if (
-      !geolocation?.coordinates ||
       !filterMaxAge ||
       !filterMinAge ||
       !gender ||
       !filterGender ||
       !filterMaxDistanceAsKm
     ) {
-      throw new BadRequestException({
-        message:
-          HttpErrorMessages[
-            'You do not have a basic info. Please complete it.'
-          ],
-      });
+      throw new BadRequestException(
+        HttpErrorMessages['You do not have a basic info. Please complete it.'],
+      );
     }
-
+    if (!geolocation?.coordinates) {
+      throw new BadRequestException(
+        HttpErrorMessages['Please enable location service in your device'],
+      );
+    }
     const filterMaxDistance = filterMaxDistanceAsKm * 1000;
 
     if (minDistance && minDistance >= filterMaxDistance) {

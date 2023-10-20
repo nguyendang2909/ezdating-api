@@ -9,6 +9,8 @@ export const HttpErrorMessages = {
   'Match is invalid': 'Match is invalid',
   'Message does not exist': 'Message does not exist',
   'Not implemented': 'Not implemented',
+  'Please enable location service in your device':
+    'Please enable location service in your device',
   'Please make sure you are over 18 years old':
     'Please make sure you are over 18 years old',
   'Please make sure you are under 100 years old':
