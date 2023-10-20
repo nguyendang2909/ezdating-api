@@ -423,7 +423,7 @@ export class MatchesService extends ApiCursorDateService {
     );
     this.chatsGateway.server
       .to([userOneId, userTwoId])
-      .emit(SOCKET_TO_CLIENT_EVENTS.CANCEL_MATCHED, {
+      .emit(SOCKET_TO_CLIENT_EVENTS.CANCEL_MATCH, {
         _id: matchId,
       });
   }
