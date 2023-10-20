@@ -37,30 +37,9 @@ export class MeService extends UsersCommonService {
   public async get(clientData: ClientData) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-    const [user] = await this.userModel.aggregate([
-      {
-        $match: {
-          _id: _currentUserId,
-        },
-      },
-      {
-        $limit: 1,
-      },
-      {
-        $addFields: {
-          age: {
-            $dateDiff: {
-              startDate: '$birthday',
-              endDate: '$$NOW',
-              unit: 'year',
-            },
-          },
-        },
-      },
-      {
-        $project: { password: false },
-      },
-    ]);
+    const user = await this.userModel.findOneOrFailById(_currentUserId, {
+      password: false,
+    });
 
     return user;
   }
