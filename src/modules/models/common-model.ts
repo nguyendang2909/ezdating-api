@@ -54,7 +54,7 @@ export class CommonModel<
   }
 
   async findOne(
-    filter?: FilterQuery<TRawDocType>,
+    filter: FilterQuery<TRawDocType>,
     projection?: ProjectionType<TRawDocType> | null,
     options?: QueryOptions<TRawDocType> | null,
   ) {
@@ -67,7 +67,7 @@ export class CommonModel<
   }
 
   async findOneOrFail(
-    filter?: FilterQuery<TRawDocType>,
+    filter: FilterQuery<TRawDocType>,
     projection?: ProjectionType<TRawDocType> | null,
     options?: QueryOptions<TRawDocType> | null,
   ) {
@@ -87,8 +87,8 @@ export class CommonModel<
   }
 
   async updateOne(
-    filter?: FilterQuery<TRawDocType>,
-    update?: UpdateQuery<TRawDocType>,
+    filter: FilterQuery<TRawDocType>,
+    update: UpdateQuery<TRawDocType>,
     options?: QueryOptions<TRawDocType> | null,
   ): Promise<UpdateWriteOpResult> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -97,16 +97,16 @@ export class CommonModel<
   }
 
   async updateOneById(
-    _id?: Types.ObjectId,
-    update?: UpdateQuery<TRawDocType> | UpdateWithAggregationPipeline,
+    _id: Types.ObjectId,
+    update: UpdateQuery<TRawDocType> | UpdateWithAggregationPipeline,
     options?: QueryOptions<TRawDocType> | null,
   ): Promise<UpdateWriteOpResult> {
     return await this.updateOne({ _id }, update, options);
   }
 
   async updateOneOrFail(
-    filter?: FilterQuery<TRawDocType>,
-    update?: UpdateQuery<TRawDocType> | UpdateWithAggregationPipeline,
+    filter: FilterQuery<TRawDocType>,
+    update: UpdateQuery<TRawDocType> | UpdateWithAggregationPipeline,
     options?: QueryOptions<TRawDocType> | null,
   ): Promise<void> {
     const updateResult = await this.updateOne(filter, update, options);
@@ -118,8 +118,8 @@ export class CommonModel<
   }
 
   async updateOneOrFailById(
-    _id?: Types.ObjectId,
-    update?: UpdateQuery<TRawDocType> | UpdateWithAggregationPipeline,
+    _id: Types.ObjectId,
+    update: UpdateQuery<TRawDocType> | UpdateWithAggregationPipeline,
     options?: QueryOptions<TRawDocType> | null,
   ): Promise<void> {
     return await this.updateOneOrFail({ _id }, update, options);
