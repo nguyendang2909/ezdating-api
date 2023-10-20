@@ -39,12 +39,12 @@ export class MeService extends UsersCommonService {
     const _currentUserId = this.getObjectId(currentUserId);
     const [user] = await this.userModel.aggregate([
       {
-        $limit: 1,
-      },
-      {
         $match: {
           _id: _currentUserId,
         },
+      },
+      {
+        $limit: 1,
       },
       {
         $addFields: {
