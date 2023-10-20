@@ -114,7 +114,7 @@ export class User extends CommonSchema {
   @Prop({ type: String, length: 300 })
   password?: string;
 
-  @Prop({ type: String, length: 20 })
+  @Prop({ type: String, length: 20, unique: true })
   phoneNumber?: string;
 
   @Prop({ type: Number, enum: UserRelationshipGoals })
