@@ -49,18 +49,21 @@ export class LikesService extends ApiCursorDateService {
       this.logger.log(`SEND_LIKE Exist like found`, existLike);
       return;
     }
+    const reverseLikeFilter = {
+      _userId: _targetUserId,
+      _targetUserId: _currentUserId,
+    };
+    const reverseLikeUpdatePayload = {
+      $set: {
+        isMatched: true,
+      },
+    };
+    this.logger.log(`SEND_LIKE Find one and update reverse like`, {
+      reverseLikeFilter,
+      reverseLikeUpdatePayload,
+    });
     const reverseLike = await this.likeModel.model
-      .findOneAndUpdate(
-        {
-          _userId: _targetUserId,
-          _targetUserId: _currentUserId,
-        },
-        {
-          $set: {
-            isMatched: true,
-          },
-        },
-      )
+      .findOneAndUpdate(reverseLikeFilter, reverseLikeUpdatePayload)
       .exec();
     const createPayload = {
       _userId: _currentUserId,
