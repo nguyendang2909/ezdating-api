@@ -46,6 +46,7 @@ export class LikesService extends ApiCursorDateService {
       _targetUserId,
     });
     if (existLike) {
+      this.logger.log(`SEND_LIKE Exist like found`, existLike);
       return;
     }
     const reverseLike = await this.likeModel.model
@@ -61,11 +62,16 @@ export class LikesService extends ApiCursorDateService {
         },
       )
       .exec();
-    await this.likeModel.createOne({
+    const createPayload = {
       _userId: _currentUserId,
       _targetUserId,
       ...(reverseLike ? { isMatched: true } : {}),
-    });
+    };
+    this.logger.log(
+      `SEND_LIKE Exist like not found, start create like`,
+      createPayload,
+    );
+    await this.likeModel.createOne(createPayload);
     this.handleAfterSendLike({
       _currentUserId,
       _targetUserId,
@@ -191,46 +197,41 @@ export class LikesService extends ApiCursorDateService {
     hasReverseLike: boolean;
     targetUserId: string;
   }) {
+    const updateViewFilter = { _userId: _currentUserId, _targetUserId };
+    const updateViewPayload = {
+      isLiked: true,
+      ...(hasReverseLike ? { isMatched: true } : {}),
+    };
+    const updateViewOptions = { upsert: true };
+    this.logger.log(`CREATE_LIKE Update view`, {
+      updateViewFilter,
+      updateViewPayload,
+      updateViewOptions,
+    });
     this.viewModel.updateOne(
-      { _userId: _currentUserId, _targetUserId },
-      {
-        isLiked: true,
-        ...(hasReverseLike ? { isMatched: true } : {}),
-      },
-      { upsert: true },
+      updateViewFilter,
+      updateViewPayload,
+      updateViewOptions,
     );
     if (hasReverseLike) {
-      this.handleMatch({
+      const { _userOneId, _userTwoId } = this.matchModel.getSortedUserIds({
         currentUserId,
         targetUserId,
       });
+      const createMatchPayload = { _userOneId, _userTwoId };
+      this.logger.log(`CREATE_LIKE Create match`, { createMatchPayload });
+      const createMatch = await this.matchModel.createOne(createMatchPayload);
+      const emitUserIds = [currentUserId, targetUserId];
+      const emitPayload = {
+        _id: createMatch._id,
+      };
+      this.logger.log(
+        `CREATE_LIKE Socket emit event "${SOCKET_TO_CLIENT_EVENTS.MATCH}" userIds: ${emitUserIds}`,
+      );
+      this.chatsGateway.server
+        .to(emitUserIds)
+        .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, emitPayload);
     }
-  }
-  async handleMatch({
-    currentUserId,
-    targetUserId,
-  }: {
-    currentUserId: string;
-    targetUserId: string;
-  }) {
-    const { _userOneId, _userTwoId } = this.matchModel.getSortedUserIds({
-      currentUserId,
-      targetUserId,
-    });
-    const createMatch = await this.matchModel.createOne({
-      _userOneId,
-      _userTwoId,
-    });
-    const emitUserIds = [currentUserId, targetUserId];
-    const emitPayload = {
-      _id: createMatch._id,
-    };
-    this.logger.log(
-      `SOCKET_EMIT_EVENT ${SOCKET_TO_CLIENT_EVENTS.MATCH} userIds: ${emitUserIds}`,
-    );
-    this.chatsGateway.server
-      .to(emitUserIds)
-      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, emitPayload);
   }
 
   public verifyNotSameUserById(userOne: string, userTwo: string) {

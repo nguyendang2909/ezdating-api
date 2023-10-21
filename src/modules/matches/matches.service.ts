@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
@@ -31,6 +31,8 @@ export class MatchesService extends ApiCursorDateService {
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MATCHES;
   }
 
+  private readonly logger = new Logger(MatchesService.name);
+
   public async createOne(payload: CreateMatchDto, clientData: ClientData) {
     const { targetUserId } = payload;
     const { id: currentUserId } = clientData;
@@ -43,12 +45,17 @@ export class MatchesService extends ApiCursorDateService {
       _userTwoId,
     });
     if (existMatch) {
-      return existMatch;
+      this.logger.log(`CREATE_MATCH Exist match found`, { match: existMatch });
+      return;
     }
-    const createResult = await this.matchModel.createOne({
+    const createPayload = {
       _userOneId,
       _userTwoId,
+    };
+    this.logger.log(`CREATE_MATCH Exist match not found, start create match`, {
+      payload: createPayload,
     });
+    const createResult = await this.matchModel.createOne(createPayload);
     this.chatsGateway.server
       .to([currentUserId, targetUserId])
       .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, {
