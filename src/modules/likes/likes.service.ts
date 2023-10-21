@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
@@ -30,7 +30,12 @@ export class LikesService extends ApiCursorDateService {
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.LIKES;
   }
 
-  public async send(payload: SendLikeDto, clientData: ClientData) {
+  private readonly logger = new Logger(LikesService.name);
+
+  public async send(
+    payload: SendLikeDto,
+    clientData: ClientData,
+  ): Promise<void> {
     const currentUserId = clientData.id;
     const { targetUserId } = payload;
     this.verifyNotSameUserById(currentUserId, targetUserId);
@@ -41,7 +46,7 @@ export class LikesService extends ApiCursorDateService {
       _targetUserId,
     });
     if (existLike) {
-      return existLike;
+      return;
     }
     const reverseLike = await this.likeModel.model
       .findOneAndUpdate(
@@ -69,7 +74,7 @@ export class LikesService extends ApiCursorDateService {
       targetUserId,
     });
 
-    return existLike;
+    return;
   }
 
   public async findManyLikedMe(
@@ -216,12 +221,16 @@ export class LikesService extends ApiCursorDateService {
       _userOneId,
       _userTwoId,
     });
-    console.log(1111);
+    const emitUserIds = [currentUserId, targetUserId];
+    const emitPayload = {
+      _id: createMatch._id,
+    };
+    this.logger.log(
+      `SOCKET_EMIT_EVENT ${SOCKET_TO_CLIENT_EVENTS.MATCH} userIds: ${emitUserIds}`,
+    );
     this.chatsGateway.server
-      .to([currentUserId, targetUserId])
-      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, {
-        _id: createMatch._id,
-      });
+      .to(emitUserIds)
+      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, emitPayload);
   }
 
   public verifyNotSameUserById(userOne: string, userTwo: string) {
