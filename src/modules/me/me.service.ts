@@ -85,6 +85,7 @@ export class MeService extends UsersCommonService {
     await this.userModel.updateOneById(_currentUserId, {
       $set: {
         ...updateDto,
+        birthday,
         filterGender: this.getFilterGender(payload.gender),
         filterMinAge: age - 10 > 18 ? age - 10 : 18,
         filterMaxAge: age + 10,
