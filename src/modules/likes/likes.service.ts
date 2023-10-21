@@ -46,7 +46,9 @@ export class LikesService extends ApiCursorDateService {
       _targetUserId,
     });
     if (existLike) {
-      this.logger.log(`SEND_LIKE Exist like found`, existLike);
+      this.logger.log(
+        `SEND_LIKE Exist like found ${JSON.stringify(existLike)}`,
+      );
       return;
     }
     const reverseLikeFilter = {
@@ -61,7 +63,7 @@ export class LikesService extends ApiCursorDateService {
     this.logger.log(
       `SEND_LIKE Find one and update reverse like filter ${JSON.stringify(
         reverseLikeFilter,
-      )} payload: ${reverseLikeUpdatePayload}`,
+      )} payload: ${JSON.stringify(reverseLikeUpdatePayload)}`,
     );
     const reverseLike = await this.likeModel.model
       .findOneAndUpdate(reverseLikeFilter, reverseLikeUpdatePayload)
@@ -72,7 +74,9 @@ export class LikesService extends ApiCursorDateService {
       ...(reverseLike ? { isMatched: true } : {}),
     };
     this.logger.log(
-      `SEND_LIKE Exist like not found, start create like payload ${createPayload}`,
+      `SEND_LIKE Exist like not found, start create like payload ${JSON.stringify(
+        createPayload,
+      )}`,
     );
     await this.likeModel.createOne(createPayload);
     this.handleAfterSendLike({
@@ -255,7 +259,11 @@ export class LikesService extends ApiCursorDateService {
         userTwo,
       };
       this.logger.log(
-        `CREATE_LIKE Socket emit event "${SOCKET_TO_CLIENT_EVENTS.MATCH}" userIds: ${emitUserIds} payload: ${emitPayload}`,
+        `CREATE_LIKE Socket emit event "${
+          SOCKET_TO_CLIENT_EVENTS.MATCH
+        }" userIds: ${JSON.stringify(emitUserIds)} payload: ${JSON.stringify(
+          emitPayload,
+        )}`,
       );
       this.chatsGateway.server
         .to(emitUserIds)

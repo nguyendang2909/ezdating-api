@@ -1,4 +1,4 @@
-import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class SendChatMessageDto {
   @IsNotEmpty()
@@ -6,6 +6,7 @@ export class SendChatMessageDto {
   matchId: string;
 
   @IsString()
+  @MaxLength(5000)
   text: string;
 
   @IsString()

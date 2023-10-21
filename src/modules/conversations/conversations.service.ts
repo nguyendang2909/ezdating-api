@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
-import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
+import { ApiCursorObjectIdService } from '../../commons';
 import { PaginatedResponse, Pagination } from '../../commons/types';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel } from '../models/match.model';
@@ -12,7 +12,7 @@ import { UserModel } from '../models/user.model';
 import { FindManyConversationsQuery } from './dto/find-many-conversations.dto';
 
 @Injectable()
-export class ConversationsService extends ApiCursorDateService {
+export class ConversationsService extends ApiCursorObjectIdService {
   constructor(
     private readonly matchModel: MatchModel,
     private readonly userModel: UserModel,
@@ -46,11 +46,11 @@ export class ConversationsService extends ApiCursorDateService {
           ],
           ...(cursor
             ? {
-                lastMessageAt: {
+                'lastMessage._id': {
                   $lt: cursor,
                 },
               }
-            : { lastMessageAt: { $ne: null } }),
+            : { lastMessage: { $ne: null } }),
         },
       },
       {
@@ -149,112 +149,17 @@ export class ConversationsService extends ApiCursorDateService {
     };
   }
 
-  // public async findOneOrFailById(id: string, clientData: ClientData) {
-  //   const { id: currentUserId } = clientData;
-  //   const _id = this.getObjectId(id);
-  //   const _currentUserId = this.getObjectId(currentUserId);
-  //   const findResult = await this.matchModel.aggregate([
-  //     {
-  //       $match: {
-  //         _id,
-  //         $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
-  //       },
-  //     },
-  //     {
-  //       $limit: 1,
-  //     },
-  //     {
-  //       $lookup: {
-  //         from: 'users',
-  //         let: {
-  //           targetUserId: {
-  //             $cond: {
-  //               if: {
-  //                 $eq: ['$_userOneId', _currentUserId],
-  //               },
-  //               then: '$_userTwoId',
-  //               else: '$_userOneId',
-  //             },
-  //           },
-  //         },
-  //         pipeline: [
-  //           {
-  //             $match: {
-  //               $expr: {
-  //                 $eq: ['$_id', '$$targetUserId'],
-  //               },
-  //             },
-  //           },
-  //           {
-  //             $limit: 1,
-  //           },
-  //           {
-  //             $lookup: {
-  //               from: 'mediafiles',
-  //               let: { userId: '$_id' },
-  //               pipeline: [
-  //                 {
-  //                   $match: {
-  //                     $expr: {
-  //                       $eq: ['$_userId', '$$userId'],
-  //                     },
-  //                   },
-  //                 },
-  //                 { $limit: APP_CONFIG.PAGINATION_LIMIT.MEDIA_FILES },
-  //                 {
-  //                   $project: {
-  //                     _id: true,
-  //                     location: true,
-  //                   },
-  //                 },
-  //               ],
-  //               as: 'mediaFiles',
-  //             },
-  //           },
-  //           {
-  //             $set: {
-  //               age: {
-  //                 $dateDiff: {
-  //                   startDate: '$birthday',
-  //                   endDate: '$$NOW',
-  //                   unit: 'year',
-  //                 },
-  //               },
-  //             },
-  //           },
-  //           {
-  //             $project: {
-  //               _id: true,
-  //               age: 1,
-  //               filterGender: true,
-  //               filterMaxAge: true,
-  //               filterMaxDistance: true,
-  //               filterMinAge: true,
-  //               gender: true,
-  //               introduce: true,
-  //               lastActivatedAt: true,
-  //               mediaFiles: true,
-  //               nickname: true,
-  //               relationshipGoal: true,
-  //               status: true,
-  //             },
-  //           },
-  //         ],
-  //         as: 'targetUser',
-  //       },
-  //     },
-  //   ]);
-  //   if (!findResult) {
-  //     throw new NotFoundException({
-  //       message: HttpErrorMessages['Conversation does not exist.'],
-  //     });
-  //   }
-  //   return findResult;
-  // }
-
   public getPagination(
     data: Array<MatchDocument | (Match & { _id: Types.ObjectId })>,
   ): Pagination {
-    return this.getPaginationByField(data, '_lastMessageId');
+    const dataLength = data.length;
+    if (!dataLength || dataLength < this.limitRecordsPerQuery) {
+      return { _next: null };
+    }
+    const lastData = data[dataLength - 1];
+    const lastField = lastData.lastMessage?._id?.toString();
+    return {
+      _next: lastField ? this.encodeFromString(lastField) : null,
+    };
   }
 }

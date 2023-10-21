@@ -44,7 +44,7 @@ export class SignInService {
         });
       }
     } catch (err) {
-      this.logger.log(err);
+      this.logger.log(JSON.stringify(err));
     }
   }
 

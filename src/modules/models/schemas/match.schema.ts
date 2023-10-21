@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 import { CommonSchema } from '../../../commons/schemas.common';
+import { Message, MessageSchema } from './message.schema';
 
 export type MatchDocument = HydratedDocument<Match>;
 
@@ -13,17 +14,20 @@ export class Match extends CommonSchema {
   @Prop({ type: SchemaTypes.ObjectId, required: true })
   _userTwoId: Types.ObjectId;
 
-  @Prop({ type: SchemaTypes.ObjectId })
-  _lastMessageId?: Types.ObjectId;
+  // @Prop({ type: SchemaTypes.ObjectId })
+  // _lastMessageId?: Types.ObjectId;
 
-  @Prop({ type: SchemaTypes.ObjectId })
-  _lastMessageUserId?: Types.ObjectId;
+  // @Prop({ type: SchemaTypes.ObjectId })
+  // _lastMessageUserId?: Types.ObjectId;
 
-  @Prop({ type: String })
-  lastMessage?: string;
+  @Prop({ type: MessageSchema })
+  lastMessage?: Message;
 
-  @Prop({ type: Date })
-  lastMessageAt?: Date;
+  // @Prop({ type: String })
+  // lastMessage?: string;
+
+  // @Prop({ type: Date })
+  // lastMessageAt?: Date;
 
   @Prop({ type: Boolean, default: false })
   userOneRead: boolean;
@@ -39,5 +43,5 @@ MatchSchema.index({ _userOneId: 1, _userTwoId: 1 }, { unique: true });
 MatchSchema.index({
   _userOneId: 1,
   _userTwoId: 1,
-  lastMessageAt: 1,
+  'lastMessage._id': 1,
 });

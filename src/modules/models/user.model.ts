@@ -18,19 +18,19 @@ export class UserModel extends CommonModel<User> {
   }
 
   public matchUserFields = {
-    _id: true,
-    age: true,
-    filterGender: true,
-    filterMaxAge: true,
-    filterMaxDistance: true,
-    filterMinAge: true,
-    gender: true,
-    introduce: true,
-    lastActivatedAt: true,
-    mediaFiles: true,
-    nickname: true,
-    relationshipGoal: true,
-    status: true,
+    _id: 1,
+    age: 1,
+    filterGender: 1,
+    filterMaxAge: 1,
+    filterMaxDistance: 1,
+    filterMinAge: 1,
+    gender: 1,
+    introduce: 1,
+    lastActivatedAt: 1,
+    mediaFiles: 1,
+    nickname: 1,
+    relationshipGoal: 1,
+    status: 1,
   };
 
   async createOne(doc: Partial<User>) {

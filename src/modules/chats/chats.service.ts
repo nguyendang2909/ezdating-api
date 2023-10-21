@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import moment from 'moment';
 import { Socket } from 'socket.io';
 
 import { SOCKET_TO_CLIENT_EVENTS } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { DbService } from '../../commons/services/db.service';
+import { MatchDocument, MessageDocument } from '../models';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
 import { SignedDeviceModel } from '../models/signed-device.model';
@@ -37,63 +37,40 @@ export class ChatsService extends DbService {
     const currentUserId = socket.handshake.user.id;
     const _currentUserId = this.getObjectId(currentUserId);
     const _matchId = this.getObjectId(matchId);
-    const existMatch = await this.matchModel.findOneRelatedToUserId(
-      _matchId,
-      _currentUserId,
+    const match = await this.matchModel.findOne(
+      {
+        _id: _matchId,
+        $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
+      },
+      {
+        _id: 1,
+        _userOneId: 1,
+        _userTwoId: 1,
+      },
     );
-    if (!existMatch) {
+    if (!match) {
+      this.logger.log(`SEND_MESSAGE matchId ${matchId} does not exist`);
       socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
         message: HttpErrorMessages['Match does not exist'],
       });
 
       return;
     }
-    const { _userOneId, _userTwoId } = existMatch;
-    if (!_userOneId || !_userTwoId) {
-      socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
-        message: HttpErrorMessages['Match is invalid'],
-      });
-      return;
-    }
-    const userOneId = _userOneId.toString();
-    const userTwoId = _userTwoId.toString();
-    const isUserOne = currentUserId === userOneId;
-    const messageCreatedAt = moment().toDate();
-    // TODO: transaction
-    const createdMessage = await this.messageModel.createOne({
+    const createPayload = {
       _userId: _currentUserId,
-      _matchId: existMatch._id,
+      _matchId: match._id,
       text,
       uuid,
-      createdAt: messageCreatedAt,
-    });
-    await this.matchModel.updateOne(
-      { _id: existMatch._id },
-      {
-        $set: {
-          lastMessageAt: messageCreatedAt,
-          lastMessage: text?.slice(0, 100),
-          _lastMessageId: createdMessage._id,
-          _lastMessageUserId: _currentUserId,
-          ...(isUserOne
-            ? { userTwoRead: false, userOneRead: true }
-            : { userOneRead: false, userTwoRead: true }),
-        },
-      },
+    };
+    this.logger.log(
+      `SEND_MESSAGE Create message payload: ${JSON.stringify(createPayload)}`,
     );
-    const message = createdMessage.toJSON();
-    socket.emit(SOCKET_TO_CLIENT_EVENTS.UPDATE_SENT_MESSAGE, message);
-    socket
-      .to([userOneId, userTwoId])
-      .emit(SOCKET_TO_CLIENT_EVENTS.NEW_MESSAGE, message);
-    const { _targetUserId } = this.matchModel.getTargetUserId({
+    const message = await this.messageModel.createOne(createPayload);
+    this.handleAfterSendMessage({
+      match,
+      message,
+      socket,
       currentUserId,
-      userOneId,
-      userTwoId,
-    });
-    await this.pushNotificationsService.sendByUserId(_targetUserId, {
-      content: text,
-      title: 'You have received new message',
     });
   }
 
@@ -164,5 +141,67 @@ export class ChatsService extends DbService {
         .to([match._userOneId.toString(), match._userTwoId.toString()])
         .emit(SOCKET_TO_CLIENT_EVENTS.NEW_MESSAGE, editResult);
     }
+  }
+
+  async handleAfterSendMessage({
+    match,
+    message,
+    socket,
+    currentUserId,
+  }: {
+    currentUserId: string;
+    match: MatchDocument;
+    message: MessageDocument;
+    socket: Socket;
+  }) {
+    const { _userOneId, _userTwoId } = match;
+    const userOneId = _userOneId.toString();
+    const userTwoId = _userTwoId.toString();
+    const isUserOne = currentUserId === userOneId;
+    const rawMessage = message.toJSON();
+    const updateMatchPayload = {
+      $set: {
+        lastMessage: rawMessage,
+        ...(isUserOne
+          ? { userTwoRead: false, userOneRead: true }
+          : { userOneRead: false, userTwoRead: true }),
+      },
+    };
+    this.logger.log(
+      `SEND_MESSAGE Update matchId ${match._id} payload: ${JSON.stringify(
+        updateMatchPayload,
+      )}`,
+    );
+    this.matchModel
+      .updateOneById(match._id, updateMatchPayload)
+      .catch((error) => {
+        this.logger.error(
+          `SEND_MESSAGE Update matchId: ${
+            match._id
+          } with payload: ${JSON.stringify(
+            updateMatchPayload,
+          )} failed: ${JSON.stringify(error)}`,
+        );
+      });
+    const emitRoomIds = [userOneId, userTwoId];
+    this.logger.log(
+      `SEND_MESSAGE Socket emit event: "${SOCKET_TO_CLIENT_EVENTS.UPDATE_SENT_MESSAGE}" to me payload: ${message}`,
+    );
+    socket.emit(SOCKET_TO_CLIENT_EVENTS.UPDATE_SENT_MESSAGE, message);
+    this.logger.log(
+      `SEND_MESSAGE Socket emit event: "${
+        SOCKET_TO_CLIENT_EVENTS.NEW_MESSAGE
+      }" to: ${JSON.stringify(emitRoomIds)} payload: ${message}`,
+    );
+    socket.to(emitRoomIds).emit(SOCKET_TO_CLIENT_EVENTS.NEW_MESSAGE, message);
+    const { _targetUserId } = this.matchModel.getTargetUserId({
+      currentUserId,
+      userOneId,
+      userTwoId,
+    });
+    this.pushNotificationsService.sendByUserId(_targetUserId, {
+      content: message.text || '',
+      title: 'You have received new message',
+    });
   }
 }

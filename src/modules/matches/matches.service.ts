@@ -43,12 +43,21 @@ export class MatchesService extends ApiCursorDateService {
       currentUserId,
       targetUserId,
     });
-    const existMatch = await this.findOneByUserIds({
-      _userOneId,
-      _userTwoId,
-    });
+    const existMatch = await this.matchModel.findOne(
+      {
+        _userOneId,
+        _userTwoId,
+      },
+      {
+        _id: 1,
+        _userOneId: 1,
+        _userTwoId: 1,
+      },
+    );
     if (existMatch) {
-      this.logger.log(`CREATE_MATCH Exist match found`, { match: existMatch });
+      this.logger.log(
+        `CREATE_MATCH Exist match found: ${existMatch.id}, userOneId: ${_userOneId}, userTwoId: ${_userTwoId}`,
+      );
       return;
     }
     const createPayload = {
@@ -56,7 +65,9 @@ export class MatchesService extends ApiCursorDateService {
       _userTwoId,
     };
     this.logger.log(
-      `CREATE_MATCH Match does not exist, start create match with payload: ${createPayload}`,
+      `CREATE_MATCH Match does not exist, start create match with payload: ${JSON.stringify(
+        createPayload,
+      )}`,
     );
     const createResult = await this.matchModel.createOne(createPayload);
     const emitUserIds = [currentUserId, targetUserId];
@@ -78,7 +89,11 @@ export class MatchesService extends ApiCursorDateService {
       userTwo,
     };
     this.logger.log(
-      `CREATE_MATCH Socket emit event "${SOCKET_TO_CLIENT_EVENTS.MATCH}" userIds: ${emitUserIds} payload: ${emitPayload}`,
+      `CREATE_MATCH Socket emit event "${
+        SOCKET_TO_CLIENT_EVENTS.MATCH
+      }" userIds: ${JSON.stringify(emitUserIds)} payload: ${JSON.stringify(
+        emitPayload,
+      )}`,
     );
     this.chatsGateway.server
       .to(emitUserIds)
@@ -445,16 +460,20 @@ export class MatchesService extends ApiCursorDateService {
       },
     };
     this.logger.log(
-      `UNMATCH Update like from targetUser filter: ${updateTargetLikeFilter} payload: ${updateTargetLikePayload}`,
+      `UNMATCH Update like from targetUser filter: ${JSON.stringify(
+        updateTargetLikeFilter,
+      )} payload: ${JSON.stringify(updateTargetLikePayload)}`,
     );
     this.likeModel
       .updateOne(updateTargetLikeFilter, updateTargetLikePayload)
       .catch((error) => {
-        this.logger.log('UNMATCH Update like from targetUser failed', {
-          updateTargetLikeFilter,
-          updateTargetLikePayload,
-          error,
-        });
+        this.logger.log(
+          `UNMATCH Update like from targetUser failed filter: ${JSON.stringify(
+            updateTargetLikeFilter,
+          )} payload: ${JSON.stringify(
+            updateTargetLikePayload,
+          )} failed: ${JSON.stringify(error)}`,
+        );
       });
     const emitRoomIds = [userOneId, userTwoId];
     this.logger.log(

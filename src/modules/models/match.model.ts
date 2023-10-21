@@ -15,18 +15,18 @@ export class MatchModel extends CommonModel<Match> {
     super();
   }
 
-  public async findOneRelatedToUserId(
-    _id: Types.ObjectId,
-    _currentUserId: Types.ObjectId,
-  ) {
-    return this.model
-      .findOne({
-        _id,
-        $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
-      })
-      .lean()
-      .exec();
-  }
+  // public async findOneRelatedToUserId(
+  //   _id: Types.ObjectId,
+  //   _currentUserId: Types.ObjectId,
+  // ) {
+  //   return this.model
+  //     .findOne({
+  //       _id,
+  //       $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
+  //     })
+  //     .lean()
+  //     .exec();
+  // }
 
   public getSortedUserIds({
     currentUserId,
