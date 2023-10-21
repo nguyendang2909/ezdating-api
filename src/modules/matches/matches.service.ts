@@ -222,45 +222,31 @@ export class MatchesService extends ApiCursorDateService {
         },
         { $limit: 1 },
         {
-          $lookup: {
-            from: 'users',
-            let: {
-              targetUserId: '$_userOneId',
+          $set: {
+            isUserOne: {
+              $cond: {
+                if: {
+                  $eq: ['$_userOneId', _currentUserId],
+                },
+                then: true,
+                else: false,
+              },
             },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $eq: ['$_id', '$$targetUserId'],
-                  },
-                },
-              },
-              {
-                $limit: 1,
-              },
-              {
-                $set: {
-                  age: {
-                    $dateDiff: {
-                      startDate: '$birthday',
-                      endDate: '$$NOW',
-                      unit: 'year',
-                    },
-                  },
-                },
-              },
-              {
-                $project: this.userModel.matchUserFields,
-              },
-            ],
-            as: 'userOne',
           },
         },
         {
           $lookup: {
             from: 'users',
             let: {
-              targetUserId: '$_userTwoId',
+              targetUserId: {
+                $cond: {
+                  if: {
+                    $eq: ['$isUserOne', true],
+                  },
+                  then: '$_userTwoId',
+                  else: '$_userOneId',
+                },
+              },
             },
             pipeline: [
               {
@@ -288,13 +274,12 @@ export class MatchesService extends ApiCursorDateService {
                 $project: this.userModel.matchUserFields,
               },
             ],
-            as: 'userTwo',
+            as: 'targetUser',
           },
         },
         {
           $set: {
-            userOne: { $first: '$userOne' },
-            userTwo: { $first: '$userTwo' },
+            targetUser: { $first: '$targetUser' },
           },
         },
       ])
