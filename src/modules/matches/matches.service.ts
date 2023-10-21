@@ -33,7 +33,10 @@ export class MatchesService extends ApiCursorDateService {
 
   private readonly logger = new Logger(MatchesService.name);
 
-  public async createOne(payload: CreateMatchDto, clientData: ClientData) {
+  public async createOne(
+    payload: CreateMatchDto,
+    clientData: ClientData,
+  ): Promise<void> {
     const { targetUserId } = payload;
     const { id: currentUserId } = clientData;
     const { _userOneId, _userTwoId } = this.matchModel.getSortedUserIds({
@@ -52,16 +55,34 @@ export class MatchesService extends ApiCursorDateService {
       _userOneId,
       _userTwoId,
     };
-    this.logger.log(`CREATE_MATCH Exist match not found, start create match`, {
-      payload: createPayload,
-    });
+    this.logger.log(
+      `CREATE_MATCH Match does not exist, start create match with payload: ${createPayload}`,
+    );
     const createResult = await this.matchModel.createOne(createPayload);
+    const emitUserIds = [currentUserId, targetUserId];
+    const [userOne, userTwo] = await this.userModel.findMany(
+      {
+        _id: { $in: [_userOneId, _userTwoId] },
+      },
+      this.userModel.matchUserFields,
+      {
+        sort: {
+          _id: 1,
+        },
+        limit: 2,
+      },
+    );
+    const emitPayload = {
+      ...createResult.toJSON(),
+      userOne,
+      userTwo,
+    };
+    this.logger.log(
+      `CREATE_MATCH Socket emit event "${SOCKET_TO_CLIENT_EVENTS.MATCH}" userIds: ${emitUserIds} payload: ${emitPayload}`,
+    );
     this.chatsGateway.server
-      .to([currentUserId, targetUserId])
-      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, {
-        _id: createResult.id,
-      });
-    return { _id: createResult._id };
+      .to(emitUserIds)
+      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, emitPayload);
   }
 
   public async unmatch(id: string, clientData: ClientData) {

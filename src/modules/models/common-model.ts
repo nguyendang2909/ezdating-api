@@ -53,6 +53,14 @@ export class CommonModel<
     return await this.model.create(doc);
   }
 
+  findMany(
+    filter: FilterQuery<TRawDocType>,
+    projection?: ProjectionType<TRawDocType> | null | undefined,
+    options?: QueryOptions<TRawDocType> | null | undefined,
+  ) {
+    return this.model.find(filter, projection, options).exec();
+  }
+
   async findOne(
     filter: FilterQuery<TRawDocType>,
     projection?: ProjectionType<TRawDocType> | null,

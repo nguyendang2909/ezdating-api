@@ -206,18 +206,24 @@ export class LikesService extends ApiCursorDateService {
       ...(hasReverseLike ? { isMatched: true } : {}),
     };
     const updateViewOptions = { upsert: true };
-    this.logger.log(
+    this.logger.debug(
       `CREATE_LIKE Update view filter ${JSON.stringify(
         updateViewFilter,
       )} payload: ${JSON.stringify(updateViewPayload)} options ${JSON.stringify(
         updateViewOptions,
       )}`,
     );
-    this.viewModel.updateOne(
-      updateViewFilter,
-      updateViewPayload,
-      updateViewOptions,
-    );
+    this.viewModel
+      .updateOne(updateViewFilter, updateViewPayload, updateViewOptions)
+      .catch((error) => {
+        this.logger.error(
+          `CREATE_LIKE Update view filter ${JSON.stringify(
+            updateViewFilter,
+          )} payload: ${JSON.stringify(
+            updateViewPayload,
+          )} options ${JSON.stringify(updateViewOptions)} error: ${error}`,
+        );
+      });
     if (hasReverseLike) {
       const { _userOneId, _userTwoId } = this.matchModel.getSortedUserIds({
         currentUserId,
@@ -231,8 +237,22 @@ export class LikesService extends ApiCursorDateService {
       );
       const createMatch = await this.matchModel.createOne(createMatchPayload);
       const emitUserIds = [currentUserId, targetUserId];
+      const [userOne, userTwo] = await this.userModel.findMany(
+        {
+          _id: { $in: [_userOneId, _userTwoId] },
+        },
+        this.userModel.matchUserFields,
+        {
+          sort: {
+            _id: 1,
+          },
+          limit: 2,
+        },
+      );
       const emitPayload = {
-        _id: createMatch._id,
+        ...createMatch.toJSON(),
+        userOne,
+        userTwo,
       };
       this.logger.log(
         `CREATE_LIKE Socket emit event "${SOCKET_TO_CLIENT_EVENTS.MATCH}" userIds: ${emitUserIds} payload: ${emitPayload}`,
