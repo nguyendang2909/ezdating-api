@@ -8,6 +8,7 @@ import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
 import { MessageDocument } from '../models/schemas/message.schema';
 import { UserModel } from '../models/user.model';
+import { ReadMessageDto } from './dto';
 import { FindManyMessagesQuery } from './dto/find-many-messages.dto';
 
 @Injectable()
@@ -20,6 +21,29 @@ export class MessagesService extends ApiService {
     super();
 
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MESSAGES;
+  }
+
+  public async read(payload: ReadMessageDto, client: ClientData) {
+    const { _currentUserId } = this.getClient(client);
+    const { matchId, lastMessageId } = payload;
+    const _lastMessageId = this.getObjectId(lastMessageId);
+    const _id = this.getObjectId(matchId);
+    await this.matchModel.updateOne(
+      {
+        _id,
+        _lastMessageId,
+        $or: [
+          { _userOneId: _currentUserId, userOneRead: false },
+          { _userOneId: _currentUserId, userTwoRead: false },
+        ],
+      },
+      {
+        $set: {
+          userOneRead: true,
+          userTwoRead: true,
+        },
+      },
+    );
   }
 
   public async findMany(

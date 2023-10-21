@@ -1,10 +1,5 @@
 import Joi from 'joi';
 
-export type ReadChatMessageDto = {
-  lastMessageId: string;
-  matchId: string;
-};
-
 export const ReadChatMessageSchema = Joi.object({
   lastMessageId: Joi.string().required(),
   matchId: Joi.string().required(),

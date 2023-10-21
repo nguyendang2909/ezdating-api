@@ -10,7 +10,6 @@ import { MessageModel } from '../models/message.model';
 import { SignedDeviceModel } from '../models/signed-device.model';
 import { UserModel } from '../models/user.model';
 import { PushNotificationsService } from '../push-notifications/push-notifications.service';
-import { ReadChatMessageDto } from './dto/read-chat-message.dto';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 
@@ -72,30 +71,6 @@ export class ChatsService extends DbService {
       socket,
       currentUserId,
     });
-  }
-
-  public async readMessage(payload: ReadChatMessageDto, socket: Socket) {
-    const { matchId, lastMessageId } = payload;
-    const currentUserId = socket.handshake.user.id;
-    const _currentUserId = this.getObjectId(currentUserId);
-    const _lastMessageId = this.getObjectId(lastMessageId);
-    const _id = this.getObjectId(matchId);
-    await this.matchModel.updateOne(
-      {
-        _id,
-        _lastMessageId,
-        $or: [
-          { _userOneId: _currentUserId, userOneRead: false },
-          { _userOneId: _currentUserId, userTwoRead: false },
-        ],
-      },
-      {
-        $set: {
-          userOneRead: true,
-          userTwoRead: true,
-        },
-      },
-    );
   }
 
   public async editMessage(payload: UpdateChatMessageDto, socket: Socket) {
