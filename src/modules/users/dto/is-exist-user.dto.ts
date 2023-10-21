@@ -1,8 +1,9 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class FindOneUserDto {
   @ApiPropertyOptional({ type: String })
+  @IsOptional()
   @IsString()
   phoneNumber?: string;
 }
