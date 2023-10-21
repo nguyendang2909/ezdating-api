@@ -1,18 +1,9 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import Joi from 'joi';
-import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
+import { IsString } from 'class-validator';
 
-import { DEFAULT_VALIDATION_OPTIONS } from './default-validation-options';
-
-@JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
 export class FindManyCursorQuery {
   @ApiPropertyOptional({ type: String })
-  @JoiSchema(
-    Joi.string().optional().allow(null).when('prev', {
-      not: Joi.optional(),
-      then: Joi.forbidden(),
-    }),
-  )
+  @IsString()
   _next?: string;
 
   // @ApiPropertyOptional({ type: String })

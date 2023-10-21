@@ -1,25 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
-import Joi from 'joi';
-import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 import { DevicePlatform, DevicePlatforms } from '../../../commons/constants';
-import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 
-@JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
 export class UpdateSignedDeviceDto {
   @ApiProperty({ type: String })
-  @JoiSchema(Joi.string().required())
+  @IsNotEmpty()
+  @IsString()
   refreshToken: string;
 
   @ApiProperty({ type: String })
-  @JoiSchema(Joi.string().required())
+  @IsNotEmpty()
+  @IsString()
   deviceToken: string;
 
   @ApiProperty({ type: Number })
-  @JoiSchema(
-    Joi.number()
-      .valid(...Object.values(DevicePlatforms))
-      .required(),
-  )
+  @IsNotEmpty()
+  @IsEnum(DevicePlatforms)
   devicePlatform: DevicePlatform;
 }

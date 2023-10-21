@@ -1,19 +1,14 @@
-import Joi from 'joi';
-import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsString } from 'class-validator';
 
 import { DevicePlatform, DevicePlatforms } from '../../../commons/constants';
-import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 
-@JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
 export class SignInDto {
-  @JoiSchema(
-    Joi.string().when('prev', {
-      not: Joi.forbidden(),
-      then: Joi.required(),
-    }),
-  )
+  @ApiPropertyOptional({ type: String })
+  @IsString()
   deviceToken?: string;
 
-  @JoiSchema(Joi.string().valid(...Object.values(DevicePlatforms)))
+  @ApiPropertyOptional({ type: String })
+  @IsEnum(DevicePlatforms)
   devicePlatform?: DevicePlatform;
 }

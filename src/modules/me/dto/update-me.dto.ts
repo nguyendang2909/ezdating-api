@@ -1,9 +1,18 @@
-import JoiDate from '@joi/date';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import Joi from 'joi';
-import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsString,
+  Matches,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 import {
+  REGEXS,
   UserEducationLevel,
   UserEducationLevels,
   UserGender,
@@ -13,94 +22,87 @@ import {
   UserRelationshipStatus,
   UserRelationshipStatuses,
 } from '../../../commons/constants';
-import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
 
-const JoiExtendDate = Joi.extend(JoiDate);
-
-@JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
 export class UpdateMeDto {
   @ApiPropertyOptional({ type: String })
-  @JoiSchema(JoiExtendDate.date().format('YYYY-MM-DD').optional().raw())
+  @Matches(REGEXS.BIRTHDAY)
   birthday?: string;
 
   @ApiPropertyOptional({ type: String })
-  @JoiSchema(Joi.string())
+  @IsString()
   company?: string;
 
   @ApiPropertyOptional({ type: Number, enum: UserEducationLevels })
-  @JoiSchema(
-    Joi.number()
-      .valid(...Object.values(UserEducationLevels))
-      .optional(),
-  )
+  @IsEnum(UserEducationLevels)
   educationLevel?: UserEducationLevel;
 
   @ApiPropertyOptional({ type: Number, enum: UserGenders })
-  @JoiSchema(Joi.number().valid(...Object.values(UserGenders)))
+  @IsEnum(UserGenders)
   filterGender?: UserGender;
 
   @ApiPropertyOptional({ type: Number })
-  @JoiSchema(Joi.number().min(1).max(100))
+  @IsNumber()
+  @Min(1)
+  @Max(100)
   filterMaxDistance?: number;
 
   @ApiPropertyOptional({ type: Number })
-  @JoiSchema(Joi.number().min(18).max(100))
+  @IsNumber()
+  @Min(18)
+  @Max(100)
   filterMinAge?: number;
 
   @ApiPropertyOptional({ type: Number })
-  @JoiSchema(Joi.number().min(18).max(100))
+  @Min(18)
+  @Max(100)
   filterMaxAge?: number;
 
   @ApiPropertyOptional({ type: Number, enum: UserGenders })
-  @JoiSchema(
-    Joi.number()
-      .valid(...Object.values(UserGenders))
-      .optional(),
-  )
+  @IsEnum(UserGenders)
   gender?: UserGender;
 
   @ApiPropertyOptional({ type: Number })
-  @JoiSchema(Joi.number())
+  @IsNumber()
   height?: string;
 
   @ApiPropertyOptional({ type: Boolean })
-  @JoiSchema(Joi.boolean())
+  @IsBoolean()
   hideAge?: boolean;
 
   @ApiPropertyOptional({ type: Boolean })
-  @JoiSchema(Joi.boolean())
+  @IsBoolean()
   hideDistance?: boolean;
 
   @ApiPropertyOptional({ type: String })
-  @JoiSchema(Joi.string().max(500).allow(null, '').optional())
+  @IsString()
+  @MaxLength(500)
   introduce?: string;
 
   @ApiPropertyOptional({ type: String })
-  @JoiSchema(Joi.string())
+  @IsString()
+  @MaxLength(200)
   jobTitle?: string;
 
   @ApiPropertyOptional({ type: [String] })
-  @JoiSchema(Joi.array().items(Joi.string()))
+  @IsArray()
+  @IsString({ each: true })
   languages: string[];
 
   @ApiPropertyOptional({ type: Number })
-  @JoiSchema(Joi.number().optional())
+  @IsNumber()
   latitude?: number;
 
   @ApiPropertyOptional({ type: Number })
-  @JoiSchema(Joi.number().optional())
+  @IsNumber()
   longitude?: number;
 
   @ApiPropertyOptional({ type: String })
-  @JoiSchema(Joi.string().max(100).optional())
+  @IsString()
+  @MaxLength(100)
   nickname?: string;
 
   @ApiPropertyOptional({ type: Number, enum: UserRelationshipGoals })
-  @JoiSchema(
-    Joi.number()
-      .valid(...Object.values(UserRelationshipGoals))
-      .optional(),
-  )
+  @IsEnum(UserRelationshipGoals)
   relationshipGoal?: UserRelationshipGoal;
 
   // @ApiPropertyOptional({ type: String })
@@ -108,19 +110,15 @@ export class UpdateMeDto {
   // avatarFileId?: string;
 
   @ApiPropertyOptional({ type: Number, enum: UserRelationshipStatuses })
-  @JoiSchema(
-    Joi.number()
-      .valid(...Object.values(UserRelationshipStatuses))
-      .optional(),
-  )
+  @IsEnum(UserRelationshipStatuses)
   relationshipStatus: UserRelationshipStatus;
 
   @ApiPropertyOptional({ type: String })
-  @JoiSchema(Joi.string())
+  @IsString()
   school?: string;
 
   @ApiPropertyOptional({ type: Number })
-  @JoiSchema(Joi.number())
+  @IsNumber()
   weight: number;
 
   // @ApiPropertyOptional({ type: Number })

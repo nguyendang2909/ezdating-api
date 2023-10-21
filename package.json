@@ -23,7 +23,6 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@joi/date": "^2.1.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^9.0.0",
@@ -47,7 +46,6 @@
     "moment": "^2.29.4",
     "mongoose": "^7.4.2",
     "nest-winston": "^1.9.1",
-    "nestjs-joi": "^1.9.0",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "redis": "^4.6.6",

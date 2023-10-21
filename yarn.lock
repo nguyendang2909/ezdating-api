@@ -798,13 +798,6 @@
     "@types/yargs" "^17.0.8"
     chalk "^4.0.0"
 
-"@joi/date@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@joi/date/-/date-2.1.0.tgz#fa7e3069a63c17d9ebe51a0b667f090c288de237"
-  integrity sha512-2zN5m0LgxZp/cynHGbzEImVmFIa+n+IOb/Nlw5LX/PLJneeCwG1NbiGw7MvPjsAKUGQK8z31Nn6V6lEN+4fZhg==
-  dependencies:
-    moment "2.x.x"
-
 "@jridgewell/gen-mapping@^0.3.0", "@jridgewell/gen-mapping@^0.3.2":
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/@jridgewell/gen-mapping/-/gen-mapping-0.3.3.tgz#7e02e6eb5df901aaedb08514203b096614024098"
@@ -4521,13 +4514,6 @@ jmespath@0.16.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.16.0.tgz#b15b0a85dfd4d930d43e69ed605943c802785076"
   integrity sha512-9FzQjJ7MATs1tSpnco1K6ayiYE3figslrXA72G2HQ/n76RzvYlofyi5QM+iX4YRs/pu3yzxlVQSST23+dMDknw==
 
-joi-class-decorators@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/joi-class-decorators/-/joi-class-decorators-1.1.0.tgz#62267c971d44d5c2645ca348d4f0cd522c681b5c"
-  integrity sha512-gAnBcKWoF+jWo+vx/X6VctDxFgGDEdkce64RgkLK2cMLO2bHKk3SXMV7fGKTA9VGis20n+4COBC5KVL2gXzlEg==
-  dependencies:
-    lodash "^4.17.21"
-
 joi@^17.9.2:
   version "17.9.2"
   resolved "https://registry.yarnpkg.com/joi/-/joi-17.9.2.tgz#8b2e4724188369f55451aebd1d0b1d9482470690"
@@ -5099,7 +5085,7 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-moment@2.x.x, moment@^2.29.4:
+moment@^2.29.4:
   version "2.29.4"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
   integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
@@ -5212,13 +5198,6 @@ nest-winston@^1.9.1:
   integrity sha512-L3fjIfas+7ZziKsCQiTYvTVw0Hpv3oN4TDnbLLYLIQgKLNpzQyf/2yZv1/buDPMrGJKrNPwiHLoifjGHon34+A==
   dependencies:
     fast-safe-stringify "^2.1.1"
-
-nestjs-joi@^1.9.0:
-  version "1.9.0"
-  resolved "https://registry.yarnpkg.com/nestjs-joi/-/nestjs-joi-1.9.0.tgz#a85424c8d119513ddaef77423e7689a547f3c8a1"
-  integrity sha512-CIpbw/+losjHLnvJ/exJTzCBeWKMPkFRgU33CPGg2KoXAZT0bdE30e1CUM3s70ysflKW1D5QIqv0fCeQxxcaTg==
-  dependencies:
-    joi-class-decorators "^1.1.0"
 
 node-abi@^3.3.0:
   version "3.45.0"

@@ -9,10 +9,11 @@ import {
   utilities as nestWinstonModuleUtilities,
   WinstonModule,
 } from 'nest-winston';
-import { JoiPipeModule } from 'nestjs-joi';
 import winston from 'winston';
 
 import { APP_CONFIG } from './app.config';
+import { LibsModule } from './libs/libs.module';
+import { AdminAuthModule } from './modules/admin/admin-auth/admin-auth.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { ConversationsModule } from './modules/conversations/conversations.module';
@@ -31,7 +32,6 @@ import { PushNotificationsModule } from './modules/push-notifications/push-notif
 import { LoggedDevicesModule } from './modules/signed-devices/signed-devices.module';
 import { UsersModule } from './modules/users/users.module';
 import { ViewsModule } from './modules/views/views.module';
-import { LibsModule } from './libs/libs.module';
 
 @Module({
   imports: [
@@ -142,7 +142,7 @@ import { LibsModule } from './libs/libs.module';
         pass: process.env.MONGO_DB_PASS,
       },
     ),
-    JoiPipeModule.forRoot(),
+    // JoiPipeModule.forRoot(),
     ModelsModule,
     AuthModule,
     MeModule,
@@ -162,6 +162,7 @@ import { LibsModule } from './libs/libs.module';
     PushNotificationsModule,
     FirebaseModule,
     LibsModule,
+    AdminAuthModule,
 
     // CoinsModule,
   ],

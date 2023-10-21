@@ -216,6 +216,7 @@ export class LikesService extends ApiCursorDateService {
       _userOneId,
       _userTwoId,
     });
+    console.log(1111);
     this.chatsGateway.server
       .to([currentUserId, targetUserId])
       .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, {
