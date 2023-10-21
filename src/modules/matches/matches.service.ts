@@ -64,7 +64,7 @@ export class MatchesService extends ApiCursorDateService {
     return { _id: createResult._id };
   }
 
-  public async cancel(id: string, clientData: ClientData) {
+  public async unmatch(id: string, clientData: ClientData) {
     const _id = this.getObjectId(id);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
@@ -80,15 +80,15 @@ export class MatchesService extends ApiCursorDateService {
       },
       { lean: true },
     );
-    await this.matchModel.deleteOneOrFail({
-      _id,
+    const deletePayload = {
       $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
-    });
-
+    };
+    this.logger.log(`UNMATCH payload: ${JSON.stringify(deletePayload)}`);
+    await this.matchModel.deleteOneOrFail(deletePayload);
     this.handleAfterUnmatch({
       currentUserId,
       userOneId: existMatch._userOneId.toString(),
-      userTwoId: existMatch._userOneId.toString(),
+      userTwoId: existMatch._userTwoId.toString(),
       _currentUserId,
       matchId: existMatch._id.toString(),
     });
@@ -413,23 +413,53 @@ export class MatchesService extends ApiCursorDateService {
       userOneId,
       userTwoId,
     });
-    this.likeModel.deleteOne({
+    const deleteOwnLikePayload = {
       _userId: _currentUserId,
       _targetUserId,
+    };
+    this.logger.log(
+      `UNMATCH Delete like from currentUser filter ${JSON.stringify(
+        deleteOwnLikePayload,
+      )}`,
+    );
+    this.likeModel.deleteOne(deleteOwnLikePayload).catch((error) => {
+      this.logger.log(
+        `UNMATCH Delete like failed filter ${JSON.stringify(
+          deleteOwnLikePayload,
+        )} with error: ${JSON.stringify(error)}`,
+      );
     });
-    this.likeModel.updateOne(
-      {
-        _userId: _targetUserId,
-        _targetUserId: _currentUserId,
+    const updateTargetLikeFilter = {
+      _userId: _targetUserId,
+      _targetUserId: _currentUserId,
+    };
+    const updateTargetLikePayload = {
+      $set: {
+        isMatched: false,
       },
-      {
-        $set: {
-          isMatched: false,
-        },
-      },
+    };
+    this.logger.log(
+      `UNMATCH Update like from targetUser filter: ${updateTargetLikeFilter} payload: ${updateTargetLikePayload}`,
+    );
+    this.likeModel
+      .updateOne(updateTargetLikeFilter, updateTargetLikePayload)
+      .catch((error) => {
+        this.logger.log('UNMATCH Update like from targetUser failed', {
+          updateTargetLikeFilter,
+          updateTargetLikePayload,
+          error,
+        });
+      });
+    const emitRoomIds = [userOneId, userTwoId];
+    this.logger.log(
+      `UNMATCH Socket event ${
+        SOCKET_TO_CLIENT_EVENTS.CANCEL_MATCH
+      } to roomIds: ${emitRoomIds} payload: ${JSON.stringify(
+        updateTargetLikePayload,
+      )}`,
     );
     this.chatsGateway.server
-      .to([userOneId, userTwoId])
+      .to(emitRoomIds)
       .emit(SOCKET_TO_CLIENT_EVENTS.CANCEL_MATCH, {
         _id: matchId,
       });

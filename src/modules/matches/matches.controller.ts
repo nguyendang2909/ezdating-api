@@ -25,13 +25,13 @@ export class MatchesController {
   }
 
   @Post('/unmatch/:id')
-  public async cancel(
+  public async unmatch(
     @Param('id') id: string,
     @Client() clientData: ClientData,
   ) {
     return {
       type: 'unmatch',
-      data: await this.service.cancel(id, clientData),
+      data: await this.service.unmatch(id, clientData),
     };
   }
 

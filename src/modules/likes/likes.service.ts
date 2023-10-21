@@ -58,10 +58,11 @@ export class LikesService extends ApiCursorDateService {
         isMatched: true,
       },
     };
-    this.logger.log(`SEND_LIKE Find one and update reverse like`, {
-      reverseLikeFilter,
-      reverseLikeUpdatePayload,
-    });
+    this.logger.log(
+      `SEND_LIKE Find one and update reverse like filter ${JSON.stringify(
+        reverseLikeFilter,
+      )} payload: ${reverseLikeUpdatePayload}`,
+    );
     const reverseLike = await this.likeModel.model
       .findOneAndUpdate(reverseLikeFilter, reverseLikeUpdatePayload)
       .exec();
@@ -71,8 +72,7 @@ export class LikesService extends ApiCursorDateService {
       ...(reverseLike ? { isMatched: true } : {}),
     };
     this.logger.log(
-      `SEND_LIKE Exist like not found, start create like`,
-      createPayload,
+      `SEND_LIKE Exist like not found, start create like payload ${createPayload}`,
     );
     await this.likeModel.createOne(createPayload);
     this.handleAfterSendLike({
@@ -206,11 +206,13 @@ export class LikesService extends ApiCursorDateService {
       ...(hasReverseLike ? { isMatched: true } : {}),
     };
     const updateViewOptions = { upsert: true };
-    this.logger.log(`CREATE_LIKE Update view`, {
-      updateViewFilter,
-      updateViewPayload,
-      updateViewOptions,
-    });
+    this.logger.log(
+      `CREATE_LIKE Update view filter ${JSON.stringify(
+        updateViewFilter,
+      )} payload: ${JSON.stringify(updateViewPayload)} options ${JSON.stringify(
+        updateViewOptions,
+      )}`,
+    );
     this.viewModel.updateOne(
       updateViewFilter,
       updateViewPayload,
@@ -222,14 +224,18 @@ export class LikesService extends ApiCursorDateService {
         targetUserId,
       });
       const createMatchPayload = { _userOneId, _userTwoId };
-      this.logger.log(`CREATE_LIKE Create match`, { createMatchPayload });
+      this.logger.log(
+        `CREATE_LIKE Create match payload: ${JSON.stringify(
+          createMatchPayload,
+        )}`,
+      );
       const createMatch = await this.matchModel.createOne(createMatchPayload);
       const emitUserIds = [currentUserId, targetUserId];
       const emitPayload = {
         _id: createMatch._id,
       };
       this.logger.log(
-        `CREATE_LIKE Socket emit event "${SOCKET_TO_CLIENT_EVENTS.MATCH}" userIds: ${emitUserIds}`,
+        `CREATE_LIKE Socket emit event "${SOCKET_TO_CLIENT_EVENTS.MATCH}" userIds: ${emitUserIds} payload: ${emitPayload}`,
       );
       this.chatsGateway.server
         .to(emitUserIds)
