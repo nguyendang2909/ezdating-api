@@ -100,7 +100,7 @@ export class MatchesService extends ApiCursorDateService {
     const test = await this.matchModel.findOne(
       {
         _id,
-        // $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
+        $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
       },
       {
         _id: true,
