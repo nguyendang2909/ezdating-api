@@ -44,15 +44,8 @@ export class MatchesService extends ApiCursorDateService {
       targetUserId,
     });
     const existMatch = await this.matchModel.findOne(
-      {
-        _userOneId,
-        _userTwoId,
-      },
-      {
-        _id: 1,
-        _userOneId: 1,
-        _userTwoId: 1,
-      },
+      { _userOneId, _userTwoId },
+      { _id: 1, _userOneId: 1, _userTwoId: 1 },
     );
     if (existMatch) {
       this.logger.log(
@@ -104,6 +97,20 @@ export class MatchesService extends ApiCursorDateService {
     const _id = this.getObjectId(id);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
+    const test = await this.matchModel.findOne(
+      {
+        _id,
+        // $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
+      },
+      {
+        _id: true,
+        _userOneId: true,
+        _userTwoId: true,
+      },
+      { lean: true },
+    );
+    console.log(11, test, _id, _currentUserId);
+
     const existMatch = await this.matchModel.findOneOrFail(
       {
         _id,
@@ -146,6 +153,10 @@ export class MatchesService extends ApiCursorDateService {
       .aggregate([
         {
           $match: {
+            $or: [
+              { _userOneId: _currentUserId },
+              { _userTwoId: _currentUserId },
+            ],
             lastMessageAt: null,
             ...(cursor
               ? {
@@ -326,94 +337,6 @@ export class MatchesService extends ApiCursorDateService {
       throw new NotFoundException(HttpErrorMessages['Match does not exist']);
     }
     return match;
-  }
-
-  public async findOneByUserIds({
-    _userOneId,
-    _userTwoId,
-  }: {
-    _userOneId: Types.ObjectId;
-    _userTwoId: Types.ObjectId;
-  }) {
-    const matches: LikeDocument[] = await this.matchModel.model
-      .aggregate([
-        {
-          $match: {
-            _userOneId,
-            _userTwoId,
-          },
-        },
-        { $limit: 1 },
-        {
-          $lookup: {
-            from: 'users',
-            pipeline: [
-              {
-                $match: {
-                  _id: _userOneId,
-                },
-              },
-              {
-                $limit: 1,
-              },
-              {
-                $set: {
-                  age: {
-                    $dateDiff: {
-                      startDate: '$birthday',
-                      endDate: '$$NOW',
-                      unit: 'year',
-                    },
-                  },
-                },
-              },
-              {
-                $project: this.userModel.matchUserFields,
-              },
-            ],
-            as: 'userOne',
-          },
-        },
-        {
-          $lookup: {
-            from: 'users',
-            pipeline: [
-              {
-                $match: {
-                  _id: _userTwoId,
-                },
-              },
-              {
-                $limit: 1,
-              },
-              {
-                $set: {
-                  age: {
-                    $dateDiff: {
-                      startDate: '$birthday',
-                      endDate: '$$NOW',
-                      unit: 'year',
-                    },
-                  },
-                },
-              },
-              {
-                $project: this.userModel.matchUserFields,
-              },
-            ],
-            as: 'userTwo',
-          },
-        },
-        {
-          $set: {
-            userOne: { $first: '$userOne' },
-            userTwo: { $first: '$userTwo' },
-          },
-        },
-      ])
-      .exec();
-
-    return matches[0];
   }
 
   async handleAfterUnmatch({
