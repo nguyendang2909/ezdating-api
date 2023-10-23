@@ -19,6 +19,11 @@ export class UsersController {
     private readonly swipeUsersService: SwipeUsersService,
   ) {}
 
+  // @Get('/')
+  // public async findMany(@Query() queryParams: FindManyNearbyUsersQuery) {
+  //   return await this.usersService.findMany(queryParams);
+  // }
+
   @Get('/swipe')
   public async findManySwipe(
     @Query() queryParams: FindManyDatingUsersQuery,

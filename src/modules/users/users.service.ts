@@ -10,6 +10,12 @@ export class UsersService extends ApiService {
     super();
   }
 
+  // async findMany(
+  //   queryParams: FindManyUsersQuery,
+  // ): Promise<PaginatedResponse<Record<string, any>>> {
+  //   const users = this.userModel.
+  // }
+
   // public async findManySwipe(
   //   queryParams: FindManyDatingUsersQuery,
   //   clientData: ClientData,

@@ -151,6 +151,7 @@ export class SwipeUsersService extends ApiService {
     return {
       type: 'swipeUsers',
       data: users,
+      pagination: { _next: null },
     };
   }
 }

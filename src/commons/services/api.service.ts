@@ -6,10 +6,19 @@ import _ from 'lodash';
 
 import { ClientData } from '../../modules/auth/auth.type';
 import { HttpErrorMessages } from '../erros/http-error-messages.constant';
-import { Pagination } from '../types';
+import { PaginatedResponse, Pagination } from '../types';
 import { DbService } from './db.service';
 
 export class ApiService extends DbService {
+  async findMany(
+    queryParams: Record<string, any>,
+    client: ClientData,
+  ): Promise<PaginatedResponse<Record<string, any>>> {
+    throw new InternalServerErrorException(
+      HttpErrorMessages['Not implemented'],
+    );
+  }
+
   public getPagination(data: unknown[]): Pagination {
     throw new InternalServerErrorException(
       HttpErrorMessages['Not implemented'],

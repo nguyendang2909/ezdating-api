@@ -20,17 +20,22 @@ export class UserModel extends CommonModel<User> {
   public matchUserFields = {
     _id: 1,
     age: 1,
+    createdAt: 1,
+    educationLevel: 1,
     filterGender: 1,
     filterMaxAge: 1,
     filterMaxDistance: 1,
     filterMinAge: 1,
     gender: 1,
+    height: 1,
     introduce: 1,
     lastActivatedAt: 1,
     mediaFiles: 1,
     nickname: 1,
     relationshipGoal: 1,
+    relationshipStatus: 1,
     status: 1,
+    weight: 1,
   };
 
   async createOne(doc: Partial<User>) {
