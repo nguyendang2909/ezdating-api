@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
-import { DevicePlatform, DevicePlatforms } from '../../../commons/constants';
 import { CommonSchema } from '../../../commons/schemas.common';
+import { DEVICE_PLATFORMS } from '../../../constants';
+import { DevicePlatform } from '../../../types';
 
 export type SignedDeviceDocument = HydratedDocument<SignedDevice>;
 
@@ -20,7 +21,7 @@ export class SignedDevice extends CommonSchema {
   @Prop({ type: String })
   token?: string;
 
-  @Prop({ type: Number, enum: DevicePlatforms })
+  @Prop({ type: Number, enum: DEVICE_PLATFORMS })
   platform?: DevicePlatform;
 }
 

@@ -13,18 +13,20 @@ import {
 } from 'class-validator';
 
 import {
-  REGEXS,
-  UserEducationLevel,
-  UserEducationLevels,
-  UserGender,
-  UserGenders,
-  UserRelationshipGoal,
-  UserRelationshipGoals,
-  UserRelationshipStatus,
-  UserRelationshipStatuses,
-} from '../../../commons/constants';
+  EDUCATION_LEVELS,
+  GENDERS,
+  RELATIONSHIP_GOALS,
+  RELATIONSHIP_STATUSES,
+} from '../../../constants';
+import { REGEXS } from '../../../constants/common.constants';
+import {
+  EducationLevel,
+  Gender,
+  RelationshipGoal,
+  RelationshipStatus,
+} from '../../../types';
 
-export class UpdateMeDto {
+export class UpdateMyProfileDto {
   @ApiPropertyOptional({ type: String })
   @IsOptional()
   @Matches(REGEXS.BIRTHDAY)
@@ -35,15 +37,15 @@ export class UpdateMeDto {
   @IsString()
   company?: string;
 
-  @ApiPropertyOptional({ type: Number, enum: UserEducationLevels })
+  @ApiPropertyOptional({ type: Number, enum: EDUCATION_LEVELS })
   @IsOptional()
-  @IsEnum(UserEducationLevels)
-  educationLevel?: UserEducationLevel;
+  @IsEnum(EDUCATION_LEVELS)
+  educationLevel?: EducationLevel;
 
-  @ApiPropertyOptional({ type: Number, enum: UserGenders })
+  @ApiPropertyOptional({ type: Number, enum: GENDERS })
   @IsOptional()
-  @IsEnum(UserGenders)
-  filterGender?: UserGender;
+  @IsEnum(GENDERS)
+  filterGender?: Gender;
 
   @ApiPropertyOptional({ type: Number })
   @IsOptional()
@@ -65,10 +67,10 @@ export class UpdateMeDto {
   @Max(100)
   filterMaxAge?: number;
 
-  @ApiPropertyOptional({ type: Number, enum: UserGenders })
+  @ApiPropertyOptional({ type: Number, enum: GENDERS })
   @IsOptional()
-  @IsEnum(UserGenders)
-  gender?: UserGender;
+  @IsEnum(GENDERS)
+  gender?: Gender;
 
   @ApiPropertyOptional({ type: Number })
   @IsOptional()
@@ -119,19 +121,19 @@ export class UpdateMeDto {
   @MaxLength(100)
   nickname?: string;
 
-  @ApiPropertyOptional({ type: Number, enum: UserRelationshipGoals })
+  @ApiPropertyOptional({ type: Number, enum: RELATIONSHIP_GOALS })
   @IsOptional()
-  @IsEnum(UserRelationshipGoals)
-  relationshipGoal?: UserRelationshipGoal;
+  @IsEnum(RELATIONSHIP_GOALS)
+  relationshipGoal?: RelationshipGoal;
 
   // @ApiPropertyOptional({ type: String })
   // @JoiSchema(Joi.string().guid().optional())
   // avatarFileId?: string;
 
-  @ApiPropertyOptional({ type: Number, enum: UserRelationshipStatuses })
+  @ApiPropertyOptional({ type: Number, enum: RELATIONSHIP_STATUSES })
   @IsOptional()
-  @IsEnum(UserRelationshipStatuses)
-  relationshipStatus: UserRelationshipStatus;
+  @IsEnum(RELATIONSHIP_STATUSES)
+  relationshipStatus: RelationshipStatus;
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()

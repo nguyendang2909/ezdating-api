@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
 
+import { DEVICE_PLATFORMS } from '../../constants';
 import {
   SendPushNotificationContent,
   SendPushNotificationPayload,
-} from '../../commons';
-import { DevicePlatforms } from '../../commons/constants';
+} from '../../types';
 import { SignedDevice } from '../models/schemas/signed-device.schema';
 import { SignedDeviceModel } from '../models/signed-device.model';
 import { AndroidPushNotificationsService } from './android-push-notifications.service';
@@ -20,14 +20,14 @@ export class PushNotificationsService {
   ) {}
 
   async send(payload: SendPushNotificationPayload) {
-    if (payload.devicePlatform === DevicePlatforms.ios) {
+    if (payload.devicePlatform === DEVICE_PLATFORMS.IOS) {
       return await this.iosService.send(payload.deviceToken, {
         title: payload.title,
         content: payload.content,
       });
     }
 
-    if (payload.devicePlatform === DevicePlatforms.android) {
+    if (payload.devicePlatform === DEVICE_PLATFORMS.ANDROID) {
       await this.androidService.send(payload.deviceToken, {
         title: payload.title,
         content: payload.content,

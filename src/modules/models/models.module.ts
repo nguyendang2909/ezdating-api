@@ -5,6 +5,7 @@ import { CoinAttendanceModel } from './coin-attendance.model';
 import { LikeModel } from './like.model';
 import { MatchModel } from './match.model';
 import { MessageModel } from './message.model';
+import { ProfileModel } from './profile.model.ts';
 import {
   CoinAttendance,
   CoinAttendanceSchema,
@@ -12,6 +13,7 @@ import {
 import { Like, LikeSchema } from './schemas/like.schema';
 import { Match, MatchSchema } from './schemas/match.schema';
 import { Message, MessageSchema } from './schemas/message.schema';
+import { Profile, ProfileSchema } from './schemas/profile.schema';
 import {
   PushNotification,
   PushNotificationSchema,
@@ -34,6 +36,7 @@ import { ViewModel } from './view.model';
       { name: Like.name, schema: LikeSchema },
       { name: Match.name, schema: MatchSchema },
       { name: Message.name, schema: MessageSchema },
+      { name: Profile.name, schema: ProfileSchema },
       { name: SignedDevice.name, schema: SignedDeviceSchema },
       { name: User.name, schema: UserSchema },
       { name: View.name, schema: ViewSchema },
@@ -45,6 +48,7 @@ import { ViewModel } from './view.model';
     LikeModel,
     MatchModel,
     MessageModel,
+    ProfileModel,
     SignedDeviceModel,
     UserModel,
     ViewModel,
@@ -55,6 +59,7 @@ import { ViewModel } from './view.model';
     LikeModel,
     MatchModel,
     MessageModel,
+    ProfileModel,
     SignedDeviceModel,
     UserModel,
     ViewModel,

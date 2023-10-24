@@ -1,24 +1,21 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { isArray } from 'lodash';
-import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
-import { UserStatuses } from '../../commons/constants';
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
-import { UserModel } from '../models/user.model';
-import { FindManyDatingUsersQuery } from './dto/find-many-dating-users.dto';
+import { ProfileModel } from '../models';
+import { FindManyDatingProfilesQuery } from './dto';
 @Injectable()
-export class SwipeUsersService extends ApiService {
-  constructor(private readonly userModel: UserModel) {
+export class SwipeProfilesService extends ApiService {
+  constructor(private readonly profileModel: ProfileModel) {
     super();
 
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.SWIPE_USERS;
   }
 
   public async findMany(
-    queryParams: FindManyDatingUsersQuery,
+    queryParams: FindManyDatingProfilesQuery,
     clientData: ClientData,
   ) {
     const { minDistance, excludedUserId } = queryParams;
@@ -27,7 +24,7 @@ export class SwipeUsersService extends ApiService {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
 
-    const user = await this.userModel.findOneOrFail({
+    const profile = await this.profileModel.findOneOrFail({
       _id: _currentUserId,
     });
 
@@ -37,33 +34,13 @@ export class SwipeUsersService extends ApiService {
       filterMinAge,
       filterMaxDistance,
       filterGender,
-      gender,
-    } = user;
+    } = profile;
 
-    if (!user.geolocation) {
+    if (!geolocation?.coordinates[1]) {
       throw new BadRequestException();
     }
 
-    if (
-      !geolocation?.coordinates[1] ||
-      !filterMaxAge ||
-      !filterMinAge ||
-      !gender ||
-      !filterGender ||
-      !filterMaxDistance
-    ) {
-      throw new BadRequestException({
-        message:
-          HttpErrorMessages[
-            'You do not have a basic info. Please complete it.'
-          ],
-      });
-    }
-
-    const filterMaxBirthday = moment().subtract(filterMinAge, 'years').toDate();
-    const filterMinBirthday = moment().subtract(filterMaxAge, 'years').toDate();
-
-    const users = await this.userModel.aggregate([
+    const users = await this.profileModel.aggregate([
       {
         $geoNear: {
           near: {
@@ -94,15 +71,12 @@ export class SwipeUsersService extends ApiService {
                     $ne: _currentUserId,
                   }),
             },
-            status: {
-              $in: [UserStatuses.activated, UserStatuses.verified],
-            },
             // lastActivatedAt: {
             //   $gt: moment().subtract(7, 'd').toDate(),
             // },
-            birthday: {
-              $gt: filterMinBirthday,
-              $lt: filterMaxBirthday,
+            age: {
+              $gte: filterMinAge,
+              $lt: filterMaxAge,
             },
             gender: filterGender,
           },

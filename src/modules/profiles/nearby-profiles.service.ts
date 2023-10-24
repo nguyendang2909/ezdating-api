@@ -1,32 +1,24 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import moment from 'moment';
-import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
-import { UserStatuses } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
-import {
-  NearbyUserCursor,
-  PaginatedResponse,
-  Pagination,
-} from '../../commons/types';
+import { NearbyUserCursor, PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
-import { User } from '../models/schemas/user.schema';
-import { UserModel } from '../models/user.model';
-import { FindManyNearbyUsersQuery } from './dto/find-nearby-users.dto';
+import { Profile, ProfileModel } from '../models';
+import { FindManyNearbyProfilesQuery } from './dto';
 @Injectable()
-export class NearbyUsersService extends ApiService {
-  constructor(private readonly userModel: UserModel) {
+export class NearbyProfilesService extends ApiService {
+  constructor(private readonly profileModel: ProfileModel) {
     super();
 
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.NEARBY_USERS;
   }
 
   public async findMany(
-    queryParams: FindManyNearbyUsersQuery,
+    queryParams: FindManyNearbyProfilesQuery,
     clientData: ClientData,
-  ): Promise<PaginatedResponse<User>> {
+  ): Promise<PaginatedResponse<Profile>> {
     const { _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;
     const minDistance = cursor ? cursor.minDistance : undefined;
@@ -41,28 +33,15 @@ export class NearbyUsersService extends ApiService {
       filterMinAge,
       filterMaxDistance: filterMaxDistanceAsKm,
       filterGender,
-      gender,
-    } = await this.userModel.findOneOrFail({
+    } = await this.profileModel.findOneOrFail({
       _id: _currentUserId,
     });
-    if (
-      !filterMaxAge ||
-      !filterMinAge ||
-      !gender ||
-      !filterGender ||
-      !filterMaxDistanceAsKm
-    ) {
-      throw new BadRequestException(
-        HttpErrorMessages['You do not have a basic info. Please complete it.'],
-      );
-    }
     if (!geolocation?.coordinates) {
       throw new BadRequestException(
         HttpErrorMessages['Please enable location service in your device'],
       );
     }
     const filterMaxDistance = filterMaxDistanceAsKm * 1000;
-
     if (minDistance && minDistance >= filterMaxDistance) {
       return {
         data: [],
@@ -73,10 +52,7 @@ export class NearbyUsersService extends ApiService {
       };
     }
 
-    const filterMaxBirthday = moment().subtract(filterMinAge, 'years').toDate();
-    const filterMinBirthday = moment().subtract(filterMaxAge, 'years').toDate();
-
-    const findResults = await this.userModel.aggregate([
+    const findResults = await this.profileModel.aggregate([
       {
         $geoNear: {
           near: {
@@ -104,15 +80,12 @@ export class NearbyUsersService extends ApiService {
                     $ne: _currentUserId,
                   }),
             },
-            status: {
-              $in: [UserStatuses.activated, UserStatuses.verified],
-            },
             // lastActivatedAt: {
             //   $gt: moment().subtract(7, 'd').toDate(),
             // },
-            birthday: {
-              $gt: filterMinBirthday,
-              $lt: filterMaxBirthday,
+            age: {
+              $gte: filterMinAge,
+              $lte: filterMaxAge,
             },
             gender: filterGender,
           },
@@ -136,12 +109,6 @@ export class NearbyUsersService extends ApiService {
           },
         },
       },
-      {
-        $project: {
-          distance: 1,
-          ...this.userModel.matchUserFields,
-        },
-      },
     ]);
 
     return {
@@ -152,7 +119,7 @@ export class NearbyUsersService extends ApiService {
   }
 
   public getPagination(
-    data: (User & { _id: Types.ObjectId; excludedUserIds?: string[] })[],
+    data: (Profile & { excludedUserIds?: string[] })[],
   ): Pagination {
     const dataLength = data.length;
     if (!dataLength || dataLength < this.limitRecordsPerQuery) {

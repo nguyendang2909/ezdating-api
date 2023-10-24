@@ -1,15 +1,15 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { UserRoles } from '../../../commons/constants';
 import { RequireRoles } from '../../../commons/decorators/require-roles.decorator';
+import { USER_ROLES } from '../../../constants';
 import { AdminAuthService } from './admin-auth.service';
 import { AdminLoginDto } from './dto';
 
 @Controller('/admin/auth')
 @ApiTags('/auth/sign-in')
 @ApiBearerAuth('JWT')
-@RequireRoles([UserRoles.admin])
+@RequireRoles([USER_ROLES.ADMIN])
 export class AdminAuthController {
   constructor(private readonly service: AdminAuthService) {}
 

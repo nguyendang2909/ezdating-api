@@ -48,7 +48,7 @@ export class AuthService extends ApiService {
     const user = await this.userModel.findOneOrFail({
       _id: _currentUserId,
     });
-    const { role, gender } = user;
+    const { role } = user;
     if (!role) {
       throw new BadRequestException({
         message: HttpErrorMessages['User data is incorrect'],
@@ -58,7 +58,6 @@ export class AuthService extends ApiService {
       sub: currentUserId,
       id: currentUserId,
       role: role,
-      gender,
     });
 
     return { accessToken };

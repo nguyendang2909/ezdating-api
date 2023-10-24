@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import _ from 'lodash';
 import { Socket } from 'socket.io';
 
-import { UserStatuses } from '../../commons/constants';
 import { DbService } from '../../commons/services/db.service';
+import { USER_STATUSES } from '../../constants';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { UserModel } from '../models/user.model';
 
@@ -30,7 +30,7 @@ export class ChatsConnectionService extends DbService {
       const { id: userId } = clientData;
       const _currentUserId = this.getObjectId(userId);
       const user = await this.userModel.findOneOrFail({ _id: _currentUserId });
-      if (!user || user.status === UserStatuses.banned) {
+      if (!user || user.status === USER_STATUSES.BANNED) {
         socket.disconnect();
 
         return;

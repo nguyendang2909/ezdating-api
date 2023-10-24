@@ -1,8 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { UserRole } from 'aws-sdk/clients/workmail';
 
 import { APP_CONFIG } from '../../app.config';
-import { UserRole } from '../../commons/constants';
 
 @Injectable()
 export class RolesGuard implements CanActivate {

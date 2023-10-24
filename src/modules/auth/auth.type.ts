@@ -1,4 +1,4 @@
-import { UserGender, UserRole } from '../../commons/constants';
+import { UserRole } from '../../types';
 
 export type ClientData = AccessTokenSignPayload & {
   exp: number;
@@ -6,7 +6,6 @@ export type ClientData = AccessTokenSignPayload & {
 };
 
 export type AccessTokenSignPayload = {
-  gender?: UserGender;
   id: string;
   role: UserRole;
   sub: string;

@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { ApiCursorObjectIdService } from '../../commons';
-import { PaginatedResponse, Pagination } from '../../commons/types';
+import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';

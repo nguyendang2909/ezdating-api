@@ -2,7 +2,7 @@
 
 import mongoose from 'mongoose';
 
-import { DevicePlatform } from './constants';
+import { DevicePlatform } from './data.type';
 
 export type MongoDocument<T> = T & {
   _id: mongoose.Types.ObjectId;
@@ -24,16 +24,6 @@ export type MongoDocument<T> = T & {
 // };
 
 // export type Cursor = (typeof Cursors)[keyof typeof Cursors];
-
-export type PaginatedResponse<T> = {
-  data: T[];
-  pagination: Pagination;
-  type: string;
-};
-
-export type Pagination = {
-  _next?: null | string;
-};
 
 export type NearbyUserCursor = {
   excludedUserIds?: string[];

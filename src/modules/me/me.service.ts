@@ -1,26 +1,19 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Request } from 'express';
 import moment from 'moment';
-import { UpdateQuery } from 'mongoose';
 
-import { APP_CONFIG } from '../../app.config';
-import {
-  UserGender,
-  UserGenders,
-  UserStatuses,
-  WeeklyCoins,
-  WeeklyCoinsLength,
-} from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import {
+  USER_STATUSES,
+  WEEKLY_COINS,
+  WEEKLY_COINS_LENGTH,
+} from '../../constants';
 import { ClientData } from '../auth/auth.type';
+import { ProfileModel } from '../models';
 import { CoinAttendanceModel } from '../models/coin-attendance.model';
 import { MatchModel } from '../models/match.model';
 import { CoinAttendanceDocument } from '../models/schemas/coin-attendance.schema';
-import { UserDocument } from '../models/schemas/user.schema';
 import { UserModel } from '../models/user.model';
 import { UsersCommonService } from '../users/users.common.service';
-import { UpdateMeDto } from './dto/update-me.dto';
-import { UpdateMyProfileBasicInfoDto } from './dto/update-me-basic-info.dto';
 
 @Injectable()
 export class MeService extends UsersCommonService {
@@ -30,79 +23,19 @@ export class MeService extends UsersCommonService {
     private readonly coinAttendanceModel: CoinAttendanceModel,
     // private readonly countryModel: CountryModel,
     private readonly matchModel: MatchModel,
+    private readonly profileModel: ProfileModel,
   ) {
     super();
   }
 
-  public async get(clientData: ClientData) {
-    const { id: currentUserId } = clientData;
-    const _currentUserId = this.getObjectId(currentUserId);
-    const user = await this.userModel.findOneOrFailById(_currentUserId, {
-      password: false,
-    });
-
-    return user;
-  }
-
-  public async updateProfile(payload: UpdateMeDto, clientData: ClientData) {
-    const {
-      longitude,
-      latitude,
-      birthday: rawBirthday,
-      ...updateDto
-    } = payload;
-    const _currentUserId = this.getObjectId(clientData.id);
-    const updateOptions: UpdateQuery<UserDocument> = {
-      $set: {
-        ...updateDto,
-        ...(rawBirthday
-          ? { birthday: this.getAndCheckValidBirthdayFromRaw(rawBirthday) }
-          : {}),
-        ...(longitude && latitude
-          ? {
-              geolocation: {
-                type: 'Point',
-                coordinates: [longitude, latitude],
-              },
-            }
-          : {}),
-      },
-    };
-    await this.userModel.updateOneById(_currentUserId, updateOptions);
-  }
-
-  public async updateProfileBasicInfo(
-    payload: UpdateMyProfileBasicInfoDto,
-    req: Request,
-    clientData: ClientData,
-  ) {
-    const { id: currentUserId } = clientData;
-    const _currentUserId = this.getObjectId(currentUserId);
-    await this.userModel.findOneOrFail({ _id: _currentUserId });
-    const { birthday: rawBirthday, ...updateDto } = payload;
-    const birthday = this.getAndCheckValidBirthdayFromRaw(rawBirthday);
-    const age = moment().diff(birthday, 'years');
-    await this.userModel.updateOneById(_currentUserId, {
-      $set: {
-        ...updateDto,
-        birthday,
-        filterGender: this.getFilterGender(payload.gender),
-        filterMinAge: age - 10 > 18 ? age - 10 : 18,
-        filterMaxAge: age + 10,
-        filterMaxDistance: APP_CONFIG.USER_FILTER_MAX_DISTANCE,
-        status: UserStatuses.activated,
-      },
-    });
-  }
-
   public async deactivate(clientData: ClientData) {
     const _currentUserId = this.getObjectId(clientData.id);
-
-    return await this.userModel.updateOneById(_currentUserId, {
+    await this.userModel.updateOneById(_currentUserId, {
       $set: {
-        status: UserStatuses.deactivated,
+        status: USER_STATUSES.DEACTIVATED,
       },
     });
+    // Move profile
   }
 
   public async takeAttendance(
@@ -124,7 +57,7 @@ export class MeService extends UsersCommonService {
       const firstCoinAttendance = await this.coinAttendanceModel.createOne({
         _userId: _currentUserId,
         receivedDate: todayDate,
-        value: WeeklyCoins[0],
+        value: WEEKLY_COINS[0],
         receivedDateIndex: 0,
       });
 
@@ -132,7 +65,7 @@ export class MeService extends UsersCommonService {
         { _id: _currentUserId },
         {
           $inc: {
-            coins: WeeklyCoins[0],
+            coins: WEEKLY_COINS[0],
           },
         },
       );
@@ -146,11 +79,11 @@ export class MeService extends UsersCommonService {
       });
     }
 
-    const lastReceivedDayIndex = WeeklyCoins.findIndex(
+    const lastReceivedDayIndex = WEEKLY_COINS.findIndex(
       (item) => item === lastCoinAttendance.value,
     );
     const newReceiveDayIndex =
-      lastReceivedDayIndex !== WeeklyCoinsLength - 1
+      lastReceivedDayIndex !== WEEKLY_COINS_LENGTH - 1
         ? lastReceivedDayIndex + 1
         : 0;
 
@@ -158,17 +91,9 @@ export class MeService extends UsersCommonService {
       _userId: _currentUserId,
       receivedDate: todayDate,
       receivedDateIndex: newReceiveDayIndex,
-      value: WeeklyCoins[newReceiveDayIndex || 0],
+      value: WEEKLY_COINS[newReceiveDayIndex || 0],
     });
 
     return createResult;
-  }
-
-  getFilterGender(gender: UserGender) {
-    if (gender === UserGenders.male) {
-      return UserGenders.female;
-    }
-
-    return UserGenders.male;
   }
 }

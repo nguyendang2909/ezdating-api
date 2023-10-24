@@ -1,19 +1,17 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, ProjectionType, QueryOptions } from 'mongoose';
+import { Types } from 'mongoose';
 
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
-import { USER_STATUSES } from '../../constants';
 import { CommonModel } from './common-model';
-import { User, UserDocument } from './schemas/user.schema';
+import { Profile, ProfileDocument } from './schemas/profile.schema';
 
 @Injectable()
-export class UserModel extends CommonModel<User> {
-  constructor(@InjectModel(User.name) readonly model: Model<UserDocument>) {
+export class ProfileModel extends CommonModel<Profile> {
+  constructor(
+    @InjectModel(Profile.name) readonly model: Model<ProfileDocument>,
+  ) {
     super();
   }
 
@@ -38,29 +36,19 @@ export class UserModel extends CommonModel<User> {
     weight: 1,
   };
 
-  async createOne(doc: Partial<User>) {
-    const { phoneNumber } = doc;
-    if (!phoneNumber) {
-      throw new BadRequestException('Phone number does not exist!');
-    }
+  async createOne(doc: Partial<Profile> & { _userId: Types.ObjectId }) {
     return await this.model.create(doc);
   }
 
   public async findOneOrFail(
-    filter: FilterQuery<User>,
-    projection?: ProjectionType<User> | null,
-    options?: QueryOptions<User> | null,
+    filter: FilterQuery<Profile>,
+    projection?: ProjectionType<Profile> | null,
+    options?: QueryOptions<Profile> | null,
   ) {
     const findResult = await this.findOne(filter, projection, options);
     if (!findResult) {
       throw new NotFoundException({
-        message: HttpErrorMessages['User does not exist'],
-      });
-    }
-    const { status } = findResult;
-    if (status === USER_STATUSES.BANNED) {
-      throw new BadRequestException({
-        message: 'User has been banned',
+        message: HttpErrorMessages['Profile does not exist'],
       });
     }
     return findResult;

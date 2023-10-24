@@ -2,20 +2,20 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { FlattenMaps, Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
-import { MediaFileTypes } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
+import { MEDIA_FILE_TYPES } from '../../constants';
 import { FilesService } from '../../libs/files.service';
 import { ClientData } from '../auth/auth.type';
-import { User, UserDocument } from '../models/schemas/user.schema';
-import { UserModel } from '../models/user.model';
+import { ProfileModel } from '../models/profile.model.ts';
+import { Profile, ProfileDocument } from '../models/schemas/profile.schema';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
 
 @Injectable()
 export class MediaFilesService extends ApiService {
   constructor(
-    private readonly userModel: UserModel,
     private readonly filesService: FilesService,
+    private readonly profileModel: ProfileModel,
   ) {
     super();
   }
@@ -27,7 +27,7 @@ export class MediaFilesService extends ApiService {
   ) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-    const user = await this.userModel.findOneOrFail(
+    const profile = await this.profileModel.findOneOrFail(
       { _id: _currentUserId },
       {
         _id: true,
@@ -35,16 +35,16 @@ export class MediaFilesService extends ApiService {
         status: true,
       },
     );
-    this.verifyCanUploadFiles(user);
+    this.verifyCanUploadFiles(profile);
     const photo = await this.filesService.updatePhoto(file);
-    const createResult = await this.userModel.findOneAndUpdate(
+    const createResult = await this.profileModel.findOneAndUpdate(
       { _id: _currentUserId },
       {
         $push: {
           mediaFiles: {
             _userId: _currentUserId,
             key: photo.Key,
-            type: MediaFileTypes.photo,
+            type: MEDIA_FILE_TYPES.photo,
             location: photo.Location,
           },
         },
@@ -58,7 +58,6 @@ export class MediaFilesService extends ApiService {
       },
     );
 
-    console.log(createResult);
     return createResult?.mediaFiles?.find((e) => e.key === photo.Key);
   }
 
@@ -66,7 +65,7 @@ export class MediaFilesService extends ApiService {
     const _id = this.getObjectId(id);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-    const user = await this.userModel.findOneOrFail(
+    const profile = await this.profileModel.findOneOrFail(
       {
         _id: _currentUserId,
         'mediaFiles._id': _id,
@@ -80,21 +79,23 @@ export class MediaFilesService extends ApiService {
         },
       },
     );
-    await this.userModel.updateOneOrFailById(_currentUserId, {
+    await this.profileModel.updateOneOrFailById(_currentUserId, {
       $pull: {
         mediaFiles: {
           _id,
         },
       },
     });
-    const filePath = user.mediaFiles?.find((e) => e._id.toString() === id)?.key;
+    const filePath = profile.mediaFiles?.find(
+      (e) => e._id.toString() === id,
+    )?.key;
     if (filePath) {
       await this.filesService.removeOne(filePath);
     }
   }
 
   public verifyCanUploadFiles(
-    user: UserDocument | (FlattenMaps<User> & { _id: Types.ObjectId }),
+    user: ProfileDocument | (FlattenMaps<Profile> & { _id: Types.ObjectId }),
   ): number {
     const count = user.mediaFiles?.length || 0;
     if (count >= APP_CONFIG.UPLOAD_PHOTOS_LIMIT) {

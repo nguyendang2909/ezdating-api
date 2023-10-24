@@ -4,6 +4,7 @@ export * from './like.model';
 export * from './match.model';
 export * from './message.model';
 export * from './models.module';
+export * from './profile.model.ts';
 export * from './push-notification.model';
 export * from './schemas';
 export * from './signed-device.model';

@@ -1,7 +1,8 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
-import { DevicePlatform, DevicePlatforms } from '../../../commons/constants';
+import { DEVICE_PLATFORMS } from '../../../constants';
+import { DevicePlatform } from '../../../types';
 
 export class SignInDto {
   @ApiPropertyOptional({ type: String })
@@ -11,6 +12,6 @@ export class SignInDto {
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
-  @IsEnum(DevicePlatforms)
+  @IsEnum(DEVICE_PLATFORMS)
   devicePlatform?: DevicePlatform;
 }

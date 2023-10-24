@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Socket } from 'socket.io';
 
-import { SOCKET_TO_CLIENT_EVENTS } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { DbService } from '../../commons/services/db.service';
+import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { MatchDocument, MessageDocument } from '../models';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';

@@ -3,7 +3,7 @@ import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 import { FindManyCursorQuery } from '../../../commons/dto/find-many-cursor.dto';
 
-export class FindManyDatingUsersQuery extends FindManyCursorQuery {
+export class FindManyDatingProfilesQuery extends FindManyCursorQuery {
   @ApiPropertyOptional({ type: [String] })
   @IsOptional()
   @IsString({ each: true })

@@ -2,10 +2,10 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
-import { SOCKET_TO_CLIENT_EVENTS } from '../../commons/constants';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
-import { PaginatedResponse, Pagination } from '../../commons/types';
+import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
+import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
 import { LikeModel } from '../models/like.model';

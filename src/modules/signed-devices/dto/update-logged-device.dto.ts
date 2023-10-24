@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
-import { DevicePlatform, DevicePlatforms } from '../../../commons/constants';
+import { DEVICE_PLATFORMS } from '../../../constants';
+import { DevicePlatform } from '../../../types';
 
 export class UpdateSignedDeviceDto {
   @ApiProperty({ type: String })
@@ -16,6 +17,6 @@ export class UpdateSignedDeviceDto {
 
   @ApiProperty({ type: Number })
   @IsNotEmpty()
-  @IsEnum(DevicePlatforms)
+  @IsEnum(DEVICE_PLATFORMS)
   devicePlatform: DevicePlatform;
 }

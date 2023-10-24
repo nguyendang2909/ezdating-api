@@ -7,25 +7,20 @@ import {
   MaxLength,
 } from 'class-validator';
 
-import {
-  REGEXS,
-  UserGender,
-  UserGenders,
-  UserRelationshipGoal,
-  UserRelationshipGoals,
-} from '../../../commons/constants';
+import { GENDERS, REGEXS, RELATIONSHIP_GOALS } from '../../../constants';
+import { Gender, RelationshipGoal } from '../../../types';
 
-export class UpdateMyProfileBasicInfoDto {
+export class CreateProfileDto {
   @ApiProperty({ type: String, required: true })
   @IsNotEmpty()
   @IsString()
   @Matches(REGEXS.BIRTHDAY)
-  birthday!: string;
+  birthday: string;
 
   @ApiProperty({ type: Number, required: true })
   @IsNotEmpty()
-  @IsEnum(UserGenders)
-  gender!: UserGender;
+  @IsEnum(GENDERS)
+  gender: Gender;
 
   @ApiProperty({ type: String })
   @IsString()
@@ -38,10 +33,10 @@ export class UpdateMyProfileBasicInfoDto {
   @MaxLength(100)
   nickname!: string;
 
-  @ApiProperty({ type: Number, enum: UserRelationshipGoals })
+  @ApiProperty({ type: Number, enum: RELATIONSHIP_GOALS })
   @IsNotEmpty()
-  @IsEnum(UserRelationshipGoals)
-  relationshipGoal!: UserRelationshipGoal;
+  @IsEnum(RELATIONSHIP_GOALS)
+  relationshipGoal!: RelationshipGoal;
 
   // @ApiProperty({ type: String })
   // @JoiSchema(Joi.number().required())

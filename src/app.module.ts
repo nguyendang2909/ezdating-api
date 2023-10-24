@@ -32,6 +32,7 @@ import { PushNotificationsModule } from './modules/push-notifications/push-notif
 import { LoggedDevicesModule } from './modules/signed-devices/signed-devices.module';
 import { UsersModule } from './modules/users/users.module';
 import { ViewsModule } from './modules/views/views.module';
+import { ProfilesModule } from './modules/profiles/profiles.module';
 
 @Module({
   imports: [
@@ -163,6 +164,7 @@ import { ViewsModule } from './modules/views/views.module';
     FirebaseModule,
     LibsModule,
     AdminAuthModule,
+    ProfilesModule,
 
     // CoinsModule,
   ],

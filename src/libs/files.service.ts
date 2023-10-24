@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   FILE_UPLOAD_FOLDERS,
   FILE_UPLOAD_FOLDERS_ARR,
-} from '../commons/constants';
+} from '../constants/common.constants';
 
 @Injectable()
 export class FilesService {

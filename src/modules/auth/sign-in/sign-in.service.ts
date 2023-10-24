@@ -8,8 +8,8 @@ import {
 import moment from 'moment';
 
 import { APP_CONFIG } from '../../../app.config';
-import { UserRoles, UserStatuses } from '../../../commons/constants';
 import { HttpErrorMessages } from '../../../commons/erros/http-error-messages.constant';
+import { USER_ROLES, USER_STATUSES } from '../../../constants';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { FirebaseService } from '../../firebase/firebase.service';
 import { SignedDeviceModel } from '../../models/signed-device.model';
@@ -39,8 +39,7 @@ export class SignInService {
         await this.userModel.createOne({
           phoneNumber,
           password: this.encryptionsUtil.hash(process.env.ADMIN_PASSWORD),
-          nickname: 'Quynh',
-          role: UserRoles.admin,
+          role: USER_ROLES.ADMIN,
         });
       }
     } catch (err) {
@@ -62,7 +61,7 @@ export class SignInService {
     let user = await this.userModel.findOne({ phoneNumber });
     if (user) {
       const { status } = user;
-      if (!status || status === UserStatuses.banned) {
+      if (!status || status === USER_STATUSES.BANNED) {
         throw new ForbiddenException({
           message: HttpErrorMessages['You have been banned'],
         });
@@ -75,7 +74,7 @@ export class SignInService {
         })
       ).toJSON();
     }
-    const { _id: _userId, role, gender } = user;
+    const { _id: _userId, role } = user;
     if (!_userId || !role) {
       throw new NotFoundException({
         message: 'User data is incorrect!',
@@ -86,7 +85,6 @@ export class SignInService {
       sub: userId,
       id: userId,
       role,
-      gender,
     });
     const refreshToken = this.encryptionsUtil.signRefreshToken({
       id: userId,
@@ -117,7 +115,6 @@ export class SignInService {
       password: hashedPassword,
       _id: _userId,
       role: userRole,
-      gender,
     } = await this.userModel.findOneOrFail({ phoneNumber });
     if (!hashedPassword || !_userId || !userRole) {
       throw new BadRequestException('Try login with OTP!');
@@ -128,7 +125,6 @@ export class SignInService {
       id: userId,
       sub: userId,
       role: userRole,
-      gender,
     });
     const refreshToken = this.encryptionsUtil.signRefreshToken({
       id: userId,

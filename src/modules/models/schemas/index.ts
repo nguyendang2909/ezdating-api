@@ -3,6 +3,7 @@ export * from './like.schema';
 export * from './match.schema';
 export * from './media-file.schema';
 export * from './message.schema';
+export * from './profile.schema';
 export * from './push-notification.schema';
 export * from './signed-device.schema';
 export * from './user.schema';

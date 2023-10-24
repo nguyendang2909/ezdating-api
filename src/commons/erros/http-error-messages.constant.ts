@@ -15,6 +15,7 @@ export const HttpErrorMessages = {
     'Please make sure you are over 18 years old',
   'Please make sure you are under 100 years old':
     'Please make sure you are under 100 years old',
+  'Profile does not exist': 'Profile does not exist',
   'Update failed. Please try again.': 'Update failed. Please try again.',
   'User data is incorrect': 'User data is incorrect',
   'User device does not exist': 'User device does not exist',

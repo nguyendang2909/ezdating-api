@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { APP_CONFIG } from '../../app.config';
 import { ApiService } from '../../commons/services/api.service';
-import { PaginatedResponse, Pagination } from '../../commons/types';
+import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';

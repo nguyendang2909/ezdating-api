@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { UserStatuses } from '../../../commons/constants';
 import { HttpErrorMessages } from '../../../commons/erros/http-error-messages.constant';
+import { USER_STATUSES } from '../../../constants';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { UserModel } from '../../models';
 import { AdminLoginDto } from './dto';
@@ -24,12 +24,12 @@ export class AdminAuthService {
       throw new NotFoundException(HttpErrorMessages['User does not exist']);
     }
     const { status } = user;
-    if (!status || status === UserStatuses.banned) {
+    if (!status || status === USER_STATUSES.BANNED) {
       throw new ForbiddenException({
         message: HttpErrorMessages['You have been banned'],
       });
     }
-    const { _id: _userId, role, gender } = user;
+    const { _id: _userId, role } = user;
     if (!_userId || !role) {
       throw new NotFoundException({
         message: 'User data is incorrect!',
@@ -40,7 +40,6 @@ export class AdminAuthService {
       sub: userId,
       id: userId,
       role,
-      gender,
     });
     return {
       accessToken,

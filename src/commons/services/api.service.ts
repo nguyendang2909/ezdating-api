@@ -5,8 +5,8 @@ import {
 import _ from 'lodash';
 
 import { ClientData } from '../../modules/auth/auth.type';
+import { PaginatedResponse, Pagination } from '../../types';
 import { HttpErrorMessages } from '../erros/http-error-messages.constant';
-import { PaginatedResponse, Pagination } from '../types';
 import { DbService } from './db.service';
 
 export class ApiService extends DbService {
