@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, SchemaTypes } from 'mongoose';
-import { Types } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
 import { CommonSchema } from '../../../commons/schemas.common';
 import {
@@ -28,9 +27,6 @@ export type MongoGeoLocation = {
 
 @Schema({ timestamps: true })
 export class Profile extends CommonSchema {
-  @Prop({ type: SchemaTypes.ObjectId, required: true })
-  _userId: Types.ObjectId;
-
   @Prop({ type: Number, required: true })
   age: number;
 
