@@ -20,20 +20,20 @@ export class ProfilesService extends ProfilesCommonService {
   public async createOne(payload: CreateProfileDto, client: ClientData) {
     const { _currentUserId } = this.getClient(client);
     await this.profileModel.findOneOrFail({ _id: _currentUserId });
-    const { birthday: rawBirthday, ...updateDto } = payload;
+    const { birthday: rawBirthday, ...rest } = payload;
     const birthday = this.getAndCheckValidBirthdayFromRaw(rawBirthday);
     const age = this.getAgeFromBirthday(birthday);
-    await this.profileModel.updateOneById(_currentUserId, {
-      $set: {
-        ...updateDto,
-        age,
-        birthday,
-        filterGender: this.getFilterGender(payload.gender),
-        filterMinAge: age - 10 > 18 ? age - 10 : 18,
-        filterMaxAge: age + 10,
-        filterMaxDistance: APP_CONFIG.USER_FILTER_MAX_DISTANCE,
-      },
+    const createResult = await this.profileModel.createOne({
+      _id: _currentUserId,
+      ...rest,
+      age,
+      birthday,
+      filterGender: this.getFilterGender(payload.gender),
+      filterMinAge: age - 10 > 18 ? age - 10 : 18,
+      filterMaxAge: age + 10,
+      filterMaxDistance: APP_CONFIG.USER_FILTER_MAX_DISTANCE,
     });
+    return createResult;
   }
 
   public async getMe(clientData: ClientData) {

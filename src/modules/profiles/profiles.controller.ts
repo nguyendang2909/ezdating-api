@@ -24,7 +24,7 @@ export class ProfilesController {
   ) {}
 
   @Post('/me')
-  private async updateProfileBasicInfo(
+  private async createProfile(
     @Body() payload: CreateProfileDto,
     @Client() client: ClientData,
   ) {

@@ -36,7 +36,7 @@ export class ProfileModel extends CommonModel<Profile> {
     weight: 1,
   };
 
-  async createOne(doc: Partial<Profile> & { _userId: Types.ObjectId }) {
+  async createOne(doc: Partial<Profile> & { _id: Types.ObjectId }) {
     return await this.model.create(doc);
   }
 
