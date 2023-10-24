@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 import { UpdateQuery } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { GENDERS } from '../../constants';
 import { Gender } from '../../types';
 import { ClientData } from '../auth/auth.type';
@@ -19,7 +20,12 @@ export class ProfilesService extends ProfilesCommonService {
 
   public async createOne(payload: CreateProfileDto, client: ClientData) {
     const { _currentUserId } = this.getClient(client);
-    await this.profileModel.findOneOrFail({ _id: _currentUserId });
+    const existProfile = await this.profileModel.findOne({
+      _id: _currentUserId,
+    });
+    if (existProfile) {
+      throw new ConflictException(HttpErrorMessages['Profile is exist']);
+    }
     const { birthday: rawBirthday, ...rest } = payload;
     const birthday = this.getAndCheckValidBirthdayFromRaw(rawBirthday);
     const age = this.getAgeFromBirthday(birthday);
