@@ -23,7 +23,7 @@ export class ProfilesController {
     private readonly nearbyProfilesService: NearbyProfilesService,
   ) {}
 
-  @Post('/')
+  @Post('/me')
   private async updateProfileBasicInfo(
     @Body() payload: CreateProfileDto,
     @Client() client: ClientData,
@@ -58,7 +58,7 @@ export class ProfilesController {
     return await this.nearbyProfilesService.findMany(queryParams, clientData);
   }
 
-  @Patch('/')
+  @Patch('/me')
   private async updateProfile(
     @Body() payload: UpdateMyProfileDto,
     @Client() clientData: ClientData,
