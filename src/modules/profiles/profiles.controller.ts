@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
@@ -26,7 +26,6 @@ export class ProfilesController {
   @Post('/')
   private async updateProfileBasicInfo(
     @Body() payload: CreateProfileDto,
-    @Req() req: Request,
     @Client() client: ClientData,
   ) {
     return {
