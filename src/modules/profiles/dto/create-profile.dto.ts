@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -23,6 +24,7 @@ export class CreateProfileDto {
   gender: Gender;
 
   @ApiProperty({ type: String })
+  @IsOptional()
   @IsString()
   @MaxLength(500)
   introduce?: string;
