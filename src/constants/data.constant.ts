@@ -25,12 +25,12 @@ export const RELATIONSHIP_GOALS = {
 } as const;
 
 export const RELATIONSHIP_STATUSES = {
-  single: 1,
-  haveBoyGirlFriend: 2,
-  married: 3,
-  divorcedWithoutChildren: 4,
-  divorcedWithChildren: 5,
-  singleMomDad: 6,
+  SINGLE: 1,
+  HAVE_BOY_GIRL_FRIEND: 2,
+  MARRIED: 3,
+  DIVORCED_WITHOUT_CHILDREN: 4,
+  DIVORCED_WITH_CHILDREN: 5,
+  SINGLE_MOM_DAD: 6,
 } as const;
 
 export const EDUCATION_LEVELS = {
