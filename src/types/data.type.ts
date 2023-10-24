@@ -3,6 +3,7 @@ import {
   EDUCATION_LEVELS,
   GENDERS,
   MEDIA_FILE_TYPES,
+  MEMBERSHIPS,
   RELATIONSHIP_GOALS,
   RELATIONSHIP_STATUSES,
   USER_ROLES,
@@ -39,3 +40,5 @@ export type MediaFileType =
 
 export type DevicePlatform =
   (typeof DEVICE_PLATFORMS)[keyof typeof DEVICE_PLATFORMS];
+
+export type Membership = (typeof MEMBERSHIPS)[keyof typeof MEMBERSHIPS];

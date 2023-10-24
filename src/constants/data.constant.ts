@@ -72,3 +72,10 @@ export const SOCKET_TO_CLIENT_EVENTS = {
   UPDATE_SENT_MESSAGE: 'updateSentMsg',
   MATCH: 'match',
 } as const;
+
+export const MEMBERSHIPS = {
+  FREE: 1,
+  TRIAL: 2,
+  GOLD: 3,
+  PLATINUM: 4,
+};

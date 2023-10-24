@@ -6,12 +6,14 @@ import { CommonSchema } from '../../../commons/schemas.common';
 import {
   EDUCATION_LEVELS,
   GENDERS,
+  MEMBERSHIPS,
   RELATIONSHIP_GOALS,
   RELATIONSHIP_STATUSES,
 } from '../../../constants';
 import {
   EducationLevel,
   Gender,
+  Membership,
   RelationshipGoal,
   RelationshipStatus,
 } from '../../../types';
@@ -106,6 +108,9 @@ export class Profile extends CommonSchema {
 
   @Prop({ type: [MediaFileSchema] })
   mediaFiles?: MediaFileDocument[];
+
+  @Prop({ type: String, enum: MEMBERSHIPS })
+  membership?: Membership;
 
   @Prop({ type: String, length: 100, required: true })
   nickname: string;
