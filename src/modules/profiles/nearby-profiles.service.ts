@@ -17,7 +17,7 @@ export class NearbyProfilesService extends ApiService {
 
   public async findMany(
     queryParams: FindManyNearbyProfilesQuery,
-    clientData: ClientData,
+    client: ClientData,
   ): Promise<PaginatedResponse<Profile>> {
     const { _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;
@@ -25,8 +25,7 @@ export class NearbyProfilesService extends ApiService {
     const excludedUserIds = cursor
       ? cursor.excludedUserIds?.map((e) => this.getObjectId(e))
       : undefined;
-    const { id: currentUserId } = clientData;
-    const _currentUserId = this.getObjectId(currentUserId);
+    const { _currentUserId } = this.getClient(client);
     const {
       geolocation,
       filterMaxAge,
@@ -51,7 +50,6 @@ export class NearbyProfilesService extends ApiService {
         },
       };
     }
-
     const findResults = await this.profileModel.aggregate([
       {
         $geoNear: {
