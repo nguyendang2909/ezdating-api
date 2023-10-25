@@ -3,6 +3,7 @@ import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 import { CommonSchema } from '../../../commons/schemas.common';
 import { Message, MessageSchema } from './message.schema';
+import { Profile, ProfileSchema } from './profile.schema';
 
 export type MatchDocument = HydratedDocument<Match>;
 
@@ -13,6 +14,12 @@ export class Match extends CommonSchema {
 
   @Prop({ type: SchemaTypes.ObjectId, required: true })
   _userTwoId: Types.ObjectId;
+
+  @Prop({ type: ProfileSchema, required: true })
+  profileOne: Profile;
+
+  @Prop({ type: ProfileSchema, required: true })
+  profileTwo: Profile;
 
   // @Prop({ type: SchemaTypes.ObjectId })
   // _lastMessageId?: Types.ObjectId;
