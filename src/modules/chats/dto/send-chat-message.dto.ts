@@ -5,10 +5,12 @@ export class SendChatMessageDto {
   @IsMongoId()
   matchId: string;
 
+  @IsNotEmpty()
   @IsString()
   @MaxLength(5000)
   text: string;
 
+  @IsNotEmpty()
   @IsString()
   uuid: string;
 }

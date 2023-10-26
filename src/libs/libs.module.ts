@@ -1,9 +1,9 @@
 import { Global, Logger, Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Redis, RedisOptions } from 'ioredis';
 import Redlock from 'redlock';
 
 import { MODULE_INSTANCES } from '../constants';
+import { CacheService } from './cache.service';
 import { FilesService } from './files.service';
 
 @Global()
@@ -12,14 +12,14 @@ import { FilesService } from './files.service';
     FilesService,
     {
       provide: MODULE_INSTANCES.REDIS,
-      useFactory: (configService: ConfigService) => {
+      useFactory: () => {
         const logger = new Logger('REDIS');
         const environmentOptions: RedisOptions = {};
         const optionsOverride = { ttl: 15 * 60 };
-        const IOREDIS_MODE =
-          configService.get<string>('IOREDIS_MODE') || 'standalone';
-        const REDIS_HOST = configService.get<string>('REDIS_HOST');
-        const REDIS_PORT = configService.get<string>('REDIS_PORT');
+        const IOREDIS_MODE = process.env.IOREDIS_MODE || 'standalone';
+
+        const REDIS_HOST = process.env.REDIS_HOST;
+        const REDIS_PORT = process.env.REDIS_PORT;
         // if (
         //   process.env.IOREDIS_MODE === 'sentinel' &&
         //   process.env.IOREDIS_SENTINEL_HOST
@@ -47,7 +47,11 @@ import { FilesService } from './files.service';
           //   : 0;
           environmentOptions.password = process.env.IOREDIS_STANDALONE_PASSWORD;
         }
-        const redis = new Redis({ ...environmentOptions, ...optionsOverride });
+        // const redis = new Redis({ ...environmentOptions, ...optionsOverride });
+        const redis = new Redis({
+          host: process.env.REDIS_HOST,
+          port: parseInt(process.env.REDIS_HOST, 10),
+        });
         redis.on('error', (err) => {
           logger.error(err, undefined, 'IORedis');
         });
@@ -56,7 +60,6 @@ import { FilesService } from './files.service';
         });
         return redis;
       },
-      inject: [ConfigService],
     },
     {
       provide: MODULE_INSTANCES.REDIS_LOCK,
@@ -65,7 +68,8 @@ import { FilesService } from './files.service';
         return new Redlock([redis]);
       },
     },
+    CacheService,
   ],
-  exports: [FilesService],
+  exports: [FilesService, CacheService],
 })
 export class LibsModule {}

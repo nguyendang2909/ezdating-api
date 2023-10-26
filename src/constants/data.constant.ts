@@ -71,6 +71,7 @@ export const SOCKET_TO_CLIENT_EVENTS = {
   NEW_MESSAGE: 'msg',
   UPDATE_SENT_MESSAGE: 'updateSentMsg',
   MATCH: 'match',
+  EDIT_SENT_MESSAGE: 'editSentMsg',
 } as const;
 
 export const MEMBERSHIPS = {

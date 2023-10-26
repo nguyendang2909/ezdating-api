@@ -1,17 +1,26 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
-import { PaginatedResponse, Pagination } from '../../types';
+import {
+  _CurrentTargetUserIds,
+  PaginatedResponse,
+  Pagination,
+} from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
+import { MatchWithTargetUser, ProfileDocument, ProfileModel } from '../models';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import { Like, LikeDocument } from '../models/schemas/like.schema';
-import { UserModel } from '../models/user.model';
 import { ViewModel } from '../models/view.model';
 import { FindManyLikedMeDto } from './dto/find-user-like-me.dto';
 import { SendLikeDto } from './dto/send-like.dto';
@@ -20,10 +29,10 @@ import { SendLikeDto } from './dto/send-like.dto';
 export class LikesService extends ApiCursorDateService {
   constructor(
     private readonly likeModel: LikeModel,
-    private readonly userModel: UserModel,
     private readonly chatsGateway: ChatsGateway,
     private readonly matchModel: MatchModel,
     private readonly viewModel: ViewModel,
+    private readonly profileModel: ProfileModel,
   ) {
     super();
 
@@ -36,55 +45,29 @@ export class LikesService extends ApiCursorDateService {
     payload: SendLikeDto,
     clientData: ClientData,
   ): Promise<void> {
-    const currentUserId = clientData.id;
     const { targetUserId } = payload;
+    const { _currentUserId, currentUserId } = this.getClient(clientData);
     this.verifyNotSameUserById(currentUserId, targetUserId);
-    const _currentUserId = this.getObjectId(currentUserId);
     const _targetUserId = this.getObjectId(targetUserId);
-    const existLike = await this.likeModel.findOne({
-      _userId: _currentUserId,
+    const [profileOne, profileTwo] =
+      await this.profileModel.findTwoOrFailMatchProfiles(
+        _currentUserId,
+        _targetUserId,
+      );
+    await this.verifyNotExistLike({ _currentUserId, _targetUserId });
+    const reverseLike = await this.findOneAndUpdateReverseLike({
+      _currentUserId,
       _targetUserId,
     });
-    if (existLike) {
-      this.logger.log(
-        `SEND_LIKE Exist like found ${JSON.stringify(existLike)}`,
-      );
-      return;
-    }
-    const reverseLikeFilter = {
-      _userId: _targetUserId,
-      _targetUserId: _currentUserId,
-    };
-    const reverseLikeUpdatePayload = {
-      $set: {
-        isMatched: true,
-      },
-    };
-    this.logger.log(
-      `SEND_LIKE Find one and update reverse like filter ${JSON.stringify(
-        reverseLikeFilter,
-      )} payload: ${JSON.stringify(reverseLikeUpdatePayload)}`,
-    );
-    const reverseLike = await this.likeModel.model
-      .findOneAndUpdate(reverseLikeFilter, reverseLikeUpdatePayload)
-      .exec();
-    const createPayload = {
-      _userId: _currentUserId,
-      _targetUserId,
-      ...(reverseLike ? { isMatched: true } : {}),
-    };
-    this.logger.log(
-      `SEND_LIKE Exist like not found, start create like payload ${JSON.stringify(
-        createPayload,
-      )}`,
-    );
-    await this.likeModel.createOne(createPayload);
+    await this.createOne({ _targetUserId, _currentUserId, reverseLike });
     this.handleAfterSendLike({
       _currentUserId,
       _targetUserId,
       hasReverseLike: !!reverseLike,
       currentUserId,
       targetUserId,
+      profileOne,
+      profileTwo,
     });
 
     return;
@@ -197,13 +180,124 @@ export class LikesService extends ApiCursorDateService {
     hasReverseLike,
     currentUserId,
     targetUserId,
+    profileOne,
+    profileTwo,
   }: {
     _currentUserId: Types.ObjectId;
     _targetUserId: Types.ObjectId;
     currentUserId: string;
     hasReverseLike: boolean;
+    profileOne: ProfileDocument;
+    profileTwo: ProfileDocument;
     targetUserId: string;
   }) {
+    if (hasReverseLike) {
+      const createdMatch = await this.createMatch({ profileOne, profileTwo });
+      const {
+        // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
+        profileOne: profileOneTemp,
+        // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
+        profileTwo: profileTwoTemp,
+        ...restMatch
+      } = createdMatch;
+      this.emitMatchToUser(profileOne._id.toString(), {
+        ...restMatch,
+        targetProfile: profileTwo,
+      });
+      this.emitMatchToUser(profileTwo._id.toString(), {
+        ...restMatch,
+        targetProfile: profileOne,
+      });
+    }
+    await this.updateViewAfterLike({
+      _currentUserId,
+      _targetUserId,
+      hasReverseLike,
+    });
+  }
+
+  public verifyNotSameUserById(userOne: string, userTwo: string) {
+    if (userOne === userTwo) {
+      throw new BadRequestException({
+        message: HttpErrorMessages['You cannot like yourself'],
+      });
+    }
+  }
+
+  async verifyNotExistLike({
+    _currentUserId,
+    _targetUserId,
+  }: {
+    _currentUserId: Types.ObjectId;
+    _targetUserId: Types.ObjectId;
+  }) {
+    const existLike = await this.likeModel.findOne({
+      _userId: _currentUserId,
+      _targetUserId,
+    });
+    if (existLike) {
+      this.logger.log(
+        `SEND_LIKE Exist like found ${JSON.stringify(existLike)}`,
+      );
+      throw new ConflictException(
+        HttpErrorMessages['You already like this person'],
+      );
+    }
+  }
+
+  async findOneAndUpdateReverseLike({
+    _targetUserId,
+    _currentUserId,
+  }: {
+    _currentUserId: Types.ObjectId;
+    _targetUserId: Types.ObjectId;
+  }) {
+    const reverseLikeFilter = {
+      _userId: _targetUserId,
+      _targetUserId: _currentUserId,
+    };
+    const reverseLikeUpdatePayload = {
+      $set: {
+        isMatched: true,
+      },
+    };
+    this.logger.log(
+      `SEND_LIKE Find one and update reverse like filter ${JSON.stringify(
+        reverseLikeFilter,
+      )} payload: ${JSON.stringify(reverseLikeUpdatePayload)}`,
+    );
+    return await this.likeModel.model
+      .findOneAndUpdate(reverseLikeFilter, reverseLikeUpdatePayload)
+      .exec();
+  }
+
+  async createOne({
+    _currentUserId,
+    _targetUserId,
+    reverseLike,
+  }: {
+    _currentUserId: Types.ObjectId;
+    _targetUserId: Types.ObjectId;
+    reverseLike: LikeDocument | null;
+  }) {
+    const createPayload = {
+      _userId: _currentUserId,
+      _targetUserId,
+      ...(reverseLike ? { isMatched: true } : {}),
+    };
+    this.logger.log(
+      `SEND_LIKE Exist like not found, start create like payload ${JSON.stringify(
+        createPayload,
+      )}`,
+    );
+    await this.likeModel.createOne(createPayload);
+  }
+
+  async updateViewAfterLike({
+    _currentUserId,
+    _targetUserId,
+    hasReverseLike,
+  }: _CurrentTargetUserIds & { hasReverseLike: boolean }) {
     const updateViewFilter = { _userId: _currentUserId, _targetUserId };
     const updateViewPayload = {
       isLiked: true,
@@ -217,7 +311,7 @@ export class LikesService extends ApiCursorDateService {
         updateViewOptions,
       )}`,
     );
-    this.viewModel
+    await this.viewModel
       .updateOne(updateViewFilter, updateViewPayload, updateViewOptions)
       .catch((error) => {
         this.logger.error(
@@ -228,54 +322,30 @@ export class LikesService extends ApiCursorDateService {
           )} options ${JSON.stringify(updateViewOptions)} error: ${error}`,
         );
       });
-    if (hasReverseLike) {
-      const { _userOneId, _userTwoId } = this.matchModel.getSortedUserIds({
-        currentUserId,
-        targetUserId,
-      });
-      const createMatchPayload = { _userOneId, _userTwoId };
-      this.logger.log(
-        `CREATE_LIKE Create match payload: ${JSON.stringify(
-          createMatchPayload,
-        )}`,
-      );
-      const createMatch = await this.matchModel.createOne(createMatchPayload);
-      const emitUserIds = [currentUserId, targetUserId];
-      const [userOne, userTwo] = await this.userModel.findMany(
-        {
-          _id: { $in: [_userOneId, _userTwoId] },
-        },
-        this.userModel.matchUserFields,
-        {
-          sort: {
-            _id: 1,
-          },
-          limit: 2,
-        },
-      );
-      const emitPayload = {
-        ...createMatch.toJSON(),
-        userOne,
-        userTwo,
-      };
-      this.logger.log(
-        `CREATE_LIKE Socket emit event "${
-          SOCKET_TO_CLIENT_EVENTS.MATCH
-        }" userIds: ${JSON.stringify(emitUserIds)} payload: ${JSON.stringify(
-          emitPayload,
-        )}`,
-      );
-      this.chatsGateway.server
-        .to(emitUserIds)
-        .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, emitPayload);
-    }
   }
 
-  public verifyNotSameUserById(userOne: string, userTwo: string) {
-    if (userOne === userTwo) {
-      throw new BadRequestException({
-        message: HttpErrorMessages['You cannot like yourself'],
-      });
-    }
+  async createMatch({
+    profileOne,
+    profileTwo,
+  }: {
+    profileOne: ProfileDocument;
+    profileTwo: ProfileDocument;
+  }) {
+    const createMatchPayload = { profileOne, profileTwo };
+    this.logger.log(
+      `CREATE_LIKE Create match payload: ${JSON.stringify(createMatchPayload)}`,
+    );
+    return await this.matchModel.createOne(createMatchPayload);
+  }
+
+  emitMatchToUser(userId: string, payload: MatchWithTargetUser) {
+    this.logger.log(
+      `SOCKET_EVENT Emit "${
+        SOCKET_TO_CLIENT_EVENTS.MATCH
+      }" userId: ${JSON.stringify(userId)} payload: ${JSON.stringify(payload)}`,
+    );
+    this.chatsGateway.server
+      .to(userId)
+      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, payload);
   }
 }

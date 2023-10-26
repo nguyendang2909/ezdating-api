@@ -25,7 +25,6 @@
   "dependencies": {
     "@nestjs/bull": "^10.0.1",
     "@nestjs/common": "^9.0.0",
-    "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^9.0.0",
     "@nestjs/jwt": "^10.0.3",
     "@nestjs/mongoose": "^10.0.1",

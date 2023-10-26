@@ -1,12 +1,10 @@
 /* eslint-disable sort-keys */
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import Joi from 'joi';
 import {
   utilities as nestWinstonModuleUtilities,
   WinstonModule,
@@ -14,7 +12,6 @@ import {
 import winston from 'winston';
 
 import { APP_CONFIG } from './app.config';
-import { BULL_QUEUE_EVENTS } from './constants';
 import { LibsModule } from './libs/libs.module';
 import { AdminAuthModule } from './modules/admin/admin-auth/admin-auth.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -26,7 +23,7 @@ import { JwtAuthGuard } from './modules/guards/jwt.guard';
 import { RolesGuard } from './modules/guards/roles.guard';
 import { HealthModule } from './modules/health/health.module';
 import { LikesModule } from './modules/likes/likes.module';
-import { RelationshipsModule } from './modules/matches/matches.module';
+import { MatchesModule } from './modules/matches/matches.module';
 import { MeModule } from './modules/me/me.module';
 import { MediaFilesModule } from './modules/media-files/media-files.module';
 import { MessagesModule } from './modules/messages/messages.module';
@@ -40,41 +37,41 @@ import { ViewsModule } from './modules/views/views.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: `.env.${process.env.NODE_ENV}`,
-      isGlobal: true,
-      validationSchema: Joi.object({
-        // Node env
-        NODE_ENV: Joi.string().required(),
-        // App
-        API_PORT: Joi.number().required(),
-        //  Database
-        MONGO_DB_HOST: Joi.string().required(),
-        MONGO_DB_NAME: Joi.string().required(),
-        MONGO_DB_PORT: Joi.string().required(),
-        MONGO_DB_USER: Joi.string().required(),
-        MONGO_DB_PASS: Joi.string().required(),
-        // Cache
-        REDIS_HOST: Joi.string().required(),
-        REDIS_PORT: Joi.string().required(),
-        // Firebase
-        FIREBASE_PROJECT_ID: Joi.string().required(),
-        FIREBASE_CLIENT_EMAIL: Joi.string().required(),
-        FIREBASE_PRIVATE_KEY: Joi.string().required(),
-        // AWS
-        AWS_ACCESS_KEY_ID: Joi.string().required(),
-        AWS_SECRET_ACCESS_KEY: Joi.string().required(),
-        AWS_BUCKET_NAME: Joi.string().required(),
-        // Auth
-        JWT_SECRET_KEY: Joi.string().required(),
-        JWT_REFRESH_TOKEN_SECRET_KEY: Joi.string().required(),
-        HASH_SECRET_KEY: Joi.string().required(),
-        // Country states city
-        COUNTRY_STATE_CITY_API_KEY: Joi.string().required(),
-        // Github
-        GITHUB_WEBHOOK_SECRET_KEY: Joi.string().optional(),
-      }),
-    }),
+    // ConfigModule.forRoot({
+    //   envFilePath: `.env.${process.env.NODE_ENV}`,
+    //   isGlobal: true,
+    //   validationSchema: Joi.object({
+    //     // Node env
+    //     NODE_ENV: Joi.string().required(),
+    //     // App
+    //     API_PORT: Joi.number().required(),
+    //     //  Database
+    //     MONGO_DB_HOST: Joi.string().required(),
+    //     MONGO_DB_NAME: Joi.string().required(),
+    //     MONGO_DB_PORT: Joi.string().required(),
+    //     MONGO_DB_USER: Joi.string().required(),
+    //     MONGO_DB_PASS: Joi.string().required(),
+    //     // Cache
+    //     REDIS_HOST: Joi.string().required(),
+    //     REDIS_PORT: Joi.string().required(),
+    //     // Firebase
+    //     FIREBASE_PROJECT_ID: Joi.string().required(),
+    //     FIREBASE_CLIENT_EMAIL: Joi.string().required(),
+    //     FIREBASE_PRIVATE_KEY: Joi.string().required(),
+    //     // AWS
+    //     AWS_ACCESS_KEY_ID: Joi.string().required(),
+    //     AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+    //     AWS_BUCKET_NAME: Joi.string().required(),
+    //     // Auth
+    //     JWT_SECRET_KEY: Joi.string().required(),
+    //     JWT_REFRESH_TOKEN_SECRET_KEY: Joi.string().required(),
+    //     HASH_SECRET_KEY: Joi.string().required(),
+    //     // Country states city
+    //     COUNTRY_STATE_CITY_API_KEY: Joi.string().required(),
+    //     // Github
+    //     GITHUB_WEBHOOK_SECRET_KEY: Joi.string().optional(),
+    //   }),
+    // }),
     WinstonModule.forRoot({
       transports: [
         new winston.transports.Console({
@@ -154,9 +151,6 @@ import { ViewsModule } from './modules/views/views.module';
         port: parseInt(process.env.REDIS_PORT, 10),
       },
     }),
-    ...Object.values(BULL_QUEUE_EVENTS).map((e) => {
-      return BullModule.registerQueue({ name: e });
-    }),
     // JoiPipeModule.forRoot(),
     ModelsModule,
     AuthModule,
@@ -164,7 +158,7 @@ import { ViewsModule } from './modules/views/views.module';
     UsersModule,
     ChatsModule,
     EncryptionsModule,
-    RelationshipsModule,
+    MatchesModule,
     MessagesModule,
     MediaFilesModule,
     // CountriesModule,

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Types } from 'mongoose';
 import { Socket } from 'socket.io';
 
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
@@ -29,24 +30,17 @@ export class ChatsService extends DbService {
   private readonly logger = new Logger(ChatsService.name);
 
   public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
-    const { matchId, text, uuid } = payload;
-    if (!text) {
-      return;
-    }
+    const { matchId } = payload;
     const currentUserId = socket.handshake.user.id;
     const _currentUserId = this.getObjectId(currentUserId);
     const _matchId = this.getObjectId(matchId);
-    const match = await this.matchModel.findOne(
-      {
-        _id: _matchId,
-        $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
-      },
-      {
-        _id: 1,
-        _userOneId: 1,
-        _userTwoId: 1,
-      },
-    );
+    const match = await this.matchModel.findOne({
+      _id: _matchId,
+      $or: [
+        { 'profileOne._id': _currentUserId },
+        { 'profileTwo._id': _currentUserId },
+      ],
+    });
     if (!match) {
       this.logger.log(`SEND_MESSAGE matchId ${matchId} does not exist`);
       socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
@@ -55,16 +49,11 @@ export class ChatsService extends DbService {
 
       return;
     }
-    const createPayload = {
-      _userId: _currentUserId,
-      _matchId: match._id,
-      text,
-      uuid,
-    };
-    this.logger.log(
-      `SEND_MESSAGE Create message payload: ${JSON.stringify(createPayload)}`,
-    );
-    const message = await this.messageModel.createOne(createPayload);
+    const message = await this.createMessage({
+      payload,
+      _currentUserId,
+      _matchId,
+    });
     this.handleAfterSendMessage({
       match,
       message,
@@ -105,16 +94,26 @@ export class ChatsService extends DbService {
       return;
     }
     const match = await this.matchModel.model
-      .findOne({ _id: editResult._matchId })
+      .findOne(
+        { _id: editResult._matchId },
+        {
+          profileOne: {
+            _id: 1,
+          },
+          profileTwo: {
+            _id: 1,
+          },
+        },
+      )
       .lean()
       .exec();
     if (!match) {
       return;
     }
-    if (match && match._userOneId && match._userTwoId) {
+    if (match && match.profileOne._id && match.profileTwo._id) {
       socket
-        .to([match._userOneId.toString(), match._userTwoId.toString()])
-        .emit(SOCKET_TO_CLIENT_EVENTS.NEW_MESSAGE, editResult);
+        .to([match.profileOne._id.toString(), match.profileOne._id.toString()])
+        .emit(SOCKET_TO_CLIENT_EVENTS.EDIT_SENT_MESSAGE, editResult);
     }
   }
 
@@ -129,14 +128,13 @@ export class ChatsService extends DbService {
     message: MessageDocument;
     socket: Socket;
   }) {
-    const { _userOneId, _userTwoId } = match;
-    const userOneId = _userOneId.toString();
-    const userTwoId = _userTwoId.toString();
+    const { profileOne, profileTwo } = match;
+    const userOneId = profileOne._id.toString();
+    const userTwoId = profileTwo._id.toString();
     const isUserOne = currentUserId === userOneId;
-    const rawMessage = message.toJSON();
     const updateMatchPayload = {
       $set: {
-        lastMessage: rawMessage,
+        lastMessage: message,
         ...(isUserOne
           ? { userTwoRead: false, userOneRead: true }
           : { userOneRead: false, userTwoRead: true }),
@@ -178,5 +176,26 @@ export class ChatsService extends DbService {
       content: message.text || '',
       title: 'You have received new message',
     });
+  }
+
+  async createMessage({
+    payload,
+    _currentUserId,
+    _matchId,
+  }: {
+    _currentUserId: Types.ObjectId;
+    _matchId: Types.ObjectId;
+    payload: SendChatMessageDto;
+  }) {
+    const createPayload = {
+      _userId: _currentUserId,
+      _matchId,
+      text: payload.text,
+      uuid: payload.uuid,
+    };
+    this.logger.log(
+      `SEND_MESSAGE Create message payload: ${JSON.stringify(createPayload)}`,
+    );
+    return await this.messageModel.createOne(createPayload);
   }
 }

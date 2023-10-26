@@ -1,16 +1,20 @@
 import {
+  ConflictException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import _ from 'lodash';
 import {
+  Document,
   FilterQuery,
-  FlattenMaps,
   HydratedDocument,
+  IfAny,
   Model,
   PipelineStage,
   ProjectionType,
   QueryOptions,
+  Require_id,
+  ReturnsNewDoc,
   Types,
   UpdateQuery,
   UpdateWithAggregationPipeline,
@@ -50,7 +54,8 @@ export class CommonModel<
   }
 
   async createOne(doc: Partial<TRawDocType>) {
-    return await this.model.create(doc);
+    const createResult = await this.model.create(doc);
+    return createResult.toJSON();
   }
 
   findMany(
@@ -71,7 +76,9 @@ export class CommonModel<
     }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    return this.model.findOne(filter, projection, options).exec();
+    return this.model
+      .findOne(filter, projection, { lean: true, ...options })
+      .exec();
   }
 
   async findOneOrFail(
@@ -82,6 +89,18 @@ export class CommonModel<
     const findResult = await this.findOne(filter, projection, options);
     if (!findResult) {
       throw new NotFoundException(HttpErrorMessages['Document does not exist']);
+    }
+    return findResult;
+  }
+
+  async findOneAndFail(
+    filter: FilterQuery<TRawDocType>,
+    projection?: ProjectionType<TRawDocType> | null,
+    options?: QueryOptions<TRawDocType> | null,
+  ) {
+    const findResult = await this.findOne(filter, projection, options);
+    if (findResult) {
+      throw new ConflictException(HttpErrorMessages['Document already exist']);
     }
     return findResult;
   }
@@ -134,13 +153,25 @@ export class CommonModel<
   }
 
   async findOneAndUpdate(
-    filter?: FilterQuery<TRawDocType>,
-    update?: UpdateQuery<TRawDocType>,
-    options?: QueryOptions<TRawDocType> | null,
-  ): Promise<FlattenMaps<THydratedDocumentType> | null> {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return await this.model.findOneAndUpdate(filter, update, options).exec();
+    filter: FilterQuery<TRawDocType>,
+    update: UpdateQuery<
+      IfAny<
+        TRawDocType,
+        any,
+        Document<unknown, {}, TRawDocType> & Require_id<TRawDocType>
+      >
+    >,
+    options?:
+      | (QueryOptions<TRawDocType> & {
+          upsert?: true;
+        } & Partial<ReturnsNewDoc> & {
+            rawResult?: true;
+          })
+      | null,
+  ) {
+    return await this.model
+      .findOneAndUpdate(filter, update, { lean: true, ...options })
+      .exec();
   }
 
   async deleteOne(
@@ -160,5 +191,43 @@ export class CommonModel<
         HttpErrorMessages['Delete failed. Please try again.'],
       );
     }
+  }
+
+  async findTwoOrFailMatchProfiles(
+    _userId: Types.ObjectId,
+    _otherUserId: Types.ObjectId,
+  ) {
+    const [profileOne, profileTwo] = await this.findMany(
+      {
+        _id: { $in: [_userId, _otherUserId] },
+      },
+      {
+        _id: 1,
+        age: 1,
+        birthday: 1,
+        createdAt: 1,
+        gender: 1,
+        hideAge: 1,
+        hideDistance: 1,
+        lastActivatedAt: 1,
+        mediaFiles: {
+          _id: 1,
+          key: 1,
+          type: 1,
+        },
+        nickname: 1,
+      },
+      {
+        sort: {
+          _id: 1,
+        },
+        limit: 2,
+        lean: true,
+      },
+    );
+    if (!profileOne || !profileTwo) {
+      throw new NotFoundException(HttpErrorMessages['User does not exist']);
+    }
+    return [profileOne, profileTwo];
   }
 }

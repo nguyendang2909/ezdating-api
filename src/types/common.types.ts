@@ -1,11 +1,11 @@
 // export type ExtractCursor = { type: string; value: string } | undefined;
 
-import mongoose from 'mongoose';
+import { Types } from 'mongoose';
 
 import { DevicePlatform } from './data.type';
 
 export type MongoDocument<T> = T & {
-  _id: mongoose.Types.ObjectId;
+  _id: Types.ObjectId;
 };
 
 // export type PaginationCursors = {
@@ -40,4 +40,14 @@ export type SendPushNotificationPayload = {
 export type SendPushNotificationContent = {
   content: string;
   title: string;
+};
+
+export type _CurrentTargetUserIds = {
+  _currentUserId: Types.ObjectId;
+  _targetUserId: Types.ObjectId;
+};
+
+export type _UserOneTwoIds = {
+  _userOneId: Types.ObjectId;
+  _userTwoId: Types.ObjectId;
 };

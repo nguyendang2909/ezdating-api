@@ -32,7 +32,6 @@ export class ProfilesService extends ProfilesCommonService {
     const createResult = await this.profileModel.createOne({
       _id: _currentUserId,
       ...rest,
-      age,
       birthday,
       filterGender: this.getFilterGender(payload.gender),
       filterMinAge: age - 10 > 18 ? age - 10 : 18,
@@ -65,9 +64,6 @@ export class ProfilesService extends ProfilesCommonService {
         ...(rawBirthday
           ? {
               birthday: this.getAndCheckValidBirthdayFromRaw(rawBirthday),
-              age: this.getAgeFromBirthday(
-                this.getAndCheckValidBirthdayFromRaw(rawBirthday),
-              ),
             }
           : {}),
         ...(longitude && latitude

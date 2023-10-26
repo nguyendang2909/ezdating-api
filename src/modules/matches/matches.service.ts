@@ -8,10 +8,14 @@ import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
+import { ProfileDocument, ProfileModel } from '../models';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
-import { LikeDocument } from '../models/schemas/like.schema';
-import { Match, MatchDocument } from '../models/schemas/match.schema';
+import {
+  Match,
+  MatchDocument,
+  MatchWithTargetUser,
+} from '../models/schemas/match.schema';
 import { UserModel } from '../models/user.model';
 import { ViewModel } from '../models/view.model';
 import { CreateMatchDto } from './dto/create-match.dto';
@@ -25,6 +29,7 @@ export class MatchesService extends ApiCursorDateService {
     private readonly chatsGateway: ChatsGateway,
     private readonly likeModel: LikeModel,
     private readonly viewModel: ViewModel,
+    private readonly profileModel: ProfileModel,
   ) {
     super();
 
@@ -39,99 +44,40 @@ export class MatchesService extends ApiCursorDateService {
   ): Promise<void> {
     const { targetUserId } = payload;
     const { id: currentUserId } = clientData;
-    const { _userOneId, _userTwoId } = this.matchModel.getSortedUserIds({
-      currentUserId,
-      targetUserId,
-    });
-    const existMatch = await this.matchModel.findOne(
-      { _userOneId, _userTwoId },
-      { _id: 1, _userOneId: 1, _userTwoId: 1 },
-    );
-    if (existMatch) {
-      this.logger.log(
-        `CREATE_MATCH Exist match found: ${existMatch.id}, userOneId: ${_userOneId}, userTwoId: ${_userTwoId}`,
+    const { _userOneId, _userTwoId, userOneId, userTwoId } =
+      this.matchModel.getSortedUserIds({
+        currentUserId,
+        targetUserId,
+      });
+    const [profileOne, profileTwo] =
+      await this.profileModel.findTwoOrFailMatchProfiles(
+        _userOneId,
+        _userTwoId,
       );
-      return;
-    }
-    const createPayload = {
-      _userOneId,
-      _userTwoId,
-    };
-    this.logger.log(
-      `CREATE_MATCH Match does not exist, start create match with payload: ${JSON.stringify(
-        createPayload,
-      )}`,
-    );
-    const createResult = await this.matchModel.createOne(createPayload);
-    const emitUserIds = [currentUserId, targetUserId];
-    const [userOne, userTwo] = await this.userModel.findMany(
-      {
-        _id: { $in: [_userOneId, _userTwoId] },
-      },
-      this.userModel.matchUserFields,
-      {
-        sort: {
-          _id: 1,
-        },
-        limit: 2,
-      },
-    );
-    const emitPayload = {
-      ...createResult.toJSON(),
-      userOne,
-      userTwo,
-    };
-    this.logger.log(
-      `CREATE_MATCH Socket emit event "${
-        SOCKET_TO_CLIENT_EVENTS.MATCH
-      }" userIds: ${JSON.stringify(emitUserIds)} payload: ${JSON.stringify(
-        emitPayload,
-      )}`,
-    );
-    this.chatsGateway.server
-      .to(emitUserIds)
-      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, emitPayload);
+    await this.matchModel.findOneAndFail({
+      'profileOne._id': _userOneId,
+      'profileTwo._id': _userTwoId,
+    });
+    const createdMatch = await this.createWithLog({ profileOne, profileTwo });
+    this.handleAfterCreateMatch({ userOneId, userTwoId, match: createdMatch });
   }
 
   public async unmatch(id: string, clientData: ClientData) {
     const _id = this.getObjectId(id);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-    const test = await this.matchModel.findOne(
-      {
-        _id,
-        $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
-      },
-      {
-        _id: true,
-        _userOneId: true,
-        _userTwoId: true,
-      },
-      { lean: true },
-    );
-    console.log(11, test, _id, _currentUserId);
-
-    const existMatch = await this.matchModel.findOneOrFail(
-      {
-        _id,
-        $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
-      },
-      {
-        _id: true,
-        _userOneId: true,
-        _userTwoId: true,
-      },
-      { lean: true },
-    );
-    const deletePayload = {
-      $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
-    };
-    this.logger.log(`UNMATCH payload: ${JSON.stringify(deletePayload)}`);
-    await this.matchModel.deleteOneOrFail(deletePayload);
+    const existMatch = await this.matchModel.findOneOrFail({
+      _id,
+      $or: [
+        { 'profileOne._id': _currentUserId },
+        { 'profileTwo._id': _currentUserId },
+      ],
+    });
+    await this.deleteOneByIdAndUserId(_id, _currentUserId);
     this.handleAfterUnmatch({
       currentUserId,
-      userOneId: existMatch._userOneId.toString(),
-      userTwoId: existMatch._userTwoId.toString(),
+      userOneId: existMatch.profileOne._id.toString(),
+      userTwoId: existMatch.profileTwo._id.toString(),
       _currentUserId,
       matchId: existMatch._id.toString(),
     });
@@ -143,199 +89,78 @@ export class MatchesService extends ApiCursorDateService {
   public async findMany(
     queryParams: FindManyMatchesQuery,
     clientData: ClientData,
-  ): Promise<PaginatedResponse<Match>> {
+  ): Promise<PaginatedResponse<MatchWithTargetUser>> {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;
-
-    const findResults: MatchDocument[] = await this.matchModel.model
-      .aggregate([
-        {
-          $match: {
-            $or: [
-              { _userOneId: _currentUserId },
-              { _userTwoId: _currentUserId },
-            ],
-            lastMessageAt: null,
-            ...(cursor
-              ? {
-                  createdAt: {
-                    $lt: cursor,
-                  },
-                }
-              : {}),
-          },
-        },
-        {
-          $sort: {
-            _id: -1,
-          },
-        },
-        { $limit: APP_CONFIG.PAGINATION_LIMIT.MATCHES },
-        {
-          $set: {
-            isUserOne: {
-              $cond: {
-                if: {
-                  $eq: ['$_userOneId', _currentUserId],
+    const findResults: Match[] = await this.matchModel.aggregate([
+      {
+        $match: {
+          $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
+          lastMessageAt: null,
+          ...(cursor
+            ? {
+                createdAt: {
+                  $lt: cursor,
                 },
-                then: true,
-                else: false,
-              },
-            },
-          },
+              }
+            : {}),
         },
-        {
-          $lookup: {
-            from: 'users',
-            let: {
-              targetUserId: {
-                $cond: {
-                  if: {
-                    $eq: ['$isUserOne', true],
-                  },
-                  then: '$_userTwoId',
-                  else: '$_userOneId',
-                },
-              },
-            },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $eq: ['$_id', '$$targetUserId'],
-                  },
-                },
-              },
-              {
-                $limit: 1,
-              },
-              {
-                $set: {
-                  age: {
-                    $dateDiff: {
-                      startDate: '$birthday',
-                      endDate: '$$NOW',
-                      unit: 'year',
-                    },
-                  },
-                },
-              },
-              {
-                $project: this.userModel.matchUserFields,
-              },
-            ],
-            as: 'targetUser',
-          },
+      },
+      {
+        $sort: {
+          createdAt: -1,
         },
-        {
-          $set: {
-            targetUser: { $first: '$targetUser' },
-          },
+      },
+      { $limit: APP_CONFIG.PAGINATION_LIMIT.MATCHES },
+      {
+        $set: {
+          targetUser: { $first: '$targetUser' },
         },
-      ])
-      .exec();
+      },
+    ]);
 
     return {
       type: 'matches',
-      data: findResults,
+      data: this.matchModel.formatManyWithTargetProfile(
+        findResults,
+        currentUserId,
+      ),
       pagination: this.getPagination(findResults),
     };
   }
 
-  public getPagination(data: MatchDocument[]): Pagination {
-    return this.getPaginationByField(data, '_id');
+  public getPagination(data: Match[]): Pagination {
+    return this.getPaginationByField(data, 'createdAt');
   }
 
   public async findOneOrFailById(id: string, client: ClientData) {
     const { id: currentUserId } = client;
     const _currentUserId = this.getObjectId(currentUserId);
-
-    const matches: LikeDocument[] = await this.matchModel.model
-      .aggregate([
-        {
-          $match: {
-            _id: this.getObjectId(id),
-            $or: [
-              {
-                _userOneId: _currentUserId,
-              },
-              {
-                _userTwoId: _currentUserId,
-              },
-            ],
-          },
-        },
-        { $limit: 1 },
-        {
-          $set: {
-            isUserOne: {
-              $cond: {
-                if: {
-                  $eq: ['$_userOneId', _currentUserId],
-                },
-                then: true,
-                else: false,
-              },
+    const matches: Match[] = await this.matchModel.aggregate([
+      {
+        $match: {
+          _id: this.getObjectId(id),
+          $or: [
+            {
+              _userOneId: _currentUserId,
             },
-          },
-        },
-        {
-          $lookup: {
-            from: 'users',
-            let: {
-              targetUserId: {
-                $cond: {
-                  if: {
-                    $eq: ['$isUserOne', true],
-                  },
-                  then: '$_userTwoId',
-                  else: '$_userOneId',
-                },
-              },
+            {
+              _userTwoId: _currentUserId,
             },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $eq: ['$_id', '$$targetUserId'],
-                  },
-                },
-              },
-              {
-                $limit: 1,
-              },
-              {
-                $set: {
-                  age: {
-                    $dateDiff: {
-                      startDate: '$birthday',
-                      endDate: '$$NOW',
-                      unit: 'year',
-                    },
-                  },
-                },
-              },
-              {
-                $project: this.userModel.matchUserFields,
-              },
-            ],
-            as: 'targetUser',
-          },
+          ],
         },
-        {
-          $set: {
-            targetUser: { $first: '$targetUser' },
-          },
-        },
-      ])
-      .exec();
-
-    const match = matches[0];
-    if (!match) {
+      },
+      { $limit: 1 },
+    ]);
+    if (!matches[0]) {
       throw new NotFoundException(HttpErrorMessages['Match does not exist']);
     }
+    const match = this.matchModel.formatOneWithTargetProfile(
+      matches[0],
+      currentUserId,
+    );
     return match;
   }
 
@@ -411,5 +236,63 @@ export class MatchesService extends ApiCursorDateService {
       .emit(SOCKET_TO_CLIENT_EVENTS.CANCEL_MATCH, {
         _id: matchId,
       });
+  }
+
+  async createWithLog({
+    profileOne,
+    profileTwo,
+  }: {
+    profileOne: ProfileDocument;
+    profileTwo: ProfileDocument;
+  }) {
+    const createPayload = {
+      profileOne,
+      profileTwo,
+    };
+    this.logger.log(
+      `CREATE_MATCH Start create match with payload: ${JSON.stringify(
+        createPayload,
+      )}`,
+    );
+    return await this.matchModel.createOne(createPayload);
+  }
+
+  emitMatchToUser(userId: string, payload: MatchWithTargetUser) {
+    this.logger.log(
+      `SOCKET_EVENT Emit "${
+        SOCKET_TO_CLIENT_EVENTS.MATCH
+      }" userId: ${JSON.stringify(userId)} payload: ${JSON.stringify(payload)}`,
+    );
+    this.chatsGateway.server
+      .to(userId)
+      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, payload);
+  }
+
+  async deleteOneByIdAndUserId(_id: Types.ObjectId, _userId: Types.ObjectId) {
+    const deletePayload = {
+      $or: [{ _userOneId: _userId }, { _userTwoId: _userId }],
+    };
+    this.logger.log(`UNMATCH payload: ${JSON.stringify(deletePayload)}`);
+    await this.matchModel.deleteOneOrFail(deletePayload);
+  }
+
+  handleAfterCreateMatch({
+    userOneId,
+    userTwoId,
+    match,
+  }: {
+    match: MatchDocument;
+    userOneId: string;
+    userTwoId: string;
+  }) {
+    const { profileOne, profileTwo, ...restCreatedMatch } = match;
+    this.emitMatchToUser(userOneId, {
+      ...restCreatedMatch,
+      targetProfile: profileTwo,
+    });
+    this.emitMatchToUser(userTwoId, {
+      ...restCreatedMatch,
+      targetProfile: profileOne,
+    });
   }
 }

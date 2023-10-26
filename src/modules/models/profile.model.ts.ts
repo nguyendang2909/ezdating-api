@@ -37,7 +37,8 @@ export class ProfileModel extends CommonModel<Profile> {
   };
 
   async createOne(doc: Partial<Profile> & { _id: Types.ObjectId }) {
-    return await this.model.create(doc);
+    const createResult = await this.model.create(doc);
+    return createResult.toJSON();
   }
 
   public async findOneOrFail(

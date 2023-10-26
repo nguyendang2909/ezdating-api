@@ -1,11 +1,10 @@
 import dotenv from 'dotenv';
 
 dotenv.config({
-  path: `/.env.${process.env.NODE_ENV}`,
+  path: `.env.${process.env.NODE_ENV}`,
 });
 
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import fs from 'fs';
@@ -31,8 +30,7 @@ async function bootstrap() {
           },
         })
       : await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
-  const API_PORT = configService.get<string>('API_PORT') || 4000;
+  const API_PORT = process.env.API_PORT || 4000;
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   app.use(helmet());
   app.enableCors({

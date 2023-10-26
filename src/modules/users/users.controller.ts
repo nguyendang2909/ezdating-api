@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { UsersService } from './users.service';
@@ -14,11 +14,11 @@ export class UsersController {
   //   return await this.usersService.findMany(queryParams);
   // }
 
-  @Get('/:id')
-  private async findOneById(@Param('id') id: string) {
-    return {
-      type: 'profile',
-      data: await this.usersService.findOneById(id),
-    };
-  }
+  // @Get('/:id')
+  // private async findOneById(@Param('id') id: string) {
+  //   return {
+  //     type: 'profile',
+  //     data: await this.usersService.findOneById(id),
+  //   };
+  // }
 }

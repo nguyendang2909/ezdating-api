@@ -27,9 +27,6 @@ export type MongoGeoLocation = {
 
 @Schema({ timestamps: true })
 export class Profile extends CommonSchema {
-  @Prop({ type: Number, required: true })
-  age: number;
-
   @Prop({ type: Date, required: true })
   birthday: Date;
 

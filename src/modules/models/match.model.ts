@@ -4,7 +4,11 @@ import { Model } from 'mongoose';
 import { Types } from 'mongoose';
 
 import { CommonModel } from './common-model';
-import { Match, MatchDocument } from './schemas/match.schema';
+import {
+  Match,
+  MatchDocument,
+  MatchWithTargetUser,
+} from './schemas/match.schema';
 
 @Injectable()
 export class MatchModel extends CommonModel<Match> {
@@ -14,19 +18,6 @@ export class MatchModel extends CommonModel<Match> {
   ) {
     super();
   }
-
-  // public async findOneRelatedToUserId(
-  //   _id: Types.ObjectId,
-  //   _currentUserId: Types.ObjectId,
-  // ) {
-  //   return this.model
-  //     .findOne({
-  //       _id,
-  //       $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
-  //     })
-  //     .lean()
-  //     .exec();
-  // }
 
   public getSortedUserIds({
     currentUserId,
@@ -62,7 +53,7 @@ export class MatchModel extends CommonModel<Match> {
   }: {
     currentUserId: string;
     userOneId: string;
-  }) {
+  }): boolean {
     return currentUserId === userOneId;
   }
 
@@ -85,6 +76,32 @@ export class MatchModel extends CommonModel<Match> {
     return {
       targetUserId: userOneId,
       _targetUserId: new Types.ObjectId(userOneId),
+    };
+  }
+
+  formatManyWithTargetProfile(
+    matches: Match[],
+    currentUserId: string,
+  ): MatchWithTargetUser[] {
+    return matches.map((e) => {
+      return this.formatOneWithTargetProfile(e, currentUserId);
+    });
+  }
+
+  formatOneWithTargetProfile(
+    match: Match,
+    currentUserId: string,
+  ): MatchWithTargetUser {
+    const { profileOne, profileTwo, userOneRead, userTwoRead, ...restE } =
+      match;
+    const isUserOne = this.isUserOne({
+      currentUserId,
+      userOneId: profileOne._id.toString(),
+    });
+    return {
+      ...restE,
+      read: isUserOne ? userOneRead : userTwoRead,
+      targetProfile: isUserOne ? profileTwo : profileOne,
     };
   }
 }

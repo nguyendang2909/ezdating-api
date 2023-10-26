@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { ApiService } from '../../commons/services/api.service';
 import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
+import { Match } from '../models';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
 import { MessageDocument } from '../models/schemas/message.schema';
@@ -55,45 +57,29 @@ export class MessagesService extends ApiService {
     const _matchId = this.getObjectId(matchId);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-    const { _userOneId } = await this.matchModel.findOneOrFail(
+    const existMatch = await this.matchModel.findOneOrFail({
+      _id: _matchId,
+      $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
+    });
+    const findResults = await this.messageModel.findMany(
       {
-        _id: _matchId,
-        $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
+        _matchId,
+        ...(cursor ? { createdAt: { $lt: cursor } } : {}),
       },
+      {},
       {
-        _userOneId: true,
-        _userTwoId: true,
-      },
-    );
-    const findResults = await this.messageModel.model
-      .find(
-        {
-          _matchId,
-          ...(cursor
-            ? {
-                createdAt: {
-                  $lt: cursor,
-                },
-              }
-            : {}),
-        },
-        {},
-        {
-          lean: true,
-        },
-      )
-      .sort({ _id: -1 })
-      .limit(this.limitRecordsPerQuery)
-      .exec();
-    const isUserOne = currentUserId === _userOneId.toString();
-    await this.matchModel.updateOne(
-      { _id: _matchId },
-      {
-        $set: {
-          ...(isUserOne ? { userOneRead: true } : { userTwoRead: true }),
-        },
+        sort: { createdAt: -1 },
+        limit: this.limitRecordsPerQuery,
+        lean: true,
       },
     );
+
+    this.handleAfterFindManyMessages({
+      _matchId,
+      currentUserId,
+      match: existMatch,
+    });
+
     return {
       type: 'messages',
       _matchId: matchId,
@@ -104,5 +90,28 @@ export class MessagesService extends ApiService {
 
   public getPagination(data: MessageDocument[]): Pagination {
     return this.getPaginationByField(data, '_id');
+  }
+
+  async handleAfterFindManyMessages({
+    _matchId,
+    currentUserId,
+    match,
+  }: {
+    _matchId: Types.ObjectId;
+    currentUserId: string;
+    match: Match;
+  }) {
+    const isUserOne = this.matchModel.isUserOne({
+      currentUserId,
+      userOneId: match.profileOne._id.toString(),
+    });
+    await this.matchModel.updateOne(
+      { _id: _matchId },
+      {
+        $set: {
+          ...(isUserOne ? { userOneRead: true } : { userTwoRead: true }),
+        },
+      },
+    );
   }
 }

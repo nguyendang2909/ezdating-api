@@ -350,33 +350,33 @@ export class UsersService extends ApiService {
   //   };
   // }
 
-  public async findOneById(targetUserId: string) {
-    const _targetUserId = this.getObjectId(targetUserId);
-    const findResult = await this.userModel.aggregate([
-      {
-        $match: {
-          _id: _targetUserId,
-        },
-      },
-      {
-        $limit: 1,
-      },
-      {
-        $set: {
-          age: {
-            $dateDiff: {
-              startDate: '$birthday',
-              endDate: '$$NOW',
-              unit: 'year',
-            },
-          },
-        },
-      },
-      {
-        $project: this.userModel.matchUserFields,
-      },
-    ]);
+  // public async findOneById(targetUserId: string) {
+  //   const _targetUserId = this.getObjectId(targetUserId);
+  //   const findResult = await this.userModel.aggregate([
+  //     {
+  //       $match: {
+  //         _id: _targetUserId,
+  //       },
+  //     },
+  //     {
+  //       $limit: 1,
+  //     },
+  //     {
+  //       $set: {
+  //         age: {
+  //           $dateDiff: {
+  //             startDate: '$birthday',
+  //             endDate: '$$NOW',
+  //             unit: 'year',
+  //           },
+  //         },
+  //       },
+  //     },
+  //     {
+  //       $project: this.userModel.matchUserFields,
+  //     },
+  //   ]);
 
-    return findResult;
-  }
+  //   return findResult;
+  // }
 }

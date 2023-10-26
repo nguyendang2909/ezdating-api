@@ -5,7 +5,7 @@ import { Queue } from 'bull';
 import { BULL_QUEUE_EVENTS } from '../../constants';
 
 @Injectable()
-export class LikesHandler {
+export class LikesPublisher {
   constructor(
     @InjectQueue(BULL_QUEUE_EVENTS.SENT_LIKE) private sentLikeQueue: Queue,
   ) {}
