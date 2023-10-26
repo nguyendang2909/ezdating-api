@@ -3,6 +3,11 @@ export const DATE_FORMATS = {
   RAW_BIRTHDAY: 'YYYY-MM-DD',
 };
 
+export const MODULE_INSTANCES = {
+  REDIS: 'REDIS',
+  REDIS_LOCK: 'REDIS_LOCK',
+};
+
 export const FILE_UPLOAD_FOLDERS = {
   PHOTOS: 'photos',
 } as const;
