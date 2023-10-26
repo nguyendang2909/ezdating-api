@@ -8,6 +8,12 @@ export const MODULE_INSTANCES = {
   REDIS_LOCK: 'REDIS_LOCK',
 };
 
+export const BULL_QUEUE_EVENTS = {
+  SENT_LIKE: 'sent_like',
+  SENT_MESSAGE: 'sent_message',
+  UNMATCHED: 'unmatched',
+};
+
 export const FILE_UPLOAD_FOLDERS = {
   PHOTOS: 'photos',
 } as const;

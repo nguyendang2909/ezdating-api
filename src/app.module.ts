@@ -1,8 +1,10 @@
 /* eslint-disable sort-keys */
+import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import Joi from 'joi';
 import {
@@ -12,6 +14,7 @@ import {
 import winston from 'winston';
 
 import { APP_CONFIG } from './app.config';
+import { BULL_QUEUE_EVENTS } from './constants';
 import { LibsModule } from './libs/libs.module';
 import { AdminAuthModule } from './modules/admin/admin-auth/admin-auth.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -28,11 +31,12 @@ import { MeModule } from './modules/me/me.module';
 import { MediaFilesModule } from './modules/media-files/media-files.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { ModelsModule } from './modules/models/models.module';
+import { ProfilesModule } from './modules/profiles/profiles.module';
 import { PushNotificationsModule } from './modules/push-notifications/push-notifications.module';
+import { SchedulesModule } from './modules/schedules/schedules.module';
 import { LoggedDevicesModule } from './modules/signed-devices/signed-devices.module';
 import { UsersModule } from './modules/users/users.module';
 import { ViewsModule } from './modules/views/views.module';
-import { ProfilesModule } from './modules/profiles/profiles.module';
 
 @Module({
   imports: [
@@ -143,6 +147,16 @@ import { ProfilesModule } from './modules/profiles/profiles.module';
         pass: process.env.MONGO_DB_PASS,
       },
     ),
+    ScheduleModule.forRoot(),
+    BullModule.forRoot({
+      redis: {
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT, 10),
+      },
+    }),
+    ...Object.values(BULL_QUEUE_EVENTS).map((e) => {
+      return BullModule.registerQueue({ name: e });
+    }),
     // JoiPipeModule.forRoot(),
     ModelsModule,
     AuthModule,
@@ -165,6 +179,7 @@ import { ProfilesModule } from './modules/profiles/profiles.module';
     LibsModule,
     AdminAuthModule,
     ProfilesModule,
+    SchedulesModule,
 
     // CoinsModule,
   ],

@@ -1,3 +1,9 @@
+import dotenv from 'dotenv';
+
+dotenv.config({
+  path: `/.env.${process.env.NODE_ENV}`,
+});
+
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
