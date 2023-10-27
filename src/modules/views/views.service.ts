@@ -1,10 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import moment from 'moment';
 
-import { ResponseSuccess } from '../../commons/dto/response.dto';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
+import { MatchModel, ProfileModel, View } from '../models';
 import { UserModel } from '../models/user.model';
 import { ViewModel } from '../models/view.model';
 import { SendViewDto } from './dto/send-view.dto';
@@ -14,6 +13,8 @@ export class ViewsService extends ApiService {
   constructor(
     private readonly viewModel: ViewModel,
     private readonly userModel: UserModel,
+    private readonly profileModel: ProfileModel,
+    private readonly matchModel: MatchModel,
   ) {
     super();
   }
@@ -21,29 +22,36 @@ export class ViewsService extends ApiService {
   public async send(
     payload: SendViewDto,
     clientData: ClientData,
-  ): Promise<ResponseSuccess> {
-    const currentUserId = clientData.id;
+  ): Promise<View> {
+    const { currentUserId, _currentUserId } = this.getClient(clientData);
     const { targetUserId } = payload;
-    if (currentUserId === targetUserId) {
+    this.verifyNotSameUserById(currentUserId, targetUserId);
+    const _targetUserId = this.getObjectId(targetUserId);
+    const [profileOne, profileTwo] =
+      await this.profileModel.findTwoOrFailMatchProfiles(
+        _currentUserId,
+        _targetUserId,
+      );
+    await this.viewModel.findOneAndFail({
+      'profile._id': _currentUserId,
+      'targetProfile._id': _targetUserId,
+    });
+    const isUserOne = this.matchModel.isUserOne({
+      currentUserId,
+      userOneId: profileOne._id.toString(),
+    });
+    const view = await this.viewModel.createOne({
+      profile: isUserOne ? profileOne : profileTwo,
+      targetProfile: isUserOne ? profileTwo : profileOne,
+    });
+    return view;
+  }
+
+  verifyNotSameUserById(userOne: string, userTwo: string) {
+    if (userOne === userTwo) {
       throw new BadRequestException({
         message: HttpErrorMessages['You cannot view yourself'],
       });
     }
-    const _currentUserId = this.getObjectId(currentUserId);
-    const _targetUserId = this.getObjectId(targetUserId);
-    const existView = await this.viewModel.findOne({
-      'profile._id': _currentUserId,
-      'targetProfile._id': _targetUserId,
-    });
-    if (existView) {
-      return { success: true };
-    }
-    const now = moment().toDate();
-    await this.viewModel.createOne({
-      _targetUserId,
-      _userId: _currentUserId,
-      viewedAt: now,
-    });
-    return { success: true };
   }
 }

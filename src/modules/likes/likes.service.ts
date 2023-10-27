@@ -1,10 +1,5 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
-import { FilterQuery, Types } from 'mongoose';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { FilterQuery } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
@@ -52,20 +47,28 @@ export class LikesService extends ApiCursorDateService {
         _currentUserId,
         _targetUserId,
       );
-    await this.verifyNotExistLike({ _currentUserId, _targetUserId });
-    const reverseLike = await this.findOneAndUpdateReverseLike({
-      _currentUserId,
-      _targetUserId,
+    await this.likeModel.findOneAndFail({
+      'profile._id': _currentUserId,
+      'targetProfile._id': _targetUserId,
     });
+    const reverseLike = await this.likeModel.findOneAndUpdate(
+      {
+        'profile._id': _targetUserId,
+        'targetProfile._id': _currentUserId,
+      },
+      {
+        $set: {
+          isMatched: true,
+        },
+      },
+    );
     const isUserOne = this.matchModel.isUserOne({
       currentUserId,
       userOneId: profileOne._id.toString(),
     });
-    const currentProfile = isUserOne ? profileOne : profileTwo;
-    const targetProfile = isUserOne ? profileTwo : profileOne;
     const like = await this.likeModel.createOne({
-      profile: currentProfile,
-      targetProfile,
+      profile: isUserOne ? profileOne : profileTwo,
+      targetProfile: isUserOne ? profileTwo : profileOne,
       ...(reverseLike ? { isMatched: true } : {}),
     });
     this.likesHandler.afterSendLike({
@@ -124,53 +127,6 @@ export class LikesService extends ApiCursorDateService {
         message: HttpErrorMessages['You cannot like yourself'],
       });
     }
-  }
-
-  async verifyNotExistLike({
-    _currentUserId,
-    _targetUserId,
-  }: {
-    _currentUserId: Types.ObjectId;
-    _targetUserId: Types.ObjectId;
-  }) {
-    const existLike = await this.likeModel.findOne({
-      _userId: _currentUserId,
-      _targetUserId,
-    });
-    if (existLike) {
-      this.logger.log(
-        `SEND_LIKE Exist like found ${JSON.stringify(existLike)}`,
-      );
-      throw new ConflictException(
-        HttpErrorMessages['You already like this person'],
-      );
-    }
-  }
-
-  async findOneAndUpdateReverseLike({
-    _targetUserId,
-    _currentUserId,
-  }: {
-    _currentUserId: Types.ObjectId;
-    _targetUserId: Types.ObjectId;
-  }) {
-    const reverseLikeFilter = {
-      _userId: _targetUserId,
-      _targetUserId: _currentUserId,
-    };
-    const reverseLikeUpdatePayload = {
-      $set: {
-        isMatched: true,
-      },
-    };
-    this.logger.log(
-      `SEND_LIKE Find one and update reverse like filter ${JSON.stringify(
-        reverseLikeFilter,
-      )} payload: ${JSON.stringify(reverseLikeUpdatePayload)}`,
-    );
-    return await this.likeModel.model
-      .findOneAndUpdate(reverseLikeFilter, reverseLikeUpdatePayload)
-      .exec();
   }
 
   async updateViewAfterLike({
