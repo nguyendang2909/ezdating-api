@@ -40,4 +40,4 @@ export class Message extends CommonSchema {
 
 export const MessageSchema = SchemaFactory.createForClass(Message);
 
-MessageSchema.index({ _matchId: 1, createdAt: 1 });
+MessageSchema.index({ _matchId: 1, createdAt: -1 });
