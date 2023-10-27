@@ -1,23 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
 import { CommonSchema } from '../../../commons/schemas.common';
+import { Profile, ProfileSchema } from './profile.schema';
 
 export type ViewDocument = HydratedDocument<View>;
 
 @Schema({ timestamps: true })
 export class View extends CommonSchema {
-  @Prop({ type: SchemaTypes.ObjectId, required: true })
-  _userId?: Types.ObjectId;
+  @Prop({ type: ProfileSchema, required: true })
+  profile: Profile;
 
-  @Prop({ type: SchemaTypes.ObjectId, required: true })
-  _targetUserId?: Types.ObjectId;
+  @Prop({ type: ProfileSchema, required: true })
+  targetProfile: Profile;
 
   @Prop({ type: Boolean, required: false, default: false })
   isLiked?: boolean;
-
-  @Prop({ type: Boolean, required: false, default: false })
-  isMatched?: boolean;
 
   @Prop({ type: Date, default: new Date(), required: true })
   viewedAt?: Date;

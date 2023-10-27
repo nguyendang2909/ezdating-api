@@ -32,8 +32,8 @@ export class ViewsService extends ApiService {
     const _currentUserId = this.getObjectId(currentUserId);
     const _targetUserId = this.getObjectId(targetUserId);
     const existView = await this.viewModel.findOne({
-      _userId: _currentUserId,
-      _targetUserId,
+      'profile._id': _currentUserId,
+      'targetProfile._id': _targetUserId,
     });
     if (existView) {
       return { success: true };
