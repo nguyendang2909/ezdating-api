@@ -75,7 +75,7 @@ export class MatchesService extends ApiCursorDateService {
       _id,
       ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
     });
-    this.matchesHandler.handleAfterUnmatch({
+    this.matchesHandler.afterUnmatch({
       match: existMatch,
       currentUserId,
     });

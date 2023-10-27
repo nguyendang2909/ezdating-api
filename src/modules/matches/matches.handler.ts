@@ -28,7 +28,7 @@ export class MatchesHandler extends ApiCursorDateService {
 
   private readonly logger = new Logger(MatchesHandler.name);
 
-  async handleAfterUnmatch({
+  async afterUnmatch({
     currentUserId,
     match,
   }: {
@@ -36,7 +36,7 @@ export class MatchesHandler extends ApiCursorDateService {
     match: Match;
   }) {
     const _currentUserId = this.getObjectId(currentUserId);
-    const { profileOne, profileTwo, ...restMatch } = match;
+    const { profileOne, profileTwo } = match;
     const userOneId = profileOne._id.toString();
     const userTwoId = profileTwo._id.toString();
     const { _targetUserId } = this.matchModel.getTargetUserId({
@@ -56,7 +56,7 @@ export class MatchesHandler extends ApiCursorDateService {
       });
     this.likeModel
       .updateOne(
-        { _userId: _targetUserId, _targetUserId: _currentUserId },
+        { 'profile._id': _targetUserId, 'targetProfile._id': _currentUserId },
         { $set: { isMatched: false } },
       )
       .catch((error) => {
