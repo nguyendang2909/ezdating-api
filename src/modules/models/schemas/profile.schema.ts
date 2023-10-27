@@ -16,7 +16,10 @@ import {
   RelationshipGoal,
   RelationshipStatus,
 } from '../../../types';
-import { MediaFileDocument, MediaFileSchema } from './media-file.schema';
+import {
+  EmbeddedMediaFile,
+  EmbeddedMediaFileSchema,
+} from './media-file.schema';
 
 export type ProfileDocument = HydratedDocument<Profile>;
 
@@ -99,8 +102,8 @@ export class Profile extends CommonSchema {
   @Prop({ type: [String] })
   languages?: string[];
 
-  @Prop({ type: [MediaFileSchema] })
-  mediaFiles?: MediaFileDocument[];
+  @Prop({ type: [EmbeddedMediaFileSchema] })
+  mediaFiles?: EmbeddedMediaFile[];
 
   @Prop({ type: String, enum: MEMBERSHIPS })
   membership?: Membership;

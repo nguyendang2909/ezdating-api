@@ -4,7 +4,10 @@ import { HydratedDocument } from 'mongoose';
 import { CommonSchema } from '../../../../commons/schemas.common';
 import { GENDERS } from '../../../../constants';
 import { Gender } from '../../../../types';
-import { MediaFileDocument, MediaFileSchema } from '../media-file.schema';
+import {
+  EmbeddedMediaFile,
+  EmbeddedMediaFileSchema,
+} from '../media-file.schema';
 
 export type EmbeddedProfileDocument = HydratedDocument<EmbeddedProfile>;
 
@@ -22,8 +25,8 @@ export class EmbeddedProfile extends CommonSchema {
   @Prop({ type: Boolean })
   hideDistance: boolean;
 
-  @Prop({ type: [MediaFileSchema] })
-  mediaFiles?: MediaFileDocument[];
+  @Prop({ type: [EmbeddedMediaFileSchema] })
+  mediaFiles?: EmbeddedMediaFile[];
 
   @Prop({ type: String, length: 100, required: true })
   nickname: string;

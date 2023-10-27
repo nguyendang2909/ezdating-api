@@ -5,26 +5,16 @@ import { CommonSchema } from '../../../commons/schemas.common';
 import { MEDIA_FILE_TYPES } from '../../../constants';
 import { MediaFileType } from '../../../types';
 
-export type MediaFileDocument = HydratedDocument<MediaFile>;
+export type EmbeddedMediaFileDocument = HydratedDocument<EmbeddedMediaFile>;
 
 @Schema({ timestamps: true })
-export class MediaFile extends CommonSchema {
-  // @Prop({
-  //   type: SchemaTypes.ObjectId,
-  //   ref: User.name,
-  //   required: true,
-  //   index: true,
-  // })
-  // _userId: Types.ObjectId;
-
+export class EmbeddedMediaFile extends CommonSchema {
   @Prop({ type: String })
   key?: string;
-
-  @Prop({ type: String, required: true })
-  location?: string;
 
   @Prop({ type: Number, enum: MEDIA_FILE_TYPES, required: true })
   type?: MediaFileType;
 }
 
-export const MediaFileSchema = SchemaFactory.createForClass(MediaFile);
+export const EmbeddedMediaFileSchema =
+  SchemaFactory.createForClass(EmbeddedMediaFile);
