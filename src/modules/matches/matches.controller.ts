@@ -3,8 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
-import { CreateMatchDto } from './dto/create-match.dto';
-import { FindManyMatchesQuery } from './dto/find-matches-relationships.dto';
+import { CreateMatchDto, FindManyMatchesQuery } from './dto';
 import { MatchesService } from './matches.service';
 
 @Controller('/matches')

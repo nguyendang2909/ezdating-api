@@ -4,7 +4,6 @@ import { HttpErrorMessages } from '../../commons/erros/http-error-messages.const
 import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel, ProfileModel, View } from '../models';
-import { UserModel } from '../models/user.model';
 import { ViewModel } from '../models/view.model';
 import { SendViewDto } from './dto/send-view.dto';
 
@@ -12,7 +11,6 @@ import { SendViewDto } from './dto/send-view.dto';
 export class ViewsService extends ApiService {
   constructor(
     private readonly viewModel: ViewModel,
-    private readonly userModel: UserModel,
     private readonly profileModel: ProfileModel,
     private readonly matchModel: MatchModel,
   ) {
