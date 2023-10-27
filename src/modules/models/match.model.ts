@@ -8,7 +8,7 @@ import { CommonModel } from './common-model';
 import {
   Match,
   MatchDocument,
-  MatchWithTargetUser,
+  MatchWithTargetProfile,
 } from './schemas/match.schema';
 
 @Injectable()
@@ -100,22 +100,24 @@ export class MatchModel extends CommonModel<Match> {
   formatManyWithTargetProfile(
     matches: Match[],
     currentUserId: string,
-  ): MatchWithTargetUser[] {
+  ): MatchWithTargetProfile[] {
     return matches.map((e) => {
-      return this.formatOneWithTargetProfile(e, currentUserId);
+      return this.formatOneWithTargetProfile(
+        e,
+        this.isUserOne({
+          currentUserId,
+          userOneId: e.profileOne._id.toString(),
+        }),
+      );
     });
   }
 
   formatOneWithTargetProfile(
     match: Match,
-    currentUserId: string,
-  ): MatchWithTargetUser {
+    isUserOne: boolean,
+  ): MatchWithTargetProfile {
     const { profileOne, profileTwo, userOneRead, userTwoRead, ...restE } =
       match;
-    const isUserOne = this.isUserOne({
-      currentUserId,
-      userOneId: profileOne._id.toString(),
-    });
     return {
       ...restE,
       read: isUserOne ? userOneRead : userTwoRead,

@@ -2,30 +2,31 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
 import { CommonSchema } from '../../../commons/schemas.common';
+import { EmbeddedProfile, EmbeddedProfileSchema } from './embedded';
 import { Message, MessageSchema } from './message.schema';
-import { Profile, ProfileSchema } from './profile.schema';
 
 export type MatchDocument = HydratedDocument<Match>;
 
-export type MatchWithTargetUserDocument = HydratedDocument<MatchWithTargetUser>;
+export type MatchWithTargetProfileDocument =
+  HydratedDocument<MatchWithTargetProfile>;
 
-export type MatchWithTargetUser = Omit<
+export type MatchWithTargetProfile = Omit<
   Match,
   'profileOne' | 'profileTwo' | 'userOneRead' | 'userTwoRead'
 > & {
   read?: boolean;
-  targetProfile: Profile;
+  targetProfile: EmbeddedProfile;
 };
 
 @Schema({ timestamps: true })
 export class Match extends CommonSchema {
-  @Prop({ type: ProfileSchema, required: true })
-  profileOne: Profile;
+  @Prop({ type: EmbeddedProfileSchema, required: true })
+  profileOne: EmbeddedProfile;
 
-  @Prop({ type: ProfileSchema, required: true })
-  profileTwo: Profile;
+  @Prop({ type: EmbeddedProfileSchema, required: true })
+  profileTwo: EmbeddedProfile;
 
-  targetProfile?: Profile;
+  targetProfile?: EmbeddedProfile;
 
   // @Prop({ type: SchemaTypes.ObjectId })
   // _lastMessageId?: Types.ObjectId;

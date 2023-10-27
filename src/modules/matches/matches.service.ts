@@ -9,7 +9,7 @@ import { MatchModel } from '../models/match.model';
 import {
   Match,
   MatchDocument,
-  MatchWithTargetUser,
+  MatchWithTargetProfile,
 } from '../models/schemas/match.schema';
 import { CreateMatchDto, FindManyMatchesQuery } from './dto';
 import { MatchesHandler } from './matches.handler';
@@ -87,7 +87,7 @@ export class MatchesService extends ApiCursorDateService {
   public async findMany(
     queryParams: FindManyMatchesQuery,
     clientData: ClientData,
-  ): Promise<PaginatedResponse<MatchWithTargetUser>> {
+  ): Promise<PaginatedResponse<MatchWithTargetProfile>> {
     const { _currentUserId, currentUserId } = this.getClient(clientData);
     const { _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;

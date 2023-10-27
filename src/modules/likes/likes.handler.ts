@@ -7,7 +7,7 @@ import { HttpErrorMessages } from '../../commons/erros/http-error-messages.const
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { ChatsGateway } from '../chats/chats.gateway';
 import {
-  MatchWithTargetUser,
+  MatchWithTargetProfile,
   ProfileDocument,
   ProfileModel,
   View,
@@ -49,21 +49,14 @@ export class LikesHandler extends DbService {
         profileOne,
         profileTwo,
       });
-      const {
-        // eslint-disable-next-line unused-imports/no-unused-vars
-        profileOne: _temp1,
-        // eslint-disable-next-line unused-imports/no-unused-vars
-        profileTwo: _temp2,
-        ...restMatch
-      } = createdMatch;
-      this.emitMatchToUser(profileOne._id.toString(), {
-        ...restMatch,
-        targetProfile: profileTwo,
-      });
-      this.emitMatchToUser(profileTwo._id.toString(), {
-        ...restMatch,
-        targetProfile: profileOne,
-      });
+      this.emitMatchToUser(
+        profileOne._id.toString(),
+        this.matchModel.formatOneWithTargetProfile(createdMatch, true),
+      );
+      this.emitMatchToUser(
+        profileTwo._id.toString(),
+        this.matchModel.formatOneWithTargetProfile(createdMatch, false),
+      );
     }
     await this.updateViewAfterLike({
       like,
@@ -147,7 +140,7 @@ export class LikesHandler extends DbService {
       });
   }
 
-  emitMatchToUser(userId: string, payload: MatchWithTargetUser) {
+  emitMatchToUser(userId: string, payload: MatchWithTargetProfile) {
     this.logger.log(
       `SOCKET_EVENT Emit "${
         SOCKET_TO_CLIENT_EVENTS.MATCH

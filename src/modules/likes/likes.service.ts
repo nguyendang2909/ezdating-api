@@ -1,14 +1,12 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { FilterQuery } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
-import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
-import { MatchWithTargetUser, ProfileModel, View } from '../models';
+import { ProfileModel } from '../models';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import { Like, LikeDocument } from '../models/schemas/like.schema';
@@ -37,7 +35,7 @@ export class LikesService extends ApiCursorDateService {
   public async send(
     payload: SendLikeDto,
     clientData: ClientData,
-  ): Promise<void> {
+  ): Promise<Like> {
     const { targetUserId } = payload;
     const { _currentUserId, currentUserId } = this.getClient(clientData);
     this.verifyNotSameUserById(currentUserId, targetUserId);
@@ -77,8 +75,7 @@ export class LikesService extends ApiCursorDateService {
       profileOne,
       profileTwo,
     });
-
-    return;
+    return like;
   }
 
   public async findManyLikedMe(
@@ -127,45 +124,5 @@ export class LikesService extends ApiCursorDateService {
         message: HttpErrorMessages['You cannot like yourself'],
       });
     }
-  }
-
-  async updateViewAfterLike({
-    like,
-    hasReverseLike,
-  }: {
-    hasReverseLike: boolean;
-    like: Like;
-  }) {
-    const updateViewFilter: FilterQuery<View> = {
-      _userId: like.profile._id,
-      _targetUserId: like.targetProfile._id,
-    };
-    const updateViewPayload = {
-      isLiked: true,
-      ...(hasReverseLike ? { isMatched: true } : {}),
-    };
-    const updateViewOptions = { upsert: true };
-    await this.viewModel
-      .updateOne(updateViewFilter, updateViewPayload, updateViewOptions)
-      .catch((error) => {
-        this.logger.error(
-          `CREATE_LIKE Update view filter ${JSON.stringify(
-            updateViewFilter,
-          )} payload: ${JSON.stringify(
-            updateViewPayload,
-          )} options ${JSON.stringify(updateViewOptions)} error: ${error}`,
-        );
-      });
-  }
-
-  emitMatchToUser(userId: string, payload: MatchWithTargetUser) {
-    this.logger.log(
-      `SOCKET_EVENT Emit "${
-        SOCKET_TO_CLIENT_EVENTS.MATCH
-      }" userId: ${JSON.stringify(userId)} payload: ${JSON.stringify(payload)}`,
-    );
-    this.chatsGateway.server
-      .to(userId)
-      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, payload);
   }
 }

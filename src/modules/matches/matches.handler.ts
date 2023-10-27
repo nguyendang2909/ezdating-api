@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
@@ -10,7 +11,7 @@ import { MatchModel } from '../models/match.model';
 import {
   Match,
   MatchDocument,
-  MatchWithTargetUser,
+  MatchWithTargetProfile,
 } from '../models/schemas/match.schema';
 
 @Injectable()
@@ -65,17 +66,11 @@ export class MatchesHandler extends ApiCursorDateService {
           )}`,
         );
       });
-    this.emitUnMatchToUser(userOneId, {
-      ...restMatch,
-      targetProfile: profileTwo,
-    });
-    this.emitUnMatchToUser(userTwoId, {
-      ...restMatch,
-      targetProfile: profileOne,
-    });
+    this.emitUnMatchToUser(userOneId, { _id: match._id });
+    this.emitUnMatchToUser(userTwoId, { _id: match._id });
   }
 
-  emitMatchToUser(userId: string, payload: MatchWithTargetUser) {
+  emitMatchToUser(userId: string, payload: MatchWithTargetProfile) {
     this.logger.log(
       `SOCKET_EVENT Emit "${
         SOCKET_TO_CLIENT_EVENTS.MATCH
@@ -86,7 +81,7 @@ export class MatchesHandler extends ApiCursorDateService {
       .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, payload);
   }
 
-  emitUnMatchToUser(userId: string, payload: MatchWithTargetUser) {
+  emitUnMatchToUser(userId: string, payload: { _id: Types.ObjectId }) {
     this.logger.log(
       `SOCKET_EVENT Emit "${
         SOCKET_TO_CLIENT_EVENTS.CANCEL_MATCH
@@ -106,14 +101,13 @@ export class MatchesHandler extends ApiCursorDateService {
     userOneId: string;
     userTwoId: string;
   }) {
-    const { profileOne, profileTwo, ...restCreatedMatch } = match;
-    this.emitMatchToUser(userOneId, {
-      ...restCreatedMatch,
-      targetProfile: profileTwo,
-    });
-    this.emitMatchToUser(userTwoId, {
-      ...restCreatedMatch,
-      targetProfile: profileOne,
-    });
+    this.emitMatchToUser(
+      userOneId,
+      this.matchModel.formatOneWithTargetProfile(match, true),
+    );
+    this.emitMatchToUser(
+      userTwoId,
+      this.matchModel.formatOneWithTargetProfile(match, false),
+    );
   }
 }

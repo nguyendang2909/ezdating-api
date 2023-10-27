@@ -9,7 +9,7 @@ import { MatchModel } from '../models/match.model';
 import {
   Match,
   MatchDocument,
-  MatchWithTargetUser,
+  MatchWithTargetProfile,
 } from '../models/schemas/match.schema';
 import { FindManyConversationsQuery } from './dto/find-many-conversations.dto';
 
@@ -23,7 +23,7 @@ export class ConversationsService extends ApiCursorObjectIdService {
   public async findMany(
     queryParams: FindManyConversationsQuery,
     clientData: ClientData,
-  ): Promise<PaginatedResponse<MatchWithTargetUser>> {
+  ): Promise<PaginatedResponse<MatchWithTargetProfile>> {
     const { _currentUserId, currentUserId } = this.getClient(clientData);
     const { _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;

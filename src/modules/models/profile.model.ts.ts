@@ -22,7 +22,6 @@ export class ProfileModel extends CommonModel<Profile> {
     gender: 1,
     hideAge: 1,
     hideDistance: 1,
-    lastActivatedAt: 1,
     mediaFiles: {
       _id: 1,
       key: 1,

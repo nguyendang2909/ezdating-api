@@ -1,4 +1,5 @@
 export * from './coin-attendance.schema';
+export * from './embedded';
 export * from './like.schema';
 export * from './match.schema';
 export * from './media-file.schema';
