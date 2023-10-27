@@ -59,7 +59,7 @@ export class MessagesService extends ApiService {
     const _currentUserId = this.getObjectId(currentUserId);
     const existMatch = await this.matchModel.findOneOrFail({
       _id: _matchId,
-      $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
+      ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
     });
     const findResults = await this.messageModel.findMany(
       {
