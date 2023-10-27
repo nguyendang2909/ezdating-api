@@ -4,26 +4,23 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { Types } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
-import {
-  _CurrentTargetUserIds,
-  PaginatedResponse,
-  Pagination,
-} from '../../types';
+import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
-import { MatchWithTargetUser, ProfileDocument, ProfileModel } from '../models';
+import { MatchWithTargetUser, ProfileModel, View } from '../models';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import { Like, LikeDocument } from '../models/schemas/like.schema';
 import { ViewModel } from '../models/view.model';
 import { FindManyLikedMeDto } from './dto/find-user-like-me.dto';
 import { SendLikeDto } from './dto/send-like.dto';
+import { LikesHandler } from './likes.handler';
 
 @Injectable()
 export class LikesService extends ApiCursorDateService {
@@ -33,6 +30,7 @@ export class LikesService extends ApiCursorDateService {
     private readonly matchModel: MatchModel,
     private readonly viewModel: ViewModel,
     private readonly profileModel: ProfileModel,
+    private readonly likesHandler: LikesHandler,
   ) {
     super();
 
@@ -59,13 +57,20 @@ export class LikesService extends ApiCursorDateService {
       _currentUserId,
       _targetUserId,
     });
-    await this.createOne({ _targetUserId, _currentUserId, reverseLike });
-    this.handleAfterSendLike({
-      _currentUserId,
-      _targetUserId,
-      hasReverseLike: !!reverseLike,
+    const isUserOne = this.matchModel.isUserOne({
       currentUserId,
-      targetUserId,
+      userOneId: profileOne._id.toString(),
+    });
+    const currentProfile = isUserOne ? profileOne : profileTwo;
+    const targetProfile = isUserOne ? profileTwo : profileOne;
+    const like = await this.likeModel.createOne({
+      profile: currentProfile,
+      targetProfile,
+      ...(reverseLike ? { isMatched: true } : {}),
+    });
+    this.likesHandler.afterSendLike({
+      like,
+      hasReverseLike: !!reverseLike,
       profileOne,
       profileTwo,
     });
@@ -81,87 +86,26 @@ export class LikesService extends ApiCursorDateService {
     const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;
-
-    const findResults: LikeDocument[] = await this.likeModel.model
-      .aggregate([
-        {
-          $match: {
-            _targetUserId: _currentUserId,
-            isMatched: false,
-            ...(cursor
-              ? {
-                  createdAt: {
-                    $lt: cursor,
-                  },
-                }
-              : {}),
-          },
-        },
-        {
-          $sort: {
-            _id: -1,
-          },
-        },
-        { $limit: this.limitRecordsPerQuery },
-        {
-          $lookup: {
-            from: 'users',
-            let: {
-              userId: '$_userId',
-            },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $eq: ['$_id', '$$userId'],
-                  },
-                },
+    const findResults = await this.likeModel.findMany(
+      {
+        'targetProfile._id': _currentUserId,
+        isMatched: false,
+        ...(cursor
+          ? {
+              createdAt: {
+                $lt: cursor,
               },
-              {
-                $limit: 1,
-              },
-              {
-                $set: {
-                  age: {
-                    $dateDiff: {
-                      startDate: '$birthday',
-                      endDate: '$$NOW',
-                      unit: 'year',
-                    },
-                  },
-                },
-              },
-              {
-                $project: {
-                  _id: true,
-                  age: 1,
-                  filterGender: true,
-                  filterMaxAge: true,
-                  filterMaxDistance: true,
-                  filterMinAge: true,
-                  gender: true,
-                  introduce: true,
-                  lastActivatedAt: true,
-                  mediaFiles: true,
-                  nickname: true,
-                  relationshipGoal: true,
-                  status: true,
-                },
-              },
-            ],
-            as: 'users',
-          },
+            }
+          : {}),
+      },
+      {},
+      {
+        sort: {
+          createdAt: -1,
         },
-        {
-          $project: {
-            createdAt: true,
-            user: {
-              $first: '$users',
-            },
-          },
-        },
-      ])
-      .exec();
+        limit: this.limitRecordsPerQuery,
+      },
+    );
 
     return {
       type: 'likedMe',
@@ -171,49 +115,7 @@ export class LikesService extends ApiCursorDateService {
   }
 
   public getPagination(data: LikeDocument[]): Pagination {
-    return this.getPaginationByField(data, '_id');
-  }
-
-  async handleAfterSendLike({
-    _currentUserId,
-    _targetUserId,
-    hasReverseLike,
-    currentUserId,
-    targetUserId,
-    profileOne,
-    profileTwo,
-  }: {
-    _currentUserId: Types.ObjectId;
-    _targetUserId: Types.ObjectId;
-    currentUserId: string;
-    hasReverseLike: boolean;
-    profileOne: ProfileDocument;
-    profileTwo: ProfileDocument;
-    targetUserId: string;
-  }) {
-    if (hasReverseLike) {
-      const createdMatch = await this.createMatch({ profileOne, profileTwo });
-      const {
-        // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
-        profileOne: profileOneTemp,
-        // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
-        profileTwo: profileTwoTemp,
-        ...restMatch
-      } = createdMatch;
-      this.emitMatchToUser(profileOne._id.toString(), {
-        ...restMatch,
-        targetProfile: profileTwo,
-      });
-      this.emitMatchToUser(profileTwo._id.toString(), {
-        ...restMatch,
-        targetProfile: profileOne,
-      });
-    }
-    await this.updateViewAfterLike({
-      _currentUserId,
-      _targetUserId,
-      hasReverseLike,
-    });
+    return this.getPaginationByField(data, 'createdAt');
   }
 
   public verifyNotSameUserById(userOne: string, userTwo: string) {
@@ -271,46 +173,22 @@ export class LikesService extends ApiCursorDateService {
       .exec();
   }
 
-  async createOne({
-    _currentUserId,
-    _targetUserId,
-    reverseLike,
-  }: {
-    _currentUserId: Types.ObjectId;
-    _targetUserId: Types.ObjectId;
-    reverseLike: LikeDocument | null;
-  }) {
-    const createPayload = {
-      _userId: _currentUserId,
-      _targetUserId,
-      ...(reverseLike ? { isMatched: true } : {}),
-    };
-    this.logger.log(
-      `SEND_LIKE Exist like not found, start create like payload ${JSON.stringify(
-        createPayload,
-      )}`,
-    );
-    await this.likeModel.createOne(createPayload);
-  }
-
   async updateViewAfterLike({
-    _currentUserId,
-    _targetUserId,
+    like,
     hasReverseLike,
-  }: _CurrentTargetUserIds & { hasReverseLike: boolean }) {
-    const updateViewFilter = { _userId: _currentUserId, _targetUserId };
+  }: {
+    hasReverseLike: boolean;
+    like: Like;
+  }) {
+    const updateViewFilter: FilterQuery<View> = {
+      _userId: like.profile._id,
+      _targetUserId: like.targetProfile._id,
+    };
     const updateViewPayload = {
       isLiked: true,
       ...(hasReverseLike ? { isMatched: true } : {}),
     };
     const updateViewOptions = { upsert: true };
-    this.logger.debug(
-      `CREATE_LIKE Update view filter ${JSON.stringify(
-        updateViewFilter,
-      )} payload: ${JSON.stringify(updateViewPayload)} options ${JSON.stringify(
-        updateViewOptions,
-      )}`,
-    );
     await this.viewModel
       .updateOne(updateViewFilter, updateViewPayload, updateViewOptions)
       .catch((error) => {
@@ -322,20 +200,6 @@ export class LikesService extends ApiCursorDateService {
           )} options ${JSON.stringify(updateViewOptions)} error: ${error}`,
         );
       });
-  }
-
-  async createMatch({
-    profileOne,
-    profileTwo,
-  }: {
-    profileOne: ProfileDocument;
-    profileTwo: ProfileDocument;
-  }) {
-    const createMatchPayload = { profileOne, profileTwo };
-    this.logger.log(
-      `CREATE_LIKE Create match payload: ${JSON.stringify(createMatchPayload)}`,
-    );
-    return await this.matchModel.createOne(createMatchPayload);
   }
 
   emitMatchToUser(userId: string, payload: MatchWithTargetUser) {

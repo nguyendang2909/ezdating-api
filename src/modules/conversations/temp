@@ -1,0 +1,109 @@
+const findResults = await this.matchModel.aggregate([
+      {
+        $match: {
+          $or: [
+            {
+              _userOneId: _currentUserId,
+            },
+            {
+              _userTwoId: _currentUserId,
+            },
+          ],
+          ...(cursor
+            ? {
+                'lastMessage._id': {
+                  $lt: cursor,
+                },
+              }
+            : { lastMessage: { $ne: null } }),
+        },
+      },
+      {
+        $sort: { _lastMessageId: -1 },
+      },
+      { $limit: this.limitRecordsPerQuery },
+      {
+        $set: {
+          isUserOne: {
+            $cond: {
+              if: {
+                $eq: ['$_userOneId', _currentUserId],
+              },
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          let: {
+            targetUserId: {
+              $cond: {
+                if: {
+                  $eq: ['$isUserOne', true],
+                },
+                then: '$_userTwoId',
+                else: '$_userOneId',
+              },
+            },
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', '$$targetUserId'],
+                },
+              },
+            },
+            {
+              $limit: 1,
+            },
+            {
+              $set: {
+                age: {
+                  $dateDiff: {
+                    startDate: '$birthday',
+                    endDate: '$$NOW',
+                    unit: 'year',
+                  },
+                },
+              },
+            },
+            {
+              $project: {
+                _id: true,
+                age: 1,
+                filterGender: true,
+                filterMaxAge: true,
+                filterMaxDistance: true,
+                filterMinAge: true,
+                gender: true,
+                introduce: true,
+                lastActivatedAt: true,
+                mediaFiles: true,
+                nickname: true,
+                relationshipGoal: true,
+                status: true,
+              },
+            },
+          ],
+          as: 'targetUser',
+        },
+      },
+      {
+        $set: {
+          targetUser: { $first: '$targetUser' },
+          read: {
+            $cond: {
+              if: {
+                $eq: ['$isUserOne', true],
+              },
+              then: '$userOneRead',
+              else: '$userTwoRead',
+            },
+          },
+        },
+      },
+    ]);

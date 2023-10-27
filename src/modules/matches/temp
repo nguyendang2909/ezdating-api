@@ -1,0 +1,21 @@
+const findResults: Match[] = await this.matchModel.aggregate([
+    {
+      $match: {
+        ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
+        lastMessage: { $exists: false },
+        ...(cursor
+          ? {
+              createdAt: {
+                $lt: cursor,
+              },
+            }
+          : {}),
+      },
+    },
+    {
+      $sort: {
+        createdAt: -1,
+      },
+    },
+    { $limit: APP_CONFIG.PAGINATION_LIMIT.MATCHES },
+  ]);

@@ -1,31 +1,32 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
 import { CommonSchema } from '../../../commons/schemas.common';
-import { User } from './user.schema';
+import { Profile, ProfileSchema } from './profile.schema';
 
 export type LikeDocument = HydratedDocument<Like>;
 
 @Schema({ timestamps: true })
 export class Like extends CommonSchema {
-  @Prop({ type: SchemaTypes.ObjectId, required: true, index: true })
-  _userId: Types.ObjectId;
+  @Prop({ type: ProfileSchema, required: true })
+  profile: Profile;
 
-  @Prop({ type: SchemaTypes.ObjectId, required: true, index: true })
-  _targetUserId: Types.ObjectId;
+  @Prop({ type: ProfileSchema, required: true })
+  targetProfile: Profile;
 
   @Prop({ type: Boolean, required: false, default: false })
   isMatched: boolean;
-
-  user: User;
 }
 
 export const LikeSchema = SchemaFactory.createForClass(Like);
 
-LikeSchema.index({ _userId: 1, _targetUserId: 1 }, { unique: true });
+LikeSchema.index(
+  { 'profile._id': 1, 'targetProfile._id': 1 },
+  { unique: true },
+);
 
 LikeSchema.index(
-  { _targetUserId: 1, isMatched: 1, createdAt: 1 },
+  { 'targetProfile._id': 1, isMatched: 1, createdAt: -1 },
   {
     partialFilterExpression: {
       isMatched: { $eq: false },

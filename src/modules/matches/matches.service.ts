@@ -1,8 +1,7 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { PaginatedResponse, Pagination } from '../../types';
@@ -16,8 +15,6 @@ import {
   MatchDocument,
   MatchWithTargetUser,
 } from '../models/schemas/match.schema';
-import { UserModel } from '../models/user.model';
-import { ViewModel } from '../models/view.model';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { FindManyMatchesQuery } from './dto/find-matches-relationships.dto';
 
@@ -25,10 +22,8 @@ import { FindManyMatchesQuery } from './dto/find-matches-relationships.dto';
 export class MatchesService extends ApiCursorDateService {
   constructor(
     private readonly matchModel: MatchModel,
-    private readonly userModel: UserModel,
     private readonly chatsGateway: ChatsGateway,
     private readonly likeModel: LikeModel,
-    private readonly viewModel: ViewModel,
     private readonly profileModel: ProfileModel,
   ) {
     super();
@@ -41,7 +36,7 @@ export class MatchesService extends ApiCursorDateService {
   public async createOne(
     payload: CreateMatchDto,
     clientData: ClientData,
-  ): Promise<void> {
+  ): Promise<MatchDocument> {
     const { targetUserId } = payload;
     const { id: currentUserId } = clientData;
     const { _userOneId, _userTwoId, userOneId, userTwoId } =
@@ -60,6 +55,7 @@ export class MatchesService extends ApiCursorDateService {
     });
     const createdMatch = await this.createWithLog({ profileOne, profileTwo });
     this.handleAfterCreateMatch({ userOneId, userTwoId, match: createdMatch });
+    return createdMatch;
   }
 
   public async unmatch(id: string, clientData: ClientData) {
@@ -90,37 +86,29 @@ export class MatchesService extends ApiCursorDateService {
     queryParams: FindManyMatchesQuery,
     clientData: ClientData,
   ): Promise<PaginatedResponse<MatchWithTargetUser>> {
-    const { id: currentUserId } = clientData;
-    const _currentUserId = this.getObjectId(currentUserId);
+    const { _currentUserId, currentUserId } = this.getClient(clientData);
     const { _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;
-    const findResults: Match[] = await this.matchModel.aggregate([
+    const findResults = await this.matchModel.findMany(
       {
-        $match: {
-          $or: [{ _userOneId: _currentUserId }, { _userTwoId: _currentUserId }],
-          lastMessageAt: null,
-          ...(cursor
-            ? {
-                createdAt: {
-                  $lt: cursor,
-                },
-              }
-            : {}),
-        },
+        ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
+        lastMessage: { $exists: false },
+        ...(cursor
+          ? {
+              createdAt: {
+                $lt: cursor,
+              },
+            }
+          : {}),
       },
+      {},
       {
-        $sort: {
+        sort: {
           createdAt: -1,
         },
+        limit: this.limitRecordsPerQuery,
       },
-      { $limit: APP_CONFIG.PAGINATION_LIMIT.MATCHES },
-      {
-        $set: {
-          targetUser: { $first: '$targetUser' },
-        },
-      },
-    ]);
-
+    );
     return {
       type: 'matches',
       data: this.matchModel.formatManyWithTargetProfile(
@@ -138,30 +126,20 @@ export class MatchesService extends ApiCursorDateService {
   public async findOneOrFailById(id: string, client: ClientData) {
     const { id: currentUserId } = client;
     const _currentUserId = this.getObjectId(currentUserId);
-    const matches: Match[] = await this.matchModel.aggregate([
-      {
-        $match: {
-          _id: this.getObjectId(id),
-          $or: [
-            {
-              _userOneId: _currentUserId,
-            },
-            {
-              _userTwoId: _currentUserId,
-            },
-          ],
-        },
-      },
-      { $limit: 1 },
-    ]);
-    if (!matches[0]) {
-      throw new NotFoundException(HttpErrorMessages['Match does not exist']);
-    }
-    const match = this.matchModel.formatOneWithTargetProfile(
-      matches[0],
+    const { profileOne, profileTwo, ...restMatch } =
+      await this.matchModel.findOneOrFail({
+        _id: this.getObjectId(id),
+        ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
+      });
+    const isUserOne = this.matchModel.isUserOne({
       currentUserId,
+      userOneId: profileOne._id.toString(),
+    });
+    const targetProfile = await this.profileModel.findOneOrFailById(
+      isUserOne ? profileTwo._id : profileOne._id,
     );
-    return match;
+
+    return { ...restMatch, targetProfile };
   }
 
   async handleAfterUnmatch({
@@ -270,7 +248,8 @@ export class MatchesService extends ApiCursorDateService {
 
   async deleteOneByIdAndUserId(_id: Types.ObjectId, _userId: Types.ObjectId) {
     const deletePayload = {
-      $or: [{ _userOneId: _userId }, { _userTwoId: _userId }],
+      _id,
+      $or: [{ 'profileOne._id': _userId }, { 'profileOne._id': _userId }],
     };
     this.logger.log(`UNMATCH payload: ${JSON.stringify(deletePayload)}`);
     await this.matchModel.deleteOneOrFail(deletePayload);

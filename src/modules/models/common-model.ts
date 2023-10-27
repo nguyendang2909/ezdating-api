@@ -36,9 +36,8 @@ export class CommonModel<
   >,
   TSchema = any,
 > {
-  public limitRecordsPerQuery: number = APP_CONFIG.PAGINATION_LIMIT.DEFAULT;
-
   protected model: Model<HydratedDocument<TRawDocType>>;
+  public limitRecordsPerQuery: number = APP_CONFIG.PAGINATION_LIMIT.DEFAULT;
 
   public areObjectIdEqual(
     first: Types.ObjectId,
@@ -63,7 +62,12 @@ export class CommonModel<
     projection?: ProjectionType<TRawDocType> | null | undefined,
     options?: QueryOptions<TRawDocType> | null | undefined,
   ) {
-    return this.model.find(filter, projection, options).exec();
+    return this.model
+      .find(filter, projection, {
+        lean: true,
+        ...options,
+      })
+      .exec();
   }
 
   async findOne(
@@ -191,43 +195,5 @@ export class CommonModel<
         HttpErrorMessages['Delete failed. Please try again.'],
       );
     }
-  }
-
-  async findTwoOrFailMatchProfiles(
-    _userId: Types.ObjectId,
-    _otherUserId: Types.ObjectId,
-  ) {
-    const [profileOne, profileTwo] = await this.findMany(
-      {
-        _id: { $in: [_userId, _otherUserId] },
-      },
-      {
-        _id: 1,
-        age: 1,
-        birthday: 1,
-        createdAt: 1,
-        gender: 1,
-        hideAge: 1,
-        hideDistance: 1,
-        lastActivatedAt: 1,
-        mediaFiles: {
-          _id: 1,
-          key: 1,
-          type: 1,
-        },
-        nickname: 1,
-      },
-      {
-        sort: {
-          _id: 1,
-        },
-        limit: 2,
-        lean: true,
-      },
-    );
-    if (!profileOne || !profileTwo) {
-      throw new NotFoundException(HttpErrorMessages['User does not exist']);
-    }
-    return [profileOne, profileTwo];
   }
 }

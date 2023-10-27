@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model, ProjectionType, QueryOptions } from 'mongoose';
 import { Types } from 'mongoose';
 
+import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { CommonModel } from './common-model';
 import {
   Match,
@@ -17,6 +18,18 @@ export class MatchModel extends CommonModel<Match> {
     readonly model: Model<MatchDocument>,
   ) {
     super();
+  }
+
+  async findOneOrFail(
+    filter: FilterQuery<Match>,
+    projection?: ProjectionType<Match> | null | undefined,
+    options?: QueryOptions<Match> | null | undefined,
+  ) {
+    const findResult = await this.findOne(filter, projection, options);
+    if (!findResult) {
+      throw new NotFoundException(HttpErrorMessages['Match does not exist']);
+    }
+    return findResult;
   }
 
   public getSortedUserIds({
@@ -102,6 +115,15 @@ export class MatchModel extends CommonModel<Match> {
       ...restE,
       read: isUserOne ? userOneRead : userTwoRead,
       targetProfile: isUserOne ? profileTwo : profileOne,
+    };
+  }
+
+  queryUserOneOrUserTwo(_currentUserId: Types.ObjectId) {
+    return {
+      $or: [
+        { 'profileOne._id': _currentUserId },
+        { 'profileTwo._id': _currentUserId },
+      ],
     };
   }
 }

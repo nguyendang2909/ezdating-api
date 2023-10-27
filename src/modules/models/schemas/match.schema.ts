@@ -51,10 +51,27 @@ export class Match extends CommonSchema {
 
 export const MatchSchema = SchemaFactory.createForClass(Match);
 
-MatchSchema.index({ _userOneId: 1, _userTwoId: 1 }, { unique: true });
+MatchSchema.index(
+  { 'profileOne._id': 1, 'profileTwo._id': 1 },
+  { unique: true },
+);
+
+MatchSchema.index(
+  {
+    'profileOne._id': 1,
+    'profileTwo._id': 1,
+    lastMessage: 1,
+    createdAt: -1,
+  },
+  {
+    partialFilterExpression: {
+      lastMessage: { $exists: false },
+    },
+  },
+);
 
 MatchSchema.index({
   'profileOne._id': 1,
   'profileTwo._id': 1,
-  'lastMessage._id': 1,
+  'lastMessage.createdAt': -1,
 });
