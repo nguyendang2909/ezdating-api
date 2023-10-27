@@ -93,11 +93,4 @@ export class ApiService extends DbService {
 
     return cursor;
   }
-
-  getClient(client: ClientData) {
-    const { id: currentUserId } = client;
-    const _currentUserId = this.getObjectId(currentUserId);
-
-    return { currentUserId, _currentUserId };
-  }
 }
