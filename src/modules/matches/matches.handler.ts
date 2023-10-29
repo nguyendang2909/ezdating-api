@@ -89,7 +89,7 @@ export class MatchesHandler extends ApiCursorDateService {
     );
     this.chatsGateway.server
       .to(userId)
-      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, payload);
+      .emit(SOCKET_TO_CLIENT_EVENTS.CANCEL_MATCH, payload);
   }
 
   handleAfterCreateMatch({
