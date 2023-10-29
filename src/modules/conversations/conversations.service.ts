@@ -38,11 +38,11 @@ export class ConversationsService extends ApiCursorObjectIdService {
             }
           : { 'lastMessage.createdAt': { $ne: null } }),
       },
+      {},
       {
         sort: { 'lastMessage.createdAt': -1 },
         limit: this.limitRecordsPerQuery,
       },
-      {},
     );
     const matches = this.matchModel.formatManyWithTargetProfile(
       findResults,
