@@ -84,12 +84,12 @@ export class MatchesHandler extends ApiCursorDateService {
   emitUnMatchToUser(userId: string, payload: { _id: Types.ObjectId }) {
     this.logger.log(
       `SOCKET_EVENT Emit "${
-        SOCKET_TO_CLIENT_EVENTS.CANCEL_MATCH
+        SOCKET_TO_CLIENT_EVENTS.UNMATCH
       }" userId: ${JSON.stringify(userId)} payload: ${JSON.stringify(payload)}`,
     );
     this.chatsGateway.server
       .to(userId)
-      .emit(SOCKET_TO_CLIENT_EVENTS.CANCEL_MATCH, payload);
+      .emit(SOCKET_TO_CLIENT_EVENTS.UNMATCH, payload);
   }
 
   handleAfterCreateMatch({

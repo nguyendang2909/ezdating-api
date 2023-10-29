@@ -66,12 +66,12 @@ export const SOCKET_TO_SERVER_EVENTS = {
 } as const;
 
 export const SOCKET_TO_CLIENT_EVENTS = {
-  CANCEL_MATCH: 'cancelMatch',
+  UNMATCH: 'unmatch',
   ERROR: 'error',
   NEW_MESSAGE: 'msg',
-  UPDATE_SENT_MESSAGE: 'updateSentMsg',
+  UPDATE_SENT_MESSAGE: 'update_sent_message',
   MATCH: 'match',
-  EDIT_SENT_MESSAGE: 'editSentMsg',
+  EDIT_SENT_MESSAGE: 'edit_sent_message',
 } as const;
 
 export const MEMBERSHIPS = {
