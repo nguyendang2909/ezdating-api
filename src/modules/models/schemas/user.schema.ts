@@ -12,8 +12,11 @@ export class User extends CommonSchema {
   @Prop({ type: Number, default: 0 })
   coins: number;
 
-  @Prop({ type: String })
+  @Prop({ type: String, unique: true })
   email?: string;
+
+  @Prop({ type: String, unique: true })
+  facebookId?: string;
 
   @Prop({ type: String, length: 300 })
   password?: string;

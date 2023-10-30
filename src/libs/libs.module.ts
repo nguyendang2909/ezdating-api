@@ -1,10 +1,14 @@
 import { Global, Logger, Module } from '@nestjs/common';
+import firebaseAdmin from 'firebase-admin';
+import { OAuth2Client } from 'google-auth-library';
 import { Redis, RedisOptions } from 'ioredis';
 import Redlock from 'redlock';
 
 import { MODULE_INSTANCES } from '../constants';
 import { CacheService } from './cache.service';
 import { FilesService } from './files.service';
+import { FirebaseService } from './firebase.service';
+import { GoogleOAuthService } from './google-oauth.service';
 
 @Global()
 @Module({
@@ -68,8 +72,28 @@ import { FilesService } from './files.service';
         return new Redlock([redis]);
       },
     },
+    {
+      provide: MODULE_INSTANCES.FIREBASE,
+      useFactory: () => {
+        return firebaseAdmin.initializeApp({
+          credential: firebaseAdmin.credential.cert({
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY,
+          }),
+        });
+      },
+    },
+    {
+      provide: MODULE_INSTANCES.GOOGLE_OAUTH_CLIENT,
+      useFactory: () => {
+        return new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+      },
+    },
     CacheService,
+    FirebaseService,
+    GoogleOAuthService,
   ],
-  exports: [FilesService, CacheService],
+  exports: [FilesService, CacheService, FirebaseService, GoogleOAuthService],
 })
 export class LibsModule {}
