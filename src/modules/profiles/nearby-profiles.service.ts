@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
@@ -81,9 +82,9 @@ export class NearbyProfilesService extends ApiService {
             // lastActivatedAt: {
             //   $gt: moment().subtract(7, 'd').toDate(),
             // },
-            age: {
-              $gte: filterMinAge,
-              $lte: filterMaxAge,
+            birthday: {
+              $gte: moment().subtract(filterMaxAge, 'years').toDate(),
+              $lte: moment().subtract(filterMinAge, 'years').toDate(),
             },
             gender: filterGender,
           },
@@ -96,17 +97,6 @@ export class NearbyProfilesService extends ApiService {
         },
       },
       { $limit: this.limitRecordsPerQuery },
-      {
-        $set: {
-          age: {
-            $dateDiff: {
-              startDate: '$birthday',
-              endDate: '$$NOW',
-              unit: 'year',
-            },
-          },
-        },
-      },
     ]);
 
     return {
