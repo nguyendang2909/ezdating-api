@@ -19,11 +19,11 @@ export class MeController {
     };
   }
 
-  @Post('/deactivate')
-  async deactivate(@Client() clientData: ClientData) {
-    return {
-      type: 'deactivate',
-      data: await this.service.deactivate(clientData),
-    };
-  }
+  // @Post('/deactivate')
+  // async deactivate(@Client() clientData: ClientData) {
+  //   return {
+  //     type: 'deactivate',
+  //     data: await this.service.deactivate(clientData),
+  //   };
+  // }
 }

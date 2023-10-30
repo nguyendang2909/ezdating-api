@@ -185,6 +185,13 @@ export class CommonModel<
     return await this.model.deleteOne(filter, options).exec();
   }
 
+  async deleteOneById(
+    _id: Types.ObjectId,
+    options?: QueryOptions<TRawDocType>,
+  ) {
+    return await this.deleteOne({ _id }, options);
+  }
+
   async deleteOneOrFail(
     filter?: FilterQuery<TRawDocType>,
     options?: QueryOptions<TRawDocType>,

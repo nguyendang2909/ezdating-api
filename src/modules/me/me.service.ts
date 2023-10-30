@@ -2,11 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
-import {
-  USER_STATUSES,
-  WEEKLY_COINS,
-  WEEKLY_COINS_LENGTH,
-} from '../../constants';
+import { WEEKLY_COINS, WEEKLY_COINS_LENGTH } from '../../constants';
 import { ClientData } from '../auth/auth.type';
 import { ProfileModel } from '../models';
 import { CoinAttendanceModel } from '../models/coin-attendance.model';
@@ -28,15 +24,25 @@ export class MeService extends UsersCommonService {
     super();
   }
 
-  public async deactivate(clientData: ClientData) {
-    const _currentUserId = this.getObjectId(clientData.id);
-    await this.userModel.updateOneById(_currentUserId, {
-      $set: {
-        status: USER_STATUSES.DEACTIVATED,
-      },
-    });
-    // Move profile
-  }
+  // public async deactivate(clientData: ClientData) {
+  //   const _currentUserId = this.getObjectId(clientData.id);
+  //   await this.userModel.updateOneById(_currentUserId, {
+  //     $set: {
+  //       status: USER_STATUSES.DEACTIVATED,
+  //     },
+  //   });
+  //   const profile = await this.profileModel.findOne({
+  //     _id: _currentUserId,
+  //   });
+  //   if (profile) {
+  //     if (profile.mediaFiles) {
+  //       for (const mediaFile of profile.mediaFiles) {
+  //       }
+  //     }
+  //   }
+
+  //   // Move profile
+  // }
 
   public async takeAttendance(
     clientData: ClientData,
