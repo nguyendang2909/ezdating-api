@@ -39,9 +39,13 @@ export class UserModel extends CommonModel<User> {
   // };
 
   async createOne(doc: Partial<User>) {
-    const { phoneNumber } = doc;
-    if (!phoneNumber) {
-      throw new BadRequestException('Phone number does not exist!');
+    const { phoneNumber, email, facebookId } = doc;
+    if (!phoneNumber || !email || !facebookId) {
+      throw new BadRequestException(
+        HttpErrorMessages[
+          'You should sign in by phone number, google or facebook'
+        ],
+      );
     }
     const createResult = await this.model.create(doc);
     return createResult.toJSON();

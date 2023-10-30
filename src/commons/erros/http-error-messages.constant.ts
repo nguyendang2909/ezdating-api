@@ -33,4 +33,6 @@ export const HttpErrorMessages = {
   'You do not have a basic info. Please complete it.':
     'You do not have a basic info. Please complete it.',
   'You have been banned': 'You have been banned',
+  'You should sign in by phone number, google or facebook':
+    'You should sign in by phone number, google or facebook',
 } as const;
