@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -16,6 +17,8 @@ export class UserModel extends CommonModel<User> {
   constructor(@InjectModel(User.name) readonly model: Model<UserDocument>) {
     super();
   }
+
+  private readonly logger = new Logger(UserModel.name);
 
   // public matchUserFields = {
   //   _id: 1,
@@ -39,6 +42,7 @@ export class UserModel extends CommonModel<User> {
   // };
 
   async createOne(doc: Partial<User>) {
+    this.logger.log(`Create user with ${JSON.stringify(doc)}`);
     const { phoneNumber, email, facebookId } = doc;
     if (!phoneNumber || !email || !facebookId) {
       throw new BadRequestException(
