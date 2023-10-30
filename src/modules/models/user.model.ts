@@ -44,7 +44,7 @@ export class UserModel extends CommonModel<User> {
   async createOne(doc: Partial<User>) {
     this.logger.log(`Create user with ${JSON.stringify(doc)}`);
     const { phoneNumber, email, facebookId } = doc;
-    if (!phoneNumber || !email || !facebookId) {
+    if (!phoneNumber && !email && !facebookId) {
       throw new BadRequestException(
         HttpErrorMessages[
           'You should sign in by phone number, google or facebook'
