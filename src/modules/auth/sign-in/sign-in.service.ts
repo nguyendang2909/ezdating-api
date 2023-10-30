@@ -157,7 +157,7 @@ export class SignInService {
     };
   }
 
-  async loginByFacebook(payload: SignInWithFacebookDto) {
+  async signInWithFacebook(payload: SignInWithFacebookDto) {
     let facebookId: string;
     try {
       const { data: facebookResponse } = await axios.get<{ id?: string }>(
