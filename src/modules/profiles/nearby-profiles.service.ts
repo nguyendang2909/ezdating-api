@@ -98,13 +98,7 @@ export class NearbyProfilesService extends ApiService {
       },
       { $limit: this.limitRecordsPerQuery },
       {
-        $project: {
-          geolocation: -1,
-          filterGender: -1,
-          filterMaxAge: -1,
-          filterMinAge: -1,
-          filterMaxDistance: -1,
-        },
+        $project: this.profileModel.publicFields,
       },
     ]);
 

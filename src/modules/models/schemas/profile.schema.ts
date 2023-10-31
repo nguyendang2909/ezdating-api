@@ -96,11 +96,11 @@ export class Profile extends CommonSchema {
   @Prop({ type: Boolean, default: false })
   hideDistance: boolean;
 
-  @Prop({ type: Date, default: new Date() })
-  lastActivatedAt: Date;
-
   @Prop({ type: [String] })
   languages?: string[];
+
+  @Prop({ type: Date, default: new Date() })
+  lastActivatedAt: Date;
 
   @Prop({ type: [EmbeddedMediaFileSchema] })
   mediaFiles?: EmbeddedMediaFile[];

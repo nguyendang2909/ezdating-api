@@ -15,6 +15,33 @@ export class ProfileModel extends CommonModel<Profile> {
     super();
   }
 
+  public publicFields = {
+    _id: 1,
+    birthday: 1,
+    company: 1,
+    createdAt: 1,
+    distance: 1,
+    educationLevel: 1,
+    gender: 1,
+    height: 1,
+    hideAge: 1,
+    hideDistance: 1,
+    introduce: 1,
+    jobTitle: 1,
+    languages: 1,
+    lastActivatedAt: 1,
+    mediaFiles: {
+      _id: 1,
+      key: 1,
+      type: 1,
+    },
+    nickname: 1,
+    relationshipGoal: 1,
+    relationshipStatus: 1,
+    school: 1,
+    weight: 1,
+  };
+
   public matchProfileFields = {
     _id: 1,
     birthday: 1,
