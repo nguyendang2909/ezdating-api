@@ -12,16 +12,16 @@ export class User extends CommonSchema {
   @Prop({ type: Number, default: 0 })
   coins: number;
 
-  @Prop({ type: String, unique: true })
+  @Prop({ type: String })
   email?: string;
 
-  @Prop({ type: String, unique: true })
+  @Prop({ type: String })
   facebookId?: string;
 
   @Prop({ type: String, length: 300 })
   password?: string;
 
-  @Prop({ type: String, length: 20, unique: true })
+  @Prop({ type: String, length: 20 })
   phoneNumber?: string;
 
   @Prop({
@@ -37,3 +37,33 @@ export class User extends CommonSchema {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.index(
+  { email: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      email: { $exists: true },
+    },
+  },
+);
+
+UserSchema.index(
+  { phoneNumber: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      phoneNumber: { $exists: true },
+    },
+  },
+);
+
+UserSchema.index(
+  { facebookId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      facebookId: { $exists: true },
+    },
+  },
+);
