@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { APP_CONFIG } from '../../app.config';
 import { ApiCursorDateService } from '../../commons';
+import { RESPONSE_TYPES } from '../../constants';
 import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { ProfileModel } from '../models';
@@ -137,7 +138,10 @@ export class MatchesService extends ApiCursorDateService {
       isUserOne ? profileTwo._id : profileOne._id,
     );
 
-    return { ...restMatch, targetProfile };
+    return {
+      type: RESPONSE_TYPES.MATCH,
+      data: { ...restMatch, targetProfile },
+    };
   }
 
   public getPagination(data: Match[]): Pagination {

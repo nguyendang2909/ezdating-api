@@ -4,7 +4,7 @@ import { UpdateQuery } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
-import { GENDERS } from '../../constants';
+import { GENDERS, RESPONSE_TYPES } from '../../constants';
 import { Gender } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { Profile, ProfileModel } from '../models';
@@ -47,6 +47,21 @@ export class ProfilesService extends ProfilesCommonService {
     const user = await this.profileModel.findOneOrFailById(_currentUserId);
 
     return user;
+  }
+
+  async findOneOrFailById(id: string, _client: ClientData) {
+    const _id = this.getObjectId(id);
+    const findResult = await this.profileModel.findOneOrFailById(_id, {
+      geolocation: -1,
+      filterGender: -1,
+      filterMaxAge: -1,
+      filterMinAge: -1,
+      filterMaxDistance: -1,
+    });
+    return {
+      type: RESPONSE_TYPES.PROFILE,
+      data: findResult,
+    };
   }
 
   public async updateMe(payload: UpdateMyProfileDto, client: ClientData) {

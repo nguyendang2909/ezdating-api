@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
@@ -56,6 +64,14 @@ export class ProfilesController {
     @Client() clientData: ClientData,
   ) {
     return await this.nearbyProfilesService.findMany(queryParams, clientData);
+  }
+
+  @Get('/:id')
+  public async findOneById(
+    @Param('id') id: string,
+    @Client() client: ClientData,
+  ) {
+    return await this.service.findOneOrFailById(id, client);
   }
 
   @Patch('/me')

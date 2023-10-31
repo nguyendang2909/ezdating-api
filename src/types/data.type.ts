@@ -6,6 +6,7 @@ import {
   MEMBERSHIPS,
   RELATIONSHIP_GOALS,
   RELATIONSHIP_STATUSES,
+  RESPONSE_TYPES,
   USER_ROLES,
   USER_STATUSES,
 } from '../constants/data.constant';
@@ -17,7 +18,12 @@ export type Pagination = {
 export type PaginatedResponse<T> = {
   data: T[];
   pagination: Pagination;
-  type: string;
+  type: ResponseType;
+};
+
+export type SingleResponse<T> = {
+  data: T;
+  type: ResponseType;
 };
 
 export type UserStatus = (typeof USER_STATUSES)[keyof typeof USER_STATUSES];
@@ -42,3 +48,5 @@ export type DevicePlatform =
   (typeof DEVICE_PLATFORMS)[keyof typeof DEVICE_PLATFORMS];
 
 export type Membership = (typeof MEMBERSHIPS)[keyof typeof MEMBERSHIPS];
+
+export type ResponseType = (typeof RESPONSE_TYPES)[keyof typeof RESPONSE_TYPES];

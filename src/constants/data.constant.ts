@@ -80,3 +80,10 @@ export const MEMBERSHIPS = {
   GOLD: 3,
   PLATINUM: 4,
 };
+
+export const RESPONSE_TYPES = {
+  CONVERSATIONS: 'conversations',
+  PROFILE: 'profile',
+  MATCH: 'match',
+  MATCHES: 'matches',
+};

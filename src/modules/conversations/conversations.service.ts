@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { ApiCursorObjectIdService } from '../../commons';
+import { RESPONSE_TYPES } from '../../constants';
 import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel } from '../models/match.model';
@@ -50,7 +51,7 @@ export class ConversationsService extends ApiCursorObjectIdService {
     );
 
     return {
-      type: 'conversations',
+      type: RESPONSE_TYPES.CONVERSATIONS,
       data: matches,
       pagination: this.getPagination(findResults),
     };

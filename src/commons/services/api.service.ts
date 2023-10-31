@@ -5,15 +5,24 @@ import {
 import _ from 'lodash';
 
 import { ClientData } from '../../modules/auth/auth.type';
-import { PaginatedResponse, Pagination } from '../../types';
+import { PaginatedResponse, Pagination, SingleResponse } from '../../types';
 import { HttpErrorMessages } from '../erros/http-error-messages.constant';
 import { DbService } from './db.service';
 
 export class ApiService extends DbService {
-  async findMany(
+  public async findMany(
     queryParams: Record<string, any>,
     client: ClientData,
   ): Promise<PaginatedResponse<Record<string, any>>> {
+    throw new InternalServerErrorException(
+      HttpErrorMessages['Not implemented'],
+    );
+  }
+
+  public async findOneOrFailById(
+    id: string,
+    client: ClientData,
+  ): Promise<SingleResponse<Record<string, any>>> {
     throw new InternalServerErrorException(
       HttpErrorMessages['Not implemented'],
     );
