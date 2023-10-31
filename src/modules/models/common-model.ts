@@ -38,6 +38,8 @@ export class CommonModel<
 > {
   protected model: Model<HydratedDocument<TRawDocType>>;
   public limitRecordsPerQuery: number = APP_CONFIG.PAGINATION_LIMIT.DEFAULT;
+  protected notFoundMessage: string =
+    HttpErrorMessages['Document does not exist'];
 
   public areObjectIdEqual(
     first: Types.ObjectId,
@@ -92,7 +94,7 @@ export class CommonModel<
   ) {
     const findResult = await this.findOne(filter, projection, options);
     if (!findResult) {
-      throw new NotFoundException(HttpErrorMessages['Document does not exist']);
+      throw new NotFoundException(this.notFoundMessage);
     }
     return findResult;
   }
@@ -109,12 +111,24 @@ export class CommonModel<
     return findResult;
   }
 
+  async findOneById(
+    _id: Types.ObjectId,
+    projection?: ProjectionType<TRawDocType> | null,
+    options?: QueryOptions<TRawDocType> | null,
+  ) {
+    return await this.findOne({ _id }, projection, options);
+  }
+
   async findOneOrFailById(
     _id: Types.ObjectId,
     projection?: ProjectionType<TRawDocType> | null,
     options?: QueryOptions<TRawDocType> | null,
   ) {
-    return await this.findOneOrFail({ _id }, projection, options);
+    const findResult = await this.findOneById(_id, projection, options);
+    if (!findResult) {
+      throw new NotFoundException(this.notFoundMessage);
+    }
+    return findResult;
   }
 
   async updateOne(

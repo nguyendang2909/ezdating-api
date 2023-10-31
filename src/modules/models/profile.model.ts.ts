@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, ProjectionType, QueryOptions } from 'mongoose';
+import { Model, ProjectionType, QueryOptions } from 'mongoose';
 import { Types } from 'mongoose';
 
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { CacheService } from '../../libs';
 import { CommonModel } from './common-model';
 import { Profile, ProfileDocument } from './schemas/profile.schema';
 
@@ -11,8 +12,10 @@ import { Profile, ProfileDocument } from './schemas/profile.schema';
 export class ProfileModel extends CommonModel<Profile> {
   constructor(
     @InjectModel(Profile.name) readonly model: Model<ProfileDocument>,
+    private readonly cacheService: CacheService,
   ) {
     super();
+    this.notFoundMessage = HttpErrorMessages['Profile does not exist'];
   }
 
   public publicFields = {
@@ -62,16 +65,23 @@ export class ProfileModel extends CommonModel<Profile> {
     return createResult.toJSON();
   }
 
-  public async findOneOrFail(
-    filter: FilterQuery<Profile>,
-    projection?: ProjectionType<Profile> | null,
-    options?: QueryOptions<Profile> | null,
+  async findOneById(
+    _id: Types.ObjectId,
+    projection?: ProjectionType<Profile> | null | undefined,
+    options?: QueryOptions<Profile> | null | undefined,
   ) {
-    const findResult = await this.findOne(filter, projection, options);
-    if (!findResult) {
-      throw new NotFoundException({
-        message: HttpErrorMessages['Profile does not exist'],
-      });
+    let findResult: string | Profile | null = null;
+    findResult = await this.cacheService.redis.getex(`profile:${_id}`);
+    if (findResult) {
+      return JSON.parse(findResult);
+    }
+    findResult = await this.findOne({ _id }, projection, options);
+    if (findResult) {
+      await this.cacheService.redis.setex(
+        `profile:${_id}`,
+        3600,
+        JSON.stringify(findResult),
+      );
     }
     return findResult;
   }
