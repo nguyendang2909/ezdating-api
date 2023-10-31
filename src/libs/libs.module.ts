@@ -23,7 +23,7 @@ import { GoogleOAuthService } from './google-oauth.service';
         const IOREDIS_MODE = process.env.IOREDIS_MODE || 'standalone';
 
         const REDIS_HOST = process.env.REDIS_HOST;
-        const REDIS_PORT = process.env.REDIS_PORT;
+        const REDIS_PORT = parseInt(process.env.REDIS_PORT, 10) || 6379;
         // if (
         //   process.env.IOREDIS_MODE === 'sentinel' &&
         //   process.env.IOREDIS_SENTINEL_HOST
@@ -43,21 +43,18 @@ import { GoogleOAuthService } from './google-oauth.service';
         // }
         if (IOREDIS_MODE === 'standalone') {
           environmentOptions.host = REDIS_HOST;
-          environmentOptions.port = REDIS_PORT
-            ? parseInt(REDIS_PORT, 10)
-            : 6379;
+          environmentOptions.port = REDIS_PORT;
           // environmentOptions.db = process.env.IOREDIS_STANDALONE_DB
           //   ? parseInt(process.env.IOREDIS_STANDALONE_DB, 10)
           //   : 0;
           environmentOptions.password = process.env.IOREDIS_STANDALONE_PASSWORD;
         }
         // const redis = new Redis({ ...environmentOptions, ...optionsOverride });
-        const redis = new Redis({
-          host: process.env.REDIS_HOST,
-          port: parseInt(process.env.REDIS_HOST, 10),
-        });
+        const redis = new Redis(
+          `${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+        );
         redis.on('error', (err) => {
-          logger.error(err, undefined, 'IORedis');
+          logger.error(err, 'IORedis');
         });
         redis.on('connect', () => {
           logger.log('Connected to Redis', 'IORedis');
