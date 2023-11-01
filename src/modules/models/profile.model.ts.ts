@@ -70,14 +70,14 @@ export class ProfileModel extends CommonModel<Profile> {
     projection?: ProjectionType<Profile> | null | undefined,
     options?: QueryOptions<Profile> | null | undefined,
   ): Promise<Profile | null> {
-    const redisKey = this.getRedisKey(_id);
-    const redisData = await this.cacheService.getJSON<Profile>(redisKey);
-    if (redisData) {
-      return redisData;
+    const cacheKey = this.getCacheKey(_id);
+    const cacheData = await this.findOneInCache(cacheKey);
+    if (cacheData) {
+      return cacheData;
     }
     const findResult = await this.findOne({ _id }, projection, options);
     if (findResult) {
-      await this.cacheService.setex(redisKey, 3600, findResult);
+      await this.cacheService.setex(cacheKey, 3600, findResult);
       return findResult;
     }
     return null;
@@ -106,7 +106,11 @@ export class ProfileModel extends CommonModel<Profile> {
     return [profileOne, profileTwo];
   }
 
-  getRedisKey(_id: Types.ObjectId) {
+  getCacheKey(_id: Types.ObjectId) {
     return `profile:${_id}`;
+  }
+
+  async findOneInCache(key: string) {
+    return await this.cacheService.getJSON<Profile>(key);
   }
 }
