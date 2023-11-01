@@ -66,7 +66,13 @@ import { GoogleOAuthService } from './google-oauth.service';
       provide: MODULE_INSTANCES.REDIS_LOCK,
       inject: [MODULE_INSTANCES.REDIS],
       useFactory: (redis: Redis) => {
-        return new Redlock([redis]);
+        return new Redlock([redis], {
+          driftFactor: 0.01,
+          retryCount: 10,
+          retryDelay: 200,
+          retryJitter: 200,
+          automaticExtensionThreshold: 500,
+        });
       },
     },
     {

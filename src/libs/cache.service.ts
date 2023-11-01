@@ -25,4 +25,8 @@ export class CacheService {
     }
     return null;
   }
+
+  async lock(key: string) {
+    return await this.redlock.acquire([key], 5000);
+  }
 }
