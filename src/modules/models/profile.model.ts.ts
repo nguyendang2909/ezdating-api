@@ -1,6 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ProjectionType, QueryOptions } from 'mongoose';
+import {
+  FilterQuery,
+  Model,
+  ProjectionType,
+  QueryOptions,
+  UpdateQuery,
+  UpdateWriteOpResult,
+} from 'mongoose';
 import { Types } from 'mongoose';
 
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
@@ -104,6 +111,18 @@ export class ProfileModel extends CommonModel<Profile> {
       throw new NotFoundException(HttpErrorMessages['User does not exist']);
     }
     return [profileOne, profileTwo];
+  }
+
+  async updateOne(
+    filter: FilterQuery<Profile>,
+    update: UpdateQuery<Profile>,
+    options?: QueryOptions<Profile> | null | undefined,
+  ): Promise<UpdateWriteOpResult> {
+    const updateResult = await this.model.updateOne(filter, update, options);
+    if (filter._id) {
+      await this.cacheService.redis.del(this.getCacheKey(filter._id));
+    }
+    return updateResult;
   }
 
   getCacheKey(_id: Types.ObjectId) {
