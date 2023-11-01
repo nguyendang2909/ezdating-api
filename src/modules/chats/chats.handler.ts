@@ -3,7 +3,7 @@ import { Socket } from 'socket.io';
 
 import { DbService } from '../../commons/services/db.service';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
-import { MatchDocument, MessageDocument } from '../models';
+import { Match, MessageDocument } from '../models';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
 import { SignedDeviceModel } from '../models/signed-device.model';
@@ -29,7 +29,7 @@ export class ChatsHandler extends DbService {
     currentUserId,
   }: {
     currentUserId: string;
-    match: MatchDocument;
+    match: Match;
     message: MessageDocument;
     socket: Socket;
   }) {

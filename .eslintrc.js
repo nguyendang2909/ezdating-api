@@ -38,6 +38,6 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'off',
     "typescript-sort-keys/interface": "error",
     "typescript-sort-keys/string-enum": "error",
-    "sort-keys": [2, "asc", {"caseSensitive": true, "natural": false, "minKeys": 10}]
+    "sort-keys": [2, "asc", {"caseSensitive": true, "natural": false, "minKeys": 10}],
   },
 };

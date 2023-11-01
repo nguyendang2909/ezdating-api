@@ -1,5 +1,4 @@
 import {
-  ConflictException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
@@ -76,7 +75,7 @@ export class CommonModel<
     filter: FilterQuery<TRawDocType>,
     projection?: ProjectionType<TRawDocType> | null,
     options?: QueryOptions<TRawDocType> | null,
-  ) {
+  ): Promise<TRawDocType | null> {
     if (_.isEmpty(filter)) {
       return null;
     }
@@ -103,19 +102,16 @@ export class CommonModel<
     filter: FilterQuery<TRawDocType>,
     projection?: ProjectionType<TRawDocType> | null,
     options?: QueryOptions<TRawDocType> | null,
-  ) {
+  ): Promise<TRawDocType> {
     const findResult = await this.findOne(filter, projection, options);
-    if (findResult) {
-      throw new ConflictException(HttpErrorMessages['Document already exist']);
-    }
-    return findResult;
+    return this.verifyExist(findResult);
   }
 
   async findOneById(
     _id: Types.ObjectId,
     projection?: ProjectionType<TRawDocType> | null,
     options?: QueryOptions<TRawDocType> | null,
-  ) {
+  ): Promise<TRawDocType | null> {
     return await this.findOne({ _id }, projection, options);
   }
 
@@ -123,12 +119,9 @@ export class CommonModel<
     _id: Types.ObjectId,
     projection?: ProjectionType<TRawDocType> | null,
     options?: QueryOptions<TRawDocType> | null,
-  ) {
+  ): Promise<TRawDocType> {
     const findResult = await this.findOneById(_id, projection, options);
-    if (!findResult) {
-      throw new NotFoundException(this.notFoundMessage);
-    }
-    return findResult;
+    return this.verifyExist(findResult);
   }
 
   async updateOne(
@@ -216,5 +209,12 @@ export class CommonModel<
         HttpErrorMessages['Delete failed. Please try again.'],
       );
     }
+  }
+
+  verifyExist(e: any) {
+    if (!e) {
+      throw new NotFoundException(this.notFoundMessage);
+    }
+    return e;
   }
 }

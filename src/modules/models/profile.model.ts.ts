@@ -69,21 +69,18 @@ export class ProfileModel extends CommonModel<Profile> {
     _id: Types.ObjectId,
     projection?: ProjectionType<Profile> | null | undefined,
     options?: QueryOptions<Profile> | null | undefined,
-  ) {
-    let findResult: string | Profile | null = null;
-    findResult = await this.cacheService.redis.getex(`profile:${_id}`);
-    if (findResult) {
-      return JSON.parse(findResult);
+  ): Promise<Profile | null> {
+    const redisKey = this.getRedisKey(_id);
+    const redisData = await this.cacheService.getJSON<Profile>(redisKey);
+    if (redisData) {
+      return redisData;
     }
-    findResult = await this.findOne({ _id }, projection, options);
+    const findResult = await this.findOne({ _id }, projection, options);
     if (findResult) {
-      await this.cacheService.redis.setex(
-        `profile:${_id}`,
-        3600,
-        JSON.stringify(findResult),
-      );
+      await this.cacheService.setex(redisKey, 3600, findResult);
+      return findResult;
     }
-    return findResult;
+    return null;
   }
 
   async findTwoOrFailMatchProfiles(
@@ -107,5 +104,9 @@ export class ProfileModel extends CommonModel<Profile> {
       throw new NotFoundException(HttpErrorMessages['User does not exist']);
     }
     return [profileOne, profileTwo];
+  }
+
+  getRedisKey(_id: Types.ObjectId) {
+    return `profile:${_id}`;
   }
 }
