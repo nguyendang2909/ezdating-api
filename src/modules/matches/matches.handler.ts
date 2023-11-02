@@ -8,11 +8,7 @@ import { ChatsGateway } from '../chats/chats.gateway';
 import { Profile, ProfileModel } from '../models';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
-import {
-  Match,
-  MatchDocument,
-  MatchWithTargetProfile,
-} from '../models/schemas/match.schema';
+import { Match, MatchWithTargetProfile } from '../models/schemas/match.schema';
 
 @Injectable()
 export class MatchesHandler extends ApiCursorDateService {
@@ -92,21 +88,13 @@ export class MatchesHandler extends ApiCursorDateService {
       .emit(SOCKET_TO_CLIENT_EVENTS.UNMATCH, payload);
   }
 
-  handleAfterCreateMatch({
-    userOneId,
-    userTwoId,
-    match,
-  }: {
-    match: MatchDocument;
-    userOneId: string;
-    userTwoId: string;
-  }) {
+  handleAfterCreateMatch(match: Match) {
     this.emitMatchToUser(
-      userOneId,
+      match.profileOne._id.toString(),
       this.matchModel.formatOneWithTargetProfile(match, true),
     );
     this.emitMatchToUser(
-      userTwoId,
+      match.profileTwo._id.toString(),
       this.matchModel.formatOneWithTargetProfile(match, false),
     );
   }

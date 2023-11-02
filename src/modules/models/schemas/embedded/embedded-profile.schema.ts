@@ -7,7 +7,7 @@ import { Gender } from '../../../../types';
 import {
   EmbeddedMediaFile,
   EmbeddedMediaFileSchema,
-} from '../media-file.schema';
+} from './embedded-media-file.schema';
 
 export type EmbeddedProfileDocument = HydratedDocument<EmbeddedProfile>;
 

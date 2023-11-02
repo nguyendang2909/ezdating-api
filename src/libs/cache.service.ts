@@ -15,7 +15,15 @@ export class CacheService {
   ) {}
 
   async setex(key: string, ttl: number, value: Record<string, any>) {
-    return this.redis.setex(key, ttl, JSON.stringify(value));
+    return this.redis.setex(
+      key,
+      ttl + Math.floor(Math.random() * ttl),
+      JSON.stringify(value),
+    );
+  }
+
+  async ttl(key: string) {
+    return await this.redis.ttl(key);
   }
 
   async getJSON<T>(key: string): Promise<T | null> {
@@ -26,7 +34,8 @@ export class CacheService {
     return null;
   }
 
-  async lock(key: string) {
-    return await this.redlock.acquire([key], 5000);
+  // duration is second
+  async lock(key: string, duration = 10) {
+    return await this.redlock.acquire([key], duration * 1000);
   }
 }

@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-import { CommonSchema } from '../../../commons/schemas.common';
-import { MEDIA_FILE_TYPES } from '../../../constants';
-import { MediaFileType } from '../../../types';
+import { CommonSchema } from '../../../../commons/schemas.common';
+import { MEDIA_FILE_TYPES } from '../../../../constants';
+import { MediaFileType } from '../../../../types';
 
 export type EmbeddedMediaFileDocument = HydratedDocument<EmbeddedMediaFile>;
 

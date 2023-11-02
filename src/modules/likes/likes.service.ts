@@ -40,8 +40,8 @@ export class LikesService extends ApiCursorDateService {
     const { _currentUserId, currentUserId } = this.getClient(clientData);
     this.verifyNotSameUserById(currentUserId, targetUserId);
     const _targetUserId = this.getObjectId(targetUserId);
-    const [profileOne, profileTwo] =
-      await this.profileModel.findTwoOrFailMatchProfiles(
+    const { profileOne, profileTwo } =
+      await this.profileModel.findTwoOrFailPublicByIds(
         _currentUserId,
         _targetUserId,
       );

@@ -89,15 +89,15 @@ export class ProfileModel extends CommonModel<Profile> {
   //   return null;
   // }
 
-  async findTwoOrFailMatchProfiles(
+  async findTwoOrFailPublicByIds(
     _userId: Types.ObjectId,
     _otherUserId: Types.ObjectId,
-  ) {
+  ): Promise<{ profileOne: Profile; profileTwo: Profile }> {
     const [profileOne, profileTwo] = await this.findMany(
       {
         _id: { $in: [_userId, _otherUserId] },
       },
-      this.matchProfileFields,
+      this.publicFields,
       {
         sort: {
           _id: 1,
@@ -109,7 +109,7 @@ export class ProfileModel extends CommonModel<Profile> {
     if (!profileOne || !profileTwo) {
       throw new NotFoundException(HttpErrorMessages['User does not exist']);
     }
-    return [profileOne, profileTwo];
+    return { profileOne, profileTwo };
   }
 
   async updateOne(

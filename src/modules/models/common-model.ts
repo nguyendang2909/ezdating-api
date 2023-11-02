@@ -185,6 +185,28 @@ export class CommonModel<
       .exec();
   }
 
+  async findOneAndUpdateById(
+    _id: Types.ObjectId,
+    update: UpdateQuery<
+      IfAny<
+        TRawDocType,
+        any,
+        Document<unknown, {}, TRawDocType> & Require_id<TRawDocType>
+      >
+    >,
+    options?:
+      | (QueryOptions<TRawDocType> & {
+          upsert?: true;
+        } & Partial<ReturnsNewDoc> & {
+            rawResult?: true;
+          })
+      | null,
+  ) {
+    return await this.model
+      .findOneAndUpdate({ _id }, update, { lean: true, ...options })
+      .exec();
+  }
+
   async deleteOne(
     filter?: FilterQuery<TRawDocType>,
     options?: QueryOptions<TRawDocType>,

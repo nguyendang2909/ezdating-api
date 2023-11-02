@@ -25,8 +25,8 @@ export class ViewsService extends ApiService {
     const { targetUserId } = payload;
     this.verifyNotSameUserById(currentUserId, targetUserId);
     const _targetUserId = this.getObjectId(targetUserId);
-    const [profileOne, profileTwo] =
-      await this.profileModel.findTwoOrFailMatchProfiles(
+    const { profileOne, profileTwo } =
+      await this.profileModel.findTwoOrFailPublicByIds(
         _currentUserId,
         _targetUserId,
       );

@@ -19,7 +19,7 @@ import {
 import {
   EmbeddedMediaFile,
   EmbeddedMediaFileSchema,
-} from './media-file.schema';
+} from './embedded/embedded-media-file.schema';
 
 export type ProfileDocument = HydratedDocument<Profile>;
 

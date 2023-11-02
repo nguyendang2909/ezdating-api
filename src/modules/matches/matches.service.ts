@@ -33,31 +33,24 @@ export class MatchesService extends ApiCursorDateService {
     payload: CreateMatchDto,
     clientData: ClientData,
   ): Promise<MatchDocument> {
+    const { _currentUserId } = this.getClient(clientData);
     const { targetUserId } = payload;
-    const { id: currentUserId } = clientData;
-    const { _userOneId, _userTwoId, userOneId, userTwoId } =
-      this.matchModel.getSortedUserIds({
-        currentUserId,
-        targetUserId,
-      });
-    const [profileOne, profileTwo] =
-      await this.profileModel.findTwoOrFailMatchProfiles(
-        _userOneId,
-        _userTwoId,
+    const _targetUserId = this.getObjectId(targetUserId);
+
+    const { profileOne, profileTwo } =
+      await this.profileModel.findTwoOrFailPublicByIds(
+        _currentUserId,
+        _targetUserId,
       );
     await this.matchModel.findOneAndFail({
-      'profileOne._id': _userOneId,
-      'profileTwo._id': _userTwoId,
+      'profileOne._id': profileOne._id,
+      'profileTwo._id': profileTwo._id,
     });
     const createdMatch = await this.matchModel.createOne({
       profileOne,
       profileTwo,
     });
-    this.matchesHandler.handleAfterCreateMatch({
-      userOneId,
-      userTwoId,
-      match: createdMatch,
-    });
+    this.matchesHandler.handleAfterCreateMatch(createdMatch);
     return createdMatch;
   }
 
@@ -138,14 +131,12 @@ export class MatchesService extends ApiCursorDateService {
       currentUserId,
       userOneId: _profileOneId.toString(),
     });
-    const [profileOne, profileTwo] =
-      await this.profileModel.findTwoOrFailMatchProfiles(
+    const { profileOne, profileTwo } =
+      await this.profileModel.findTwoOrFailPublicByIds(
         _profileOneId._id,
         _profileTwoId._id,
       );
-    const targetProfile = await this.profileModel.findOneOrFailById(
-      isUserOne ? profileTwo._id : profileOne._id,
-    );
+    const targetProfile = isUserOne ? profileTwo : profileOne;
     this.matchesHandler.afterFindOneMatch({ match, profileOne, profileTwo });
     return {
       type: RESPONSE_TYPES.MATCH,

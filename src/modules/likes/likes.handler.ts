@@ -6,12 +6,7 @@ import { DbService } from '../../commons';
 import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { ChatsGateway } from '../chats/chats.gateway';
-import {
-  MatchWithTargetProfile,
-  ProfileDocument,
-  ProfileModel,
-  View,
-} from '../models';
+import { MatchWithTargetProfile, Profile, ProfileModel, View } from '../models';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import { Like } from '../models/schemas/like.schema';
@@ -41,8 +36,8 @@ export class LikesHandler extends DbService {
   }: {
     hasReverseLike: boolean;
     like: Like;
-    profileOne: ProfileDocument;
-    profileTwo: ProfileDocument;
+    profileOne: Profile;
+    profileTwo: Profile;
   }) {
     if (hasReverseLike) {
       const createdMatch = await this.matchModel.createOne({
