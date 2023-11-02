@@ -102,9 +102,9 @@ export class CommonModel<
     filter: FilterQuery<TRawDocType>,
     projection?: ProjectionType<TRawDocType> | null,
     options?: QueryOptions<TRawDocType> | null,
-  ): Promise<TRawDocType> {
+  ) {
     const findResult = await this.findOne(filter, projection, options);
-    return this.verifyExist(findResult);
+    this.verifyNotExist(findResult);
   }
 
   async findOneById(
@@ -238,5 +238,11 @@ export class CommonModel<
       throw new NotFoundException(this.notFoundMessage);
     }
     return e;
+  }
+
+  verifyNotExist(e: any) {
+    if (e) {
+      throw new NotFoundException(this.notFoundMessage);
+    }
   }
 }
