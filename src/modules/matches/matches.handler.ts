@@ -5,7 +5,7 @@ import { APP_CONFIG } from '../../app.config';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { ChatsGateway } from '../chats/chats.gateway';
-import { ProfileModel } from '../models';
+import { Profile, ProfileModel } from '../models';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import {
@@ -109,5 +109,17 @@ export class MatchesHandler extends ApiCursorDateService {
       userTwoId,
       this.matchModel.formatOneWithTargetProfile(match, false),
     );
+  }
+
+  afterFindOneMatch({
+    match,
+    profileOne,
+    profileTwo,
+  }: {
+    match: Match;
+    profileOne: Profile;
+    profileTwo: Profile;
+  }) {
+    this.profileModel.updateOneById(match._id, { profileOne, profileTwo });
   }
 }

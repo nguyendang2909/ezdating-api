@@ -125,26 +125,28 @@ export class MatchesService extends ApiCursorDateService {
   public async findOneOrFailById(id: string, client: ClientData) {
     const { _currentUserId, currentUserId } = this.getClient(client);
     const _id = this.getObjectId(id);
-    const { profileOne, profileTwo, ...restMatch } =
-      await this.matchModel.findOneOrFail({
-        _id,
-        ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
-      });
+    const match = await this.matchModel.findOneOrFail({
+      _id,
+      ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
+    });
+    const {
+      profileOne: { _id: _profileOneId },
+      profileTwo: { _id: _profileTwoId },
+      ...restMatch
+    } = match;
     const isUserOne = this.matchModel.isUserOne({
       currentUserId,
-      userOneId: profileOne._id.toString(),
+      userOneId: _profileOneId.toString(),
     });
+    const [profileOne, profileTwo] =
+      await this.profileModel.findTwoOrFailMatchProfiles(
+        _profileOneId._id,
+        _profileTwoId._id,
+      );
     const targetProfile = await this.profileModel.findOneOrFailById(
       isUserOne ? profileTwo._id : profileOne._id,
     );
-    this.profileModel.updateOneById(
-      _id,
-      isUserOne
-        ? {
-            profileTwo: targetProfile,
-          }
-        : { profileOne: targetProfile },
-    );
+    this.matchesHandler.afterFindOneMatch({ match, profileOne, profileTwo });
     return {
       type: RESPONSE_TYPES.MATCH,
       data: { ...restMatch, targetProfile },
