@@ -210,6 +210,13 @@ export class CommonModel<
       .exec();
   }
 
+  async deleteMany(
+    filter: FilterQuery<TRawDocType>,
+    options?: QueryOptions<TRawDocType>,
+  ) {
+    return await this.model.deleteMany(filter, options);
+  }
+
   async deleteOne(
     filter?: FilterQuery<TRawDocType>,
     options?: QueryOptions<TRawDocType>,

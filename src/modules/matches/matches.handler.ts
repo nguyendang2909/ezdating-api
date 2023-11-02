@@ -5,7 +5,7 @@ import { APP_CONFIG } from '../../app.config';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { ChatsGateway } from '../chats/chats.gateway';
-import { Profile, ProfileModel } from '../models';
+import { MessageModel, Profile, ProfileModel } from '../models';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import { Match, MatchWithTargetProfile } from '../models/schemas/match.schema';
@@ -17,6 +17,7 @@ export class MatchesHandler extends ApiCursorDateService {
     private readonly chatsGateway: ChatsGateway,
     private readonly likeModel: LikeModel,
     private readonly profileModel: ProfileModel,
+    private readonly messageModel: MessageModel,
   ) {
     super();
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MATCHES;
@@ -62,6 +63,7 @@ export class MatchesHandler extends ApiCursorDateService {
           )}`,
         );
       });
+    this.messageModel.deleteMany({ _matchId: match._id });
     this.emitUnMatchToUser(userOneId, { _id: match._id });
     this.emitUnMatchToUser(userTwoId, { _id: match._id });
   }
