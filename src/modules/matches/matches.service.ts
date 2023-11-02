@@ -123,11 +123,11 @@ export class MatchesService extends ApiCursorDateService {
   }
 
   public async findOneOrFailById(id: string, client: ClientData) {
-    const { id: currentUserId } = client;
-    const _currentUserId = this.getObjectId(currentUserId);
+    const { _currentUserId, currentUserId } = this.getClient(client);
+    const _id = this.getObjectId(id);
     const { profileOne, profileTwo, ...restMatch } =
       await this.matchModel.findOneOrFail({
-        _id: this.getObjectId(id),
+        _id,
         ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
       });
     const isUserOne = this.matchModel.isUserOne({
@@ -137,7 +137,14 @@ export class MatchesService extends ApiCursorDateService {
     const targetProfile = await this.profileModel.findOneOrFailById(
       isUserOne ? profileTwo._id : profileOne._id,
     );
-
+    this.profileModel.updateOneById(
+      _id,
+      isUserOne
+        ? {
+            profileTwo: targetProfile,
+          }
+        : { profileOne: targetProfile },
+    );
     return {
       type: RESPONSE_TYPES.MATCH,
       data: { ...restMatch, targetProfile },

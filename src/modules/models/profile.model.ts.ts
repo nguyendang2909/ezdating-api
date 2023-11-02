@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
   FilterQuery,
   Model,
-  ProjectionType,
   QueryOptions,
   UpdateQuery,
   UpdateWriteOpResult,
@@ -72,23 +71,23 @@ export class ProfileModel extends CommonModel<Profile> {
     return createResult.toJSON();
   }
 
-  async findOneById(
-    _id: Types.ObjectId,
-    projection?: ProjectionType<Profile> | null | undefined,
-    options?: QueryOptions<Profile> | null | undefined,
-  ): Promise<Profile | null> {
-    const cacheKey = this.getCacheKey(_id);
-    const cacheData = await this.findOneInCache(cacheKey);
-    if (cacheData) {
-      return cacheData;
-    }
-    const findResult = await this.findOne({ _id }, projection, options);
-    if (findResult) {
-      await this.cacheService.setex(cacheKey, 3600, findResult);
-      return findResult;
-    }
-    return null;
-  }
+  // async findOneById(
+  //   _id: Types.ObjectId,
+  //   projection?: ProjectionType<Profile> | null | undefined,
+  //   options?: QueryOptions<Profile> | null | undefined,
+  // ): Promise<Profile | null> {
+  //   const cacheKey = this.getCacheKey(_id);
+  //   const cacheData = await this.findOneInCache(cacheKey);
+  //   if (cacheData) {
+  //     return cacheData;
+  //   }
+  //   const findResult = await this.findOne({ _id }, projection, options);
+  //   if (findResult) {
+  //     await this.cacheService.setex(cacheKey, 3600, findResult);
+  //     return findResult;
+  //   }
+  //   return null;
+  // }
 
   async findTwoOrFailMatchProfiles(
     _userId: Types.ObjectId,
@@ -119,17 +118,17 @@ export class ProfileModel extends CommonModel<Profile> {
     options?: QueryOptions<Profile> | null | undefined,
   ): Promise<UpdateWriteOpResult> {
     const updateResult = await this.model.updateOne(filter, update, options);
-    if (filter._id) {
-      await this.cacheService.redis.del(this.getCacheKey(filter._id));
-    }
+    // if (filter._id) {
+    //   await this.cacheService.redis.del(this.getCacheKey(filter._id));
+    // }
     return updateResult;
   }
 
-  getCacheKey(_id: Types.ObjectId) {
-    return `profile:${_id}`;
-  }
+  // getCacheKey(_id: Types.ObjectId) {
+  //   return `profile:${_id}`;
+  // }
 
-  async findOneInCache(key: string) {
-    return await this.cacheService.getJSON<Profile>(key);
-  }
+  // async findOneInCache(key: string) {
+  //   return await this.cacheService.getJSON<Profile>(key);
+  // }
 }
