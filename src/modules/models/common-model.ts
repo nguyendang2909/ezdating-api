@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
@@ -39,6 +40,8 @@ export class CommonModel<
   public limitRecordsPerQuery: number = APP_CONFIG.PAGINATION_LIMIT.DEFAULT;
   protected notFoundMessage: string =
     HttpErrorMessages['Document does not exist'];
+  protected conflictMessage: string =
+    HttpErrorMessages['Document already exist'];
 
   public areObjectIdEqual(
     first: Types.ObjectId,
@@ -242,7 +245,7 @@ export class CommonModel<
 
   verifyNotExist(e: any) {
     if (e) {
-      throw new NotFoundException(this.notFoundMessage);
+      throw new ConflictException(this.conflictMessage);
     }
   }
 }
