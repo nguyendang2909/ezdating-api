@@ -142,6 +142,7 @@ import { ViewsModule } from './modules/views/views.module';
         dbName: process.env.MONGO_DB_NAME,
         user: process.env.MONGO_DB_USER,
         pass: process.env.MONGO_DB_PASS,
+        autoIndex: process.env.MONGO_DB_AUTO_INDEX === 'true',
       },
     ),
     ScheduleModule.forRoot(),

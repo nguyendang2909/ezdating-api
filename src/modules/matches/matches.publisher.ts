@@ -10,9 +10,9 @@ export class MatchesPublisher {
     @InjectQueue(BULL_QUEUE_EVENTS.UNMATCHED) private unmatchedQueue: Queue,
   ) {}
 
-  publishUnmatched() {
-    this.unmatchedQueue.add({
-      foo: 'bar',
+  async publishUnmatched(matchId: string) {
+    await this.unmatchedQueue.add({
+      matchId,
     });
   }
 }

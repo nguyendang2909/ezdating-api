@@ -9,6 +9,7 @@ import { MessageModel, Profile, ProfileModel } from '../models';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import { Match, MatchWithTargetProfile } from '../models/schemas/match.schema';
+import { MatchesPublisher } from './matches.publisher';
 
 @Injectable()
 export class MatchesHandler extends ApiCursorDateService {
@@ -18,6 +19,7 @@ export class MatchesHandler extends ApiCursorDateService {
     private readonly likeModel: LikeModel,
     private readonly profileModel: ProfileModel,
     private readonly messageModel: MessageModel,
+    private readonly matchesPublisher: MatchesPublisher,
   ) {
     super();
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MATCHES;
@@ -64,6 +66,7 @@ export class MatchesHandler extends ApiCursorDateService {
         );
       });
     this.messageModel.deleteMany({ _matchId: match._id });
+    this.matchesPublisher.publishUnmatched(match._id.toString());
     this.emitUnMatchToUser(userOneId, { _id: match._id });
     this.emitUnMatchToUser(userTwoId, { _id: match._id });
   }

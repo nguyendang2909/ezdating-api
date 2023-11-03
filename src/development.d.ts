@@ -16,6 +16,7 @@ declare global {
       HASH_SECRET_KEY: string;
       JWT_REFRESH_TOKEN_SECRET_KEY: string;
       JWT_SECRET_KEY: string;
+      MONGO_DB_AUTO_INDEX: string;
       MONGO_DB_HOST: string;
       MONGO_DB_NAME: string;
       MONGO_DB_PASS: string;
