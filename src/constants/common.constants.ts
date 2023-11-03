@@ -13,7 +13,13 @@ export const MODULE_INSTANCES = {
 export const BULL_QUEUE_EVENTS = {
   SENT_LIKE: 'sent_like',
   SENT_MESSAGE: 'sent_message',
-  UNMATCHED: 'unmatched',
+  MATCHES: 'matches',
+};
+
+export const BULL_QUEUE_JOBS = {
+  MATCHES: {
+    UNMATCHED: 'unmatched',
+  },
 };
 
 export const FILE_UPLOAD_FOLDERS = {

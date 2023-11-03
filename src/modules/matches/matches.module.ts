@@ -4,7 +4,7 @@ import { Module } from '@nestjs/common';
 import { BULL_QUEUE_EVENTS } from '../../constants';
 import { ChatsModule } from '../chats/chats.module';
 import { ModelsModule } from '../models/models.module';
-import { UnmatchConsumer } from './consumers/unmatch.consumer';
+import { MatchesConsumer } from './matches.consumer';
 import { MatchesController } from './matches.controller';
 import { MatchesHandler } from './matches.handler';
 import { MatchesPublisher } from './matches.publisher';
@@ -14,7 +14,7 @@ import { MatchesService } from './matches.service';
   imports: [
     ModelsModule,
     ChatsModule,
-    BullModule.registerQueue({ name: BULL_QUEUE_EVENTS.UNMATCHED }),
+    BullModule.registerQueue({ name: BULL_QUEUE_EVENTS.MATCHES }),
   ],
   exports: [],
   controllers: [MatchesController],
@@ -22,7 +22,7 @@ import { MatchesService } from './matches.service';
     MatchesService,
     MatchesPublisher,
     MatchesHandler,
-    UnmatchConsumer,
+    MatchesConsumer,
   ],
 })
 export class MatchesModule {}
