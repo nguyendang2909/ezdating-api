@@ -101,7 +101,7 @@ export class MatchesHandler extends ApiCursorDateService {
     );
   }
 
-  afterFindOneMatch({
+  async afterFindOneMatch({
     match,
     profileOne,
     profileTwo,
@@ -110,6 +110,9 @@ export class MatchesHandler extends ApiCursorDateService {
     profileOne: Profile;
     profileTwo: Profile;
   }) {
-    this.profileModel.updateOneById(match._id, { profileOne, profileTwo });
+    await this.profileModel.updateOneById(match._id, {
+      profileOne,
+      profileTwo,
+    });
   }
 }

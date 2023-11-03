@@ -79,6 +79,7 @@ import { ViewsModule } from './modules/views/views.module';
             winston.format.ms(),
             nestWinstonModuleUtilities.format.nestLike(APP_CONFIG.APP_NAME, {
               prettyPrint: true,
+              colors: true,
             }),
           ),
         }),

@@ -9,6 +9,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import fs from 'fs';
 import helmet from 'helmet';
+import mongoose from 'mongoose';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
@@ -21,15 +22,20 @@ const logger = new Logger('Main');
 const NODE_ENV = process.env.NODE_ENV;
 
 async function bootstrap() {
-  const app =
-    NODE_ENV === 'development'
-      ? await NestFactory.create(AppModule, {
+  const app = await NestFactory.create(AppModule, {
+    ...(NODE_ENV === 'development'
+      ? {
           httpsOptions: {
             key: fs.readFileSync('./.cert/key.pem'),
             cert: fs.readFileSync('./.cert/cert.pem'),
           },
-        })
-      : await NestFactory.create(AppModule);
+        }
+      : {}),
+    logger:
+      NODE_ENV === 'production'
+        ? ['error', 'warn']
+        : ['log', 'debug', 'error', 'verbose', 'warn'],
+  });
   const API_PORT = process.env.API_PORT || 4000;
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   app.use(helmet());
@@ -53,7 +59,13 @@ async function bootstrap() {
   await redisIoAdapter.connectToRedis();
   app.useWebSocketAdapter(redisIoAdapter);
   await app.listen(API_PORT);
-  logger.log(`Application running on port ${API_PORT}`);
+  mongoose.set('debug', (collectionName, method, query, doc) => {
+    logger.log(
+      `${collectionName}.${method} , ${JSON.stringify(query)}, ${JSON.stringify(
+        doc,
+      )}`,
+    );
+  });
 }
 
 function createSwagger(app: INestApplication) {
