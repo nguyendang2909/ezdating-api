@@ -25,14 +25,17 @@ export class EmbeddedProfile extends CommonEmbeddedSchema {
   @Prop({ type: Boolean })
   hideDistance: boolean;
 
+  @Prop({ type: String, length: 500 })
+  introduce?: string;
+
+  @Prop({ type: Date, default: new Date() })
+  lastActivatedAt: Date;
+
   @Prop({ type: [EmbeddedMediaFileSchema] })
   mediaFiles?: EmbeddedMediaFile[];
 
   @Prop({ type: String, length: 100, required: true })
   nickname: string;
-
-  @Prop({ type: String, length: 500 })
-  introduce?: string;
 }
 
 export const EmbeddedProfileSchema =
