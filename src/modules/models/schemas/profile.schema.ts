@@ -102,6 +102,9 @@ export class Profile extends CommonSchema {
   @Prop({ type: Date, default: new Date() })
   lastActivatedAt: Date;
 
+  @Prop({ type: Number, default: 0 })
+  mediaFileCount: number;
+
   @Prop({ type: [EmbeddedMediaFileSchema] })
   mediaFiles?: EmbeddedMediaFile[];
 
@@ -130,4 +133,13 @@ export const ProfileSchema = SchemaFactory.createForClass(Profile);
 
 ProfileSchema.index({
   geolocation: '2dsphere',
+});
+
+ProfileSchema.index({
+  geolocation: '2dsphere',
+  _id: 1,
+  mediaFileCount: 1,
+  lastActivatedAt: 1,
+  gender: 1,
+  birthday: 1,
 });

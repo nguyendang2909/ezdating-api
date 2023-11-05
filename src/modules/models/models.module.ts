@@ -4,14 +4,16 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CoinAttendanceModel } from './coin-attendance.model';
 import { LikeModel } from './like.model';
 import { MatchModel } from './match.model';
+import { MediaFileModel } from './media-file.model';
 import { MessageModel } from './message.model';
-import { ProfileModel } from './profile.model.ts';
+import { ProfileModel } from './profile.model';
 import {
   CoinAttendance,
   CoinAttendanceSchema,
 } from './schemas/coin-attendance.schema';
 import { Like, LikeSchema } from './schemas/like.schema';
 import { Match, MatchSchema } from './schemas/match.schema';
+import { MediaFile, MediaFileSchema } from './schemas/media-file.schema';
 import { Message, MessageSchema } from './schemas/message.schema';
 import { Profile, ProfileSchema } from './schemas/profile.schema';
 import {
@@ -41,6 +43,7 @@ import { ViewModel } from './view.model';
       { name: User.name, schema: UserSchema },
       { name: View.name, schema: ViewSchema },
       { name: PushNotification.name, schema: PushNotificationSchema },
+      { name: MediaFile.name, schema: MediaFileSchema },
     ]),
   ],
   exports: [
@@ -52,6 +55,7 @@ import { ViewModel } from './view.model';
     SignedDeviceModel,
     UserModel,
     ViewModel,
+    MediaFileModel,
   ],
   controllers: [],
   providers: [
@@ -63,6 +67,7 @@ import { ViewModel } from './view.model';
     SignedDeviceModel,
     UserModel,
     ViewModel,
+    MediaFileModel,
   ],
 })
 export class ModelsModule {}

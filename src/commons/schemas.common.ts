@@ -7,3 +7,8 @@ export class CommonSchema {
   createdAt: Date;
   updatedAt: Date;
 }
+
+@Schema()
+export class CommonEmbeddedSchema {
+  _id: Types.ObjectId;
+}

@@ -1,6 +1,6 @@
 import {
+  BadRequestException,
   ConflictException,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import _ from 'lodash';
@@ -41,7 +41,11 @@ export class CommonModel<
   protected notFoundMessage: string =
     HttpErrorMessages['Document does not exist'];
   protected conflictMessage: string =
-    HttpErrorMessages['Document already exist'];
+    HttpErrorMessages['Document already exists'];
+  protected deleteFailMessage =
+    HttpErrorMessages['Delete failed. Please try again.'];
+  protected updateFailMessage =
+    HttpErrorMessages['Update failed. Please try again.'];
 
   public areObjectIdEqual(
     first: Types.ObjectId,
@@ -151,11 +155,7 @@ export class CommonModel<
     options?: QueryOptions<TRawDocType> | null,
   ): Promise<void> {
     const updateResult = await this.updateOne(filter, update, options);
-    if (!updateResult.modifiedCount) {
-      throw new InternalServerErrorException(
-        HttpErrorMessages['Update failed. Please try again.'],
-      );
-    }
+    this.verifyUpdateSuccess(updateResult);
   }
 
   async updateOneOrFailById(
@@ -163,7 +163,8 @@ export class CommonModel<
     update: UpdateQuery<TRawDocType> | UpdateWithAggregationPipeline,
     options?: QueryOptions<TRawDocType> | null,
   ): Promise<void> {
-    return await this.updateOneOrFail({ _id }, update, options);
+    const updateResult = await this.updateOneById(_id, update, options);
+    this.verifyUpdateSuccess(updateResult);
   }
 
   async findOneAndUpdate(
@@ -235,12 +236,16 @@ export class CommonModel<
     filter?: FilterQuery<TRawDocType>,
     options?: QueryOptions<TRawDocType>,
   ) {
-    const deteResult = await this.deleteOne(filter, options);
-    if (!deteResult.deletedCount) {
-      throw new InternalServerErrorException(
-        HttpErrorMessages['Delete failed. Please try again.'],
-      );
-    }
+    const deleteResult = await this.deleteOne(filter, options);
+    this.verifyDeleteSuccess(deleteResult);
+  }
+
+  async deleteOneOrFailById(
+    _id: Types.ObjectId,
+    options?: QueryOptions<TRawDocType>,
+  ) {
+    const deleteResult = await this.deleteOneById(_id, options);
+    this.verifyDeleteSuccess(deleteResult);
   }
 
   verifyExist(e: any) {
@@ -253,6 +258,18 @@ export class CommonModel<
   verifyNotExist(e: any) {
     if (e) {
       throw new ConflictException(this.conflictMessage);
+    }
+  }
+
+  verifyDeleteSuccess(deleteResult: any) {
+    if (!deleteResult.deletedCount) {
+      throw new BadRequestException(this.deleteFailMessage);
+    }
+  }
+
+  verifyUpdateSuccess(updateResult: any) {
+    if (!updateResult.modifiedCount) {
+      throw new BadRequestException(this.updateFailMessage);
     }
   }
 }

@@ -79,14 +79,15 @@ export class NearbyProfilesService extends ApiService {
                     $ne: _currentUserId,
                   }),
             },
+            mediaFileCount: { $gt: 0 },
             // lastActivatedAt: {
             //   $gt: moment().subtract(7, 'd').toDate(),
             // },
+            gender: filterGender,
             birthday: {
               $gte: moment().subtract(filterMaxAge, 'years').toDate(),
               $lte: moment().subtract(filterMinAge, 'years').toDate(),
             },
-            gender: filterGender,
           },
         },
       },
