@@ -48,7 +48,7 @@ export class MediaFilesService extends ApiService {
       { _id: _currentUserId },
       {
         $inc: {
-          mediaFileLength: 1,
+          mediaFileCount: 1,
         },
         $push: {
           mediaFiles: {
@@ -87,7 +87,7 @@ export class MediaFilesService extends ApiService {
         },
       },
       $inc: {
-        mediaFileLength: -1,
+        mediaFileCount: 1,
       },
     });
     // TODO: queue
