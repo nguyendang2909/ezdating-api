@@ -30,6 +30,9 @@ export class EmbeddedProfile extends CommonEmbeddedSchema {
 
   @Prop({ type: String, length: 100, required: true })
   nickname: string;
+
+  @Prop({ type: String, length: 500 })
+  introduce?: string;
 }
 
 export const EmbeddedProfileSchema =
