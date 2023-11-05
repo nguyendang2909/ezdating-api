@@ -135,11 +135,11 @@ ProfileSchema.index({
   geolocation: '2dsphere',
 });
 
-ProfileSchema.index({
-  geolocation: '2dsphere',
-  _id: 1,
-  mediaFileCount: 1,
-  lastActivatedAt: 1,
-  gender: 1,
-  birthday: 1,
-});
+// ProfileSchema.index({
+//   geolocation: '2dsphere',
+//   _id: 1,
+//   mediaFileCount: 1,
+//   lastActivatedAt: 1,
+//   gender: 1,
+//   birthday: 1,
+// });
