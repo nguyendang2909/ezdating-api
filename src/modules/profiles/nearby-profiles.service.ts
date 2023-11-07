@@ -23,7 +23,6 @@ export class NearbyProfilesService extends ApiService {
     const { _next } = queryParams;
 
     const cursor = _next ? this.getCursor(_next) : undefined;
-    console.log(11, cursor);
     const minDistance = cursor ? cursor.minDistance : undefined;
     const excludedUserIds = cursor
       ? cursor.excludedUserIds?.map((e) => this.getObjectId(e))
