@@ -8,6 +8,7 @@ import {
   RelationshipGoal,
   RelationshipStatus,
 } from '../../types';
+import { delay } from '../../utils';
 import { ProfileModel, UserModel } from '../models';
 import { ProfilesCommonService } from './profiles.common.service';
 
@@ -23,7 +24,7 @@ export class ProfilesScript extends ProfilesCommonService {
   private logger = new Logger(ProfilesScript.name);
 
   async onApplicationBootstrap() {
-    if (process.env.TEMP_DATA === 'true') {
+    if (process.env.NODE_ENV !== 'production') {
       const sampleProfiles = await this.profileModel.findMany(
         {
           gender: GENDERS.FEMALE,
@@ -97,6 +98,7 @@ export class ProfilesScript extends ProfilesCommonService {
             school: faker.company.name(),
             weight: faker.number.int({ min: 40, max: 100 }),
           });
+          await delay(1000);
         } catch (err) {
           this.logger.error(`Create user failed: ${JSON.stringify(err)}`);
         }
