@@ -62,13 +62,14 @@ export class NearbyProfilesService extends ApiService {
             ],
           },
           distanceField: 'distance',
+          // distanceMultiplier: 0.001,
           ...(minDistance
             ? {
                 minDistance: minDistance,
               }
             : {}),
-          maxDistance: filterMaxDistance,
-          // distanceMultiplier: 0.001,
+          // TODO: uncoment this line (important for launch)
+          // maxDistance: filterMaxDistance,
           query: {
             _id: {
               ...(excludedUserIds?.length

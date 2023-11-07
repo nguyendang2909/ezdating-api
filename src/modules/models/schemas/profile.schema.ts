@@ -106,10 +106,10 @@ export class Profile extends CommonSchema {
   mediaFileCount: number;
 
   @Prop({ type: [EmbeddedMediaFileSchema] })
-  mediaFiles?: EmbeddedMediaFile[];
+  mediaFiles: EmbeddedMediaFile[];
 
-  @Prop({ type: String, enum: MEMBERSHIPS })
-  membership?: Membership;
+  @Prop({ type: String, enum: MEMBERSHIPS, default: 1 })
+  membership: Membership;
 
   @Prop({ type: String, length: 100, required: true })
   nickname: string;
