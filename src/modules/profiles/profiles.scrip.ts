@@ -22,8 +22,12 @@ export class ProfilesScript extends ProfilesCommonService {
 
   private logger = new Logger(ProfilesScript.name);
 
-  async onApplicationBootstrap() {
-    if (process.env.NODE_ENV === 'development') {
+  onApplicationBootstrap() {
+    this.createProfiles();
+  }
+
+  async createProfiles() {
+    if (process.env.NODE_ENV !== 'production') {
       const sampleProfiles = await this.profileModel.findMany(
         {
           gender: GENDERS.FEMALE,
