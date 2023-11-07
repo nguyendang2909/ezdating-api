@@ -6,6 +6,7 @@ export const HttpErrorMessages = {
   'Document does not exist': 'Document does not exist',
   'File does not exist': 'File does not exist',
   'Input data was not correct': 'Input data was not correct',
+  'Like already exists': 'Like already exists',
   'Like does not exist': 'Like does not exist',
   'Match does not exist': 'Match does not exist',
   'Match is invalid': 'Match is invalid',

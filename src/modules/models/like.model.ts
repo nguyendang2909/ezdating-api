@@ -16,6 +16,8 @@ export class LikeModel extends CommonModel<Like> {
     super();
 
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.LIKES;
+    this.conflictMessage = HttpErrorMessages['Like already exists'];
+    this.notFoundMessage = HttpErrorMessages['Like does not exist'];
   }
 
   async findOneOrFail(
