@@ -27,7 +27,7 @@ export class ProfilesScript extends ProfilesCommonService {
   }
 
   async createProfiles() {
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'staging') {
       const sampleProfiles = await this.profileModel.findMany(
         {
           gender: GENDERS.FEMALE,

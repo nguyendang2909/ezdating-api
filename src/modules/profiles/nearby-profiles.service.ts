@@ -21,7 +21,9 @@ export class NearbyProfilesService extends ApiService {
     client: ClientData,
   ): Promise<PaginatedResponse<Profile>> {
     const { _next } = queryParams;
+
     const cursor = _next ? this.getCursor(_next) : undefined;
+    console.log(11, cursor);
     const minDistance = cursor ? cursor.minDistance : undefined;
     const excludedUserIds = cursor
       ? cursor.excludedUserIds?.map((e) => this.getObjectId(e))
@@ -41,16 +43,17 @@ export class NearbyProfilesService extends ApiService {
         HttpErrorMessages['Please enable location service in your device'],
       );
     }
-    const filterMaxDistance = filterMaxDistanceAsKm * 1000;
-    if (minDistance && minDistance >= filterMaxDistance) {
-      return {
-        data: [],
-        type: 'nearbyUsers',
-        pagination: {
-          _next: null,
-        },
-      };
-    }
+    // TODO: uncomment this feature
+    // const filterMaxDistance = filterMaxDistanceAsKm * 1000;
+    // if (minDistance && minDistance >= filterMaxDistance) {
+    //   return {
+    //     data: [],
+    //     type: 'nearbyUsers',
+    //     pagination: {
+    //       _next: null,
+    //     },
+    //   };
+    // }
     const findResults = await this.profileModel.aggregate([
       {
         $geoNear: {
@@ -126,7 +129,7 @@ export class NearbyProfilesService extends ApiService {
 
     return {
       _next: this.encodeFromObj({
-        distance: lastData.distance,
+        minDistance: lastData.distance,
         excludedUserIds,
       }),
     };
