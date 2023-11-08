@@ -9,9 +9,9 @@ import {
 } from 'mongoose';
 import { Types } from 'mongoose';
 
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
 import { CacheService } from '../../libs';
-import { CommonModel } from './common-model';
+import { CommonModel } from './bases/common-model';
 import { Profile, ProfileDocument } from './schemas/profile.schema';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class ProfileModel extends CommonModel<Profile> {
     private readonly cacheService: CacheService,
   ) {
     super();
-    this.notFoundMessage = HttpErrorMessages['Profile does not exist'];
+    this.notFoundMessage = ERROR_MESSAGES['Profile does not exist'];
   }
 
   public publicFields = {
@@ -107,7 +107,7 @@ export class ProfileModel extends CommonModel<Profile> {
       },
     );
     if (!profileOne || !profileTwo) {
-      throw new NotFoundException(HttpErrorMessages['User does not exist']);
+      throw new NotFoundException(ERROR_MESSAGES['User does not exist']);
     }
     return { profileOne, profileTwo };
   }

@@ -10,7 +10,7 @@ import moment from 'moment';
 import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../../app.config';
-import { HttpErrorMessages } from '../../../commons/erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../../../commons/messages/error-messages.constant';
 import { USER_ROLES, USER_STATUSES } from '../../../constants';
 import { FirebaseService, GoogleOAuthService } from '../../../libs';
 import { DevicePlatform, UserRole } from '../../../types';
@@ -61,7 +61,7 @@ export class SignInService {
     const phoneNumber = decoded.phone_number;
     if (!phoneNumber) {
       throw new NotFoundException({
-        message: HttpErrorMessages['User does not exist'],
+        message: ERROR_MESSAGES['User does not exist'],
       });
     }
     let user = await this.userModel.findOne({ phoneNumber });
@@ -69,7 +69,7 @@ export class SignInService {
       const { status } = user;
       if (!status || status === USER_STATUSES.BANNED) {
         throw new ForbiddenException({
-          message: HttpErrorMessages['You have been banned'],
+          message: ERROR_MESSAGES['You have been banned'],
         });
       }
       // TODO: If user is deactivated => activate user
@@ -132,7 +132,7 @@ export class SignInService {
       const { status } = user;
       if (!status || status === USER_STATUSES.BANNED) {
         throw new ForbiddenException({
-          message: HttpErrorMessages['You have been banned'],
+          message: ERROR_MESSAGES['You have been banned'],
         });
       }
       // TODO: If user is deactivated => activate user
@@ -177,7 +177,7 @@ export class SignInService {
       const { status } = user;
       if (!status || status === USER_STATUSES.BANNED) {
         throw new ForbiddenException({
-          message: HttpErrorMessages['You have been banned'],
+          message: ERROR_MESSAGES['You have been banned'],
         });
       }
       // TODO: If user is deactivated => activate user

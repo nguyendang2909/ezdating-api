@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, ProjectionType, QueryOptions } from 'mongoose';
 
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
-import { CommonModel } from './common-model';
+import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
+import { CommonModel } from './bases/common-model';
 import {
   SignedDevice,
   SignedDeviceDocument,
@@ -26,7 +26,7 @@ export class SignedDeviceModel extends CommonModel<SignedDevice> {
     const findResult = await this.findOne(filter, projection, options);
     if (!findResult) {
       throw new NotFoundException({
-        message: HttpErrorMessages['User device does not exist'],
+        message: ERROR_MESSAGES['User device does not exist'],
       });
     }
 

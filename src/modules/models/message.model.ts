@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { CommonModel } from './common-model';
+import { CommonModel } from './bases/common-model';
 import { Message, MessageDocument } from './schemas/message.schema';
 import { UserModel } from './user.model';
 

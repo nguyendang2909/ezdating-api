@@ -21,8 +21,9 @@ import {
   UpdateWriteOpResult,
 } from 'mongoose';
 
-import { APP_CONFIG } from '../../app.config';
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { APP_CONFIG } from '../../../app.config';
+import { ERROR_MESSAGES } from '../../../commons/messages';
+import { ErrorMessage } from '../../../types';
 
 export class CommonModel<
   TRawDocType,
@@ -38,14 +39,13 @@ export class CommonModel<
 > {
   protected model: Model<HydratedDocument<TRawDocType>>;
   public limitRecordsPerQuery: number = APP_CONFIG.PAGINATION_LIMIT.DEFAULT;
-  protected notFoundMessage: string =
-    HttpErrorMessages['Document does not exist'];
-  protected conflictMessage: string =
-    HttpErrorMessages['Document already exists'];
-  protected deleteFailMessage =
-    HttpErrorMessages['Delete failed. Please try again.'];
-  protected updateFailMessage =
-    HttpErrorMessages['Update failed. Please try again.'];
+  protected notFoundMessage: ErrorMessage =
+    ERROR_MESSAGES['Document does not exist'];
+  protected conflictMessage: string = ERROR_MESSAGES['Document already exists'];
+  protected deleteFailMessage: ErrorMessage =
+    ERROR_MESSAGES['Delete failed. Please try again.'];
+  protected updateFailMessage: ErrorMessage =
+    ERROR_MESSAGES['Update failed. Please try again.'];
 
   public areObjectIdEqual(
     first: Types.ObjectId,

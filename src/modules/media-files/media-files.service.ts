@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { FlattenMaps, Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
 import { MEDIA_FILE_TYPES } from '../../constants';
 import { FilesService } from '../../libs/files.service';
@@ -102,7 +102,7 @@ export class MediaFilesService extends ApiService {
     const count = user.mediaFiles?.length || 0;
     if (count >= APP_CONFIG.UPLOAD_PHOTOS_LIMIT) {
       throw new BadRequestException({
-        message: HttpErrorMessages['You can only upload 6 media files'],
+        message: ERROR_MESSAGES['You can only upload 6 media files'],
       });
     }
     return count;

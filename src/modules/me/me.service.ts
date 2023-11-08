@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
 import { WEEKLY_COINS, WEEKLY_COINS_LENGTH } from '../../constants';
 import { ClientData } from '../auth/auth.type';
 import { ProfileModel } from '../models';
@@ -81,7 +81,7 @@ export class MeService extends UsersCommonService {
 
     if (moment(lastCoinAttendance.receivedDate).isSame(moment(todayDate))) {
       throw new BadRequestException({
-        message: HttpErrorMessages['You already got attendance today'],
+        message: ERROR_MESSAGES['You already got attendance today'],
       });
     }
 

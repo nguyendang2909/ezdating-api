@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../../commons/messages';
 import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel, ProfileModel, View } from '../models';
@@ -48,7 +48,7 @@ export class ViewsService extends ApiService {
   verifyNotSameUserById(userOne: string, userTwo: string) {
     if (userOne === userTwo) {
       throw new BadRequestException({
-        message: HttpErrorMessages['You cannot view yourself'],
+        message: ERROR_MESSAGES['You cannot view yourself'],
       });
     }
   }

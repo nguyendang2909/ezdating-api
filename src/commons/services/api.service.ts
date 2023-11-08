@@ -6,7 +6,7 @@ import _ from 'lodash';
 
 import { ClientData } from '../../modules/auth/auth.type';
 import { PaginatedResponse, Pagination, SingleResponse } from '../../types';
-import { HttpErrorMessages } from '../erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../messages';
 import { DbService } from './db.service';
 
 export class ApiService extends DbService {
@@ -14,24 +14,18 @@ export class ApiService extends DbService {
     queryParams: Record<string, any>,
     client: ClientData,
   ): Promise<PaginatedResponse<Record<string, any>>> {
-    throw new InternalServerErrorException(
-      HttpErrorMessages['Not implemented'],
-    );
+    throw new InternalServerErrorException(ERROR_MESSAGES['Not implemented']);
   }
 
   public async findOneOrFailById(
     id: string,
     client: ClientData,
   ): Promise<SingleResponse<Record<string, any>>> {
-    throw new InternalServerErrorException(
-      HttpErrorMessages['Not implemented'],
-    );
+    throw new InternalServerErrorException(ERROR_MESSAGES['Not implemented']);
   }
 
   public getPagination(data: unknown[]): Pagination {
-    throw new InternalServerErrorException(
-      HttpErrorMessages['Not implemented'],
-    );
+    throw new InternalServerErrorException(ERROR_MESSAGES['Not implemented']);
   }
 
   public getPaginationByField<T>(
@@ -85,14 +79,14 @@ export class ApiService extends DbService {
 
       if (!_.isObject(obj)) {
         throw new BadRequestException(
-          HttpErrorMessages['Input data was not correct'],
+          ERROR_MESSAGES['Input data was not correct'],
         );
       }
 
       return obj;
     } catch (err) {
       throw new BadRequestException(
-        HttpErrorMessages['Input data was not correct'],
+        ERROR_MESSAGES['Input data was not correct'],
       );
     }
   }

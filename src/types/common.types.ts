@@ -2,6 +2,7 @@
 
 import { Types } from 'mongoose';
 
+import { ERROR_MESSAGES } from '../commons/messages';
 import { DevicePlatform } from './data.type';
 
 export type MongoDocument<T> = T & {
@@ -51,3 +52,5 @@ export type _UserOneTwoIds = {
   _userOneId: Types.ObjectId;
   _userTwoId: Types.ObjectId;
 };
+
+export type ErrorMessage = (typeof ERROR_MESSAGES)[keyof typeof ERROR_MESSAGES];

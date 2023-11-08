@@ -1,5 +1,6 @@
+export * from './bases';
+export * from './bases/common-model';
 export * from './coin-attendance.model';
-export * from './common-model';
 export * from './like.model';
 export * from './match.model';
 export * from './media-file.model';

@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { HttpErrorMessages } from '../../../commons/erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../../../commons/messages';
 import { USER_STATUSES } from '../../../constants';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { UserModel } from '../../models';
@@ -21,12 +21,12 @@ export class AdminAuthService {
     const { phoneNumber } = payload;
     const user = await this.userModel.findOne({ phoneNumber });
     if (!user) {
-      throw new NotFoundException(HttpErrorMessages['User does not exist']);
+      throw new NotFoundException(ERROR_MESSAGES['User does not exist']);
     }
     const { status } = user;
     if (!status || status === USER_STATUSES.BANNED) {
       throw new ForbiddenException({
-        message: HttpErrorMessages['You have been banned'],
+        message: ERROR_MESSAGES['You have been banned'],
       });
     }
     const { _id: _userId, role } = user;

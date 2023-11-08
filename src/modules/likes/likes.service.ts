@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
 import { APP_CONFIG } from '../../app.config';
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
@@ -121,7 +121,7 @@ export class LikesService extends ApiCursorDateService {
   public verifyNotSameUserById(userOne: string, userTwo: string) {
     if (userOne === userTwo) {
       throw new BadRequestException({
-        message: HttpErrorMessages['You cannot like yourself'],
+        message: ERROR_MESSAGES['You cannot like yourself'],
       });
     }
   }

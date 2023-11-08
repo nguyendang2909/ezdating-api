@@ -3,8 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, ProjectionType, QueryOptions } from 'mongoose';
 import { Types } from 'mongoose';
 
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
-import { CommonModel } from './common-model';
+import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
+import { CommonModel } from './bases/common-model';
 import {
   Match,
   MatchDocument,
@@ -27,7 +27,7 @@ export class MatchModel extends CommonModel<Match> {
   ) {
     const findResult = await this.findOne(filter, projection, options);
     if (!findResult) {
-      throw new NotFoundException(HttpErrorMessages['Match does not exist']);
+      throw new NotFoundException(ERROR_MESSAGES['Match does not exist']);
     }
     return findResult;
   }

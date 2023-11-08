@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../../commons/messages';
 import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
 import { SignedDeviceModel } from '../models/signed-device.model';
@@ -38,7 +38,7 @@ export class SignedDevicesService extends ApiService {
       .exec();
     if (!updateResult.modifiedCount) {
       throw new BadRequestException(
-        HttpErrorMessages['Update failed. Please try again.'],
+        ERROR_MESSAGES['Update failed. Please try again.'],
       );
     }
   }

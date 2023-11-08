@@ -1,4 +1,4 @@
-export const HttpErrorMessages = {
+export const ERROR_MESSAGES = {
   'Conversation does not exist': 'Conversation does not exist',
   'Conversation is invalid': 'Conversation is invalid',
   'Delete failed. Please try again.': 'Delete failed. Please try again.',

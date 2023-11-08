@@ -3,7 +3,7 @@ import { FilterQuery, Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { DbService } from '../../commons';
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { ChatsGateway } from '../chats/chats.gateway';
 import { MatchWithTargetProfile, Profile, ProfileModel, View } from '../models';
@@ -75,7 +75,7 @@ export class LikesHandler extends DbService {
         `SEND_LIKE Exist like found ${JSON.stringify(existLike)}`,
       );
       throw new ConflictException(
-        HttpErrorMessages['You already like this person'],
+        ERROR_MESSAGES['You already like this person'],
       );
     }
   }

@@ -10,7 +10,7 @@ import { Request } from 'express';
 import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { SignedDeviceModel } from '../models/signed-device.model';
@@ -51,7 +51,7 @@ export class AuthService extends ApiService {
     const { role } = user;
     if (!role) {
       throw new BadRequestException({
-        message: HttpErrorMessages['User data is incorrect'],
+        message: ERROR_MESSAGES['User data is incorrect'],
       });
     }
     const accessToken = this.encryptionsUtil.signAccessToken({

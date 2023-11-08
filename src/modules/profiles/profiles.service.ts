@@ -3,7 +3,7 @@ import moment from 'moment';
 import { UpdateQuery } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../../commons/messages';
 import { GENDERS, RESPONSE_TYPES } from '../../constants';
 import { Gender } from '../../types';
 import { ClientData } from '../auth/auth.type';
@@ -24,7 +24,7 @@ export class ProfilesService extends ProfilesCommonService {
       _id: _currentUserId,
     });
     if (existProfile) {
-      throw new ConflictException(HttpErrorMessages['Profile is exist']);
+      throw new ConflictException(ERROR_MESSAGES['Profile is exist']);
     }
     const { birthday: rawBirthday, ...rest } = payload;
     const birthday = this.getAndCheckValidBirthdayFromRaw(rawBirthday);

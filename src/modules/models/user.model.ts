@@ -7,9 +7,9 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, ProjectionType, QueryOptions } from 'mongoose';
 
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
 import { USER_STATUSES } from '../../constants';
-import { CommonModel } from './common-model';
+import { CommonModel } from './bases/common-model';
 import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
@@ -46,7 +46,7 @@ export class UserModel extends CommonModel<User> {
     const { phoneNumber, email, facebookId } = doc;
     if (!phoneNumber && !email && !facebookId) {
       throw new BadRequestException(
-        HttpErrorMessages[
+        ERROR_MESSAGES[
           'You should sign in by phone number, google or facebook'
         ],
       );
@@ -63,7 +63,7 @@ export class UserModel extends CommonModel<User> {
     const findResult = await this.findOne(filter, projection, options);
     if (!findResult) {
       throw new NotFoundException({
-        message: HttpErrorMessages['User does not exist'],
+        message: ERROR_MESSAGES['User does not exist'],
       });
     }
     const { status } = findResult;

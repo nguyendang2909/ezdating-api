@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { Socket } from 'socket.io';
 
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
 import { DbService } from '../../commons/services/db.service';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { MatchModel } from '../models/match.model';
@@ -40,7 +40,7 @@ export class ChatsService extends DbService {
     if (!match) {
       this.logger.log(`SEND_MESSAGE matchId ${matchId} does not exist`);
       socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
-        message: HttpErrorMessages['Match does not exist'],
+        message: ERROR_MESSAGES['Match does not exist'],
       });
       return;
     }
@@ -79,7 +79,7 @@ export class ChatsService extends DbService {
     );
     if (!editResult) {
       socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
-        message: HttpErrorMessages['Update failed. Please try again.'],
+        message: ERROR_MESSAGES['Update failed. Please try again.'],
       });
 
       return;

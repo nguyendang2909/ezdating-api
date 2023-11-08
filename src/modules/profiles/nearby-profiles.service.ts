@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
-import { HttpErrorMessages } from '../../commons/erros/http-error-messages.constant';
+import { ERROR_MESSAGES } from '../../commons/messages';
 import { ApiService } from '../../commons/services/api.service';
 import { NearbyUserCursor, PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
@@ -39,7 +39,7 @@ export class NearbyProfilesService extends ApiService {
     });
     if (!geolocation?.coordinates) {
       throw new BadRequestException(
-        HttpErrorMessages['Please enable location service in your device'],
+        ERROR_MESSAGES['Please enable location service in your device'],
       );
     }
     // TODO: uncomment this feature
