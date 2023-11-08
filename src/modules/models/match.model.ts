@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, ProjectionType, QueryOptions } from 'mongoose';
+import { Model } from 'mongoose';
 import { Types } from 'mongoose';
 
 import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
@@ -18,18 +18,8 @@ export class MatchModel extends CommonModel<Match> {
     readonly model: Model<MatchDocument>,
   ) {
     super();
-  }
-
-  async findOneOrFail(
-    filter: FilterQuery<Match>,
-    projection?: ProjectionType<Match> | null | undefined,
-    options?: QueryOptions<Match> | null | undefined,
-  ) {
-    const findResult = await this.findOne(filter, projection, options);
-    if (!findResult) {
-      throw new NotFoundException(ERROR_MESSAGES['Match does not exist']);
-    }
-    return findResult;
+    this.conflictMessage = ERROR_MESSAGES['Match already exists'];
+    this.notFoundMessage = ERROR_MESSAGES['Match does not exist'];
   }
 
   public getSortedUserIds({

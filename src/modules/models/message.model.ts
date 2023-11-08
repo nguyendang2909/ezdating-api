@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
+import { ERROR_MESSAGES } from '../../commons/messages';
 import { CommonModel } from './bases/common-model';
 import { Message, MessageDocument } from './schemas/message.schema';
 import { UserModel } from './user.model';
@@ -14,5 +15,7 @@ export class MessageModel extends CommonModel<Message> {
     private readonly userModel: UserModel,
   ) {
     super();
+    this.conflictMessage = ERROR_MESSAGES['Message already exists'];
+    this.notFoundMessage = ERROR_MESSAGES['Message does not exist'];
   }
 }

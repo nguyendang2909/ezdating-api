@@ -21,7 +21,6 @@ import {
   UpdateWriteOpResult,
 } from 'mongoose';
 
-import { APP_CONFIG } from '../../../app.config';
 import { ERROR_MESSAGES } from '../../../commons/messages';
 import { ErrorMessage } from '../../../types';
 
@@ -38,7 +37,6 @@ export class CommonModel<
   TSchema = any,
 > {
   protected model: Model<HydratedDocument<TRawDocType>>;
-  public limitRecordsPerQuery: number = APP_CONFIG.PAGINATION_LIMIT.DEFAULT;
   protected notFoundMessage: ErrorMessage =
     ERROR_MESSAGES['Document does not exist'];
   protected conflictMessage: string = ERROR_MESSAGES['Document already exists'];

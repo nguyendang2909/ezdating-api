@@ -1,12 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  FilterQuery,
-  Model,
-  QueryOptions,
-  UpdateQuery,
-  UpdateWriteOpResult,
-} from 'mongoose';
+import { Model } from 'mongoose';
 import { Types } from 'mongoose';
 
 import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
@@ -21,6 +15,7 @@ export class ProfileModel extends CommonModel<Profile> {
     private readonly cacheService: CacheService,
   ) {
     super();
+    this.conflictMessage = ERROR_MESSAGES['Profile already exists'];
     this.notFoundMessage = ERROR_MESSAGES['Profile does not exist'];
   }
 
@@ -110,18 +105,6 @@ export class ProfileModel extends CommonModel<Profile> {
       throw new NotFoundException(ERROR_MESSAGES['User does not exist']);
     }
     return { profileOne, profileTwo };
-  }
-
-  async updateOne(
-    filter: FilterQuery<Profile>,
-    update: UpdateQuery<Profile>,
-    options?: QueryOptions<Profile> | null | undefined,
-  ): Promise<UpdateWriteOpResult> {
-    const updateResult = await this.model.updateOne(filter, update, options);
-    // if (filter._id) {
-    //   await this.cacheService.redis.del(this.getCacheKey(filter._id));
-    // }
-    return updateResult;
   }
 
   // getCacheKey(_id: Types.ObjectId) {

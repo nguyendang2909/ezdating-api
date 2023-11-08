@@ -5,7 +5,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, ProjectionType, QueryOptions } from 'mongoose';
+import {
+  FilterQuery,
+  Model,
+  ProjectionType,
+  QueryOptions,
+  Types,
+} from 'mongoose';
 
 import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
 import { USER_STATUSES } from '../../constants';
@@ -16,6 +22,8 @@ import { User, UserDocument } from './schemas/user.schema';
 export class UserModel extends CommonModel<User> {
   constructor(@InjectModel(User.name) readonly model: Model<UserDocument>) {
     super();
+    this.conflictMessage = ERROR_MESSAGES['User already exists'];
+    this.notFoundMessage = ERROR_MESSAGES['User does not exist'];
   }
 
   private readonly logger = new Logger(UserModel.name);
@@ -61,6 +69,26 @@ export class UserModel extends CommonModel<User> {
     options?: QueryOptions<User> | null,
   ) {
     const findResult = await this.findOne(filter, projection, options);
+    if (!findResult) {
+      throw new NotFoundException({
+        message: ERROR_MESSAGES['User does not exist'],
+      });
+    }
+    const { status } = findResult;
+    if (status === USER_STATUSES.BANNED) {
+      throw new BadRequestException({
+        message: 'User has been banned',
+      });
+    }
+    return findResult;
+  }
+
+  public async findOneOrFailById(
+    _id: Types.ObjectId,
+    projection?: ProjectionType<User> | null,
+    options?: QueryOptions<User> | null,
+  ) {
+    const findResult = await this.findOneById(_id, projection, options);
     if (!findResult) {
       throw new NotFoundException({
         message: ERROR_MESSAGES['User does not exist'],
