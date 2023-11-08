@@ -8,6 +8,7 @@ import {
   RelationshipGoal,
   RelationshipStatus,
 } from '../../types';
+import { LikesService } from '../likes/likes.service';
 import { ProfileModel, UserModel } from '../models';
 import { ProfilesCommonService } from './profiles.common.service';
 
@@ -16,6 +17,7 @@ export class ProfilesScript extends ProfilesCommonService {
   constructor(
     private readonly profileModel: ProfileModel,
     private readonly userModel: UserModel,
+    private readonly likesService: LikesService,
   ) {
     super();
   }
@@ -101,6 +103,18 @@ export class ProfilesScript extends ProfilesCommonService {
             school: faker.company.name(),
             weight: faker.number.int({ min: 40, max: 100 }),
           });
+          await this.likesService.send(
+            {
+              targetUserId: '65477bb4512459df9ce97fc3',
+            },
+            {
+              id: user._id.toString(),
+              role: USER_ROLES.MEMBER,
+              sub: user._id.toString(),
+              exp: 1111,
+              iat: 11111,
+            },
+          );
         } catch (err) {
           this.logger.error(`Create user failed: ${JSON.stringify(err)}`);
         }
