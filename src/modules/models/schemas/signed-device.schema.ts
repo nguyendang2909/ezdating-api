@@ -27,4 +27,6 @@ export class SignedDevice extends CommonSchema {
 
 export const SignedDeviceSchema = SchemaFactory.createForClass(SignedDevice);
 
+SignedDeviceSchema.index({ _userId: 1 });
+
 SignedDeviceSchema.index({ _userId: 1, refreshToken: 'hashed' });

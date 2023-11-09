@@ -5,7 +5,7 @@ import { APP_CONFIG } from '../../app.config';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { ChatsGateway } from '../chats/chats.gateway';
-import { MessageModel, Profile, ProfileModel } from '../models';
+import { MessageModel, Profile, ProfileModel, ViewModel } from '../models';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import { Match, MatchWithTargetProfile } from '../models/schemas/match.schema';
@@ -20,6 +20,7 @@ export class MatchesHandler extends ApiCursorDateService {
     private readonly profileModel: ProfileModel,
     private readonly messageModel: MessageModel,
     private readonly matchesPublisher: MatchesPublisher,
+    private readonly viewModel: ViewModel,
   ) {
     super();
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MATCHES;
@@ -65,10 +66,33 @@ export class MatchesHandler extends ApiCursorDateService {
           )}`,
         );
       });
-    this.messageModel.deleteMany({ _matchId: match._id });
-    this.matchesPublisher.publishUnmatched(match._id.toString());
     this.emitUnMatchToUser(userOneId, { _id: match._id });
     this.emitUnMatchToUser(userTwoId, { _id: match._id });
+    this.messageModel.deleteMany({ _matchId: match._id });
+    this.matchesPublisher.publishUnmatched(match._id.toString());
+    this.viewModel.updateOne(
+      {
+        'profile.id': _currentUserId,
+        'targetProfile._id': _targetUserId,
+      },
+      {
+        $set: {
+          isLiked: false,
+          isMatched: false,
+        },
+      },
+    );
+    this.viewModel.updateOne(
+      {
+        'profile.id': _targetUserId,
+        'targetProfile._id': _currentUserId,
+      },
+      {
+        $set: {
+          isMatched: false,
+        },
+      },
+    );
   }
 
   emitMatchToUser(userId: string, payload: MatchWithTargetProfile) {
@@ -93,7 +117,13 @@ export class MatchesHandler extends ApiCursorDateService {
       .emit(SOCKET_TO_CLIENT_EVENTS.UNMATCH, payload);
   }
 
-  handleAfterCreateMatch(match: Match) {
+  async handleAfterCreateMatch({
+    match,
+    _currentUserId,
+  }: {
+    _currentUserId: Types.ObjectId;
+    match: Match;
+  }) {
     this.emitMatchToUser(
       match.profileOne._id.toString(),
       this.matchModel.formatOneWithTargetProfile(match, true),
@@ -102,6 +132,9 @@ export class MatchesHandler extends ApiCursorDateService {
       match.profileTwo._id.toString(),
       this.matchModel.formatOneWithTargetProfile(match, false),
     );
+    // Create or update like from currentUser
+    // Update like from targetUser
+    // Update view from 2 sides
   }
 
   async afterFindOneMatch({

@@ -33,7 +33,7 @@ export class MatchesService extends ApiCursorDateService {
     payload: CreateMatchDto,
     clientData: ClientData,
   ): Promise<MatchDocument> {
-    const { _currentUserId } = this.getClient(clientData);
+    const { _currentUserId, currentUserId } = this.getClient(clientData);
     const { targetUserId } = payload;
     const _targetUserId = this.getObjectId(targetUserId);
 
@@ -50,7 +50,10 @@ export class MatchesService extends ApiCursorDateService {
       profileOne,
       profileTwo,
     });
-    this.matchesHandler.handleAfterCreateMatch(createdMatch);
+    this.matchesHandler.handleAfterCreateMatch({
+      match: createdMatch,
+      _currentUserId,
+    });
     return createdMatch;
   }
 

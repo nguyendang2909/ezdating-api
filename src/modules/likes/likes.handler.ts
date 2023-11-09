@@ -1,12 +1,12 @@
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
-import { FilterQuery, Types } from 'mongoose';
+import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { DbService } from '../../commons';
 import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { ChatsGateway } from '../chats/chats.gateway';
-import { MatchWithTargetProfile, Profile, ProfileModel, View } from '../models';
+import { MatchWithTargetProfile, Profile, ProfileModel } from '../models';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import { Like } from '../models/schemas/like.schema';
@@ -113,26 +113,35 @@ export class LikesHandler extends DbService {
     hasReverseLike: boolean;
     like: Like;
   }) {
-    const updateViewFilter: FilterQuery<View> = {
-      _userId: like.profile._id,
-      _targetUserId: like.targetProfile._id,
-    };
-    const updateViewPayload = {
-      isLiked: true,
-      ...(hasReverseLike ? { isMatched: true } : {}),
-    };
-    const updateViewOptions = { upsert: true };
     await this.viewModel
-      .updateOne(updateViewFilter, updateViewPayload, updateViewOptions)
+      .updateOne(
+        {
+          'profile.id': like.profile._id,
+          'targetProfile.id': like.targetProfile._id,
+        },
+        {
+          $set: {
+            isLiked: true,
+            ...(hasReverseLike ? { isMatched: true } : {}),
+          },
+        },
+      )
       .catch((error) => {
-        this.logger.error(
-          `CREATE_LIKE Update view filter ${JSON.stringify(
-            updateViewFilter,
-          )} payload: ${JSON.stringify(
-            updateViewPayload,
-          )} options ${JSON.stringify(updateViewOptions)} error: ${error}`,
-        );
+        this.logger.error(`Update view failed error: ${JSON.stringify(error)}`);
       });
+    if (hasReverseLike) {
+      await this.viewModel.updateOne(
+        {
+          'profile.id': like.targetProfile._id,
+          'targetProfile.id': like.profile._id,
+        },
+        {
+          $set: {
+            isMatched: true,
+          },
+        },
+      );
+    }
   }
 
   emitMatchToUser(userId: string, payload: MatchWithTargetProfile) {
