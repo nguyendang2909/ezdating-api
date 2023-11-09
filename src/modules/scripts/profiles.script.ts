@@ -10,7 +10,7 @@ import {
 } from '../../types';
 import { LikesService } from '../likes/likes.service';
 import { ProfileModel, UserModel } from '../models';
-import { ProfilesCommonService } from './profiles.common.service';
+import { ProfilesCommonService } from '../profiles/profiles.common.service';
 
 @Injectable()
 export class ProfilesScript extends ProfilesCommonService {
@@ -44,7 +44,7 @@ export class ProfilesScript extends ProfilesCommonService {
           return e.mediaFiles;
         });
 
-      for (let index = 0; index < 1000000; index++) {
+      for (let index = 0; index < 1; index++) {
         this.logger.log('Create user');
         try {
           const user = await this.userModel.createOne({
@@ -103,6 +103,7 @@ export class ProfilesScript extends ProfilesCommonService {
             school: faker.company.name(),
             weight: faker.number.int({ min: 40, max: 100 }),
           });
+          console.log(11111);
           await this.likesService.send(
             {
               targetUserId: '65477bb4512459df9ce97fc3',
@@ -115,6 +116,35 @@ export class ProfilesScript extends ProfilesCommonService {
               iat: 11111,
             },
           );
+
+          // const likeProfiles = await this.profileModel.aggregate([
+          //   {
+          //     $match: {
+          //       gender: GENDERS.MALE,
+          //     },
+          //   },
+          //   {
+          //     $sample: {
+          //       size: 1,
+          //     },
+          //   },
+          // ]);
+          // await Promise.all(
+          //   likeProfiles.map((e) =>
+          //     this.likesService.send(
+          //       {
+          //         targetUserId: e._id.toString(),
+          //       },
+          //       {
+          //         id: user._id.toString(),
+          //         role: USER_ROLES.MEMBER,
+          //         sub: user._id.toString(),
+          //         exp: 1111,
+          //         iat: 11111,
+          //       },
+          //     ),
+          //   ),
+          // );
         } catch (err) {
           this.logger.error(`Create user failed: ${JSON.stringify(err)}`);
         }

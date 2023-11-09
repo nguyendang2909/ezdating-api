@@ -30,6 +30,7 @@ import { ModelsModule } from './modules/models/models.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { PushNotificationsModule } from './modules/push-notifications/push-notifications.module';
 import { SchedulesModule } from './modules/schedules/schedules.module';
+import { ScriptsModule } from './modules/scripts/scripts.module';
 import { LoggedDevicesModule } from './modules/signed-devices/signed-devices.module';
 import { UsersModule } from './modules/users/users.module';
 import { ViewsModule } from './modules/views/views.module';
@@ -174,6 +175,7 @@ import { ViewsModule } from './modules/views/views.module';
     AdminAuthModule,
     ProfilesModule,
     SchedulesModule,
+    ScriptsModule,
 
     // CoinsModule,
   ],
