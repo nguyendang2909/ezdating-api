@@ -68,8 +68,8 @@ export class MatchesHandler extends ApiCursorDateService {
       });
     this.emitUnMatchToUser(userOneId, { _id: match._id });
     this.emitUnMatchToUser(userTwoId, { _id: match._id });
-    this.messageModel.deleteMany({ _matchId: match._id });
-    this.matchesPublisher.publishUnmatched(match._id.toString());
+    // TODO: queue
+    // this.matchesPublisher.publishUnmatched(match._id.toString());
     this.viewModel.updateOne(
       {
         'profile.id': _currentUserId,
@@ -93,6 +93,7 @@ export class MatchesHandler extends ApiCursorDateService {
         },
       },
     );
+    this.messageModel.deleteMany({ _matchId: match._id });
   }
 
   emitMatchToUser(userId: string, payload: MatchWithTargetProfile) {
