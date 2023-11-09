@@ -16,8 +16,21 @@ export class View extends CommonSchema {
 
   @Prop({ type: Boolean, required: false, default: false })
   isLiked?: boolean;
+
+  @Prop({ type: Boolean, required: false, default: false })
+  isMatched?: boolean;
 }
 
 export const ViewSchema = SchemaFactory.createForClass(View);
 
 ViewSchema.index({ _userId: 1, _targetUserId: 1 }, { unique: true });
+
+ViewSchema.index(
+  { 'profile._id': 1, isLiked: 1, isMatched: 1, createdAt: 1 },
+  {
+    partialFilterExpression: {
+      isLiked: { $eq: false },
+      isMatched: { $eq: false },
+    },
+  },
+);

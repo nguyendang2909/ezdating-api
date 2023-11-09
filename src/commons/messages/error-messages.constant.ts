@@ -31,6 +31,8 @@ export const ERROR_MESSAGES = {
   'User device already exists': 'User device already exists',
   'User device does not exist': 'User device does not exist',
   'User does not exist': 'User does not exist',
+  'View already exists': 'View already exists',
+  'View does not exist': 'View does not exist',
   'You already got attendance today': 'You already got attendance today',
   'You already like this person': 'You already like this person',
   'You are already got matched': 'You are already got matched',

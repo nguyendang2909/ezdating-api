@@ -25,7 +25,7 @@ export class LikesController {
   }
 
   @Get('/me')
-  public async findMany(
+  public async findManyLikedMe(
     @Query() queryParams: FindManyLikedMeDto,
     @Client() clientData: ClientData,
   ) {

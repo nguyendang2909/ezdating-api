@@ -5,7 +5,7 @@ import { ClientData } from '../../modules/auth/auth.type';
 import { CommonService } from './common.service';
 
 export class DbService extends CommonService {
-  public limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.DEFAULT;
+  protected limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.DEFAULT;
 
   public getObjectId(id: string): Types.ObjectId {
     return new Types.ObjectId(id);
