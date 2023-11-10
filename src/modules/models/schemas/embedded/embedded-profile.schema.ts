@@ -31,11 +31,17 @@ export class EmbeddedProfile extends CommonEmbeddedSchema {
   @Prop({ type: Date, default: new Date() })
   lastActivatedAt: Date;
 
+  @Prop({ type: Number, default: 0 })
+  mediaFileCount: number;
+
   @Prop({ type: [EmbeddedMediaFileSchema] })
-  mediaFiles?: EmbeddedMediaFile[];
+  mediaFiles: EmbeddedMediaFile[];
 
   @Prop({ type: String, length: 100, required: true })
   nickname: string;
+
+  @Prop({ type: Boolean, default: false })
+  photoVerified: boolean;
 }
 
 export const EmbeddedProfileSchema =

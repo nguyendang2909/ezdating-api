@@ -26,7 +26,15 @@ LikeSchema.index(
 );
 
 LikeSchema.index(
-  { 'targetProfile._id': 1, isMatched: 1, createdAt: -1 },
+  {
+    'targetProfile._id': 1,
+    isMatched: 1,
+    'profile.mediaFileCount': 1,
+    'profile.gender': 1,
+    'profile.birthday': 1,
+    'profile.photoVerified': 1,
+    createdAt: -1,
+  },
   {
     partialFilterExpression: {
       isMatched: { $eq: false },

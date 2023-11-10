@@ -75,7 +75,6 @@ export class NearbyProfilesService extends ApiService {
             },
             mediaFileCount: { $gt: 0 },
             gender: filterGender,
-            filterGender: gender,
             birthday: {
               $gte: moment().subtract(filterMaxAge, 'years').toDate(),
               $lte: moment().subtract(filterMinAge, 'years').toDate(),

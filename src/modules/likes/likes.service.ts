@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
 import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
@@ -86,10 +87,20 @@ export class LikesService extends ApiCursorDateService {
     const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;
+    const { filterMaxAge, filterMinAge, filterGender, gender } =
+      await this.profileModel.findOneOrFail({
+        _id: _currentUserId,
+      });
     const findResults = await this.likeModel.findMany(
       {
         'targetProfile._id': _currentUserId,
         isMatched: false,
+        'profile.mediaFileCount': { $gt: 0 },
+        'profile.gender': filterGender,
+        'profile.birthday': {
+          $gte: moment().subtract(filterMaxAge, 'years').toDate(),
+          $lte: moment().subtract(filterMinAge, 'years').toDate(),
+        },
         ...(cursor
           ? {
               createdAt: {
