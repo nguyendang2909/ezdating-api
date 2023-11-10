@@ -44,7 +44,7 @@ export class ProfilesScript extends ProfilesCommonService {
           return e.mediaFiles;
         });
 
-      for (let index = 0; index < 1; index++) {
+      for (let index = 0; index < 100000000; index++) {
         this.logger.log('Create user');
         try {
           const user = await this.userModel.createOne({

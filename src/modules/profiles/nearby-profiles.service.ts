@@ -69,15 +69,14 @@ export class NearbyProfilesService extends ApiService {
           // TODO: uncoment this line (important for launch)
           // maxDistance: filterMaxDistance,
           query: {
-            _id: { $ne: _currentUserId },
-            lastActivatedAt: {
-              $gt: moment().subtract(1, 'hour').toDate(),
-            },
             mediaFileCount: { $gt: 0 },
             gender: filterGender,
-            birthday: {
-              $gte: moment().subtract(filterMaxAge, 'years').toDate(),
-              $lte: moment().subtract(filterMinAge, 'years').toDate(),
+            // birthday: {
+            //   $gte: moment().subtract(filterMaxAge, 'years').toDate(),
+            //   $lte: moment().subtract(filterMinAge, 'years').toDate(),
+            // },
+            lastActivatedAt: {
+              $gt: moment().subtract(10, 'h').toDate(),
             },
           },
         },
@@ -141,16 +140,20 @@ export class NearbyProfilesService extends ApiService {
   // }
 
   async test() {
-    return await this.profileModel.findMany(
+    return await this.profileModel.model.find(
       {
-        birthday: {
-          $gt: moment().subtract(1, 'days'),
+        lastActivatedAt: {
+          $gt: moment().subtract(25, 'hours'),
         },
       },
       // {},
-      // {
-      //   limit: 1,
-      // },
+      {},
+      {
+        sort: {
+          lastActivatedAt: -1,
+        },
+        limit: 10,
+      },
     );
   }
 }
