@@ -139,4 +139,18 @@ export class NearbyProfilesService extends ApiService {
 
   //   return cursor;
   // }
+
+  async test() {
+    return await this.profileModel.findMany(
+      {
+        birthday: {
+          $gt: moment().subtract(1, 'days'),
+        },
+      },
+      // {},
+      // {
+      //   limit: 1,
+      // },
+    );
+  }
 }

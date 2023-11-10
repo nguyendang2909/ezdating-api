@@ -10,6 +10,8 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { RequireRoles } from '../../commons/decorators/require-roles.decorator';
+import { USER_ROLES } from '../../constants';
 import { ClientData } from '../auth/auth.type';
 import {
   CreateProfileDto,
@@ -64,6 +66,12 @@ export class ProfilesController {
     @Client() clientData: ClientData,
   ) {
     return await this.nearbyProfilesService.findMany(queryParams, clientData);
+  }
+
+  @Get('/test')
+  @RequireRoles([USER_ROLES.ADMIN])
+  async test() {
+    return await this.nearbyProfilesService.test();
   }
 
   @Get('/:id')

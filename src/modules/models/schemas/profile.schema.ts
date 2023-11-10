@@ -134,9 +134,13 @@ export class Profile extends CommonSchema {
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);
 
-ProfileSchema.index({
-  geolocation: '2dsphere',
-});
+// ProfileSchema.index({
+//   geolocation: '2dsphere',
+//   mediaFileCount: 1,
+//   gender: 1,
+//   birthday: 1,
+//   lastActivatedAt: 1,
+// });
 
 ProfileSchema.index(
   {
@@ -151,3 +155,7 @@ ProfileSchema.index(
     },
   },
 );
+
+ProfileSchema.index({
+  birthday: -1,
+});
