@@ -25,10 +25,10 @@ export class ProfilesScript extends ProfilesCommonService {
   private logger = new Logger(ProfilesScript.name);
 
   onApplicationBootstrap() {
-    this.createProfiles();
+    this.createProfilesFemale();
   }
 
-  async createProfiles() {
+  async createProfilesFemale() {
     if (process.env.NODE_ENV === 'staging') {
       const sampleProfiles = await this.profileModel.findMany(
         {
@@ -145,6 +145,88 @@ export class ProfilesScript extends ProfilesCommonService {
           //     ),
           //   ),
           // );
+        } catch (err) {
+          this.logger.error(`Create user failed: ${JSON.stringify(err)}`);
+        }
+      }
+    }
+  }
+
+  async createProfilesMale() {
+    if (process.env.NODE_ENV === 'staging') {
+      const sampleProfiles = await this.profileModel.findMany(
+        {
+          gender: GENDERS.MALE,
+          mediaFileCount: 1,
+        },
+        {},
+        { limit: 100 },
+      );
+      const sampleMediaFiles = sampleProfiles
+        .filter((e) => e.mediaFiles?.length === 1)
+        .flatMap((e) => {
+          return e.mediaFiles;
+        });
+
+      for (let index = 0; index < 1; index++) {
+        this.logger.log('Create user');
+        try {
+          const user = await this.userModel.createOne({
+            email: faker.internet.email(),
+            role: USER_ROLES.MEMBER,
+            status: USER_STATUSES.ACTIVATED,
+          });
+          const mediaFiles = faker.helpers.arrayElements(sampleMediaFiles, {
+            min: 1,
+            max: 6,
+          });
+          await this.profileModel.createOne({
+            _id: user._id,
+            birthday: faker.date.between({
+              from: moment().subtract(30, 'years').toDate(),
+              to: moment().subtract(25, 'years').toDate(),
+            }),
+            company: faker.company.name(),
+            educationLevel: faker.number.int({
+              min: 1,
+              max: 7,
+            }) as EducationLevel,
+            filterGender: GENDERS.FEMALE,
+            filterMaxAge: 99,
+            filterMaxDistance: 100,
+            filterMinAge: 18,
+            gender: GENDERS.MALE,
+            geolocation: {
+              type: 'Point',
+              coordinates: [
+                faker.location.longitude(),
+                faker.location.latitude(),
+              ],
+            },
+            height: faker.number.int({ min: 155, max: 190 }),
+            hideAge: false,
+            hideDistance: false,
+            introduce: faker.word.words(),
+            jobTitle: faker.name.jobTitle(),
+            languages: [faker.location.country()],
+            lastActivatedAt: faker.date.between({
+              from: moment().subtract(100, 'minutes').toDate(),
+              to: moment().subtract(1, 'minutes').toDate(),
+            }),
+            mediaFileCount: mediaFiles.length,
+            mediaFiles: mediaFiles,
+            nickname: faker.person.fullName(),
+            relationshipGoal: faker.number.int({
+              min: 1,
+              max: 5,
+            }) as RelationshipGoal,
+            relationshipStatus: faker.number.int({
+              min: 1,
+              max: 6,
+            }) as RelationshipStatus,
+            school: faker.company.name(),
+            weight: faker.number.int({ min: 45, max: 110 }),
+          });
         } catch (err) {
           this.logger.error(`Create user failed: ${JSON.stringify(err)}`);
         }

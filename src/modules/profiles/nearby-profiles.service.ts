@@ -29,6 +29,7 @@ export class NearbyProfilesService extends ApiService {
       filterMinAge,
       filterMaxDistance: filterMaxDistanceAsKm,
       filterGender,
+      gender,
     } = await this.profileModel.findOneOrFail({
       _id: _currentUserId,
     });
@@ -68,11 +69,13 @@ export class NearbyProfilesService extends ApiService {
           // TODO: uncoment this line (important for launch)
           // maxDistance: filterMaxDistance,
           query: {
+            _id: { $ne: _currentUserId },
+            lastActivatedAt: {
+              $gt: moment().subtract(1, 'hour').toDate(),
+            },
             mediaFileCount: { $gt: 0 },
-            // lastActivatedAt: {
-            //   $gt: moment().subtract(7, 'd').toDate(),
-            // },
             gender: filterGender,
+            filterGender: gender,
             birthday: {
               $gte: moment().subtract(filterMaxAge, 'years').toDate(),
               $lte: moment().subtract(filterMinAge, 'years').toDate(),

@@ -20,7 +20,7 @@ export class FilesService {
 
   private readonly logger = new Logger(FilesService.name);
 
-  async updatePhoto(file: Express.Multer.File) {
+  async uploadPhoto(file: Express.Multer.File) {
     const fileBufferWithSharp = await sharp(file.buffer)
       .resize(640, 860)
       .toFormat('webp')

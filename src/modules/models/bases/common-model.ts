@@ -223,12 +223,12 @@ export class CommonModel<
     return await this.model.deleteOne(filter, options).exec();
   }
 
-  async deleteOneById(
-    _id: Types.ObjectId,
-    options?: QueryOptions<TRawDocType>,
-  ) {
-    return await this.deleteOne({ _id }, options);
-  }
+  // async deleteOneById(
+  //   _id: Types.ObjectId,
+  //   options?: QueryOptions<TRawDocType>,
+  // ) {
+  //   return await this.deleteOne({ _id }, options);
+  // }
 
   async deleteOneOrFail(
     filter?: FilterQuery<TRawDocType>,
@@ -238,13 +238,13 @@ export class CommonModel<
     this.verifyDeleteSuccess(deleteResult);
   }
 
-  async deleteOneOrFailById(
-    _id: Types.ObjectId,
-    options?: QueryOptions<TRawDocType>,
-  ) {
-    const deleteResult = await this.deleteOneById(_id, options);
-    this.verifyDeleteSuccess(deleteResult);
-  }
+  // async deleteOneOrFailById(
+  //   _id: Types.ObjectId,
+  //   options?: QueryOptions<TRawDocType>,
+  // ) {
+  //   const deleteResult = await this.deleteOneById(_id, options);
+  //   this.verifyDeleteSuccess(deleteResult);
+  // }
 
   verifyExist(e: any) {
     if (!e) {

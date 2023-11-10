@@ -24,10 +24,9 @@ export class MediaFilesService extends ApiService {
   public async uploadPhoto(
     file: Express.Multer.File,
     payload: UploadPhotoDtoDto,
-    clientData: ClientData,
+    client: ClientData,
   ) {
-    const { id: currentUserId } = clientData;
-    const _currentUserId = this.getObjectId(currentUserId);
+    const { _currentUserId } = this.getClient(client);
     const profile = await this.profileModel.findOneOrFail(
       { _id: _currentUserId },
       {
@@ -37,8 +36,8 @@ export class MediaFilesService extends ApiService {
       },
     );
     this.verifyCanUploadFiles(profile);
-    const photo = await this.filesService.updatePhoto(file);
-    await this.mediaFileModel.createOne({
+    const photo = await this.filesService.uploadPhoto(file);
+    const mediaFile = await this.mediaFileModel.createOne({
       _userId: _currentUserId,
       key: photo.Key,
       type: MEDIA_FILE_TYPES.photo,
@@ -52,6 +51,7 @@ export class MediaFilesService extends ApiService {
         },
         $push: {
           mediaFiles: {
+            _id: mediaFile._id,
             key: photo.Key,
             type: MEDIA_FILE_TYPES.photo,
           },
@@ -65,33 +65,44 @@ export class MediaFilesService extends ApiService {
     return createResult?.mediaFiles?.find((e) => e.key === photo.Key);
   }
 
-  public async deleteOne(id: string, clientData: ClientData) {
+  public async deleteOne(id: string, client: ClientData) {
     const _id = this.getObjectId(id);
-    const { id: currentUserId } = clientData;
-    const _currentUserId = this.getObjectId(currentUserId);
-    const mediaFile = await this.mediaFileModel.findOneOrFailById(_id, {
-      _id: true,
-      key: true,
+    const { _currentUserId } = this.getClient(client);
+    const profileWithMediaFile = await this.profileModel.findOneOrFail(
+      {
+        _id: _currentUserId,
+        'mediaFiles._id': _id,
+      },
+      {
+        _id: true,
+        key: true,
+      },
+    );
+    await this.mediaFileModel.deleteOne({
+      _id,
+      _userId: _currentUserId,
     });
-    await this.mediaFileModel.deleteOneById(_currentUserId, {
-      $pull: {
-        mediaFiles: {
-          _id,
+    await this.profileModel.updateOne(
+      {
+        _id: _currentUserId,
+        'mediaFiles._id': _id,
+      },
+      {
+        $pull: {
+          mediaFiles: {
+            _id,
+          },
+        },
+        $inc: {
+          mediaFileCount: 1,
         },
       },
-    });
-    await this.profileModel.updateOneById(_currentUserId, {
-      $pull: {
-        mediaFiles: {
-          _id,
-        },
-      },
-      $inc: {
-        mediaFileCount: 1,
-      },
-    });
+    );
     // TODO: queue
-    if (mediaFile.key) {
+    const mediaFile = profileWithMediaFile.mediaFiles.find(
+      (e) => e._id.toString() === id,
+    );
+    if (mediaFile && mediaFile.key) {
       this.filesService.removeOne(mediaFile.key);
     }
   }
