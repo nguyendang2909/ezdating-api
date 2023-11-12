@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import _ from 'lodash';
 import {
+  AnyObject,
   Document,
   FilterQuery,
   HydratedDocument,
@@ -56,6 +57,10 @@ export class CommonModel<
     pipeline: PipelineStage[],
   ): Promise<Array<TRawDocType & { _id: Types.ObjectId }>> {
     return await this.model.aggregate(pipeline).exec();
+  }
+
+  async aggregateExplain(pipeline: PipelineStage[]): Promise<AnyObject> {
+    return await this.model.aggregate(pipeline).explain();
   }
 
   async createOne(doc: Partial<TRawDocType>) {
@@ -125,8 +130,7 @@ export class CommonModel<
     projection?: ProjectionType<TRawDocType> | null,
     options?: QueryOptions<TRawDocType> | null,
   ): Promise<TRawDocType> {
-    const findResult = await this.findOneById(_id, projection, options);
-    return this.verifyExist(findResult);
+    return await this.findOneOrFail({ _id }, projection, options);
   }
 
   async updateOne(

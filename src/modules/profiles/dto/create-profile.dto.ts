@@ -1,7 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   Matches,
@@ -40,7 +41,13 @@ export class CreateProfileDto {
   @IsEnum(RELATIONSHIP_GOALS)
   relationshipGoal!: RelationshipGoal;
 
-  // @ApiProperty({ type: String })
-  // @JoiSchema(Joi.number().required())
-  // stateId?: number;
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsNumber()
+  latitude?: number;
+
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsNumber()
+  longitude?: number;
 }

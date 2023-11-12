@@ -34,6 +34,7 @@ import { ScriptsModule } from './modules/scripts/scripts.module';
 import { LoggedDevicesModule } from './modules/signed-devices/signed-devices.module';
 import { UsersModule } from './modules/users/users.module';
 import { ViewsModule } from './modules/views/views.module';
+import { ProfileFiltersModule } from './modules/profile-filters/profile-filters.module';
 
 @Module({
   imports: [
@@ -176,6 +177,7 @@ import { ViewsModule } from './modules/views/views.module';
     ProfilesModule,
     SchedulesModule,
     ScriptsModule,
+    ProfileFiltersModule,
 
     // CoinsModule,
   ],

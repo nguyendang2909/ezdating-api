@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import moment from 'moment';
 import { Model } from 'mongoose';
 import { Types } from 'mongoose';
 
@@ -114,4 +115,7 @@ export class ProfileModel extends CommonModel<Profile> {
   // async findOneInCache(key: string) {
   //   return await this.cacheService.getJSON<Profile>(key);
   // }
+  getAgeFromBirthday(birthday: Date): number {
+    return moment().diff(birthday, 'years');
+  }
 }

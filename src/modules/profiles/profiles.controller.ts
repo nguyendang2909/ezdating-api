@@ -33,8 +33,9 @@ export class ProfilesController {
     private readonly nearbyProfilesService: NearbyProfilesService,
   ) {}
 
+  // * Me api
   @Post('/me')
-  private async createProfile(
+  async createProfile(
     @Body() payload: CreateProfileDto,
     @Client() client: ClientData,
   ) {
@@ -45,12 +46,24 @@ export class ProfilesController {
   }
 
   @Get('/me')
-  private async getProfile(@Client() clientData: ClientData) {
+  async getProfile(@Client() clientData: ClientData) {
     return {
       type: 'profile',
       data: await this.service.getMe(clientData),
     };
   }
+
+  @Patch('/me')
+  private async updateMe(
+    @Body() payload: UpdateMyProfileDto,
+    @Client() clientData: ClientData,
+  ) {
+    await this.service.updateMe(payload, clientData);
+    return {
+      type: 'updateProfile',
+    };
+  }
+  // * End me api
 
   @Get('/swipe')
   public async findManySwipe(
@@ -80,16 +93,5 @@ export class ProfilesController {
     @Client() client: ClientData,
   ) {
     return await this.service.findOneOrFailById(id, client);
-  }
-
-  @Patch('/me')
-  private async updateProfile(
-    @Body() payload: UpdateMyProfileDto,
-    @Client() clientData: ClientData,
-  ) {
-    await this.service.updateMe(payload, clientData);
-    return {
-      type: 'updateProfile',
-    };
   }
 }

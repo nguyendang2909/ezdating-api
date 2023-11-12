@@ -1,173 +1,33 @@
 import { faker } from '@faker-js/faker';
 import { Injectable, Logger } from '@nestjs/common';
-import moment from 'moment';
+import { AxiosInstance } from 'axios';
 
 import { GENDERS, USER_ROLES, USER_STATUSES } from '../../constants';
-import {
-  EducationLevel,
-  RelationshipGoal,
-  RelationshipStatus,
-} from '../../types';
-import { LikesService } from '../likes/likes.service';
+import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { ProfileModel, UserModel } from '../models';
-import { ProfilesCommonService } from '../profiles/profiles.common.service';
+import { ApiScript } from './api.script';
 
 @Injectable()
-export class ProfilesScript extends ProfilesCommonService {
+export class ProfilesScript {
+  baseUrl: string;
+  api: AxiosInstance;
+
   constructor(
     private readonly profileModel: ProfileModel,
     private readonly userModel: UserModel,
-    private readonly likesService: LikesService,
-  ) {
-    super();
-  }
+    private readonly encryptionsUtil: EncryptionsUtil,
+    private readonly apiScript: ApiScript,
+  ) {}
 
-  private logger = new Logger(ProfilesScript.name);
+  private logger = new Logger(ApiScript.name);
 
   onApplicationBootstrap() {
     this.createProfilesFemale();
   }
 
   async createProfilesFemale() {
-    if (process.env.NODE_ENV === 'staging') {
-      const sampleProfiles = await this.profileModel.findMany(
-        {
-          gender: GENDERS.FEMALE,
-          mediaFileCount: 1,
-        },
-        {},
-        { limit: 100 },
-      );
-      const sampleMediaFiles = sampleProfiles
-        .filter((e) => e.mediaFiles?.length === 1)
-        .flatMap((e) => {
-          return e.mediaFiles;
-        });
-
-      for (let index = 0; index < 100000000; index++) {
-        this.logger.log('Create user');
-        try {
-          const user = await this.userModel.createOne({
-            email: faker.internet.email(),
-            role: USER_ROLES.MEMBER,
-            status: USER_STATUSES.ACTIVATED,
-          });
-          const mediaFiles = faker.helpers.arrayElements(sampleMediaFiles, {
-            min: 1,
-            max: 6,
-          });
-          await this.profileModel.createOne({
-            _id: user._id,
-            birthday: faker.date.between({
-              from: moment().subtract(30, 'years').toDate(),
-              to: moment().subtract(25, 'years').toDate(),
-            }),
-            company: faker.company.name(),
-            educationLevel: faker.number.int({
-              min: 1,
-              max: 7,
-            }) as EducationLevel,
-            filterGender: GENDERS.MALE,
-            filterMaxAge: 99,
-            filterMaxDistance: 100,
-            filterMinAge: 18,
-            gender: GENDERS.FEMALE,
-            geolocation: {
-              type: 'Point',
-              coordinates: [
-                faker.location.longitude(),
-                faker.location.latitude(),
-              ],
-            },
-            height: faker.number.int({ min: 140, max: 180 }),
-            hideAge: false,
-            hideDistance: false,
-            introduce: faker.word.words(),
-            jobTitle: faker.name.jobTitle(),
-            languages: [faker.location.country()],
-            lastActivatedAt: faker.date.between({
-              from: moment().subtract(100, 'minutes').toDate(),
-              to: moment().subtract(1, 'minutes').toDate(),
-            }),
-            mediaFileCount: mediaFiles.length,
-            mediaFiles: mediaFiles,
-            nickname: faker.person.fullName(),
-            relationshipGoal: faker.number.int({
-              min: 1,
-              max: 5,
-            }) as RelationshipGoal,
-            relationshipStatus: faker.number.int({
-              min: 1,
-              max: 6,
-            }) as RelationshipStatus,
-            school: faker.company.name(),
-            weight: faker.number.int({ min: 40, max: 100 }),
-          });
-          console.log(11111);
-          await this.likesService.send(
-            {
-              targetUserId: '65477bb4512459df9ce97fc3',
-            },
-            {
-              id: user._id.toString(),
-              role: USER_ROLES.MEMBER,
-              sub: user._id.toString(),
-              exp: 1111,
-              iat: 11111,
-            },
-          );
-
-          // const likeProfiles = await this.profileModel.aggregate([
-          //   {
-          //     $match: {
-          //       gender: GENDERS.MALE,
-          //     },
-          //   },
-          //   {
-          //     $sample: {
-          //       size: 1,
-          //     },
-          //   },
-          // ]);
-          // await Promise.all(
-          //   likeProfiles.map((e) =>
-          //     this.likesService.send(
-          //       {
-          //         targetUserId: e._id.toString(),
-          //       },
-          //       {
-          //         id: user._id.toString(),
-          //         role: USER_ROLES.MEMBER,
-          //         sub: user._id.toString(),
-          //         exp: 1111,
-          //         iat: 11111,
-          //       },
-          //     ),
-          //   ),
-          // );
-        } catch (err) {
-          this.logger.error(`Create user failed: ${JSON.stringify(err)}`);
-        }
-      }
-    }
-  }
-
-  async createProfilesMale() {
-    if (process.env.NODE_ENV === 'staging') {
-      const sampleProfiles = await this.profileModel.findMany(
-        {
-          gender: GENDERS.MALE,
-          mediaFileCount: 1,
-        },
-        {},
-        { limit: 100 },
-      );
-      const sampleMediaFiles = sampleProfiles
-        .filter((e) => e.mediaFiles?.length === 1)
-        .flatMap((e) => {
-          return e.mediaFiles;
-        });
-
+    if (process.env.NODE_ENV === 'development') {
+      const { mediaFiles } = await this.getSampleData();
       for (let index = 0; index < 1; index++) {
         this.logger.log('Create user');
         try {
@@ -176,61 +36,130 @@ export class ProfilesScript extends ProfilesCommonService {
             role: USER_ROLES.MEMBER,
             status: USER_STATUSES.ACTIVATED,
           });
-          const mediaFiles = faker.helpers.arrayElements(sampleMediaFiles, {
-            min: 1,
-            max: 6,
+          const accessToken = this.encryptionsUtil.signAccessToken({
+            id: user._id.toString(),
+            role: user.role,
+            sub: user._id.toString(),
           });
-          await this.profileModel.createOne({
-            _id: user._id,
-            birthday: faker.date.between({
-              from: moment().subtract(30, 'years').toDate(),
-              to: moment().subtract(25, 'years').toDate(),
-            }),
-            company: faker.company.name(),
-            educationLevel: faker.number.int({
-              min: 1,
-              max: 7,
-            }) as EducationLevel,
-            filterGender: GENDERS.FEMALE,
-            filterMaxAge: 99,
-            filterMaxDistance: 100,
-            filterMinAge: 18,
-            gender: GENDERS.MALE,
-            geolocation: {
-              type: 'Point',
-              coordinates: [
-                faker.location.longitude(),
-                faker.location.latitude(),
-              ],
+          this.apiScript.init(accessToken);
+          await this.apiScript.createProfile();
+          await this.apiScript.updateProfile();
+          await this.profileModel.updateOneById(user._id, {
+            $set: {
+              mediaFiles: mediaFiles,
+              mediaFileCount: mediaFiles.length,
             },
-            height: faker.number.int({ min: 155, max: 190 }),
-            hideAge: false,
-            hideDistance: false,
-            introduce: faker.word.words(),
-            jobTitle: faker.name.jobTitle(),
-            languages: [faker.location.country()],
-            lastActivatedAt: faker.date.between({
-              from: moment().subtract(100, 'minutes').toDate(),
-              to: moment().subtract(1, 'minutes').toDate(),
-            }),
-            mediaFileCount: mediaFiles.length,
-            mediaFiles: mediaFiles,
-            nickname: faker.person.fullName(),
-            relationshipGoal: faker.number.int({
-              min: 1,
-              max: 5,
-            }) as RelationshipGoal,
-            relationshipStatus: faker.number.int({
-              min: 1,
-              max: 6,
-            }) as RelationshipStatus,
-            school: faker.company.name(),
-            weight: faker.number.int({ min: 45, max: 110 }),
+          });
+          await this.apiScript.sendLike({
+            targetUserId: '65477bb4512459df9ce97fc3',
           });
         } catch (err) {
           this.logger.error(`Create user failed: ${JSON.stringify(err)}`);
         }
       }
     }
+  }
+
+  // async createProfilesMale() {
+  //   if (process.env.NODE_ENV === 'staging') {
+  //     const sampleProfiles = await this.profileModel.findMany(
+  //       {
+  //         gender: GENDERS.MALE,
+  //         mediaFileCount: 1,
+  //       },
+  //       {},
+  //       { limit: 100 },
+  //     );
+  //     const sampleMediaFiles = sampleProfiles
+  //       .filter((e) => e.mediaFiles?.length === 1)
+  //       .flatMap((e) => {
+  //         return e.mediaFiles;
+  //       });
+
+  //     for (let index = 0; index < 1; index++) {
+  //       this.logger.log('Create user');
+  //       try {
+  //         const user = await this.userModel.createOne({
+  //           email: faker.internet.email(),
+  //           role: USER_ROLES.MEMBER,
+  //           status: USER_STATUSES.ACTIVATED,
+  //         });
+  //         const mediaFiles = faker.helpers.arrayElements(sampleMediaFiles, {
+  //           min: 1,
+  //           max: 6,
+  //         });
+  //         await this.profileModel.createOne({
+  //           _id: user._id,
+  //           birthday: faker.date.between({
+  //             from: moment().subtract(30, 'years').toDate(),
+  //             to: moment().subtract(25, 'years').toDate(),
+  //           }),
+  //           company: faker.company.name(),
+  //           educationLevel: faker.number.int({
+  //             min: 1,
+  //             max: 7,
+  //           }) as EducationLevel,
+  //           filterGender: GENDERS.FEMALE,
+  //           filterMaxAge: 99,
+  //           filterMaxDistance: 100,
+  //           filterMinAge: 18,
+  //           gender: GENDERS.MALE,
+  //           geolocation: {
+  //             type: 'Point',
+  //             coordinates: [
+  //               faker.location.longitude(),
+  //               faker.location.latitude(),
+  //             ],
+  //           },
+  //           height: faker.number.int({ min: 155, max: 190 }),
+  //           hideAge: false,
+  //           hideDistance: false,
+  //           introduce: faker.word.words(),
+  //           jobTitle: faker.name.jobTitle(),
+  //           languages: [faker.location.country()],
+  //           lastActivatedAt: faker.date.between({
+  //             from: moment().subtract(100, 'minutes').toDate(),
+  //             to: moment().subtract(1, 'minutes').toDate(),
+  //           }),
+  //           mediaFileCount: mediaFiles.length,
+  //           mediaFiles: mediaFiles,
+  //           nickname: faker.person.fullName(),
+  //           relationshipGoal: faker.number.int({
+  //             min: 1,
+  //             max: 5,
+  //           }) as RelationshipGoal,
+  //           relationshipStatus: faker.number.int({
+  //             min: 1,
+  //             max: 6,
+  //           }) as RelationshipStatus,
+  //           school: faker.company.name(),
+  //           weight: faker.number.int({ min: 45, max: 110 }),
+  //         });
+  //       } catch (err) {
+  //         this.logger.error(`Create user failed: ${JSON.stringify(err)}`);
+  //       }
+  //     }
+  //   }
+  // }
+
+  async getSampleData() {
+    const sampleProfiles = await this.profileModel.findMany(
+      {
+        gender: GENDERS.FEMALE,
+        mediaFileCount: 1,
+      },
+      {},
+      { limit: 100 },
+    );
+    const sampleMediaFiles = sampleProfiles
+      .filter((e) => e.mediaFiles?.length === 1)
+      .flatMap((e) => {
+        return e.mediaFiles;
+      });
+    const mediaFiles = faker.helpers.arrayElements(sampleMediaFiles, {
+      min: 1,
+      max: 6,
+    });
+    return { mediaFiles };
   }
 }

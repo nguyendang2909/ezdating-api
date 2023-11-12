@@ -7,6 +7,8 @@ import { MatchModel } from './match.model';
 import { MediaFileModel } from './media-file.model';
 import { MessageModel } from './message.model';
 import { ProfileModel } from './profile.model';
+import { ProfileFilterModel } from './profile-filter.model';
+import { ProfileFilter, ProfileFilterSchema } from './schemas';
 import {
   CoinAttendance,
   CoinAttendanceSchema,
@@ -39,6 +41,7 @@ import { ViewModel } from './view.model';
       { name: Match.name, schema: MatchSchema },
       { name: Message.name, schema: MessageSchema },
       { name: Profile.name, schema: ProfileSchema },
+      { name: ProfileFilter.name, schema: ProfileFilterSchema },
       { name: SignedDevice.name, schema: SignedDeviceSchema },
       { name: User.name, schema: UserSchema },
       { name: View.name, schema: ViewSchema },
@@ -52,6 +55,7 @@ import { ViewModel } from './view.model';
     MatchModel,
     MessageModel,
     ProfileModel,
+    ProfileFilterModel,
     SignedDeviceModel,
     UserModel,
     ViewModel,
@@ -64,6 +68,7 @@ import { ViewModel } from './view.model';
     MatchModel,
     MessageModel,
     ProfileModel,
+    ProfileFilterModel,
     SignedDeviceModel,
     UserModel,
     ViewModel,

@@ -45,37 +45,14 @@ export class UpdateMyProfileDto {
   @ApiPropertyOptional({ type: Number, enum: GENDERS })
   @IsOptional()
   @IsEnum(GENDERS)
-  filterGender?: Gender;
-
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
-  @Min(1)
-  @Max(100)
-  filterMaxDistance?: number;
-
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
-  @Min(18)
-  @Max(100)
-  filterMinAge?: number;
-
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @Min(18)
-  @Max(100)
-  filterMaxAge?: number;
-
-  @ApiPropertyOptional({ type: Number, enum: GENDERS })
-  @IsOptional()
-  @IsEnum(GENDERS)
   gender?: Gender;
 
   @ApiPropertyOptional({ type: Number })
   @IsOptional()
   @IsNumber()
-  height?: string;
+  @Min(100)
+  @Max(250)
+  height?: number;
 
   @ApiPropertyOptional({ type: Boolean })
   @IsOptional()

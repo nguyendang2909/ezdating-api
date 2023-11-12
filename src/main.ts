@@ -36,7 +36,7 @@ async function bootstrap() {
         ? ['error', 'warn']
         : ['log', 'debug', 'error', 'verbose', 'warn'],
   });
-  const API_PORT = process.env.API_PORT || 4000;
+  const API_PORT = process.env.API_PORT;
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   app.use(helmet());
   app.enableCors({

@@ -4,6 +4,7 @@ import moment from 'moment';
 import { ERROR_MESSAGES } from '../../commons/messages';
 import { ApiService } from '../../commons/services/api.service';
 import { DATE_FORMATS } from '../../constants/common.constants';
+import { MongoGeoLocation } from '../models';
 
 export class ProfilesCommonService extends ApiService {
   getAndCheckValidBirthdayFromRaw(rawBirthday: string): Date {
@@ -25,5 +26,15 @@ export class ProfilesCommonService extends ApiService {
       }
     }
     return birthdayMoment.toDate();
+  }
+
+  getGeolocationFromQueryParams(payload: {
+    latitude: string;
+    longitude: string;
+  }): MongoGeoLocation {
+    return {
+      type: 'Point',
+      coordinates: [+payload.longitude, +payload.latitude],
+    };
   }
 }

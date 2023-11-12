@@ -86,4 +86,6 @@ export const RESPONSE_TYPES = {
   PROFILE: 'profile',
   MATCH: 'match',
   MATCHES: 'matches',
+  PROFILES: 'profiles',
+  UPDATE_PROFILE_FILTER: 'update_profile_filter',
 };

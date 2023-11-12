@@ -8,7 +8,7 @@ import { LikesService } from './likes.service';
 
 @Module({
   imports: [ModelsModule, ChatsModule],
-  exports: [LikesService],
+  exports: [],
   controllers: [LikesController],
   providers: [LikesService, LikesHandler],
 })

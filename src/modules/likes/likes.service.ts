@@ -7,7 +7,7 @@ import { ApiCursorDateService } from '../../commons/services/api-cursor-date.ser
 import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
-import { ProfileModel } from '../models';
+import { ProfileFilterModel, ProfileModel } from '../models';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import { Like, LikeDocument } from '../models/schemas/like.schema';
@@ -25,6 +25,7 @@ export class LikesService extends ApiCursorDateService {
     private readonly viewModel: ViewModel,
     private readonly profileModel: ProfileModel,
     private readonly likesHandler: LikesHandler,
+    private readonly profileFilterModel: ProfileFilterModel,
   ) {
     super();
 
@@ -87,19 +88,18 @@ export class LikesService extends ApiCursorDateService {
     const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;
-    const { filterMaxAge, filterMinAge, filterGender, gender } =
-      await this.profileModel.findOneOrFail({
-        _id: _currentUserId,
-      });
+    const filterProfile = await this.profileFilterModel.findOneOrFail({
+      _id: _currentUserId,
+    });
     const findResults = await this.likeModel.findMany(
       {
         'targetProfile._id': _currentUserId,
         isMatched: false,
         'profile.mediaFileCount': { $gt: 0 },
-        'profile.gender': filterGender,
+        'profile.gender': filterProfile.gender,
         'profile.birthday': {
-          $gte: moment().subtract(filterMaxAge, 'years').toDate(),
-          $lte: moment().subtract(filterMinAge, 'years').toDate(),
+          $gte: moment().subtract(filterProfile.maxAge, 'years').toDate(),
+          $lte: moment().subtract(filterProfile.minAge, 'years').toDate(),
         },
         ...(cursor
           ? {

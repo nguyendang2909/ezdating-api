@@ -4,13 +4,13 @@ import {
   ValidationOptions,
 } from 'class-validator';
 
-export function IsBiggerThan(
+export function IsBiggerOrEqual(
   property: string,
   validationOptions?: ValidationOptions,
 ) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
-      name: 'isLongerThan',
+      name: 'is_bigger_than',
       target: object.constructor,
       propertyName: propertyName,
       constraints: [property],

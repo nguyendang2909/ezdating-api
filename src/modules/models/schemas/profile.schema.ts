@@ -24,7 +24,7 @@ import {
 export type ProfileDocument = HydratedDocument<Profile>;
 
 export type MongoGeoLocation = {
-  coordinates: number[];
+  coordinates: [number, number];
   type: 'Point';
 };
 
@@ -52,18 +52,6 @@ export class Profile extends CommonSchema {
 
   //   @RelationId((user: User) => user.country)
   //   countryId?: string;
-
-  @Prop({ type: Number, enum: GENDERS, required: true })
-  filterGender: Gender;
-
-  @Prop({ type: Number, required: true })
-  filterMaxDistance: number;
-
-  @Prop({ type: Number, required: true })
-  filterMaxAge: number;
-
-  @Prop({ type: Number, required: true })
-  filterMinAge: number;
 
   @Prop({ type: Number, enum: GENDERS, required: true })
   gender: Gender;
@@ -118,7 +106,7 @@ export class Profile extends CommonSchema {
   photoVerified: boolean;
 
   @Prop({ type: Number, enum: RELATIONSHIP_GOALS })
-  relationshipGoal?: RelationshipGoal;
+  relationshipGoal: RelationshipGoal;
 
   @Prop({ type: Number, enum: RELATIONSHIP_STATUSES })
   relationshipStatus?: RelationshipStatus;
@@ -139,8 +127,8 @@ ProfileSchema.index(
     geolocation: '2dsphere',
     mediaFileCount: 1,
     gender: 1,
-    // birthday: 1,
-    lastActivatedAt: -1,
+    birthday: 1,
+    lastActivated: 1,
   },
   {
     partialFilterExpression: {
@@ -149,19 +137,16 @@ ProfileSchema.index(
   },
 );
 
-ProfileSchema.index(
-  {
-    gender: 1,
-    birthday: 1,
-    mediaFileCount: 1,
-    lastActivatedAt: 1,
-  },
-  {
-    partialFilterExpression: {
-      mediaFileCount: { $gt: 0 },
-    },
-  },
-);
-ProfileSchema.index({
-  lastActivatedAt: 1,
-});
+// ProfileSchema.index(
+//   {
+//     gender: 1,
+//     birthday: 1,
+//     mediaFileCount: 1,
+//     lastActivatedAt: 1,
+//   },
+//   {
+//     partialFilterExpression: {
+//       mediaFileCount: { $gt: 0 },
+//     },
+//   },
+// );

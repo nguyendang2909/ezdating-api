@@ -1,14 +1,17 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { isArray } from 'lodash';
 
 import { APP_CONFIG } from '../../app.config';
-import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
-import { ProfileModel } from '../models';
+import { ProfileFilterModel, ProfileModel } from '../models';
 import { FindManyDatingProfilesQuery } from './dto';
+import { ProfilesCommonService } from './profiles.common.service';
 @Injectable()
-export class SwipeProfilesService extends ApiService {
-  constructor(private readonly profileModel: ProfileModel) {
+export class SwipeProfilesService extends ProfilesCommonService {
+  constructor(
+    private readonly profileModel: ProfileModel,
+    private readonly profileFilterModel: ProfileFilterModel,
+  ) {
     super();
 
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.SWIPE_USERS;
@@ -24,39 +27,21 @@ export class SwipeProfilesService extends ApiService {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
 
-    const profile = await this.profileModel.findOneOrFail({
+    const profileFilter = await this.profileFilterModel.findOneOrFail({
       _id: _currentUserId,
     });
-
-    const {
-      geolocation,
-      filterMaxAge,
-      filterMinAge,
-      filterMaxDistance,
-      filterGender,
-    } = profile;
-
-    if (!geolocation?.coordinates[1]) {
-      throw new BadRequestException();
-    }
 
     const users = await this.profileModel.aggregate([
       {
         $geoNear: {
-          near: {
-            type: 'Point',
-            coordinates: [
-              geolocation.coordinates[0],
-              geolocation.coordinates[1],
-            ],
-          },
+          near: this.getGeolocationFromQueryParams(queryParams),
           distanceField: 'distance',
           ...(minDistance
             ? {
                 minDistance: +minDistance,
               }
             : {}),
-          maxDistance: filterMaxDistance,
+          maxDistance: profileFilter.maxDistance,
           // distanceMultiplier: 0.001,
           query: {
             _id: {
@@ -75,10 +60,10 @@ export class SwipeProfilesService extends ApiService {
             //   $gt: moment().subtract(7, 'd').toDate(),
             // },
             age: {
-              $gte: filterMinAge,
-              $lt: filterMaxAge,
+              $gte: profileFilter.minAge,
+              $lt: profileFilter.maxAge,
             },
-            gender: filterGender,
+            gender: profileFilter.gender,
           },
         },
       },

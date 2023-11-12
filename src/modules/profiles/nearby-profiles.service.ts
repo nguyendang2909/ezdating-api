@@ -1,16 +1,19 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
-import { ERROR_MESSAGES } from '../../commons/messages';
-import { ApiService } from '../../commons/services/api.service';
 import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
-import { Profile, ProfileModel } from '../models';
+import { Profile, ProfileFilterModel, ProfileModel } from '../models';
 import { FindManyNearbyProfilesQuery } from './dto';
+import { ProfilesCommonService } from './profiles.common.service';
+
 @Injectable()
-export class NearbyProfilesService extends ApiService {
-  constructor(private readonly profileModel: ProfileModel) {
+export class NearbyProfilesService extends ProfilesCommonService {
+  constructor(
+    private readonly profileModel: ProfileModel,
+    private readonly profileFilterModel: ProfileFilterModel,
+  ) {
     super();
 
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.NEARBY_USERS;
@@ -22,59 +25,37 @@ export class NearbyProfilesService extends ApiService {
   ): Promise<PaginatedResponse<Profile>> {
     const { _currentUserId } = this.getClient(client);
     const { _next } = queryParams;
-    const cursor = _next ? this.getCursor(_next) : undefined;
-    const {
-      geolocation,
-      filterMaxAge,
-      filterMinAge,
-      filterMaxDistance: filterMaxDistanceAsKm,
-      filterGender,
-      gender,
-    } = await this.profileModel.findOneOrFail({
+    const geolocation = this.getGeolocationFromQueryParams(queryParams);
+    const minDistance = (_next ? this.getCursor(_next) : 0) + 0.00000000001;
+    const profileFilter = await this.profileFilterModel.findOneOrFail({
       _id: _currentUserId,
     });
-    if (!geolocation?.coordinates) {
-      throw new BadRequestException(
-        ERROR_MESSAGES['Please enable location service in your device'],
-      );
+    const maxDistance = profileFilter.maxDistance * 1000;
+    if (minDistance && minDistance >= maxDistance) {
+      return {
+        data: [],
+        type: 'nearbyUsers',
+        pagination: {
+          _next: null,
+        },
+      };
     }
-    // TODO: uncomment this feature
-    // const filterMaxDistance = filterMaxDistanceAsKm * 1000;
-    // if (minDistance && minDistance >= filterMaxDistance) {
-    //   return {
-    //     data: [],
-    //     type: 'nearbyUsers',
-    //     pagination: {
-    //       _next: null,
-    //     },
-    //   };
-    // }
     const findResults = await this.profileModel.aggregate([
       {
         $geoNear: {
-          near: {
-            type: 'Point',
-            coordinates: [
-              geolocation.coordinates[0],
-              geolocation.coordinates[1],
-            ],
-          },
+          key: 'geolocation',
+          near: geolocation,
           distanceField: 'distance',
           // distanceMultiplier: 0.001,
-          ...(cursor
-            ? {
-                minDistance: cursor,
-              }
-            : { minDistance: 0.00000000001 }),
-          // TODO: uncoment this line (important for launch)
-          // maxDistance: filterMaxDistance,
+          minDistance,
+          maxDistance: maxDistance,
           query: {
             mediaFileCount: { $gt: 0 },
-            gender: filterGender,
-            // birthday: {
-            //   $gte: moment().subtract(filterMaxAge, 'years').toDate(),
-            //   $lte: moment().subtract(filterMinAge, 'years').toDate(),
-            // },
+            gender: profileFilter.gender,
+            birthday: {
+              $gte: moment().subtract(profileFilter.maxAge, 'years').toDate(),
+              $lte: moment().subtract(profileFilter.minAge, 'years').toDate(),
+            },
             lastActivatedAt: {
               $gt: moment().subtract(10, 'h').toDate(),
             },
@@ -143,14 +124,14 @@ export class NearbyProfilesService extends ApiService {
     return await this.profileModel.model.find(
       {
         lastActivatedAt: {
-          $gt: moment().subtract(25, 'hours'),
+          $gt: moment().subtract(20, 'hours'),
         },
       },
       // {},
       {},
       {
         sort: {
-          lastActivatedAt: -1,
+          lastActivatedAt: 1,
         },
         limit: 10,
       },

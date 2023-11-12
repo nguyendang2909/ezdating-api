@@ -9,5 +9,6 @@ import { SwipeProfilesService } from './swipe-profiles.service';
   imports: [],
   controllers: [ProfilesController],
   providers: [ProfilesService, NearbyProfilesService, SwipeProfilesService],
+  exports: [],
 })
 export class ProfilesModule {}
