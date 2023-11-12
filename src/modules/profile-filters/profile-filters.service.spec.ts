@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { ProfileFiltersService } from './profile-filters.service';
 
 describe('ProfileFiltersService', () => {
