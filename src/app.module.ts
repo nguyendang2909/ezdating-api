@@ -17,6 +17,7 @@ import { AdminAuthModule } from './modules/admin/admin-auth/admin-auth.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { ConversationsModule } from './modules/conversations/conversations.module';
+import { CountriesModule } from './modules/countries/countries.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
 import { JwtAuthGuard } from './modules/guards/jwt.guard';
 import { RolesGuard } from './modules/guards/roles.guard';
@@ -27,6 +28,7 @@ import { MeModule } from './modules/me/me.module';
 import { MediaFilesModule } from './modules/media-files/media-files.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { ModelsModule } from './modules/models/models.module';
+import { ProfileFiltersModule } from './modules/profile-filters/profile-filters.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { PushNotificationsModule } from './modules/push-notifications/push-notifications.module';
 import { SchedulesModule } from './modules/schedules/schedules.module';
@@ -34,7 +36,6 @@ import { ScriptsModule } from './modules/scripts/scripts.module';
 import { LoggedDevicesModule } from './modules/signed-devices/signed-devices.module';
 import { UsersModule } from './modules/users/users.module';
 import { ViewsModule } from './modules/views/views.module';
-import { ProfileFiltersModule } from './modules/profile-filters/profile-filters.module';
 
 @Module({
   imports: [
@@ -178,6 +179,8 @@ import { ProfileFiltersModule } from './modules/profile-filters/profile-filters.
     SchedulesModule,
     ScriptsModule,
     ProfileFiltersModule,
+    CountriesModule,
+    // StatesModule,
 
     // CoinsModule,
   ],

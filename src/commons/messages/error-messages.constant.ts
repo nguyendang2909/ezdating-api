@@ -1,6 +1,8 @@
 export const ERROR_MESSAGES = {
   'Conversation does not exist': 'Conversation does not exist',
   'Conversation is invalid': 'Conversation is invalid',
+  'Country already exists': 'Country already exists',
+  'Country does not exist': 'Country does not exist',
   'Delete failed. Please try again.': 'Delete failed. Please try again.',
   'Document already exists': 'Document already exists',
   'Document does not exist': 'Document does not exist',
@@ -28,6 +30,8 @@ export const ERROR_MESSAGES = {
   'Profile filter already exists': 'Profile filter already exists',
   'Profile filter does not exist': 'Profile filter does not exist',
   'Profile is exist': 'Profile is exist',
+  'State already exists': 'State already exists',
+  'State does not exist': 'State does not exist',
   'Update failed. Please try again.': 'Update failed. Please try again.',
   'User already exists': 'User already exists',
   'User data is incorrect': 'User data is incorrect',

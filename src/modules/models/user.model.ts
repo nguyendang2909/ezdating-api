@@ -88,18 +88,6 @@ export class UserModel extends CommonModel<User> {
     projection?: ProjectionType<User> | null,
     options?: QueryOptions<User> | null,
   ) {
-    const findResult = await this.findOneById(_id, projection, options);
-    if (!findResult) {
-      throw new NotFoundException({
-        message: ERROR_MESSAGES['User does not exist'],
-      });
-    }
-    const { status } = findResult;
-    if (status === USER_STATUSES.BANNED) {
-      throw new BadRequestException({
-        message: 'User has been banned',
-      });
-    }
-    return findResult;
+    return await this.findOneOrFail({ _id }, projection, options);
   }
 }

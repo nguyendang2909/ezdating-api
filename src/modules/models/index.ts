@@ -1,6 +1,7 @@
 export * from './bases';
 export * from './bases/common-model';
 export * from './coin-attendance.model';
+export * from './country.model';
 export * from './like.model';
 export * from './match.model';
 export * from './media-file.model';
@@ -11,5 +12,6 @@ export * from './profile-filter.model';
 export * from './push-notification.model';
 export * from './schemas';
 export * from './signed-device.model';
+export * from './state.model';
 export * from './user.model';
 export * from './view.model';

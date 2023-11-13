@@ -1,4 +1,5 @@
 export * from './coin-attendance.schema';
+export * from './country.schema';
 export * from './embedded';
 export * from './like.schema';
 export * from './match.schema';
@@ -7,5 +8,6 @@ export * from './profile.schema';
 export * from './profile-filter.schema';
 export * from './push-notification.schema';
 export * from './signed-device.schema';
+export * from './state.schema';
 export * from './user.schema';
 export * from './view.schema';

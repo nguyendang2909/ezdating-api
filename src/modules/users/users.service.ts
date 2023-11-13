@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import _ from 'lodash';
 
 import { ApiService } from '../../commons/services/api.service';
+import { ClientData } from '../auth/auth.type';
+import { User } from '../models';
 import { UserModel } from '../models/user.model';
 @Injectable()
 export class UsersService extends ApiService {
@@ -8,6 +11,12 @@ export class UsersService extends ApiService {
     private readonly userModel: UserModel, // private readonly stateModel: StateModel, // private readonly countryModel: CountryModel,
   ) {
     super();
+  }
+
+  async findMe(client: ClientData): Promise<User> {
+    const { _currentUserId } = this.getClient(client);
+    const user = await this.userModel.findOneOrFailById(_currentUserId);
+    return _.omit(user, ['password']);
   }
 
   // async findMany(
