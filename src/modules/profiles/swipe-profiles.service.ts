@@ -22,11 +22,14 @@ export class SwipeProfilesService extends ProfilesCommonService {
     queryParams: FindManySwipeProfilesQuery,
     clientData: ClientData,
   ) {
-    const { excludedUserId, stateId } = queryParams;
+    const { excludedUserId } = queryParams;
     const excludedUserIds =
       excludedUserId && isArray(excludedUserId) ? excludedUserId : [];
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
+    const _stateId = queryParams.stateId
+      ? this.getObjectId(queryParams.stateId)
+      : (await this.profileModel.findOneOrFailById(_currentUserId)).state._id;
     const profileFilter = await this.profileFilterModel.findOneOrFail({
       _id: _currentUserId,
     });
@@ -46,7 +49,7 @@ export class SwipeProfilesService extends ProfilesCommonService {
                 }),
           },
           mediaFileCount: { $gt: 0 },
-          'state._id': this.getObjectId(stateId),
+          'state._id': _stateId,
           gender: profileFilter.gender,
           birthday: {
             $gte: moment().subtract(profileFilter.maxAge, 'years').toDate(),

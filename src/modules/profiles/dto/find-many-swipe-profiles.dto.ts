@@ -14,6 +14,7 @@ export class FindManySwipeProfilesQuery extends IntersectionType(
   excludedUserId?: string[] | string;
 
   @ApiPropertyOptional({ type: String })
+  @IsOptional()
   @IsString({ each: false })
-  stateId: string;
+  stateId?: string;
 }

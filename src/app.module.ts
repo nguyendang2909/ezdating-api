@@ -138,7 +138,11 @@ import { ViewsModule } from './modules/views/views.module';
       ],
       // other options
     }),
-    ThrottlerModule.forRoot({ ttl: 10, limit: 100 }),
+    ThrottlerModule.forRoot(
+      process.env.NODE_ENV === 'production'
+        ? { ttl: 10, limit: 100 }
+        : { ttl: 10, limit: 1000 },
+    ),
     MongooseModule.forRoot(
       `${process.env.MONGO_DB_HOST}:${process.env.MONGO_DB_PORT}/?authSource=admin&readPreference=primary&directConnection=true`,
       {
