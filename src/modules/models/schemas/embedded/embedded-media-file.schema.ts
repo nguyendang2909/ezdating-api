@@ -7,7 +7,7 @@ import { MediaFileType } from '../../../../types';
 
 export type EmbeddedMediaFileDocument = HydratedDocument<EmbeddedMediaFile>;
 
-@Schema({ timestamps: true })
+@Schema()
 export class EmbeddedMediaFile extends CommonEmbeddedSchema {
   @Prop({ type: String, required: true })
   key: string;

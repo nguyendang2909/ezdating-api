@@ -26,7 +26,7 @@ export class ProfilesScript {
   }
 
   async createProfilesFemale() {
-    if (process.env.NODE_ENV === 'staging') {
+    if (process.env.NODE_ENV === 'production') {
       const { mediaFiles } = await this.getSampleData();
       for (let index = 0; index < 10000000; index++) {
         this.logger.log('Create user');

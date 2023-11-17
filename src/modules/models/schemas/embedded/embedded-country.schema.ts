@@ -5,13 +5,16 @@ import { CommonEmbeddedSchema } from '../../../../commons/schemas.common';
 
 export type EmbeddedCountryDocument = HydratedDocument<EmbeddedCountry>;
 
-@Schema({ timestamps: true })
+@Schema()
 export class EmbeddedCountry extends CommonEmbeddedSchema {
-  @Prop({ type: String, required: true, index: false, unique: false })
+  @Prop({ type: String, required: true })
   name: string;
 
-  @Prop({ type: String, required: true, index: false, unique: false })
+  @Prop({ type: String, required: true })
   iso2: string;
+
+  @Prop({ type: String, required: true })
+  native: string;
 }
 
 export const EmbeddedCountrySchema =

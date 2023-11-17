@@ -66,6 +66,7 @@ export class ApiScript extends ProfilesCommonService {
         min: 1,
         max: 5,
       }) as RelationshipGoal,
+      stateId: '65574d3c942d1c7185fb339d',
     });
     return data;
   }

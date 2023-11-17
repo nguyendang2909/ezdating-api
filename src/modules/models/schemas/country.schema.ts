@@ -36,7 +36,7 @@ export class Country extends CommonSchema {
   @Prop({ type: String })
   tld: string;
 
-  @Prop({ type: String })
+  @Prop({ type: String, required: true })
   native: string;
 
   @Prop({ type: String })

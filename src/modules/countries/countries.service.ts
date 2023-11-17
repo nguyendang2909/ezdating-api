@@ -24,7 +24,7 @@ export class CountriesService {
   private readonly logger = new Logger(CountriesService.name);
 
   async onApplicationBootstrap() {
-    this.runRemove();
+    // this.runRemove();
     // this.runMigration();
   }
 

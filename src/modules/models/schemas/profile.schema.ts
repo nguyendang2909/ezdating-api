@@ -20,6 +20,10 @@ import {
   EmbeddedMediaFile,
   EmbeddedMediaFileSchema,
 } from './embedded/embedded-media-file.schema';
+import {
+  EmbeddedState,
+  EmbeddedStateSchema,
+} from './embedded/embeded-state.schema';
 
 export type ProfileDocument = HydratedDocument<Profile>;
 
@@ -114,6 +118,9 @@ export class Profile extends CommonSchema {
   @Prop({ type: String })
   school?: string;
 
+  @Prop({ type: EmbeddedStateSchema, required: true })
+  state: EmbeddedState;
+
   @Prop({ type: Number })
   weight?: number;
 
@@ -136,17 +143,3 @@ ProfileSchema.index(
     },
   },
 );
-
-// ProfileSchema.index(
-//   {
-//     gender: 1,
-//     birthday: 1,
-//     mediaFileCount: 1,
-//     lastActivatedAt: 1,
-//   },
-//   {
-//     partialFilterExpression: {
-//       mediaFileCount: { $gt: 0 },
-//     },
-//   },
-// );

@@ -11,7 +11,7 @@ import {
 
 export type EmbeddedProfileDocument = HydratedDocument<EmbeddedProfile>;
 
-@Schema({ timestamps: true })
+@Schema()
 export class EmbeddedProfile extends CommonEmbeddedSchema {
   @Prop({ type: Date, required: true })
   birthday: Date;

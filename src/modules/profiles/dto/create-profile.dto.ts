@@ -41,6 +41,10 @@ export class CreateProfileDto {
   @IsEnum(RELATIONSHIP_GOALS)
   relationshipGoal!: RelationshipGoal;
 
+  @ApiProperty({ type: String })
+  @IsNotEmpty()
+  stateId: string;
+
   @ApiPropertyOptional({ type: Number })
   @IsOptional()
   @IsNumber()

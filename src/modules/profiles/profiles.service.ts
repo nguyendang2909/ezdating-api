@@ -3,7 +3,12 @@ import { UpdateQuery } from 'mongoose';
 
 import { RESPONSE_TYPES } from '../../constants';
 import { ClientData } from '../auth/auth.type';
-import { Profile, ProfileFilterModel, ProfileModel } from '../models';
+import {
+  Profile,
+  ProfileFilterModel,
+  ProfileModel,
+  StateModel,
+} from '../models';
 import { CreateProfileDto } from './dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { ProfilesCommonService } from './profiles.common.service';
@@ -13,6 +18,7 @@ export class ProfilesService extends ProfilesCommonService {
   constructor(
     private readonly profileModel: ProfileModel,
     private readonly profileFilterModel: ProfileFilterModel,
+    private readonly stateModel: StateModel,
   ) {
     super();
   }
@@ -30,12 +36,17 @@ export class ProfilesService extends ProfilesCommonService {
     if (profile && profileFilter) {
       return { profile, profileFilter };
     }
-    const { birthday: rawBirthday, ...rest } = payload;
+
+    const { birthday: rawBirthday, stateId, ...rest } = payload;
+    const state = await this.stateModel.findOneOrFailById(
+      this.getObjectId(stateId),
+    );
     const birthday = this.getAndCheckValidBirthdayFromRaw(rawBirthday);
     if (!profile) {
       profile = await this.profileModel.createOne({
         _id: _currentUserId,
         ...rest,
+        state,
         birthday,
       });
     }
