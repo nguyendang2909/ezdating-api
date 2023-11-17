@@ -22,11 +22,16 @@ export class ProfilesScript {
   private logger = new Logger(ApiScript.name);
 
   onApplicationBootstrap() {
-    this.createProfilesFemale();
+    this.createProfilesFemale().catch((err) => {
+      this.logger.error(JSON.stringify(err));
+    });
   }
 
   async createProfilesFemale() {
     if (process.env.NODE_ENV === 'staging') {
+      const targetUser = await this.userModel.findOneOrFail({
+        phoneNumber: '+84971016191',
+      });
       const { mediaFiles } = await this.getSampleData();
       for (let index = 0; index < 10000000; index++) {
         this.logger.log('Create user');
@@ -50,8 +55,9 @@ export class ProfilesScript {
               mediaFileCount: mediaFiles.length,
             },
           });
+
           await this.apiScript.sendLike({
-            targetUserId: '65477bb4512459df9ce97fc3',
+            targetUserId: targetUser._id.toString(),
           });
         } catch (err) {
           this.logger.error(`Create user failed: ${JSON.stringify(err)}`);
