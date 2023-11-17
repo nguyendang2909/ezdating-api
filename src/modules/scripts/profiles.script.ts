@@ -146,7 +146,9 @@ export class ProfilesScript {
     const sampleProfiles = await this.profileModel.findMany(
       {
         gender: GENDERS.FEMALE,
-        mediaFileCount: 1,
+        mediaFileCount: {
+          $gt: 0,
+        },
       },
       {},
       { limit: 100 },

@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
+import { ERROR_MESSAGES } from '../../commons/messages';
 import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { Profile, ProfileFilterModel, ProfileModel } from '../models';
@@ -25,7 +26,16 @@ export class NearbyProfilesService extends ProfilesCommonService {
   ): Promise<PaginatedResponse<Profile>> {
     const { _currentUserId } = this.getClient(client);
     const { _next } = queryParams;
-    const geolocation = this.getGeolocationFromQueryParams(queryParams);
+    const geolocation =
+      queryParams.longitude && queryParams.latitude
+        ? this.getGeolocationFromQueryParams(queryParams)
+        : (await this.profileModel.findOneOrFailById(_currentUserId))
+            .geolocation;
+    if (!geolocation) {
+      throw new BadRequestException(
+        ERROR_MESSAGES['Please enable location service in your device'],
+      );
+    }
     const minDistance = (_next ? this.getCursor(_next) : 0) + 0.00000000001;
     const profileFilter = await this.profileFilterModel.findOneOrFail({
       _id: _currentUserId,

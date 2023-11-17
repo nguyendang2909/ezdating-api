@@ -1,10 +1,10 @@
 import { ApiPropertyOptional, IntersectionType } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 import { FindManyCursorQuery } from '../../../commons/dto/find-many-cursor.dto';
 import { GeolocationQuery } from './geolocation.query';
 
-export class FindManyDatingProfilesQuery extends IntersectionType(
+export class FindManySwipeProfilesQuery extends IntersectionType(
   FindManyCursorQuery,
   GeolocationQuery,
 ) {
@@ -14,7 +14,6 @@ export class FindManyDatingProfilesQuery extends IntersectionType(
   excludedUserId?: string[] | string;
 
   @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsNumber()
-  minDistance?: string;
+  @IsString({ each: false })
+  stateId: string;
 }

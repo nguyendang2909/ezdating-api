@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { isArray } from 'lodash';
+import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
 import { ClientData } from '../auth/auth.type';
 import { ProfileFilterModel, ProfileModel } from '../models';
-import { FindManyDatingProfilesQuery } from './dto';
+import { FindManySwipeProfilesQuery } from './dto';
 import { ProfilesCommonService } from './profiles.common.service';
 @Injectable()
 export class SwipeProfilesService extends ProfilesCommonService {
@@ -18,52 +19,41 @@ export class SwipeProfilesService extends ProfilesCommonService {
   }
 
   public async findMany(
-    queryParams: FindManyDatingProfilesQuery,
+    queryParams: FindManySwipeProfilesQuery,
     clientData: ClientData,
   ) {
-    const { minDistance, excludedUserId } = queryParams;
+    const { excludedUserId, stateId } = queryParams;
     const excludedUserIds =
       excludedUserId && isArray(excludedUserId) ? excludedUserId : [];
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-
     const profileFilter = await this.profileFilterModel.findOneOrFail({
       _id: _currentUserId,
     });
-
     const users = await this.profileModel.aggregate([
       {
-        $geoNear: {
-          near: this.getGeolocationFromQueryParams(queryParams),
-          distanceField: 'distance',
-          ...(minDistance
-            ? {
-                minDistance: +minDistance,
-              }
-            : {}),
-          maxDistance: profileFilter.maxDistance,
-          // distanceMultiplier: 0.001,
-          query: {
-            _id: {
-              ...(excludedUserIds.length
-                ? {
-                    $nin: [
-                      _currentUserId,
-                      ...excludedUserIds.map((item) => this.getObjectId(item)),
-                    ],
-                  }
-                : {
-                    $ne: _currentUserId,
-                  }),
-            },
-            // lastActivatedAt: {
-            //   $gt: moment().subtract(7, 'd').toDate(),
-            // },
-            age: {
-              $gte: profileFilter.minAge,
-              $lt: profileFilter.maxAge,
-            },
-            gender: profileFilter.gender,
+        $match: {
+          _id: {
+            ...(excludedUserIds.length
+              ? {
+                  $nin: [
+                    _currentUserId,
+                    ...excludedUserIds.map((item) => this.getObjectId(item)),
+                  ],
+                }
+              : {
+                  $ne: _currentUserId,
+                }),
+          },
+          mediaFileCount: { $gt: 0 },
+          'state._id': this.getObjectId(stateId),
+          gender: profileFilter.gender,
+          birthday: {
+            $gte: moment().subtract(profileFilter.maxAge, 'years').toDate(),
+            $lte: moment().subtract(profileFilter.minAge, 'years').toDate(),
+          },
+          lastActivatedAt: {
+            $gt: moment().subtract(10, 'h').toDate(),
           },
         },
       },
@@ -73,38 +63,6 @@ export class SwipeProfilesService extends ProfilesCommonService {
         },
       },
       { $limit: this.limitRecordsPerQuery },
-      {
-        $set: {
-          age: {
-            $dateDiff: {
-              startDate: '$birthday',
-              endDate: '$$NOW',
-              unit: 'year',
-            },
-          },
-        },
-      },
-      {
-        $project: {
-          age: 1,
-          distance: 1,
-          educationLevel: 1,
-          gender: 1,
-          height: 1,
-          introduce: 1,
-          jobTitle: 1,
-          languages: 1,
-          lastActivatedAt: 1,
-          mediaFiles: 1,
-          nickname: 1,
-          relationshipGoal: 1,
-          relationshipStatus: 1,
-          role: 1,
-          school: 1,
-          status: 1,
-          weight: 1,
-        },
-      },
     ]);
 
     return {

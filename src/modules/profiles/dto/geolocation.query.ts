@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumberString } from 'class-validator';
+import { IsNumberString, IsOptional } from 'class-validator';
 
 export class GeolocationQuery {
   @ApiProperty({ type: Number })
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumberString()
   latitude: string;
 
   @ApiProperty({ type: Number })
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumberString()
   longitude: string;
 }

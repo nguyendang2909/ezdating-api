@@ -15,8 +15,8 @@ import { USER_ROLES } from '../../constants';
 import { ClientData } from '../auth/auth.type';
 import {
   CreateProfileDto,
-  FindManyDatingProfilesQuery,
   FindManyNearbyProfilesQuery,
+  FindManySwipeProfilesQuery,
   UpdateMyProfileDto,
 } from './dto';
 import { NearbyProfilesService } from './nearby-profiles.service';
@@ -67,7 +67,7 @@ export class ProfilesController {
 
   @Get('/swipe')
   public async findManySwipe(
-    @Query() queryParams: FindManyDatingProfilesQuery,
+    @Query() queryParams: FindManySwipeProfilesQuery,
     @Client() clientData: ClientData,
   ) {
     return await this.swipeProfilesService.findMany(queryParams, clientData);
