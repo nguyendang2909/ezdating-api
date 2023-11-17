@@ -38,7 +38,7 @@ export class ProfileFilterModel extends CommonModel<ProfileFilter> {
       _id: profile._id,
       gender: this.getFilterGender(profile.gender),
       minAge: age - 10 > 18 ? age - 10 : 18,
-      maxAge: age + 10 > 100 ? age + 10 : 100,
+      maxAge: age + 10 < 100 ? age + 10 : 100,
       maxDistance: APP_CONFIG.USER_FILTER_MAX_DISTANCE,
     });
   }

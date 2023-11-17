@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import async from 'async';
 import Axios from 'axios';
+import fs from 'fs';
 
 import { Country, CountryModel, StateModel } from '../models';
 import {
@@ -26,6 +27,47 @@ export class CountriesService {
   async onApplicationBootstrap() {
     // this.runRemove();
     // this.runMigration();
+    // this.setupLocations();
+    // this.setupStates();
+  }
+
+  async setupCountries() {
+    const countries = await this.countryModel.findMany(
+      {},
+      {
+        name: 1,
+        iso2: 1,
+        native: 1,
+      },
+    );
+
+    fs.writeFileSync(
+      'src/data/countries.json',
+      JSON.stringify(countries, null, 2),
+    );
+  }
+
+  async setupStates() {
+    const countries = await this.countryModel.findMany(
+      {},
+      {
+        name: 1,
+        iso2: 1,
+        native: 1,
+      },
+    );
+    const result: Record<string, any> = {};
+    for (const country of countries) {
+      const states = await this.stateModel.findMany(
+        { 'country._id': country._id },
+        {
+          name: 1,
+        },
+      );
+      result[country.iso2] = states;
+    }
+
+    fs.writeFileSync('src/data/states.json', JSON.stringify(result, null, 2));
   }
 
   async runRemove() {
