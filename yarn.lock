@@ -4673,10 +4673,17 @@ jmespath@0.16.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.16.0.tgz#b15b0a85dfd4d930d43e69ed605943c802785076"
   integrity sha512-9FzQjJ7MATs1tSpnco1K6ayiYE3figslrXA72G2HQ/n76RzvYlofyi5QM+iX4YRs/pu3yzxlVQSST23+dMDknw==
 
-joi@^17.9.2:
-  version "17.9.2"
-  resolved "https://registry.yarnpkg.com/joi/-/joi-17.9.2.tgz#8b2e4724188369f55451aebd1d0b1d9482470690"
-  integrity sha512-Itk/r+V4Dx0V3c7RLFdRh12IOjySm2/WGPMubBT92cQvRfYZhPM2W0hZlctjj72iES8jsRCwp7S/cRmWBnJ4nw==
+joi-class-decorators@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/joi-class-decorators/-/joi-class-decorators-1.1.1.tgz#303490e3a144c08baf44d9eee3c573d423b8381a"
+  integrity sha512-DRZdKzyNCJJlZP21X5fvI/i3zWxYyZGHL36p2+PYT43BuDA+b3ZibvfF1AnukjBcQ91o/UesiPQP9lw9vN5mGw==
+  dependencies:
+    lodash "^4.17.21"
+
+joi@^17.11.0:
+  version "17.11.0"
+  resolved "https://registry.yarnpkg.com/joi/-/joi-17.11.0.tgz#aa9da753578ec7720e6f0ca2c7046996ed04fc1a"
+  integrity sha512-NgB+lZLNoqISVy1rZocE9PZI36bL/77ie924Ri43yEvi9GUUMPeyVIr8KdFTMUlby1p0PBYMk9spIxEUQYqrJQ==
   dependencies:
     "@hapi/hoek" "^9.0.0"
     "@hapi/topo" "^5.0.0"
@@ -5393,6 +5400,13 @@ nest-winston@^1.9.1:
   integrity sha512-L3fjIfas+7ZziKsCQiTYvTVw0Hpv3oN4TDnbLLYLIQgKLNpzQyf/2yZv1/buDPMrGJKrNPwiHLoifjGHon34+A==
   dependencies:
     fast-safe-stringify "^2.1.1"
+
+nestjs-joi@^1.10.0:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/nestjs-joi/-/nestjs-joi-1.10.0.tgz#dd81cbea502a6af07194dae67edb939f4c59eb9b"
+  integrity sha512-ZY9KlqmsloVSXagYb12etLwc71GpZpsLVEFzrcBM/nx4LxJLwyBSJ8aR8XwsUMlKCDoJlBIiSuXgVdier+DVBw==
+  dependencies:
+    joi-class-decorators "^1.1.1"
 
 node-abi@^3.3.0:
   version "3.45.0"
