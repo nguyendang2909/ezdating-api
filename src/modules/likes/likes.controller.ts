@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
@@ -30,5 +30,13 @@ export class LikesController {
     @Client() clientData: ClientData,
   ) {
     return await this.service.findManyLikedMe(queryParams, clientData);
+  }
+
+  @Get('/me/:id')
+  public async findOneLikeMeById(
+    @Param('id') id: string,
+    @Client() client: ClientData,
+  ) {
+    return await this.service.findOneLikeMeById(id, client);
   }
 }

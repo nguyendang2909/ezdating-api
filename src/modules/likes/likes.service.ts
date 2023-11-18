@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
@@ -123,6 +128,50 @@ export class LikesService extends ApiCursorDateService {
       data: findResults,
       pagination: this.getPagination(findResults),
     };
+  }
+
+  async findOneLikeMeById(id: string, client: ClientData) {
+    const { _currentUserId } = this.getClient(client);
+    const _id = this.getObjectId(id);
+    const [like] = await this.likeModel.aggregate([
+      { $match: { _id, 'targetProfile._id': _currentUserId } },
+      {
+        $limit: 1,
+      },
+      {
+        $lookup: {
+          from: 'profiles',
+          let: {
+            profileId: '$profile._id',
+          },
+          as: 'profile',
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', '$$profileId'],
+                },
+              },
+            },
+            {
+              $limit: 1,
+            },
+            {
+              $project: this.profileModel.publicFields,
+            },
+          ],
+        },
+      },
+      {
+        $set: {
+          profile: { $first: '$profile' },
+        },
+      },
+    ]);
+    if (!like || !like.profile) {
+      throw new NotFoundException(ERROR_MESSAGES['Like does not exist']);
+    }
+    return like;
   }
 
   public getPagination(data: LikeDocument[]): Pagination {
