@@ -4,7 +4,7 @@ import { AxiosInstance } from 'axios';
 
 import { GENDERS, USER_ROLES, USER_STATUSES } from '../../constants';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
-import { ProfileModel, UserModel } from '../models';
+import { EmbeddedMediaFile, ProfileModel, UserModel } from '../models';
 import { ApiScript } from './api.script';
 
 @Injectable()
@@ -49,10 +49,11 @@ export class ProfilesScript {
           this.apiScript.init(accessToken);
           await this.apiScript.createProfile();
           await this.apiScript.updateProfile();
+          const randomMediaFiles = this.getRandomMediaFiles(mediaFiles);
           await this.profileModel.updateOneById(user._id, {
             $set: {
-              mediaFiles: mediaFiles,
-              mediaFileCount: mediaFiles.length,
+              mediaFiles: randomMediaFiles,
+              mediaFileCount: randomMediaFiles.length,
             },
           });
 
@@ -159,15 +160,19 @@ export class ProfilesScript {
       {},
       { limit: 100 },
     );
-    const sampleMediaFiles = sampleProfiles
-      .filter((e) => e.mediaFiles?.length === 1)
+    const mediaFiles = sampleProfiles
+      .filter((e) => e.mediaFiles?.length > 0)
       .flatMap((e) => {
         return e.mediaFiles;
       });
-    const mediaFiles = faker.helpers.arrayElements(sampleMediaFiles, {
+
+    return { mediaFiles };
+  }
+
+  getRandomMediaFiles(mediaFiles: EmbeddedMediaFile[]) {
+    return faker.helpers.arrayElements(mediaFiles, {
       min: 1,
       max: 6,
     });
-    return { mediaFiles };
   }
 }
