@@ -37,6 +37,9 @@ export class LikesController {
     @Param('id') id: string,
     @Client() client: ClientData,
   ) {
-    return await this.service.findOneLikeMeById(id, client);
+    return {
+      type: 'likeMe',
+      data: await this.service.findOneLikeMeById(id, client),
+    };
   }
 }
