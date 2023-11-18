@@ -35,15 +35,18 @@ export class ProfileModel extends CommonModel<Profile> {
     jobTitle: 1,
     languages: 1,
     lastActivatedAt: 1,
+    mediaFileCount: 1,
     mediaFiles: {
       _id: 1,
       key: 1,
       type: 1,
     },
     nickname: 1,
+    photoVerified: 1,
     relationshipGoal: 1,
     relationshipStatus: 1,
     school: 1,
+    state: 1,
     weight: 1,
   };
 
@@ -54,12 +57,14 @@ export class ProfileModel extends CommonModel<Profile> {
     gender: 1,
     hideAge: 1,
     hideDistance: 1,
+    mediaFileCount: 1,
     mediaFiles: {
       _id: 1,
       key: 1,
       type: 1,
     },
     nickname: 1,
+    photoVerified: 1,
   };
 
   async createOne(doc: Partial<Profile> & { _id: Types.ObjectId }) {
