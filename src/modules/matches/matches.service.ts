@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import _ from 'lodash';
 
 import { APP_CONFIG } from '../../app.config';
 import { ApiCursorDateService } from '../../commons';
@@ -7,11 +8,7 @@ import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { ProfileModel } from '../models';
 import { MatchModel } from '../models/match.model';
-import {
-  Match,
-  MatchDocument,
-  MatchWithTargetProfile,
-} from '../models/schemas/match.schema';
+import { Match, MatchWithTargetProfile } from '../models/schemas/match.schema';
 import { CreateMatchDto, FindManyMatchesQuery } from './dto';
 import { MatchesHandler } from './matches.handler';
 
@@ -32,8 +29,8 @@ export class MatchesService extends ApiCursorDateService {
   public async createOne(
     payload: CreateMatchDto,
     clientData: ClientData,
-  ): Promise<MatchDocument> {
-    const { _currentUserId, currentUserId } = this.getClient(clientData);
+  ): Promise<MatchWithTargetProfile> {
+    const { _currentUserId } = this.getClient(clientData);
     const { targetUserId } = payload;
     const _targetUserId = this.getObjectId(targetUserId);
 
@@ -54,7 +51,12 @@ export class MatchesService extends ApiCursorDateService {
       match: createdMatch,
       _currentUserId,
     });
-    return createdMatch;
+    const restCreatedMatch = _.omit(createdMatch, ['profileOne', 'profileTwo']);
+    return {
+      ...restCreatedMatch,
+      targetProfile:
+        profileOne._id.toString() === targetUserId ? profileOne : profileTwo,
+    };
   }
 
   public async unmatch(id: string, clientData: ClientData) {
