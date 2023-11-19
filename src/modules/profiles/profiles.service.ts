@@ -80,6 +80,7 @@ export class ProfilesService extends ProfilesCommonService {
       longitude,
       latitude,
       birthday: rawBirthday,
+      stateId,
       ...updateDto
     } = payload;
     const { _currentUserId } = this.getClient(client);
@@ -97,6 +98,13 @@ export class ProfilesService extends ProfilesCommonService {
                 type: 'Point',
                 coordinates: [longitude, latitude],
               },
+            }
+          : {}),
+        ...(stateId
+          ? {
+              state: await this.stateModel.findOneOrFailById(
+                this.getObjectId(stateId),
+              ),
             }
           : {}),
       },

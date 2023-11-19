@@ -122,7 +122,8 @@ export class UpdateMyProfileDto {
   @IsNumber()
   weight: number;
 
-  // @ApiPropertyOptional({ type: Number })
-  // @JoiSchema(Joi.number().optional())
-  // stateId?: number;
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  stateId?: string;
 }
