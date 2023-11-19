@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { RESPONSE_TYPES } from '../../constants';
 import { ClientData } from '../auth/auth.type';
 import { CreateMatchDto, FindManyMatchesQuery } from './dto';
 import { MatchesService } from './matches.service';
@@ -42,11 +43,25 @@ export class MatchesController {
     return await this.service.findMany(queryParams, clientData);
   }
 
+  @Get('/by-target-user-id/:id')
+  public async findOneByTargetUserId(
+    @Param('id') targetUserId: string,
+    @Client() client: ClientData,
+  ) {
+    return {
+      type: RESPONSE_TYPES.MATCH,
+      data: await this.service.findOneByTargetUserId(targetUserId, client),
+    };
+  }
+
   @Get('/:id')
   public async findOneById(
     @Param('id') id: string,
     @Client() clientData: ClientData,
   ) {
-    return await this.service.findOneOrFailById(id, clientData);
+    return {
+      type: RESPONSE_TYPES.MATCH,
+      data: await this.service.findOneOrFailById(id, clientData),
+    };
   }
 }

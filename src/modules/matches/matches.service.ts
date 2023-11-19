@@ -3,7 +3,6 @@ import _ from 'lodash';
 
 import { APP_CONFIG } from '../../app.config';
 import { ApiCursorDateService } from '../../commons';
-import { RESPONSE_TYPES } from '../../constants';
 import { PaginatedResponse, Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { ProfileModel } from '../models';
@@ -127,25 +126,39 @@ export class MatchesService extends ApiCursorDateService {
       _id,
       ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
     });
-    const {
-      profileOne: { _id: _profileOneId },
-      profileTwo: { _id: _profileTwoId },
-      ...restMatch
-    } = match;
     const isUserOne = this.matchModel.isUserOne({
       currentUserId,
-      userOneId: _profileOneId.toString(),
+      userOneId: match.profileOne._id.toString(),
     });
     const { profileOne, profileTwo } =
       await this.profileModel.findTwoOrFailPublicByIds(
-        _profileOneId._id,
-        _profileTwoId._id,
+        match.profileOne._id,
+        match.profileTwo._id,
       );
-    const targetProfile = isUserOne ? profileTwo : profileOne;
     this.matchesHandler.afterFindOneMatch({ match, profileOne, profileTwo });
     return {
-      type: RESPONSE_TYPES.MATCH,
-      data: { ...restMatch, targetProfile },
+      ..._.omit(match, ['profileOne', 'profileTwo']),
+      targetProfile: isUserOne ? profileTwo : profileOne,
+    };
+  }
+
+  async findOneByTargetUserId(targetUserId: string, client: ClientData) {
+    const { _userOneId, _userTwoId, isUserOne } =
+      this.matchModel.getSortedUserIds({
+        currentUserId: client.id,
+        targetUserId,
+      });
+    const [{ profileOne, profileTwo }, match] = await Promise.all([
+      this.profileModel.findTwoOrFailPublicByIds(_userOneId, _userTwoId),
+      this.matchModel.findOneOrFail({
+        'profileOne._id': _userOneId,
+        'profileTwo._id': _userTwoId,
+      }),
+    ]);
+    this.matchesHandler.afterFindOneMatch({ match, profileOne, profileTwo });
+    return {
+      ..._.omit(match, ['profileOne', 'profileTwo']),
+      targetProfile: isUserOne ? profileTwo : profileOne,
     };
   }
 

@@ -5,7 +5,7 @@ import {
 import _ from 'lodash';
 
 import { ClientData } from '../../modules/auth/auth.type';
-import { PaginatedResponse, Pagination, SingleResponse } from '../../types';
+import { PaginatedResponse, Pagination } from '../../types';
 import { ERROR_MESSAGES } from '../messages';
 import { DbService } from './db.service';
 
@@ -20,7 +20,7 @@ export class ApiService extends DbService {
   public async findOneOrFailById(
     id: string,
     client: ClientData,
-  ): Promise<SingleResponse<Record<string, any>>> {
+  ): Promise<Record<string, any>> {
     throw new InternalServerErrorException(ERROR_MESSAGES['Not implemented']);
   }
 
