@@ -33,22 +33,12 @@ export class SwipeProfilesService extends ProfilesCommonService {
     const profileFilter = await this.profileFilterModel.findOneOrFail({
       _id: _currentUserId,
     });
+
     const users = await this.profileModel.aggregate([
       {
         $match: {
-          _id: {
-            ...(excludedUserIds.length
-              ? {
-                  $nin: [
-                    _currentUserId,
-                    ...excludedUserIds.map((item) => this.getObjectId(item)),
-                  ],
-                }
-              : {
-                  $ne: _currentUserId,
-                }),
-          },
           mediaFileCount: { $gt: 0 },
+          _id: { $ne: _currentUserId },
           'state._id': _stateId,
           gender: profileFilter.gender,
           birthday: {
