@@ -83,6 +83,8 @@ export class ApiScript extends ProfilesCommonService {
       hideDistance: false,
       jobTitle: faker.name.jobTitle(),
       languages: [faker.location.country()],
+      latitude: faker.location.latitude(),
+      longitude: faker.location.longitude(),
       relationshipStatus: faker.number.int({
         min: 1,
         max: 6,
@@ -91,14 +93,6 @@ export class ApiScript extends ProfilesCommonService {
       weight: faker.number.int({ min: 40, max: 100 }),
     };
     await this.api.patch<void>('/profiles/me', updateData);
-  }
-
-  async updateGeolocation() {
-    const updateData = {
-      longitude: faker.location.longitude(),
-      latitude: faker.location.latitude(),
-    };
-    await this.api.patch<void>('/profiles/me/geolocation', updateData);
   }
 
   async sendLike(body: ApiRequest.SendLike) {
