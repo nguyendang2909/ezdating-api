@@ -43,7 +43,7 @@ export class MatchesController {
     return await this.service.findMany(queryParams, clientData);
   }
 
-  @Get('/by-target-user-id/:id')
+  @Get('/target-user/:id')
   public async findOneByTargetUserId(
     @Param('id') targetUserId: string,
     @Client() client: ClientData,
