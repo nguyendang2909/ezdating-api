@@ -129,33 +129,19 @@ export class Profile extends CommonSchema {
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);
 
-ProfileSchema.index(
-  {
-    geolocation: '2dsphere',
-    mediaFileCount: 1,
-    gender: 1,
-    birthday: 1,
-    lastActivated: 1,
-  },
-  {
-    partialFilterExpression: {
-      mediaFileCount: { $gt: 0 },
-    },
-  },
-);
+ProfileSchema.index({
+  geolocation: '2dsphere',
+  mediaFileCount: 1,
+  gender: 1,
+  birthday: 1,
+  lastActivated: 1,
+});
 
-ProfileSchema.index(
-  {
-    mediaFileCount: 1,
-    _id: 1,
-    'state._id': 1,
-    gender: 1,
-    birthday: 1,
-    lastActivatedAt: 1,
-  },
-  {
-    partialFilterExpression: {
-      mediaFileCount: { $gt: 0 },
-    },
-  },
-);
+ProfileSchema.index({
+  mediaFileCount: 1,
+  _id: 1,
+  'state._id': 1,
+  gender: 1,
+  birthday: 1,
+  lastActivatedAt: 1,
+});

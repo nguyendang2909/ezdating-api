@@ -46,13 +46,8 @@ export class SwipeProfilesService extends ProfilesCommonService {
             $lte: moment().subtract(profileFilter.minAge, 'years').toDate(),
           },
           lastActivatedAt: {
-            $gt: moment().subtract(10, 'h').toDate(),
+            $gt: moment().subtract(1, 'h').toDate(),
           },
-        },
-      },
-      {
-        $sort: {
-          lastActivatedAt: -1,
         },
       },
       { $limit: this.limitRecordsPerQuery },
