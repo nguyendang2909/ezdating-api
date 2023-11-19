@@ -8,6 +8,7 @@ import {
   EmbeddedMediaFile,
   EmbeddedMediaFileSchema,
 } from './embedded-media-file.schema';
+import { EmbeddedState, EmbeddedStateSchema } from './embeded-state.schema';
 
 export type EmbeddedProfileDocument = HydratedDocument<EmbeddedProfile>;
 
@@ -42,6 +43,9 @@ export class EmbeddedProfile extends CommonEmbeddedSchema {
 
   @Prop({ type: Boolean, default: false })
   photoVerified: boolean;
+
+  @Prop({ type: EmbeddedStateSchema, required: false })
+  state: EmbeddedState;
 }
 
 export const EmbeddedProfileSchema =

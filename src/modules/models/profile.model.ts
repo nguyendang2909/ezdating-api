@@ -65,6 +65,7 @@ export class ProfileModel extends CommonModel<Profile> {
     },
     nickname: 1,
     photoVerified: 1,
+    state: 1,
   };
 
   async createOne(doc: Partial<Profile> & { _id: Types.ObjectId }) {
