@@ -1,6 +1,7 @@
 export const APP_CONFIG = {
   ACCESS_TOKEN_EXPIRES: '60m',
   APP_NAME: 'Research',
+  APP_TITLE: 'EZ Dating',
   PAGINATION_LIMIT: {
     CONVERSATIONS: 20,
     DEFAULT: 20,

@@ -61,10 +61,11 @@ export class LikesHandler extends DbService {
         currentUserId,
         userOneId: profileOne._id.toString(),
       });
+      const currentProfile = isUserOne ? profileOne : profileTwo;
       const targetProfile = isUserOne ? profileTwo : profileOne;
       this.pushNotificationsService.sendByProfile(targetProfile, {
-        content: 'You have match',
-        title: 'Matches',
+        content: `You have match with ${currentProfile.nickname}`,
+        title: APP_CONFIG.APP_TITLE,
       });
     }
     await this.updateViewAfterLike({
