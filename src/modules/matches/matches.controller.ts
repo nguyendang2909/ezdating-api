@@ -40,7 +40,12 @@ export class MatchesController {
     @Query() queryParams: FindManyMatchesQuery,
     @Client() clientData: ClientData,
   ) {
-    return await this.service.findMany(queryParams, clientData);
+    const findResults = await this.service.findMany(queryParams, clientData);
+    return {
+      type: 'matches',
+      data: findResults,
+      pagination: this.service.getPagination(findResults),
+    };
   }
 
   @Get('/target-user/:id')

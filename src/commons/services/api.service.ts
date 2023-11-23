@@ -5,7 +5,7 @@ import {
 import _ from 'lodash';
 
 import { ClientData } from '../../modules/auth/auth.type';
-import { PaginatedResponse, Pagination } from '../../types';
+import { Pagination } from '../../types';
 import { ERROR_MESSAGES } from '../messages';
 import { DbService } from './db.service';
 
@@ -13,7 +13,7 @@ export class ApiService extends DbService {
   public async findMany(
     queryParams: Record<string, any>,
     client: ClientData,
-  ): Promise<PaginatedResponse<Record<string, any>>> {
+  ): Promise<Record<string, any>[]> {
     throw new InternalServerErrorException(ERROR_MESSAGES['Not implemented']);
   }
 

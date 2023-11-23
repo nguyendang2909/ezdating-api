@@ -3,7 +3,7 @@ import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
 import { ERROR_MESSAGES } from '../../commons/messages';
-import { PaginatedResponse, Pagination } from '../../types';
+import { Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { Profile, ProfileFilterModel, ProfileModel } from '../models';
 import { FindManyNearbyProfilesQuery } from './dto';
@@ -23,7 +23,7 @@ export class NearbyProfilesService extends ProfilesCommonService {
   public async findMany(
     queryParams: FindManyNearbyProfilesQuery,
     client: ClientData,
-  ): Promise<PaginatedResponse<Profile>> {
+  ): Promise<Profile[]> {
     const { _currentUserId } = this.getClient(client);
     const { _next } = queryParams;
     const geolocation =
@@ -42,13 +42,7 @@ export class NearbyProfilesService extends ProfilesCommonService {
     });
     const maxDistance = profileFilter.maxDistance * 1000;
     if (minDistance && minDistance >= maxDistance) {
-      return {
-        data: [],
-        type: 'nearbyUsers',
-        pagination: {
-          _next: null,
-        },
-      };
+      return [];
     }
     const findResults = await this.profileModel.aggregate([
       {
@@ -77,12 +71,7 @@ export class NearbyProfilesService extends ProfilesCommonService {
         $project: this.profileModel.publicFields,
       },
     ]);
-
-    return {
-      type: 'nearbyUsers',
-      data: findResults,
-      pagination: this.getPagination(findResults),
-    };
+    return findResults;
   }
 
   public getPagination(

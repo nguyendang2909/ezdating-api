@@ -23,6 +23,15 @@ export class MessagesController {
     @Query() queryParams: FindManyMessagesQuery,
     @Client() clientData: ClientData,
   ) {
-    return await this.messagesService.findMany(queryParams, clientData);
+    const findResults = await this.messagesService.findMany(
+      queryParams,
+      clientData,
+    );
+    return {
+      type: 'messages',
+      _matchId: queryParams.matchId,
+      data: findResults,
+      pagination: this.messagesService.getPagination(findResults),
+    };
   }
 }

@@ -1,17 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { ApiCursorObjectIdService } from '../../commons';
-import { RESPONSE_TYPES } from '../../constants';
-import { PaginatedResponse, Pagination } from '../../types';
+import { Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel } from '../models/match.model';
-import {
-  Match,
-  MatchDocument,
-  MatchWithTargetProfile,
-} from '../models/schemas/match.schema';
+import { Match, MatchWithTargetProfile } from '../models/schemas/match.schema';
 import { FindManyConversationsQuery } from './dto/find-many-conversations.dto';
 
 @Injectable()
@@ -24,7 +18,7 @@ export class ConversationsService extends ApiCursorObjectIdService {
   public async findMany(
     queryParams: FindManyConversationsQuery,
     clientData: ClientData,
-  ): Promise<PaginatedResponse<MatchWithTargetProfile>> {
+  ): Promise<MatchWithTargetProfile[]> {
     const { _currentUserId, currentUserId } = this.getClient(clientData);
     const { _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;
@@ -45,20 +39,14 @@ export class ConversationsService extends ApiCursorObjectIdService {
         limit: this.limitRecordsPerQuery,
       },
     );
-    const matches = this.matchModel.formatManyWithTargetProfile(
+    return this.matchModel.formatManyWithTargetProfile(
       findResults,
       currentUserId,
     );
-
-    return {
-      type: RESPONSE_TYPES.CONVERSATIONS,
-      data: matches,
-      pagination: this.getPagination(findResults),
-    };
   }
 
   public getPagination(
-    data: Array<MatchDocument | (Match & { _id: Types.ObjectId })>,
+    data: Array<Match | MatchWithTargetProfile>,
   ): Pagination {
     const dataLength = data.length;
     if (!dataLength || dataLength < this.limitRecordsPerQuery) {

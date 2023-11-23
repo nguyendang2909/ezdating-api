@@ -1,17 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { isArray } from 'lodash';
 import moment from 'moment';
+import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { ClientData } from '../auth/auth.type';
-import { ProfileFilterModel, ProfileModel } from '../models';
+import {
+  Profile,
+  ProfileFilterModel,
+  ProfileModel,
+  ViewModel,
+} from '../models';
 import { FindManySwipeProfilesQuery } from './dto';
 import { ProfilesCommonService } from './profiles.common.service';
+
 @Injectable()
 export class SwipeProfilesService extends ProfilesCommonService {
   constructor(
     private readonly profileModel: ProfileModel,
     private readonly profileFilterModel: ProfileFilterModel,
+    private readonly viewModel: ViewModel,
   ) {
     super();
 
@@ -22,41 +29,63 @@ export class SwipeProfilesService extends ProfilesCommonService {
     queryParams: FindManySwipeProfilesQuery,
     clientData: ClientData,
   ) {
-    const { excludedUserId } = queryParams;
-    const excludedUserIds =
-      excludedUserId && isArray(excludedUserId) ? excludedUserId : [];
-    const { id: currentUserId } = clientData;
-    const _currentUserId = this.getObjectId(currentUserId);
+    const { _currentUserId } = this.getClient(clientData);
+    const currentProfile = await this.profileModel.findOneOrFailById(
+      _currentUserId,
+    );
+    const excludedUserIds = await this.getExcludedUserIds(
+      currentProfile,
+      queryParams.excludedUserId,
+    );
     const _stateId = queryParams.stateId
       ? this.getObjectId(queryParams.stateId)
-      : (await this.profileModel.findOneOrFailById(_currentUserId)).state._id;
+      : currentProfile.state?._id;
     const profileFilter = await this.profileFilterModel.findOneOrFail({
       _id: _currentUserId,
     });
-
-    const users = await this.profileModel.aggregate([
+    const users = await this.profileModel.findMany(
       {
-        $match: {
-          mediaFileCount: { $gt: 0 },
-          _id: { $ne: _currentUserId },
-          'state._id': _stateId,
-          gender: profileFilter.gender,
-          birthday: {
-            $gte: moment().subtract(profileFilter.maxAge, 'years').toDate(),
-            $lte: moment().subtract(profileFilter.minAge, 'years').toDate(),
-          },
-          lastActivatedAt: {
-            $gt: moment().subtract(1, 'h').toDate(),
-          },
+        mediaFileCount: { $gt: 0 },
+        _id: { $nin: excludedUserIds },
+        'state._id': _stateId,
+        gender: profileFilter.gender,
+        birthday: {
+          $gte: moment().subtract(profileFilter.maxAge, 'years').toDate(),
+          $lte: moment().subtract(profileFilter.minAge, 'years').toDate(),
+        },
+        lastActivatedAt: {
+          $gt: moment().subtract(1, 'h').toDate(),
         },
       },
-      { $limit: this.limitRecordsPerQuery },
-    ]);
+      {},
+      { limit: this.limitRecordsPerQuery },
+    );
 
-    return {
-      type: 'swipeUsers',
-      data: users,
-      pagination: { _next: null },
-    };
+    return users;
+  }
+
+  async getExcludedUserIds(
+    profile: Profile,
+    excludedUserId?: string | string[],
+  ): Promise<Types.ObjectId[]> {
+    const excludedUserIds = [profile._id];
+    if (excludedUserId) {
+      const excludedIds = Array.isArray(excludedUserId)
+        ? excludedUserId.map((e) => this.getObjectId(e))
+        : [this.getObjectId(excludedUserId)];
+      excludedUserIds.push(...excludedIds);
+    }
+    const views = await this.viewModel.findMany(
+      {
+        'profile._id': profile._id,
+        'targetProfile.state._id': profile.state?._id,
+        isMatched: false,
+        isLiked: false,
+      },
+      { 'targetProfile._id': 1 },
+      { limit: 1000 },
+    );
+    excludedUserIds.push(...views.map((e) => e.targetProfile._id));
+    return excludedUserIds;
   }
 }

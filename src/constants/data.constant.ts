@@ -86,7 +86,9 @@ export const RESPONSE_TYPES = {
   DAILY_ATTENDANCE: 'daily_attendance',
   MATCH: 'match',
   MATCHES: 'matches',
+  NEARBY_PROFILES: 'nearby_profiles',
   PROFILE: 'profile',
   PROFILES: 'profiles',
+  SWIPE_PROFILES: 'swipe_profiles',
   UPDATE_PROFILE_FILTER: 'update_profile_filter',
 };

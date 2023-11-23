@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 import { APP_CONFIG } from '../../app.config';
 import { ApiCursorDateService } from '../../commons';
-import { PaginatedResponse, Pagination } from '../../types';
+import { Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { ProfileModel } from '../models';
 import { MatchModel } from '../models/match.model';
@@ -85,7 +85,7 @@ export class MatchesService extends ApiCursorDateService {
   public async findMany(
     queryParams: FindManyMatchesQuery,
     clientData: ClientData,
-  ): Promise<PaginatedResponse<MatchWithTargetProfile>> {
+  ): Promise<MatchWithTargetProfile[]> {
     const { _currentUserId, currentUserId } = this.getClient(clientData);
     const { _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;
@@ -109,14 +109,10 @@ export class MatchesService extends ApiCursorDateService {
         limit: this.limitRecordsPerQuery,
       },
     );
-    return {
-      type: 'matches',
-      data: this.matchModel.formatManyWithTargetProfile(
-        findResults,
-        currentUserId,
-      ),
-      pagination: this.getPagination(findResults),
-    };
+    return this.matchModel.formatManyWithTargetProfile(
+      findResults,
+      currentUserId,
+    );
   }
 
   public async findOneOrFailById(id: string, client: ClientData) {
@@ -162,7 +158,9 @@ export class MatchesService extends ApiCursorDateService {
     };
   }
 
-  public getPagination(data: Match[]): Pagination {
+  public getPagination(
+    data: Array<Match | MatchWithTargetProfile>,
+  ): Pagination {
     return this.getPaginationByField(data, 'createdAt');
   }
 }

@@ -11,8 +11,10 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { RequireRoles } from '../../commons/decorators/require-roles.decorator';
-import { USER_ROLES } from '../../constants';
+import { RESPONSE_TYPES, USER_ROLES } from '../../constants';
+import { PaginatedResponse } from '../../types';
 import { ClientData } from '../auth/auth.type';
+import { Profile } from '../models';
 import {
   CreateProfileDto,
   FindManyNearbyProfilesQuery,
@@ -48,7 +50,7 @@ export class ProfilesController {
   @Get('/me')
   async getProfile(@Client() clientData: ClientData) {
     return {
-      type: 'profile',
+      type: RESPONSE_TYPES.PROFILE,
       data: await this.service.getMe(clientData),
     };
   }
@@ -57,11 +59,8 @@ export class ProfilesController {
   private async updateMe(
     @Body() payload: UpdateMyProfileDto,
     @Client() clientData: ClientData,
-  ) {
+  ): Promise<void> {
     await this.service.updateMe(payload, clientData);
-    return {
-      type: 'updateProfile',
-    };
   }
   // * End me api
 
@@ -69,8 +68,16 @@ export class ProfilesController {
   public async findManySwipe(
     @Query() queryParams: FindManySwipeProfilesQuery,
     @Client() clientData: ClientData,
-  ) {
-    return await this.swipeProfilesService.findMany(queryParams, clientData);
+  ): Promise<PaginatedResponse<Profile>> {
+    const profiles = await this.swipeProfilesService.findMany(
+      queryParams,
+      clientData,
+    );
+    return {
+      type: RESPONSE_TYPES.SWIPE_PROFILES,
+      data: profiles,
+      pagination: { _next: null },
+    };
   }
 
   @Get('/nearby')
@@ -78,7 +85,15 @@ export class ProfilesController {
     @Query() queryParams: FindManyNearbyProfilesQuery,
     @Client() clientData: ClientData,
   ) {
-    return await this.nearbyProfilesService.findMany(queryParams, clientData);
+    const findResults = await this.nearbyProfilesService.findMany(
+      queryParams,
+      clientData,
+    );
+    return {
+      type: RESPONSE_TYPES.NEARBY_PROFILES,
+      data: findResults,
+      pagination: this.nearbyProfilesService.getPagination(findResults),
+    };
   }
 
   @Get('/test')

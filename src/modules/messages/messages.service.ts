@@ -3,12 +3,12 @@ import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { ApiService } from '../../commons/services/api.service';
-import { PaginatedResponse, Pagination } from '../../types';
+import { Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { Match } from '../models';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
-import { MessageDocument } from '../models/schemas/message.schema';
+import { Message } from '../models/schemas/message.schema';
 import { UserModel } from '../models/user.model';
 import { ReadMessageDto } from './dto';
 import { FindManyMessagesQuery } from './dto/find-many-messages.dto';
@@ -51,7 +51,7 @@ export class MessagesService extends ApiService {
   public async findMany(
     queryParams: FindManyMessagesQuery,
     clientData: ClientData,
-  ): Promise<PaginatedResponse<MessageDocument> & { _matchId: string }> {
+  ): Promise<Message[]> {
     const { matchId, _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;
     const _matchId = this.getObjectId(matchId);
@@ -73,22 +73,15 @@ export class MessagesService extends ApiService {
         lean: true,
       },
     );
-
     this.handleAfterFindManyMessages({
       _matchId,
       currentUserId,
       match: existMatch,
     });
-
-    return {
-      type: 'messages',
-      _matchId: matchId,
-      data: findResults,
-      pagination: this.getPagination(findResults),
-    };
+    return findResults;
   }
 
-  public getPagination(data: MessageDocument[]): Pagination {
+  public getPagination(data: Message[]): Pagination {
     return this.getPaginationByField(data, '_id');
   }
 

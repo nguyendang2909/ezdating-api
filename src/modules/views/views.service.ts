@@ -3,7 +3,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { APP_CONFIG } from '../../app.config';
 import { ApiCursorDateService } from '../../commons';
 import { ERROR_MESSAGES } from '../../commons/messages';
-import { PaginatedResponse } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel, ProfileModel, View } from '../models';
 import { ViewModel } from '../models/view.model';
@@ -52,7 +51,7 @@ export class ViewsService extends ApiCursorDateService {
   public async findMany(
     queryParams: FindManyViewsQuery,
     client: ClientData,
-  ): Promise<PaginatedResponse<View>> {
+  ): Promise<View[]> {
     const { _currentUserId } = this.getClient(client);
     const { _next } = queryParams;
     const cursor = _next ? this.getCursor(_next) : undefined;
@@ -77,11 +76,7 @@ export class ViewsService extends ApiCursorDateService {
         limit: this.limitRecordsPerQuery,
       },
     );
-    return {
-      type: 'views',
-      data: findResults,
-      pagination: this.getPagination(findResults),
-    };
+    return findResults;
   }
 
   verifyNotSameUserById(userOne: string, userTwo: string) {

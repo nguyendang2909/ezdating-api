@@ -29,6 +29,11 @@ export class ViewsController {
     @Query() queryParams: FindManyViewsQuery,
     @Client() clientData: ClientData,
   ) {
-    return await this.service.findMany(queryParams, clientData);
+    const findResults = await this.service.findMany(queryParams, clientData);
+    return {
+      type: 'views',
+      data: findResults,
+      pagination: this.service.getPagination(findResults),
+    };
   }
 }

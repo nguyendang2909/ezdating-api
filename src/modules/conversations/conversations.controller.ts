@@ -1,6 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { RESPONSE_TYPES } from '../../constants';
 import { ClientData } from '../auth/auth.type';
 import { ConversationsService } from './conversations.service';
 import { FindManyConversationsQuery } from './dto/find-many-conversations.dto';
@@ -14,7 +15,15 @@ export class ConversationsController {
     @Query() queryParams: FindManyConversationsQuery,
     @Client() clientData: ClientData,
   ) {
-    return await this.conversationsService.findMany(queryParams, clientData);
+    const findResults = await this.conversationsService.findMany(
+      queryParams,
+      clientData,
+    );
+    return {
+      type: RESPONSE_TYPES.CONVERSATIONS,
+      data: findResults,
+      pagination: this.conversationsService.getPagination(findResults),
+    };
   }
 
   // @Get('/:id')
