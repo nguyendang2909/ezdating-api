@@ -1,23 +1,19 @@
-import { Controller, Delete, Get, Param } from '@nestjs/common';
+import { Controller, Post } from '@nestjs/common';
 
+import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { RESPONSE_TYPES } from '../../constants';
+import { ClientData } from '../auth/auth.type';
 import { CoinsService } from './coins.service';
 
 @Controller('coins')
 export class CoinsController {
   constructor(private readonly coinsService: CoinsService) {}
 
-  @Get()
-  findAll() {
-    return this.coinsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.coinsService.findOne(+id);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.coinsService.remove(+id);
+  @Post('/me/daily-attendance')
+  async takeAttendance(@Client() clientData: ClientData) {
+    return {
+      type: RESPONSE_TYPES.DAILY_ATTENDANCE,
+      data: await this.coinsService.takeAttendance(clientData),
+    };
   }
 }

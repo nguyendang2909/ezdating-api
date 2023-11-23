@@ -83,9 +83,10 @@ export const MEMBERSHIPS = {
 
 export const RESPONSE_TYPES = {
   CONVERSATIONS: 'conversations',
-  PROFILE: 'profile',
+  DAILY_ATTENDANCE: 'daily_attendance',
   MATCH: 'match',
   MATCHES: 'matches',
+  PROFILE: 'profile',
   PROFILES: 'profiles',
   UPDATE_PROFILE_FILTER: 'update_profile_filter',
 };
