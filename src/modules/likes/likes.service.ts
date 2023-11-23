@@ -81,6 +81,7 @@ export class LikesService extends ApiCursorDateService {
       hasReverseLike: !!reverseLike,
       profileOne,
       profileTwo,
+      currentUserId,
     });
     return like;
   }

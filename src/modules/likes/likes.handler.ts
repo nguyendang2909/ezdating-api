@@ -11,6 +11,7 @@ import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import { Like } from '../models/schemas/like.schema';
 import { ViewModel } from '../models/view.model';
+import { PushNotificationsService } from '../push-notifications/push-notifications.service';
 
 @Injectable()
 export class LikesHandler extends DbService {
@@ -20,6 +21,7 @@ export class LikesHandler extends DbService {
     private readonly matchModel: MatchModel,
     private readonly viewModel: ViewModel,
     private readonly profileModel: ProfileModel,
+    private readonly pushNotificationsService: PushNotificationsService,
   ) {
     super();
 
@@ -33,7 +35,9 @@ export class LikesHandler extends DbService {
     hasReverseLike,
     profileOne,
     profileTwo,
+    currentUserId,
   }: {
+    currentUserId: string;
     hasReverseLike: boolean;
     like: Like;
     profileOne: Profile;
@@ -52,6 +56,16 @@ export class LikesHandler extends DbService {
         profileTwo._id.toString(),
         this.matchModel.formatOneWithTargetProfile(createdMatch, false),
       );
+      // Push notification
+      const isUserOne = this.matchModel.isUserOne({
+        currentUserId,
+        userOneId: profileOne._id.toString(),
+      });
+      const targetProfile = isUserOne ? profileTwo : profileOne;
+      this.pushNotificationsService.sendByProfile(targetProfile, {
+        content: 'You have match',
+        title: 'Matches',
+      });
     }
     await this.updateViewAfterLike({
       like,

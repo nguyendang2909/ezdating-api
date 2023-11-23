@@ -23,6 +23,12 @@ export class SignedDevice extends CommonSchema {
 
   @Prop({ type: Number, enum: DEVICE_PLATFORMS })
   platform?: DevicePlatform;
+
+  @Prop({ type: String })
+  language?: string;
+
+  @Prop({ type: String })
+  languageCode?: string;
 }
 
 export const SignedDeviceSchema = SchemaFactory.createForClass(SignedDevice);

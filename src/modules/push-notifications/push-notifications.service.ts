@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import moment from 'moment';
 import { Types } from 'mongoose';
 
+import { APP_CONFIG } from '../../app.config';
 import { DEVICE_PLATFORMS } from '../../constants';
 import {
+  SendPushNotificationByProfileOptions,
   SendPushNotificationContent,
   SendPushNotificationPayload,
 } from '../../types';
+import { Profile } from '../models';
 import { SignedDevice } from '../models/schemas/signed-device.schema';
 import { SignedDeviceModel } from '../models/signed-device.model';
 import { AndroidPushNotificationsService } from './android-push-notifications.service';
@@ -60,19 +64,38 @@ export class PushNotificationsService {
     _userId: Types.ObjectId,
     payload: SendPushNotificationContent,
   ) {
-    const devices = await this.signedDeviceModel.model
-      .find(
-        {
-          _userId,
-          token: {
-            $exists: true,
-          },
-        },
-        {},
-        { lean: true },
-      )
-      .exec();
-
+    const devices = await this.signedDeviceModel.findMany({
+      _userId,
+      token: {
+        $exists: true,
+      },
+    });
     return await this.sendByDevices(devices, payload);
+  }
+
+  async sendByProfile(
+    profile: Profile,
+    payload: SendPushNotificationContent,
+    options: SendPushNotificationByProfileOptions = {},
+  ) {
+    const recentActive = !!options.recentActive;
+    if (recentActive && !this.canPushByProfile(profile)) {
+      return;
+    }
+    const devices = await this.signedDeviceModel.findMany({
+      _userId: profile._id,
+      token: {
+        $exists: true,
+      },
+    });
+    return await this.sendByDevices(devices, payload);
+  }
+
+  canPushByProfile(profile: Profile) {
+    return (
+      !!profile.lastActivatedAt &&
+      moment().diff(profile.lastActivatedAt, 'days') <=
+        APP_CONFIG.PROFIFLE.LOW_ACTIVITY.MINIMUM_INACTIVITY_DATE
+    );
   }
 }

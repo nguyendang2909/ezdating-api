@@ -54,3 +54,7 @@ export type _UserOneTwoIds = {
 };
 
 export type ErrorMessage = (typeof ERROR_MESSAGES)[keyof typeof ERROR_MESSAGES];
+
+export type SendPushNotificationByProfileOptions = {
+  recentActive?: boolean;
+};
