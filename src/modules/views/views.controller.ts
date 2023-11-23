@@ -19,7 +19,7 @@ export class ViewsController {
     @Client() clientData: ClientData,
   ) {
     return {
-      type: 'sendView',
+      type: 'send_view',
       data: await this.service.send(payload, clientData),
     };
   }
