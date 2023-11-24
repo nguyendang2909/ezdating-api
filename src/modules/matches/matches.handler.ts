@@ -56,22 +56,22 @@ export class MatchesHandler extends ApiCursorDateService {
       userOneId,
       userTwoId,
     });
-    const existLike = await this.likeModel.findOne({
-      'profile._id': _currentUserId,
-      'targetProfile._id': _targetUserId,
-    });
-    if (existLike) {
-      await this.likeModel
-        .deleteOne({
+    try {
+      const existLike = await this.likeModel.findOne({
+        'profile._id': _currentUserId,
+        'targetProfile._id': _targetUserId,
+      });
+      if (existLike) {
+        await this.likeModel.deleteOne({
           'profile._id': _currentUserId,
           'targetProfile._id': _targetUserId,
-        })
-        .catch((error) => {
-          this.logger.log(
-            `UNMATCH Delete like failed filter error: ${JSON.stringify(error)}`,
-          );
         });
-      await this.trashLikeModel.createOne(existLike);
+        await this.trashLikeModel.createOne(existLike);
+      }
+    } catch (error) {
+      this.logger.error(
+        `UNMATCH Delete like failed filter error: ${JSON.stringify(error)}`,
+      );
     }
     await this.likeModel
       .updateOne(
@@ -79,7 +79,7 @@ export class MatchesHandler extends ApiCursorDateService {
         { $set: { isMatched: false } },
       )
       .catch((error) => {
-        this.logger.log(
+        this.logger.error(
           `UNMATCH Update like from targetUser failed: ${JSON.stringify(
             error,
           )}`,
@@ -88,29 +88,41 @@ export class MatchesHandler extends ApiCursorDateService {
 
     // TODO: queue
     // this.matchesPublisher.publishUnmatched(match._id.toString());
-    await this.viewModel.updateOne(
-      {
-        'profile.id': _currentUserId,
-        'targetProfile._id': _targetUserId,
-      },
-      {
-        $set: {
-          isLiked: false,
-          isMatched: false,
+    await this.viewModel
+      .updateOne(
+        {
+          'profile.id': _currentUserId,
+          'targetProfile._id': _targetUserId,
         },
-      },
-    );
-    await this.viewModel.updateOne(
-      {
-        'profile.id': _targetUserId,
-        'targetProfile._id': _currentUserId,
-      },
-      {
-        $set: {
-          isMatched: false,
+        {
+          $set: {
+            isLiked: false,
+            isMatched: false,
+          },
         },
-      },
-    );
+      )
+      .catch((error) => {
+        this.logger.error(
+          `UNMATCH Update view failed: ${JSON.stringify(error)}`,
+        );
+      });
+    await this.viewModel
+      .updateOne(
+        {
+          'profile.id': _targetUserId,
+          'targetProfile._id': _currentUserId,
+        },
+        {
+          $set: {
+            isMatched: false,
+          },
+        },
+      )
+      .catch((error) => {
+        this.logger.error(
+          `UNMATCH Update view failed: ${JSON.stringify(error)}`,
+        );
+      });
   }
 
   emitMatchToUser(userId: string, payload: MatchWithTargetProfile) {
