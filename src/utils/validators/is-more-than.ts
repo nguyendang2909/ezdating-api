@@ -10,7 +10,7 @@ export function IsBiggerOrEqual(
 ) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
-      name: 'is_bigger_than',
+      name: 'is_more_than',
       target: object.constructor,
       propertyName: propertyName,
       constraints: [property],
