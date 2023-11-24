@@ -1,9 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import moment from 'moment';
+import mongoose from 'mongoose';
 
 import { ApiService } from '../../commons';
-import { ERROR_MESSAGES } from '../../commons/messages';
-import { WEEKLY_COINS, WEEKLY_COINS_LENGTH } from '../../constants';
+import { WEEKLY_COINS } from '../../constants';
+import { WeeklyCoin } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { CoinAttendance, CoinAttendanceModel, UserModel } from '../models';
 
@@ -16,49 +17,92 @@ export class CoinsService extends ApiService {
     super();
   }
 
-  public async takeAttendance(clientData: ClientData): Promise<CoinAttendance> {
-    const { id: currentUserId } = clientData;
-    const _currentUserId = this.getObjectId(currentUserId);
+  public async findManyAttendances(client: ClientData) {
+    const { _currentUserId } = this.getClient(client);
+    const newestAttendance = await this.takeAttendance(_currentUserId).catch(
+      () => {
+        return undefined;
+      },
+    );
+    const attendances = await this.coinAttendanceModel.findMany(
+      {},
+      {},
+      {
+        limit: newestAttendance
+          ? newestAttendance.data.receivedDateIndex + 1
+          : 7,
+      },
+    );
+    return {
+      isReceivedAttendance: !!newestAttendance,
+      data: newestAttendance
+        ? attendances
+        : this.coinAttendanceModel.getByStartDays(attendances),
+    };
+  }
+
+  public async takeAttendance(
+    _currentUserId: mongoose.Types.ObjectId,
+  ): Promise<{ data: CoinAttendance; isReceivedAttendance: boolean }> {
     const todayDate = moment().startOf('date').toDate();
     const lastCoinAttendance = await this.coinAttendanceModel.findOne({
       _userId: _currentUserId,
     });
     if (!lastCoinAttendance) {
-      // TODO: transaction
-      const firstCoinAttendance = await this.coinAttendanceModel.createOne({
+      return {
+        isReceivedAttendance: true,
+        data: await this.createDailyAttendance({
+          _userId: _currentUserId,
+          receivedDate: todayDate,
+          value: WEEKLY_COINS[0],
+          receivedDateIndex: 0,
+        }),
+      };
+    }
+    if (
+      moment(lastCoinAttendance.receivedDate).isSameOrAfter(moment(todayDate))
+    ) {
+      return { data: lastCoinAttendance, isReceivedAttendance: false };
+    }
+    const nextReceivedDayIndex =
+      this.coinAttendanceModel.getNextReceivedDayIndexFromValue(
+        lastCoinAttendance.value,
+      );
+    return {
+      isReceivedAttendance: true,
+      data: await this.createDailyAttendance({
         _userId: _currentUserId,
         receivedDate: todayDate,
-        value: WEEKLY_COINS[0],
-        receivedDateIndex: 0,
-      });
-      await this.userModel.updateOne(
-        { _id: _currentUserId },
-        {
-          $inc: {
-            coins: WEEKLY_COINS[0],
-          },
-        },
-      );
-      return firstCoinAttendance;
-    }
-    if (moment(lastCoinAttendance.receivedDate).isSame(moment(todayDate))) {
-      throw new BadRequestException({
-        message: ERROR_MESSAGES['You already got attendance today'],
-      });
-    }
-    const lastReceivedDayIndex = WEEKLY_COINS.findIndex(
-      (item) => item === lastCoinAttendance.value,
-    );
-    const newReceiveDayIndex =
-      lastReceivedDayIndex !== WEEKLY_COINS_LENGTH - 1
-        ? lastReceivedDayIndex + 1
-        : 0;
-    const createResult = await this.coinAttendanceModel.createOne({
-      _userId: _currentUserId,
-      receivedDate: todayDate,
-      receivedDateIndex: newReceiveDayIndex,
-      value: WEEKLY_COINS[newReceiveDayIndex || 0],
+        receivedDateIndex: nextReceivedDayIndex,
+        value:
+          this.coinAttendanceModel.getValueFromReceivedDayIndex(
+            nextReceivedDayIndex,
+          ),
+      }),
+    };
+  }
+
+  async createDailyAttendance({
+    _userId,
+    receivedDate,
+    value,
+    receivedDateIndex,
+  }: {
+    _userId: mongoose.Types.ObjectId;
+    receivedDate: Date;
+    receivedDateIndex: number;
+    value: WeeklyCoin;
+  }) {
+    const coinAttendance = await this.coinAttendanceModel.createOne({
+      _userId,
+      receivedDate,
+      value,
+      receivedDateIndex,
     });
-    return createResult;
+    await this.userModel.updateOne(
+      { _id: _userId },
+      { $inc: { coins: value } },
+    );
+    return coinAttendance;
   }
 }

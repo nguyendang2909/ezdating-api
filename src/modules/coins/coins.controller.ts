@@ -9,11 +9,11 @@ import { CoinsService } from './coins.service';
 export class CoinsController {
   constructor(private readonly coinsService: CoinsService) {}
 
-  @Post('/me/daily-attendance')
-  async takeAttendance(@Client() clientData: ClientData) {
+  @Post('/me/attendances')
+  async findManyAttendances(@Client() clientData: ClientData) {
     return {
       type: RESPONSE_TYPES.DAILY_ATTENDANCE,
-      data: await this.coinsService.takeAttendance(clientData),
+      ...(await this.coinsService.findManyAttendances(clientData)),
     };
   }
 }

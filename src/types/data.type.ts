@@ -9,6 +9,7 @@ import {
   RESPONSE_TYPES,
   USER_ROLES,
   USER_STATUSES,
+  WEEKLY_COINS,
 } from '../constants/data.constant';
 
 export type ValueOf<T> = T[keyof T];
@@ -47,3 +48,5 @@ export type DevicePlatform = ValueOf<typeof DEVICE_PLATFORMS>;
 export type Membership = ValueOf<typeof MEMBERSHIPS>;
 
 export type ResponseType = ValueOf<typeof RESPONSE_TYPES>;
+
+export type WeeklyCoin = (typeof WEEKLY_COINS)[number];

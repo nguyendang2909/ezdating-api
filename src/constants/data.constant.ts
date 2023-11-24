@@ -48,7 +48,7 @@ export const MEDIA_FILE_TYPES = {
   video: 2,
 } as const;
 
-export const WEEKLY_COINS = [10, 20, 40, 70, 110, 160, 220];
+export const WEEKLY_COINS = [10, 20, 40, 70, 110, 160, 220] as const;
 
 export const WEEKLY_COINS_LENGTH = WEEKLY_COINS.length;
 
