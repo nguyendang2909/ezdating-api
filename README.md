@@ -2,7 +2,7 @@ vMessage - Chat application
 
 ## Description
 
-A dating application using NestJS, PostgreSQL and MongoDB
+A dating application using NestJS, Redis and MongoDB
 
 ## Installation
 
