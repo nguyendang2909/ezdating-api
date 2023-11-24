@@ -5,7 +5,14 @@ import { APP_CONFIG } from '../../app.config';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { ChatsGateway } from '../chats/chats.gateway';
-import { MessageModel, Profile, ProfileModel, ViewModel } from '../models';
+import {
+  MessageModel,
+  Profile,
+  ProfileModel,
+  TrashLikeModel,
+  TrashMatchModel,
+  ViewModel,
+} from '../models';
 import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import { Match, MatchWithTargetProfile } from '../models/schemas/match.schema';
@@ -21,6 +28,8 @@ export class MatchesHandler extends ApiCursorDateService {
     private readonly messageModel: MessageModel,
     private readonly matchesPublisher: MatchesPublisher,
     private readonly viewModel: ViewModel,
+    private readonly trashMatchModel: TrashMatchModel,
+    private readonly trashLikeModel: TrashLikeModel,
   ) {
     super();
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MATCHES;
@@ -39,22 +48,32 @@ export class MatchesHandler extends ApiCursorDateService {
     const { profileOne, profileTwo } = match;
     const userOneId = profileOne._id.toString();
     const userTwoId = profileTwo._id.toString();
+    this.emitUnMatchToUser(userOneId, { _id: match._id });
+    this.emitUnMatchToUser(userTwoId, { _id: match._id });
+    await this.trashMatchModel.createOne(match);
     const { _targetUserId } = this.matchModel.getTargetUserId({
       currentUserId,
       userOneId,
       userTwoId,
     });
-    this.likeModel
-      .deleteOne({
-        'profile._id': _currentUserId,
-        'targetProfile._id': _targetUserId,
-      })
-      .catch((error) => {
-        this.logger.log(
-          `UNMATCH Delete like failed filter error: ${JSON.stringify(error)}`,
-        );
-      });
-    this.likeModel
+    const existLike = await this.likeModel.findOne({
+      'profile._id': _currentUserId,
+      'targetProfile._id': _targetUserId,
+    });
+    if (existLike) {
+      await this.likeModel
+        .deleteOne({
+          'profile._id': _currentUserId,
+          'targetProfile._id': _targetUserId,
+        })
+        .catch((error) => {
+          this.logger.log(
+            `UNMATCH Delete like failed filter error: ${JSON.stringify(error)}`,
+          );
+        });
+      await this.trashLikeModel.createOne(existLike);
+    }
+    await this.likeModel
       .updateOne(
         { 'profile._id': _targetUserId, 'targetProfile._id': _currentUserId },
         { $set: { isMatched: false } },
@@ -66,11 +85,10 @@ export class MatchesHandler extends ApiCursorDateService {
           )}`,
         );
       });
-    this.emitUnMatchToUser(userOneId, { _id: match._id });
-    this.emitUnMatchToUser(userTwoId, { _id: match._id });
+
     // TODO: queue
     // this.matchesPublisher.publishUnmatched(match._id.toString());
-    this.viewModel.updateOne(
+    await this.viewModel.updateOne(
       {
         'profile.id': _currentUserId,
         'targetProfile._id': _targetUserId,
@@ -82,7 +100,7 @@ export class MatchesHandler extends ApiCursorDateService {
         },
       },
     );
-    this.viewModel.updateOne(
+    await this.viewModel.updateOne(
       {
         'profile.id': _targetUserId,
         'targetProfile._id': _currentUserId,
@@ -93,7 +111,6 @@ export class MatchesHandler extends ApiCursorDateService {
         },
       },
     );
-    this.messageModel.deleteMany({ _matchId: match._id });
   }
 
   emitMatchToUser(userId: string, payload: MatchWithTargetProfile) {

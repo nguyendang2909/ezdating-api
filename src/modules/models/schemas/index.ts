@@ -9,5 +9,6 @@ export * from './profile-filter.schema';
 export * from './push-notification.schema';
 export * from './signed-device.schema';
 export * from './state.schema';
+export * from './trash';
 export * from './user.schema';
 export * from './view.schema';

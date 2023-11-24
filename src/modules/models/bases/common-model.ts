@@ -221,7 +221,7 @@ export class CommonModel<
   }
 
   async deleteOne(
-    filter?: FilterQuery<TRawDocType>,
+    filter: FilterQuery<TRawDocType>,
     options?: QueryOptions<TRawDocType>,
   ) {
     return await this.model.deleteOne(filter, options).exec();
@@ -235,7 +235,7 @@ export class CommonModel<
   // }
 
   async deleteOneOrFail(
-    filter?: FilterQuery<TRawDocType>,
+    filter: FilterQuery<TRawDocType>,
     options?: QueryOptions<TRawDocType>,
   ) {
     const deleteResult = await this.deleteOne(filter, options);

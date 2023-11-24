@@ -16,6 +16,22 @@ import {
   ProfileFilterSchema,
   State,
   StateSchema,
+  TrashLike,
+  TrashLikeSchema,
+  TrashMatch,
+  TrashMatchSchema,
+  TrashMediaFile,
+  TrashMediaFileSchema,
+  TrashMessage,
+  TrashMessageSchema,
+  TrashProfile,
+  TrashProfileFilter,
+  TrashProfileFilterSchema,
+  TrashProfileSchema,
+  TrashUser,
+  TrashUserSchema,
+  TrashView,
+  TrashViewSchema,
 } from './schemas';
 import {
   CoinAttendance,
@@ -38,6 +54,16 @@ import { User, UserSchema } from './schemas/user.schema';
 import { View, ViewSchema } from './schemas/view.schema';
 import { SignedDeviceModel } from './signed-device.model';
 import { StateModel } from './state.model';
+import {
+  TrashLikeModel,
+  TrashMatchModel,
+  TrashMediaFileModel,
+  TrashMessageModel,
+  TrashProfileFilterModel,
+  TrashProfileModel,
+  TrashUserModel,
+  TrashViewModel,
+} from './trash';
 import { UserModel } from './user.model';
 import { ViewModel } from './view.model';
 
@@ -58,6 +84,15 @@ import { ViewModel } from './view.model';
       { name: View.name, schema: ViewSchema },
       { name: PushNotification.name, schema: PushNotificationSchema },
       { name: MediaFile.name, schema: MediaFileSchema },
+
+      { name: TrashLike.name, schema: TrashLikeSchema },
+      { name: TrashMatch.name, schema: TrashMatchSchema },
+      { name: TrashMediaFile.name, schema: TrashMediaFileSchema },
+      { name: TrashMessage.name, schema: TrashMessageSchema },
+      { name: TrashProfile.name, schema: TrashProfileSchema },
+      { name: TrashProfileFilter.name, schema: TrashProfileFilterSchema },
+      { name: TrashUser.name, schema: TrashUserSchema },
+      { name: TrashView.name, schema: TrashViewSchema },
     ]),
   ],
   exports: [
@@ -73,6 +108,15 @@ import { ViewModel } from './view.model';
     StateModel,
     UserModel,
     ViewModel,
+
+    TrashLikeModel,
+    TrashMatchModel,
+    TrashMediaFileModel,
+    TrashMessageModel,
+    TrashProfileModel,
+    TrashProfileFilterModel,
+    TrashUserModel,
+    TrashViewModel,
   ],
   controllers: [],
   providers: [
@@ -88,6 +132,15 @@ import { ViewModel } from './view.model';
     UserModel,
     ViewModel,
     MediaFileModel,
+
+    TrashLikeModel,
+    TrashMatchModel,
+    TrashMediaFileModel,
+    TrashMessageModel,
+    TrashProfileModel,
+    TrashProfileFilterModel,
+    TrashUserModel,
+    TrashViewModel,
   ],
 })
 export class ModelsModule {}

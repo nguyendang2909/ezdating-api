@@ -13,5 +13,6 @@ export * from './push-notification.model';
 export * from './schemas';
 export * from './signed-device.model';
 export * from './state.model';
+export * from './trash';
 export * from './user.model';
 export * from './view.model';
