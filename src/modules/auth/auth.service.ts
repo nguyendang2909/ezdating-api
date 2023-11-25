@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   Scope,
@@ -10,7 +9,6 @@ import { Request } from 'express';
 import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
-import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { SignedDeviceModel } from '../models/signed-device.model';
@@ -48,18 +46,7 @@ export class AuthService extends ApiService {
     const user = await this.userModel.findOneOrFail({
       _id: _currentUserId,
     });
-    const { role } = user;
-    if (!role) {
-      throw new BadRequestException({
-        message: ERROR_MESSAGES['User data is incorrect'],
-      });
-    }
-    const accessToken = this.encryptionsUtil.signAccessToken({
-      sub: currentUserId,
-      id: currentUserId,
-      role: role,
-    });
-
+    const accessToken = this.encryptionsUtil.signAccessTokenFromUser(user);
     return { accessToken };
   }
 

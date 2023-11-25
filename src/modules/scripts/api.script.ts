@@ -13,7 +13,7 @@ import {
   RelationshipStatus,
 } from '../../types';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
-import { Profile, ProfileFilter, ProfileModel, UserModel } from '../models';
+import { Profile, ProfileModel, UserModel } from '../models';
 import { UpdateMyProfileDto } from '../profiles/dto';
 import { ProfilesCommonService } from '../profiles/profiles.common.service';
 
@@ -51,8 +51,8 @@ export class ApiScript extends ProfilesCommonService {
 
   async createProfile(options?: { gender?: Gender }) {
     const { data } = await this.api.post<{
-      data: { profile: Profile; profileFilter: ProfileFilter };
-    }>('/profiles/me', {
+      data: Profile;
+    }>('/profiles/me/basic', {
       birthday: moment(
         faker.date.between({
           from: moment().subtract(30, 'years').toDate(),

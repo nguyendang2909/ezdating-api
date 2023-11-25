@@ -6,6 +6,7 @@ export type ClientData = AccessTokenSignPayload & {
 };
 
 export type AccessTokenSignPayload = {
+  haveProfile: boolean;
   id: string;
   role: UserRole;
   sub: string;

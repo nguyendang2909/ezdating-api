@@ -35,12 +35,7 @@ export class AdminAuthService {
         message: 'User data is incorrect!',
       });
     }
-    const userId = _userId.toString();
-    const accessToken = this.encryptionsUtil.signAccessToken({
-      sub: userId,
-      id: userId,
-      role,
-    });
+    const accessToken = this.encryptionsUtil.signAccessTokenFromUser(user);
     return {
       accessToken,
     };

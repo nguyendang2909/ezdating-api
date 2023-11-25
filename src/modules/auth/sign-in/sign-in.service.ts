@@ -13,8 +13,9 @@ import { APP_CONFIG } from '../../../app.config';
 import { ERROR_MESSAGES } from '../../../commons/messages/error-messages.constant';
 import { USER_ROLES, USER_STATUSES } from '../../../constants';
 import { FirebaseService, GoogleOAuthService } from '../../../libs';
-import { DevicePlatform, UserRole } from '../../../types';
+import { DevicePlatform } from '../../../types';
 import { EncryptionsUtil } from '../../encryptions/encryptions.util';
+import { ProfileModel, User } from '../../models';
 import { SignedDeviceModel } from '../../models/signed-device.model';
 import { UserModel } from '../../models/user.model';
 import { SignInData } from '../auth.type';
@@ -31,6 +32,7 @@ export class SignInService {
     private readonly userModel: UserModel,
     private readonly signedDeviceModel: SignedDeviceModel,
     private readonly googleOauthService: GoogleOAuthService,
+    private readonly profileModel: ProfileModel,
   ) {}
 
   private readonly logger = new Logger(SignInService.name);
@@ -78,10 +80,8 @@ export class SignInService {
         phoneNumber,
       });
     }
-    const { accessToken, refreshToken } = this.createTokens(
-      user._id.toString(),
-      user.role,
-    );
+
+    const { accessToken, refreshToken } = this.createTokens(user);
     await this.createSession({
       _userId: user._id,
       refreshToken,
@@ -103,10 +103,7 @@ export class SignInService {
       throw new BadRequestException('Try login with OTP!');
     }
     this.encryptionsUtil.verifyMatchPassword(password, user.password);
-    const { accessToken, refreshToken } = this.createTokens(
-      user._id.toString(),
-      user.role,
-    );
+    const { accessToken, refreshToken } = this.createTokens(user);
     await this.createSession({
       _userId: user._id,
       refreshToken,
@@ -141,10 +138,7 @@ export class SignInService {
         email,
       });
     }
-    const { accessToken, refreshToken } = this.createTokens(
-      user._id.toString(),
-      user.role,
-    );
+    const { accessToken, refreshToken } = this.createTokens(user);
     await this.createSession({
       _userId: user._id,
       refreshToken,
@@ -186,10 +180,7 @@ export class SignInService {
         facebookId,
       });
     }
-    const { accessToken, refreshToken } = this.createTokens(
-      user._id.toString(),
-      user.role,
-    );
+    const { accessToken, refreshToken } = this.createTokens(user);
     await this.createSession({
       _userId: user._id,
       refreshToken,
@@ -225,12 +216,9 @@ export class SignInService {
     });
   }
 
-  createTokens(userId: string, role: UserRole) {
-    const accessToken = this.encryptionsUtil.signAccessToken({
-      sub: userId,
-      id: userId,
-      role,
-    });
+  createTokens(user: User) {
+    const userId = user._id.toString();
+    const accessToken = this.encryptionsUtil.signAccessTokenFromUser(user);
     const refreshToken = this.encryptionsUtil.signRefreshToken({
       id: userId,
       sub: userId,

@@ -8,6 +8,7 @@ import {
   ClientData,
   RefreshTokenPayload,
 } from '../auth/auth.type';
+import { User } from '../models';
 
 @Injectable()
 export class EncryptionsUtil {
@@ -22,10 +23,28 @@ export class EncryptionsUtil {
     return this.jwtService.sign(authJwtPayload);
   }
 
+  public signAccessTokenFromUser(user: User): string {
+    const userId = user._id.toString();
+    return this.signAccessToken({
+      id: userId,
+      role: user.role,
+      sub: userId,
+      haveProfile: user.haveProfile,
+    });
+  }
+
   public signRefreshToken(payload: RefreshTokenPayload): string {
     return this.jwtService.sign(payload, {
       expiresIn: `${APP_CONFIG.REFRESH_TOKEN_EXPIRES}d`,
       secret: this.JWT_REFRESH_TOKEN_SECRET_KEY,
+    });
+  }
+
+  public signRefreshTokenFromUser(user: User): string {
+    const userId = user._id.toString();
+    return this.signRefreshToken({
+      id: userId,
+      sub: userId,
     });
   }
 

@@ -19,6 +19,7 @@ import {
   ProfileFilterModel,
   ProfileModel,
   StateModel,
+  UserModel,
 } from '../models';
 import { MediaFile } from '../models/schemas/media-file.schema';
 import { CreateBasicProfileDto } from './dto';
@@ -34,6 +35,7 @@ export class ProfilesService extends ProfilesCommonService {
     private readonly basicProfileModel: BasicProfileModel,
     private readonly filesService: FilesService,
     private readonly mediaFileModel: MediaFileModel,
+    private readonly userModel: UserModel,
   ) {
     super();
   }
@@ -97,6 +99,9 @@ export class ProfilesService extends ProfilesCommonService {
           type: mediaFile.type,
         },
       ],
+    });
+    await this.userModel.updateOneById(basicProfile._id, {
+      $set: { haveProfile: true },
     });
     await this.basicProfileModel.deleteOne(basicProfile._id).catch((error) => {
       this.logger.error(

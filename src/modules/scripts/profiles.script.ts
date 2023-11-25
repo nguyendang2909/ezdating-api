@@ -1,10 +1,19 @@
 import { faker } from '@faker-js/faker';
 import { Injectable, Logger } from '@nestjs/common';
 import { AxiosInstance } from 'axios';
+import moment from 'moment';
+import mongoose from 'mongoose';
 
 import { GENDERS, USER_ROLES, USER_STATUSES } from '../../constants';
+import { RelationshipGoal } from '../../types';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
-import { EmbeddedMediaFile, ProfileModel, UserModel } from '../models';
+import {
+  EmbeddedMediaFile,
+  ProfileFilterModel,
+  ProfileModel,
+  StateModel,
+  UserModel,
+} from '../models';
 import { ApiScript } from './api.script';
 
 @Injectable()
@@ -17,6 +26,8 @@ export class ProfilesScript {
     private readonly userModel: UserModel,
     private readonly encryptionsUtil: EncryptionsUtil,
     private readonly apiScript: ApiScript,
+    private readonly stateModel: StateModel,
+    private readonly profileFilterModel: ProfileFilterModel,
   ) {}
 
   private logger = new Logger(ApiScript.name);
@@ -32,8 +43,11 @@ export class ProfilesScript {
       const targetUser = await this.userModel.findOneOrFail({
         phoneNumber: '+84971016191',
       });
+      const state = await this.stateModel.findOneOrFailById(
+        new mongoose.Types.ObjectId('65574d3c942d1c7185fb339d'),
+      );
       const { mediaFiles } = await this.getSampleData();
-      for (let index = 0; index < 10000000; index++) {
+      for (let index = 0; index < 1; index++) {
         this.logger.log('Create user');
         try {
           const user = await this.userModel.createOne({
@@ -41,13 +55,32 @@ export class ProfilesScript {
             role: USER_ROLES.MEMBER,
             status: USER_STATUSES.ACTIVATED,
           });
-          const accessToken = this.encryptionsUtil.signAccessToken({
-            id: user._id.toString(),
-            role: user.role,
-            sub: user._id.toString(),
+          const profile = await this.profileModel.createOne({
+            _id: user._id,
+            birthday: moment(
+              faker.date.between({
+                from: moment().subtract(30, 'years').toDate(),
+                to: moment().subtract(25, 'years').toDate(),
+              }),
+            ).toDate(),
+            gender: GENDERS.FEMALE,
+            introduce: faker.word.words(),
+            nickname: faker.person.fullName(),
+            relationshipGoal: faker.number.int({
+              min: 1,
+              max: 5,
+            }) as RelationshipGoal,
+            state,
+          });
+          await this.userModel.updateOneOrFailById(user._id, {
+            $set: { haveProfile: true },
+          });
+          await this.profileFilterModel.createOneFromProfile(profile);
+          const accessToken = this.encryptionsUtil.signAccessTokenFromUser({
+            ...user,
+            haveProfile: true,
           });
           this.apiScript.init(accessToken);
-          await this.apiScript.createProfile();
           await this.apiScript.updateProfile();
           const randomMediaFiles = this.getRandomMediaFiles(mediaFiles);
           await this.profileModel.updateOneById(user._id, {
@@ -55,7 +88,6 @@ export class ProfilesScript {
               mediaFiles: randomMediaFiles,
             },
           });
-
           await this.apiScript.sendLike({
             targetUserId: targetUser._id.toString(),
           });
@@ -150,7 +182,7 @@ export class ProfilesScript {
     const sampleProfiles = await this.profileModel.findMany(
       {
         gender: GENDERS.FEMALE,
-        mediaFiles: { $size: { $gt: 0 } },
+        'mediaFiles.1': { $exists: true },
       },
       {},
       { limit: 100 },
@@ -160,7 +192,6 @@ export class ProfilesScript {
       .flatMap((e) => {
         return e.mediaFiles;
       });
-
     return { mediaFiles };
   }
 

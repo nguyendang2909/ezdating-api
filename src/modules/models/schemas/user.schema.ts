@@ -18,6 +18,9 @@ export class User extends CommonSchema {
   @Prop({ type: String })
   facebookId?: string;
 
+  @Prop({ type: Boolean, default: false, required: true })
+  haveProfile: boolean;
+
   @Prop({ type: String, length: 300 })
   password?: string;
 
