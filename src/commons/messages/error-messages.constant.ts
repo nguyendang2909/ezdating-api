@@ -5,6 +5,7 @@ export const ERROR_MESSAGES = {
   'Conversation is invalid': 'Conversation is invalid',
   'Country already exists': 'Country already exists',
   'Country does not exist': 'Country does not exist',
+  'Create failed, please try again': 'Create failed, please try again',
   'Delete failed. Please try again.': 'Delete failed. Please try again.',
   'Document already exists': 'Document already exists',
   'Document does not exist': 'Document does not exist',

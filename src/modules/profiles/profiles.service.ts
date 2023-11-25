@@ -4,14 +4,15 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { UpdateQuery } from 'mongoose';
+import mongoose, { UpdateQuery } from 'mongoose';
 
 import { ERROR_MESSAGES } from '../../commons/messages';
-import { MEDIA_FILE_TYPES, RESPONSE_TYPES } from '../../constants';
+import { RESPONSE_TYPES } from '../../constants';
 import { FilesService } from '../../libs';
 import { ClientData } from '../auth/auth.type';
 import { UploadPhotoDtoDto } from '../media-files/dto/upload-photo.dto';
 import {
+  BasicProfile,
   BasicProfileModel,
   MediaFileModel,
   Profile,
@@ -19,6 +20,7 @@ import {
   ProfileModel,
   StateModel,
 } from '../models';
+import { MediaFile } from '../models/schemas/media-file.schema';
 import { CreateBasicProfileDto } from './dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { ProfilesCommonService } from './profiles.common.service';
@@ -85,79 +87,59 @@ export class ProfilesService extends ProfilesCommonService {
     return basicProfile;
   }
 
+  async createProfile(basicProfile: BasicProfile, mediaFile: MediaFile) {
+    await this.profileModel.createOne({
+      ...basicProfile,
+      mediaFiles: [
+        {
+          _id: mediaFile._id,
+          key: mediaFile.key,
+          type: mediaFile.type,
+        },
+      ],
+    });
+    await this.basicProfileModel.deleteOne(basicProfile._id).catch((error) => {
+      this.logger.error(
+        `Failed to remove basic profile ${basicProfile._id.toString()} with error ${JSON.stringify(
+          error,
+        )}`,
+      );
+    });
+  }
+
   public async uploadBasicPhoto(
     file: Express.Multer.File,
     payload: UploadPhotoDtoDto,
     client: ClientData,
   ) {
     const { _currentUserId } = this.getClient(client);
-    // eslint-disable-next-line prefer-const
-    let [profile, basicProfile] = await Promise.all([
-      this.profileModel.findOneById(_currentUserId),
-      this.basicProfileModel.findOneById(_currentUserId),
-    ]);
-    if (!profile && !basicProfile) {
-      [profile, basicProfile] = await Promise.all([
-        this.profileModel.findOneById(_currentUserId),
-        this.basicProfileModel.findOneById(_currentUserId),
-      ]);
-      if (!profile && !basicProfile) {
-        throw new NotFoundException(ERROR_MESSAGES['Profile does not exist']);
-      }
-    }
+    let { profile, basicProfile } = await this.tryFindProfileAndBasicProfile(
+      _currentUserId,
+    );
     if (profile) {
       this.profileModel.verifyCanUploadFiles(profile);
     }
-    const photo = await this.filesService.uploadPhoto(file);
-    const mediaFile = await this.mediaFileModel.createOne({
-      _userId: _currentUserId,
-      key: photo.Key,
-      type: MEDIA_FILE_TYPES.photo,
-      location: photo.Location,
-    });
-    if (!profile && basicProfile) {
+    const mediaFile = await this.filesService.createPhoto(file, _currentUserId);
+    if (profile) {
+      await this.filesService.updateProfileAfterCreatePhoto(
+        mediaFile,
+        _currentUserId,
+      );
+      return mediaFile;
+    }
+    if (basicProfile) {
       try {
-        profile = await this.profileModel.createOne({
-          ...basicProfile,
-          mediaFiles: [
-            {
-              _id: mediaFile._id,
-              key: photo.Key,
-              type: MEDIA_FILE_TYPES.photo,
-            },
-          ],
-        });
-        await this.basicProfileModel
-          .deleteOne(_currentUserId)
-          .catch((error) => {
-            this.logger.error(
-              `Failed to remove basic profile ${_currentUserId} with error ${JSON.stringify(
-                error,
-              )}`,
-            );
-          });
+        await this.createProfile(basicProfile, mediaFile);
       } catch (error) {
-        profile = await this.profileModel.findOneOrFailById(_currentUserId);
-        const updateResult = await this.profileModel
-          .updateOneById(_currentUserId, {
-            $push: {
-              mediaFiles: {
-                _id: mediaFile._id,
-                key: photo.Key,
-                type: MEDIA_FILE_TYPES.photo,
-              },
-            },
-          })
-          .catch(() => {
-            return undefined;
-          });
-        if (!updateResult?.modifiedCount) {
-          await this.filesService.removeOne(mediaFile.key);
-          await this.mediaFileModel.deleteOneOrFail({ _id: mediaFile._id });
-          throw new InternalServerErrorException(
-            ERROR_MESSAGES['File does not exist'],
-          );
+        profile = await this.profileModel.findOneById(_currentUserId);
+        if (!profile) {
+          await this.filesService.removeMediaFileAndCatch(mediaFile);
+          throw new NotFoundException(ERROR_MESSAGES['Profile does not exist']);
         }
+        await this.filesService.updateProfileAfterCreatePhoto(
+          mediaFile,
+          _currentUserId,
+        );
       }
     }
     return mediaFile;
@@ -217,5 +199,22 @@ export class ProfilesService extends ProfilesCommonService {
       },
     };
     await this.profileModel.updateOneById(_currentUserId, updateOptions);
+  }
+
+  async tryFindProfileAndBasicProfile(_currentUserId: mongoose.Types.ObjectId) {
+    let [profile, basicProfile] = await Promise.all([
+      this.profileModel.findOneById(_currentUserId),
+      this.basicProfileModel.findOneById(_currentUserId),
+    ]);
+    if (!profile && !basicProfile) {
+      [profile, basicProfile] = await Promise.all([
+        this.profileModel.findOneById(_currentUserId),
+        this.basicProfileModel.findOneById(_currentUserId),
+      ]);
+      if (!profile && !basicProfile) {
+        throw new NotFoundException(ERROR_MESSAGES['Profile does not exist']);
+      }
+    }
+    return { profile, basicProfile };
   }
 }
