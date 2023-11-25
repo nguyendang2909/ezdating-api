@@ -101,19 +101,12 @@ export class LikesService extends ApiCursorDateService {
       {
         'targetProfile._id': _currentUserId,
         isMatched: false,
-        'profile.mediaFileCount': { $gt: 0 },
         'profile.gender': filterProfile.gender,
         'profile.birthday': {
           $gte: moment().subtract(filterProfile.maxAge, 'years').toDate(),
           $lte: moment().subtract(filterProfile.minAge, 'years').toDate(),
         },
-        ...(cursor
-          ? {
-              createdAt: {
-                $lt: cursor,
-              },
-            }
-          : {}),
+        ...(cursor ? { createdAt: { $lt: cursor } } : {}),
       },
       {},
       {
