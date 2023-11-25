@@ -12,7 +12,7 @@ import {
 import { GENDERS, REGEXS, RELATIONSHIP_GOALS } from '../../../constants';
 import { Gender, RelationshipGoal } from '../../../types';
 
-export class CreateProfileDto {
+export class CreateBasicProfileDto {
   @ApiProperty({ type: String, required: true })
   @IsNotEmpty()
   @IsString()

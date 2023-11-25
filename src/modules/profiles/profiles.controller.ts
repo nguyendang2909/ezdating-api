@@ -16,7 +16,7 @@ import { PaginatedResponse } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { Profile } from '../models';
 import {
-  CreateProfileDto,
+  CreateBasicProfileDto,
   FindManyNearbyProfilesQuery,
   FindManySwipeProfilesQuery,
   UpdateMyProfileDto,
@@ -38,12 +38,12 @@ export class ProfilesController {
   // * Me api
   @Post('/me')
   async createProfile(
-    @Body() payload: CreateProfileDto,
+    @Body() payload: CreateBasicProfileDto,
     @Client() client: ClientData,
   ) {
     return {
-      type: 'createProfile',
-      data: await this.service.createOne(payload, client),
+      type: RESPONSE_TYPES.CREATE_BASIC_PROFILE,
+      data: await this.service.createBasic(payload, client),
     };
   }
 

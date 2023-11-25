@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { BasicProfileModel } from './basic-profile.model';
 import { CoinAttendanceModel } from './coin-attendance.model';
 import { CountryModel } from './country.model';
 import { LikeModel } from './like.model';
@@ -10,6 +11,8 @@ import { MessageModel } from './message.model';
 import { ProfileModel } from './profile.model';
 import { ProfileFilterModel } from './profile-filter.model';
 import {
+  BasicProfile,
+  BasicProfileSchema,
   Country,
   CountrySchema,
   ProfileFilter,
@@ -72,6 +75,7 @@ import { ViewModel } from './view.model';
   imports: [
     MongooseModule.forFeature([
       { name: CoinAttendance.name, schema: CoinAttendanceSchema },
+      { name: BasicProfile.name, schema: BasicProfileSchema },
       { name: Country.name, schema: CountrySchema },
       { name: Like.name, schema: LikeSchema },
       { name: Match.name, schema: MatchSchema },
@@ -96,6 +100,7 @@ import { ViewModel } from './view.model';
     ]),
   ],
   exports: [
+    BasicProfileModel,
     CoinAttendanceModel,
     CountryModel,
     LikeModel,
@@ -120,6 +125,7 @@ import { ViewModel } from './view.model';
   ],
   controllers: [],
   providers: [
+    BasicProfileModel,
     CoinAttendanceModel,
     CountryModel,
     LikeModel,

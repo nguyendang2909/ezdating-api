@@ -1,5 +1,6 @@
 export * from './bases';
 export * from './bases/common-model';
+export * from './basic-profile.model';
 export * from './coin-attendance.model';
 export * from './country.model';
 export * from './like.model';

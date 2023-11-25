@@ -45,7 +45,6 @@ export class SwipeProfilesService extends ProfilesCommonService {
     });
     const users = await this.profileModel.findMany(
       {
-        mediaFileCount: { $gt: 0 },
         _id: { $nin: excludedUserIds },
         'state._id': _stateId,
         gender: profileFilter.gender,

@@ -53,7 +53,6 @@ export class ProfilesScript {
           await this.profileModel.updateOneById(user._id, {
             $set: {
               mediaFiles: randomMediaFiles,
-              mediaFileCount: randomMediaFiles.length,
             },
           });
 
@@ -72,7 +71,6 @@ export class ProfilesScript {
   //     const sampleProfiles = await this.profileModel.findMany(
   //       {
   //         gender: GENDERS.MALE,
-  //         mediaFileCount: 1,
   //       },
   //       {},
   //       { limit: 100 },
@@ -128,7 +126,6 @@ export class ProfilesScript {
   //             from: moment().subtract(100, 'minutes').toDate(),
   //             to: moment().subtract(1, 'minutes').toDate(),
   //           }),
-  //           mediaFileCount: mediaFiles.length,
   //           mediaFiles: mediaFiles,
   //           nickname: faker.person.fullName(),
   //           relationshipGoal: faker.number.int({
@@ -153,9 +150,7 @@ export class ProfilesScript {
     const sampleProfiles = await this.profileModel.findMany(
       {
         gender: GENDERS.FEMALE,
-        mediaFileCount: {
-          $gt: 0,
-        },
+        mediaFiles: { $size: { $gt: 0 } },
       },
       {},
       { limit: 100 },

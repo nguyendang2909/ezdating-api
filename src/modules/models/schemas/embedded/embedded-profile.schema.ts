@@ -32,10 +32,7 @@ export class EmbeddedProfile extends CommonEmbeddedSchema {
   @Prop({ type: Date, default: new Date() })
   lastActivatedAt: Date;
 
-  @Prop({ type: Number, default: 0 })
-  mediaFileCount: number;
-
-  @Prop({ type: [EmbeddedMediaFileSchema] })
+  @Prop({ type: [EmbeddedMediaFileSchema], minlength: 1 })
   mediaFiles: EmbeddedMediaFile[];
 
   @Prop({ type: String, length: 100, required: true })

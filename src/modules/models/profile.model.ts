@@ -35,7 +35,6 @@ export class ProfileModel extends CommonModel<Profile> {
     jobTitle: 1,
     languages: 1,
     lastActivatedAt: 1,
-    mediaFileCount: 1,
     mediaFiles: {
       _id: 1,
       key: 1,
@@ -57,7 +56,6 @@ export class ProfileModel extends CommonModel<Profile> {
     gender: 1,
     hideAge: 1,
     hideDistance: 1,
-    mediaFileCount: 1,
     mediaFiles: {
       _id: 1,
       key: 1,

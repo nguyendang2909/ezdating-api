@@ -1,3 +1,4 @@
+export * from './basic-profile.schema';
 export * from './coin-attendance.schema';
 export * from './country.schema';
 export * from './embedded';

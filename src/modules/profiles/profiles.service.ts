@@ -1,15 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { UpdateQuery } from 'mongoose';
 
 import { RESPONSE_TYPES } from '../../constants';
 import { ClientData } from '../auth/auth.type';
 import {
+  BasicProfileModel,
   Profile,
   ProfileFilterModel,
   ProfileModel,
   StateModel,
 } from '../models';
-import { CreateProfileDto } from './dto';
+import { CreateBasicProfileDto } from './dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { ProfilesCommonService } from './profiles.common.service';
 
@@ -19,43 +20,47 @@ export class ProfilesService extends ProfilesCommonService {
     private readonly profileModel: ProfileModel,
     private readonly profileFilterModel: ProfileFilterModel,
     private readonly stateModel: StateModel,
+    private readonly basicProfileModel: BasicProfileModel,
   ) {
     super();
   }
 
-  public async createOne(payload: CreateProfileDto, client: ClientData) {
-    const { _currentUserId } = this.getClient(client);
-    let [profile, profileFilter] = await Promise.all([
-      this.profileModel.findOne({
-        _id: _currentUserId,
-      }),
-      this.profileFilterModel.findOne({
-        _id: _currentUserId,
-      }),
-    ]);
-    if (profile && profileFilter) {
-      return { profile, profileFilter };
-    }
+  private readonly logger = new Logger(ProfilesService.name);
 
-    const { birthday: rawBirthday, stateId, ...rest } = payload;
+  public async createBasic(payload: CreateBasicProfileDto, client: ClientData) {
+    const { _currentUserId } = this.getClient(client);
+    await this.basicProfileModel.findOneAndFailById(_currentUserId);
+    await this.profileModel.findOneAndFailById(_currentUserId);
+    const {
+      birthday: rawBirthday,
+      stateId,
+      latitude,
+      longitude,
+      ...rest
+    } = payload;
     const state = await this.stateModel.findOneOrFailById(
       this.getObjectId(stateId),
     );
     const birthday = this.getAndCheckValidBirthdayFromRaw(rawBirthday);
-    if (!profile) {
-      profile = await this.profileModel.createOne({
-        _id: _currentUserId,
-        ...rest,
-        state,
-        birthday,
+    const basicProfile = await this.basicProfileModel.createOne({
+      _id: _currentUserId,
+      ...rest,
+      state,
+      birthday,
+      ...(longitude && latitude
+        ? { geolocation: { type: 'Point', coordinates: [longitude, latitude] } }
+        : {}),
+    });
+    await this.profileFilterModel
+      .createOneFromProfile(basicProfile)
+      .catch((error) => {
+        this.logger.error(
+          `Failed to create profile filter from profile: ${JSON.stringify(
+            basicProfile,
+          )} with error ${JSON.stringify(error)}`,
+        );
       });
-    }
-    if (!profileFilter) {
-      profileFilter = await this.profileFilterModel.createOneFromProfile(
-        profile,
-      );
-    }
-    return { profile, profileFilter };
+    return basicProfile;
   }
 
   public async getMe(clientData: ClientData) {

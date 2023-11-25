@@ -83,6 +83,7 @@ export const MEMBERSHIPS = {
 
 export const RESPONSE_TYPES = {
   CONVERSATIONS: 'conversations',
+  CREATE_BASIC_PROFILE: 'create_basic_profile',
   DAILY_ATTENDANCE: 'daily_attendance',
   MATCH: 'match',
   MATCHES: 'matches',

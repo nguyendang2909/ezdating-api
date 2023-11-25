@@ -46,9 +46,6 @@ export class MediaFilesService extends ApiService {
     const createResult = await this.profileModel.findOneAndUpdate(
       { _id: _currentUserId },
       {
-        $inc: {
-          mediaFileCount: 1,
-        },
         $push: {
           mediaFiles: {
             _id: mediaFile._id,
@@ -92,9 +89,6 @@ export class MediaFilesService extends ApiService {
           mediaFiles: {
             _id,
           },
-        },
-        $inc: {
-          mediaFileCount: 1,
         },
       },
     );

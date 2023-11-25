@@ -1,4 +1,6 @@
 export const ERROR_MESSAGES = {
+  'Basic profile already exists': 'Basic profile already exists',
+  'Basic profile does not exist': 'Basic profile does not exist',
   'Conversation does not exist': 'Conversation does not exist',
   'Conversation is invalid': 'Conversation is invalid',
   'Country already exists': 'Country already exists',

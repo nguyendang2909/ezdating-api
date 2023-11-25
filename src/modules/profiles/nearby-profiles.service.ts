@@ -54,7 +54,6 @@ export class NearbyProfilesService extends ProfilesCommonService {
           minDistance,
           maxDistance: maxDistance,
           query: {
-            mediaFileCount: { $gt: 0 },
             gender: profileFilter.gender,
             birthday: {
               $gte: moment().subtract(profileFilter.maxAge, 'years').toDate(),

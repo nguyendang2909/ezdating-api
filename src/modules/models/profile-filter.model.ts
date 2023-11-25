@@ -8,7 +8,12 @@ import { GENDERS } from '../../constants';
 import { Gender } from '../../types';
 import { CommonModel } from './bases/common-model';
 import { ProfileModel } from './profile.model';
-import { Profile, ProfileFilter, ProfileFilterDocument } from './schemas';
+import {
+  BasicProfile,
+  Profile,
+  ProfileFilter,
+  ProfileFilterDocument,
+} from './schemas';
 
 @Injectable()
 export class ProfileFilterModel extends CommonModel<ProfileFilter> {
@@ -32,7 +37,7 @@ export class ProfileFilterModel extends CommonModel<ProfileFilter> {
     return createResult.toJSON();
   }
 
-  async createOneFromProfile(profile: Profile) {
+  async createOneFromProfile(profile: Profile | BasicProfile) {
     const age = this.profileModel.getAgeFromBirthday(profile.birthday);
     return await this.createOne({
       _id: profile._id,

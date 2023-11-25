@@ -133,6 +133,14 @@ export class CommonModel<
     return await this.findOneOrFail({ _id }, projection, options);
   }
 
+  async findOneAndFailById(
+    _id: Types.ObjectId,
+    projection?: ProjectionType<TRawDocType> | null,
+    options?: QueryOptions<TRawDocType> | null,
+  ) {
+    return await this.findOneAndFail({ _id }, projection, options);
+  }
+
   async updateOne(
     filter: FilterQuery<TRawDocType>,
     update: UpdateQuery<TRawDocType>,
