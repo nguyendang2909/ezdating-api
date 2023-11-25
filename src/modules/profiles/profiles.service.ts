@@ -106,9 +106,11 @@ export class ProfilesService extends ProfilesCommonService {
   public async getMe(clientData: ClientData) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-    const user = await this.profileModel.findOneOrFailById(_currentUserId);
-
-    return user;
+    const profile = await this.profileModel.findOneById(_currentUserId);
+    if (!profile) {
+      return await this.basicProfileModel.findOneOrFailById(_currentUserId);
+    }
+    return profile;
   }
 
   async findOneOrFailById(id: string, _client: ClientData) {
