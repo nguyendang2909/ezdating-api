@@ -1,14 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { FlattenMaps, Types } from 'mongoose';
+import { Injectable } from '@nestjs/common';
 
-import { APP_CONFIG } from '../../app.config';
-import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
 import { ApiService } from '../../commons/services/api.service';
-import { MEDIA_FILE_TYPES } from '../../constants';
 import { FilesService } from '../../libs/files.service';
 import { ClientData } from '../auth/auth.type';
 import { MediaFileModel, ProfileModel } from '../models';
-import { Profile, ProfileDocument } from '../models/schemas/profile.schema';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
 
 @Injectable()
@@ -27,39 +22,9 @@ export class MediaFilesService extends ApiService {
     client: ClientData,
   ) {
     const { _currentUserId } = this.getClient(client);
-    const profile = await this.profileModel.findOneOrFail(
-      { _id: _currentUserId },
-      {
-        _id: true,
-        mediaFiles: true,
-        status: true,
-      },
-    );
-    this.verifyCanUploadFiles(profile);
-    const photo = await this.filesService.uploadPhoto(file);
-    const mediaFile = await this.mediaFileModel.createOne({
-      _userId: _currentUserId,
-      key: photo.Key,
-      type: MEDIA_FILE_TYPES.photo,
-      location: photo.Location,
-    });
-    const createResult = await this.profileModel.findOneAndUpdate(
-      { _id: _currentUserId },
-      {
-        $push: {
-          mediaFiles: {
-            _id: mediaFile._id,
-            key: photo.Key,
-            type: MEDIA_FILE_TYPES.photo,
-          },
-        },
-      },
-      {
-        new: true,
-        lean: true,
-      },
-    );
-    return createResult?.mediaFiles?.find((e) => e.key === photo.Key);
+    const profile = await this.profileModel.findOneOrFailById(_currentUserId);
+    this.profileModel.verifyCanUploadFiles(profile);
+    return await this.filesService.createPhoto(file, _currentUserId);
   }
 
   public async deleteOne(id: string, client: ClientData) {
@@ -99,17 +64,5 @@ export class MediaFilesService extends ApiService {
     if (mediaFile && mediaFile.key) {
       this.filesService.removeOne(mediaFile.key);
     }
-  }
-
-  public verifyCanUploadFiles(
-    user: ProfileDocument | (FlattenMaps<Profile> & { _id: Types.ObjectId }),
-  ): number {
-    const count = user.mediaFiles?.length || 0;
-    if (count >= APP_CONFIG.UPLOAD_PHOTOS_LIMIT) {
-      throw new BadRequestException({
-        message: ERROR_MESSAGES['You can only upload 6 media files'],
-      });
-    }
-    return count;
   }
 }

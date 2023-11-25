@@ -1,10 +1,14 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { UpdateQuery } from 'mongoose';
 
+import { ERROR_MESSAGES } from '../../commons/messages';
 import { RESPONSE_TYPES } from '../../constants';
+import { FilesService } from '../../libs';
 import { ClientData } from '../auth/auth.type';
+import { UploadPhotoDtoDto } from '../media-files/dto/upload-photo.dto';
 import {
   BasicProfileModel,
+  MediaFileModel,
   Profile,
   ProfileFilterModel,
   ProfileModel,
@@ -21,6 +25,8 @@ export class ProfilesService extends ProfilesCommonService {
     private readonly profileFilterModel: ProfileFilterModel,
     private readonly stateModel: StateModel,
     private readonly basicProfileModel: BasicProfileModel,
+    private readonly filesService: FilesService,
+    private readonly mediaFileModel: MediaFileModel,
   ) {
     super();
   }
@@ -61,6 +67,40 @@ export class ProfilesService extends ProfilesCommonService {
         );
       });
     return basicProfile;
+  }
+
+  public async uploadBasicPhoto(
+    file: Express.Multer.File,
+    payload: UploadPhotoDtoDto,
+    client: ClientData,
+  ) {
+    const { _currentUserId } = this.getClient(client);
+    // eslint-disable-next-line prefer-const
+    let [profile, basicProfile] = await Promise.all([
+      this.profileModel.findOneById(_currentUserId),
+      this.basicProfileModel.findOneById(_currentUserId),
+    ]);
+    if (!profile && basicProfile) {
+      try {
+        profile = await this.profileModel.createOne(basicProfile);
+        await this.basicProfileModel
+          .deleteOne(_currentUserId)
+          .catch((error) => {
+            this.logger.error(
+              `Failed to remove basic profile ${_currentUserId} with error ${JSON.stringify(
+                error,
+              )}`,
+            );
+          });
+      } catch (error) {
+        profile = await this.profileModel.findOneOrFailById(_currentUserId);
+      }
+    }
+    if (!profile) {
+      throw new NotFoundException(ERROR_MESSAGES['Profile does not exist']);
+    }
+    this.profileModel.verifyCanUploadFiles(profile);
+    return await this.filesService.createPhoto(file, _currentUserId);
   }
 
   public async getMe(clientData: ClientData) {

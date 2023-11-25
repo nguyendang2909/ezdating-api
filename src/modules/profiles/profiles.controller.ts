@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -6,14 +7,20 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+import { APP_CONFIG } from '../../app.config';
 import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { RequireRoles } from '../../commons/decorators/require-roles.decorator';
+import { ERROR_MESSAGES } from '../../commons/messages';
 import { RESPONSE_TYPES, USER_ROLES } from '../../constants';
 import { PaginatedResponse } from '../../types';
 import { ClientData } from '../auth/auth.type';
+import { UploadPhotoDtoDto } from '../media-files/dto/upload-photo.dto';
 import { Profile } from '../models';
 import {
   CreateBasicProfileDto,
@@ -36,14 +43,52 @@ export class ProfilesController {
   ) {}
 
   // * Me api
-  @Post('/me')
-  async createProfile(
+  @Post('/me/basic')
+  async createBasicProfile(
     @Body() payload: CreateBasicProfileDto,
     @Client() client: ClientData,
   ) {
     return {
       type: RESPONSE_TYPES.CREATE_BASIC_PROFILE,
       data: await this.service.createBasic(payload, client),
+    };
+  }
+
+  @Post('/me/basic-photo')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: {
+        fileSize: APP_CONFIG.UPLOAD_PHOTO_MAX_FILE_SIZE,
+      },
+      fileFilter: (req, file, cb) => {
+        if (!file.mimetype.startsWith('image/')) {
+          req.fileValidationError = 'goes wrong on the mimetype';
+          return cb(
+            new BadRequestException({
+              errorCode: 'PHOTO_TYPE_INCORRECT',
+              message: 'Photo type incorrect!',
+            }),
+            false,
+          );
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  private async uploadBasicPhoto(
+    @Client() clientData: ClientData,
+    @Body() payload: UploadPhotoDtoDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException({
+        message: ERROR_MESSAGES['File does not exist'],
+      });
+    }
+
+    return {
+      type: 'uploadPhoto',
+      data: await this.service.uploadBasicPhoto(file, payload, clientData),
     };
   }
 
