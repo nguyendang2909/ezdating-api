@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
+import { ERROR_MESSAGES } from '../../commons/messages';
 import { ApiService } from '../../commons/services/api.service';
+import { MEDIA_FILE_TYPES } from '../../constants';
 import { FilesService } from '../../libs/files.service';
 import { ClientData } from '../auth/auth.type';
 import { MediaFileModel, ProfileModel } from '../models';
@@ -24,7 +26,34 @@ export class MediaFilesService extends ApiService {
     const { _currentUserId } = this.getClient(client);
     const profile = await this.profileModel.findOneOrFailById(_currentUserId);
     this.profileModel.verifyCanUploadFiles(profile);
-    return await this.filesService.createPhoto(file, _currentUserId);
+    const photo = await this.filesService.uploadPhoto(file);
+    const mediaFile = await this.mediaFileModel.createOne({
+      _userId: _currentUserId,
+      key: photo.Key,
+      type: MEDIA_FILE_TYPES.photo,
+      location: photo.Location,
+    });
+    const updateResult = await this.profileModel
+      .updateOneById(_currentUserId, {
+        $push: {
+          mediaFiles: {
+            _id: mediaFile._id,
+            key: photo.Key,
+            type: MEDIA_FILE_TYPES.photo,
+          },
+        },
+      })
+      .catch(() => {
+        return undefined;
+      });
+    if (!updateResult?.modifiedCount) {
+      await this.filesService.removeOne(mediaFile.key);
+      await this.mediaFileModel.deleteOneOrFail({ _id: mediaFile._id });
+      throw new InternalServerErrorException(
+        ERROR_MESSAGES['File does not exist'],
+      );
+    }
+    return mediaFile;
   }
 
   public async deleteOne(id: string, client: ClientData) {

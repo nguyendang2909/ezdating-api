@@ -1,8 +1,13 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdateQuery } from 'mongoose';
 
 import { ERROR_MESSAGES } from '../../commons/messages';
-import { RESPONSE_TYPES } from '../../constants';
+import { MEDIA_FILE_TYPES, RESPONSE_TYPES } from '../../constants';
 import { FilesService } from '../../libs';
 import { ClientData } from '../auth/auth.type';
 import { UploadPhotoDtoDto } from '../media-files/dto/upload-photo.dto';
@@ -80,9 +85,37 @@ export class ProfilesService extends ProfilesCommonService {
       this.profileModel.findOneById(_currentUserId),
       this.basicProfileModel.findOneById(_currentUserId),
     ]);
+    if (!profile && !basicProfile) {
+      [profile, basicProfile] = await Promise.all([
+        this.profileModel.findOneById(_currentUserId),
+        this.basicProfileModel.findOneById(_currentUserId),
+      ]);
+      if (!profile && !basicProfile) {
+        throw new NotFoundException(ERROR_MESSAGES['Profile does not exist']);
+      }
+    }
+    if (profile) {
+      this.profileModel.verifyCanUploadFiles(profile);
+    }
+    const photo = await this.filesService.uploadPhoto(file);
+    const mediaFile = await this.mediaFileModel.createOne({
+      _userId: _currentUserId,
+      key: photo.Key,
+      type: MEDIA_FILE_TYPES.photo,
+      location: photo.Location,
+    });
     if (!profile && basicProfile) {
       try {
-        profile = await this.profileModel.createOne(basicProfile);
+        profile = await this.profileModel.createOne({
+          ...basicProfile,
+          mediaFiles: [
+            {
+              _id: mediaFile._id,
+              key: photo.Key,
+              type: MEDIA_FILE_TYPES.photo,
+            },
+          ],
+        });
         await this.basicProfileModel
           .deleteOne(_currentUserId)
           .catch((error) => {
@@ -94,13 +127,29 @@ export class ProfilesService extends ProfilesCommonService {
           });
       } catch (error) {
         profile = await this.profileModel.findOneOrFailById(_currentUserId);
+        const updateResult = await this.profileModel
+          .updateOneById(_currentUserId, {
+            $push: {
+              mediaFiles: {
+                _id: mediaFile._id,
+                key: photo.Key,
+                type: MEDIA_FILE_TYPES.photo,
+              },
+            },
+          })
+          .catch(() => {
+            return undefined;
+          });
+        if (!updateResult?.modifiedCount) {
+          await this.filesService.removeOne(mediaFile.key);
+          await this.mediaFileModel.deleteOneOrFail({ _id: mediaFile._id });
+          throw new InternalServerErrorException(
+            ERROR_MESSAGES['File does not exist'],
+          );
+        }
       }
     }
-    if (!profile) {
-      throw new NotFoundException(ERROR_MESSAGES['Profile does not exist']);
-    }
-    this.profileModel.verifyCanUploadFiles(profile);
-    return await this.filesService.createPhoto(file, _currentUserId);
+    return mediaFile;
   }
 
   public async getMe(clientData: ClientData) {
