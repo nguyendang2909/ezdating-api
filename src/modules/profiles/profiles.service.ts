@@ -40,7 +40,6 @@ export class ProfilesService extends ProfilesCommonService {
 
   public async createBasic(payload: CreateBasicProfileDto, client: ClientData) {
     const { _currentUserId } = this.getClient(client);
-    await this.basicProfileModel.findOneAndFailById(_currentUserId);
     await this.profileModel.findOneAndFailById(_currentUserId);
     const {
       birthday: rawBirthday,
@@ -53,15 +52,27 @@ export class ProfilesService extends ProfilesCommonService {
       this.getObjectId(stateId),
     );
     const birthday = this.getAndCheckValidBirthdayFromRaw(rawBirthday);
-    const basicProfile = await this.basicProfileModel.createOne({
-      _id: _currentUserId,
-      ...rest,
-      state,
-      birthday,
-      ...(longitude && latitude
-        ? { geolocation: { type: 'Point', coordinates: [longitude, latitude] } }
-        : {}),
-    });
+    const basicProfile = await this.basicProfileModel.findOneAndUpdateById(
+      _currentUserId,
+      {
+        _id: _currentUserId,
+        ...rest,
+        state,
+        birthday,
+        ...(longitude && latitude
+          ? {
+              geolocation: {
+                type: 'Point',
+                coordinates: [longitude, latitude],
+              },
+            }
+          : {}),
+      },
+      { new: true, upsert: true },
+    );
+    if (!basicProfile) {
+      throw new InternalServerErrorException();
+    }
     await this.profileFilterModel
       .createOneFromProfile(basicProfile)
       .catch((error) => {

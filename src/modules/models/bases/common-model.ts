@@ -193,7 +193,7 @@ export class CommonModel<
             rawResult?: true;
           })
       | null,
-  ) {
+  ): Promise<TRawDocType | null> {
     return await this.model
       .findOneAndUpdate(filter, update, { lean: true, ...options })
       .exec();
@@ -216,9 +216,7 @@ export class CommonModel<
           })
       | null,
   ) {
-    return await this.model
-      .findOneAndUpdate({ _id }, update, { lean: true, ...options })
-      .exec();
+    return await this.findOneAndUpdate({ _id }, update, options);
   }
 
   async deleteMany(

@@ -95,31 +95,31 @@ export class LikesHandler extends DbService {
     }
   }
 
-  async findOneAndUpdateReverseLike({
-    _targetUserId,
-    _currentUserId,
-  }: {
-    _currentUserId: Types.ObjectId;
-    _targetUserId: Types.ObjectId;
-  }) {
-    const reverseLikeFilter = {
-      _userId: _targetUserId,
-      _targetUserId: _currentUserId,
-    };
-    const reverseLikeUpdatePayload = {
-      $set: {
-        isMatched: true,
-      },
-    };
-    this.logger.log(
-      `SEND_LIKE Find one and update reverse like filter ${JSON.stringify(
-        reverseLikeFilter,
-      )} payload: ${JSON.stringify(reverseLikeUpdatePayload)}`,
-    );
-    return await this.likeModel.model
-      .findOneAndUpdate(reverseLikeFilter, reverseLikeUpdatePayload)
-      .exec();
-  }
+  // async findOneAndUpdateReverseLike({
+  //   _targetUserId,
+  //   _currentUserId,
+  // }: {
+  //   _currentUserId: Types.ObjectId;
+  //   _targetUserId: Types.ObjectId;
+  // }) {
+  //   const reverseLikeFilter = {
+  //     _userId: _targetUserId,
+  //     _targetUserId: _currentUserId,
+  //   };
+  //   const reverseLikeUpdatePayload = {
+  //     $set: {
+  //       isMatched: true,
+  //     },
+  //   };
+  //   this.logger.log(
+  //     `SEND_LIKE Find one and update reverse like filter ${JSON.stringify(
+  //       reverseLikeFilter,
+  //     )} payload: ${JSON.stringify(reverseLikeUpdatePayload)}`,
+  //   );
+  //   return await this.likeModel.model
+  //     .findOneAndUpdate(reverseLikeFilter, reverseLikeUpdatePayload)
+  //     .exec();
+  // }
 
   async updateViewAfterLike({
     like,
