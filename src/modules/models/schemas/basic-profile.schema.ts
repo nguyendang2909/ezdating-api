@@ -2,8 +2,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
 import { CommonSchema } from '../../../commons/schemas.common';
-import { GENDERS } from '../../../constants';
-import { Gender } from '../../../types';
+import { GENDERS, RELATIONSHIP_GOALS } from '../../../constants';
+import { Gender, RelationshipGoal } from '../../../types';
 import {
   EmbeddedState,
   EmbeddedStateSchema,
@@ -26,13 +26,11 @@ export class BasicProfile extends CommonSchema {
   @Prop({ type: String, length: 100, required: true })
   nickname: string;
 
+  @Prop({ type: Number, enum: RELATIONSHIP_GOALS, required: true })
+  relationshipGoal: RelationshipGoal;
+
   @Prop({ type: EmbeddedStateSchema, required: true })
   state: EmbeddedState;
-
-  @Prop({ type: Number })
-  weight?: number;
-
-  distance?: string;
 
   @Prop({
     type: {

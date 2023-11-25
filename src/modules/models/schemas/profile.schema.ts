@@ -106,7 +106,7 @@ export class Profile extends CommonSchema {
   @Prop({ type: Boolean, default: false })
   photoVerified: boolean;
 
-  @Prop({ type: Number, enum: RELATIONSHIP_GOALS })
+  @Prop({ type: Number, enum: RELATIONSHIP_GOALS, required: true })
   relationshipGoal: RelationshipGoal;
 
   @Prop({ type: Number, enum: RELATIONSHIP_STATUSES })
