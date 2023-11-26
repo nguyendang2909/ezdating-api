@@ -47,7 +47,7 @@ export class ProfilesScript {
         new mongoose.Types.ObjectId('65574d3c942d1c7185fb339d'),
       );
       const { mediaFiles } = await this.getSampleData();
-      for (let index = 0; index < 1; index++) {
+      for (let index = 0; index < Infinity; index++) {
         this.logger.log('Create user');
         try {
           const user = await this.userModel.createOne({

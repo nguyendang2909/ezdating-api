@@ -134,9 +134,9 @@ ProfileSchema.index({
 });
 
 ProfileSchema.index({
+  gender: 1,
   _id: 1,
   'state._id': 1,
-  gender: 1,
   birthday: 1,
   lastActivatedAt: 1,
 });
