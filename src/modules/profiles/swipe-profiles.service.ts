@@ -46,7 +46,7 @@ export class SwipeProfilesService extends ProfilesCommonService {
     const users = await this.profileModel.findMany(
       {
         lastActivatedAt: {
-          $gt: moment().subtract(1, 'h').toDate(),
+          $gt: moment().subtract(10, 'h').toDate(),
         },
         birthday: {
           $gte: moment().subtract(profileFilter.maxAge, 'years').toDate(),
