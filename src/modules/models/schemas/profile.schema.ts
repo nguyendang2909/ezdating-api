@@ -128,15 +128,15 @@ export const ProfileSchema = SchemaFactory.createForClass(Profile);
 
 ProfileSchema.index({
   geolocation: '2dsphere',
-  gender: 1,
-  birthday: 1,
   lastActivated: 1,
+  birthday: 1,
+  gender: 1,
 });
 
 ProfileSchema.index({
-  gender: 1,
+  lastActivatedAt: 1,
+  birthday: 1,
   _id: 1,
   'state._id': 1,
-  birthday: 1,
-  lastActivatedAt: 1,
+  gender: 1,
 });

@@ -54,14 +54,14 @@ export class NearbyProfilesService extends ProfilesCommonService {
           minDistance,
           maxDistance: maxDistance,
           query: {
-            gender: profileFilter.gender,
+            lastActivatedAt: {
+              $gt: moment().subtract(10, 'h').toDate(),
+            },
             birthday: {
               $gte: moment().subtract(profileFilter.maxAge, 'years').toDate(),
               $lte: moment().subtract(profileFilter.minAge, 'years').toDate(),
             },
-            lastActivatedAt: {
-              $gt: moment().subtract(10, 'h').toDate(),
-            },
+            gender: profileFilter.gender,
           },
         },
       },
