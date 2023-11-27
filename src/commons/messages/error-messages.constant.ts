@@ -53,6 +53,7 @@ export const ERROR_MESSAGES = {
   'You do not have a basic info. Please complete it.':
     'You do not have a basic info. Please complete it.',
   'You have been banned': 'You have been banned',
+  'You should have at least 1 photo': 'You should have at least 1 photo',
   'You should sign in by phone number, google or facebook':
     'You should sign in by phone number, google or facebook',
 } as const;

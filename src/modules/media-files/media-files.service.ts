@@ -1,5 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 
+import { ERROR_MESSAGES } from '../../commons/messages';
 import { ApiService } from '../../commons/services/api.service';
 import { FilesService } from '../../libs/files.service';
 import { ClientData } from '../auth/auth.type';
@@ -15,6 +21,8 @@ export class MediaFilesService extends ApiService {
   ) {
     super();
   }
+
+  private logger = new Logger(MediaFilesService.name);
 
   public async uploadPhoto(
     file: Express.Multer.File,
@@ -35,7 +43,7 @@ export class MediaFilesService extends ApiService {
   public async deleteOne(id: string, client: ClientData) {
     const _id = this.getObjectId(id);
     const { _currentUserId } = this.getClient(client);
-    const profileWithMediaFile = await this.profileModel.findOneOrFail(
+    const profile = await this.profileModel.findOneOrFail(
       {
         _id: _currentUserId,
         'mediaFiles._id': _id,
@@ -45,14 +53,16 @@ export class MediaFilesService extends ApiService {
         key: true,
       },
     );
-    await this.mediaFileModel.deleteOne({
-      _id,
-      _userId: _currentUserId,
-    });
-    await this.profileModel.updateOne(
+    if (profile.mediaFiles.length <= 1) {
+      throw new BadRequestException(
+        ERROR_MESSAGES['You should have at least 1 photo'],
+      );
+    }
+    const updateResult = await this.profileModel.updateOne(
       {
         _id: _currentUserId,
         'mediaFiles._id': _id,
+        mediaFiles: { $size: { $gt: 1 } },
       },
       {
         $pull: {
@@ -62,12 +72,23 @@ export class MediaFilesService extends ApiService {
         },
       },
     );
+    if (updateResult.modifiedCount) {
+      throw new InternalServerErrorException();
+    }
+    await this.mediaFileModel
+      .deleteOne({
+        _id,
+        _userId: _currentUserId,
+      })
+      .catch((error) => {
+        this.logger.error(
+          `Failed to delete media file ${id} error ${JSON.stringify(error)}`,
+        );
+      });
     // TODO: queue
-    const mediaFile = profileWithMediaFile.mediaFiles.find(
-      (e) => e._id.toString() === id,
-    );
+    const mediaFile = profile.mediaFiles.find((e) => e._id.toString() === id);
     if (mediaFile && mediaFile.key) {
-      this.filesService.removeOne(mediaFile.key);
+      await this.filesService.removeOne(mediaFile.key);
     }
   }
 }
