@@ -9,6 +9,7 @@ import { Request } from 'express';
 import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
+import { ERROR_MESSAGES } from '../../commons/messages';
 import { ApiService } from '../../commons/services/api.service';
 import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { SignedDeviceModel } from '../models/signed-device.model';
@@ -63,7 +64,6 @@ export class AuthService extends ApiService {
       id: currentUserId,
       sub: currentUserId,
     });
-
     const updateResult = await this.signedDeviceModel.updateOneById(
       loggedDevice._id,
       {
@@ -75,10 +75,9 @@ export class AuthService extends ApiService {
     );
     if (!updateResult.modifiedCount) {
       throw new UnauthorizedException({
-        message: 'Update refresh token failed!',
+        message: ERROR_MESSAGES['Update refresh token failed'],
       });
     }
-
     return { refreshToken: newRefreshToken };
   }
 }

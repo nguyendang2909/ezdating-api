@@ -36,6 +36,7 @@ export const ERROR_MESSAGES = {
   'State already exists': 'State already exists',
   'State does not exist': 'State does not exist',
   'Update failed. Please try again.': 'Update failed. Please try again.',
+  'Update refresh token failed': 'Update refresh token failed',
   'User already exists': 'User already exists',
   'User data is incorrect': 'User data is incorrect',
   'User device already exists': 'User device already exists',
