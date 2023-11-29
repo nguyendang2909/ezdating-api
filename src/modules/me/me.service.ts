@@ -1,13 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import moment from 'moment';
+import { Injectable } from '@nestjs/common';
 
-import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
-import { WEEKLY_COINS, WEEKLY_COINS_LENGTH } from '../../constants';
-import { ClientData } from '../auth/auth.type';
 import { ProfileModel } from '../models';
 import { CoinAttendanceModel } from '../models/coin-attendance.model';
 import { MatchModel } from '../models/match.model';
-import { CoinAttendanceDocument } from '../models/schemas/coin-attendance.schema';
 import { UserModel } from '../models/user.model';
 import { UsersCommonService } from '../users/users.common.service';
 
@@ -43,6 +38,4 @@ export class MeService extends UsersCommonService {
 
   //   // Move profile
   // }
-
- 
 }

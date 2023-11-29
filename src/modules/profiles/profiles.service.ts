@@ -21,6 +21,7 @@ import {
   StateModel,
   UserModel,
 } from '../models';
+import { MongoConnection } from '../models/mongo.connection';
 import { MediaFile } from '../models/schemas/media-file.schema';
 import { CreateBasicProfileDto } from './dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
@@ -36,6 +37,7 @@ export class ProfilesService extends ProfilesCommonService {
     private readonly filesService: FilesService,
     private readonly mediaFileModel: MediaFileModel,
     private readonly userModel: UserModel,
+    private readonly mongoConnection: MongoConnection,
   ) {
     super();
   }
@@ -124,30 +126,35 @@ export class ProfilesService extends ProfilesCommonService {
     if (profile) {
       this.profileModel.verifyCanUploadFiles(profile);
     }
-    const mediaFile = await this.filesService.createPhoto(file, _currentUserId);
-    if (profile) {
-      await this.filesService.updateProfileAfterCreatePhoto(
-        mediaFile,
+    return await this.mongoConnection.withTransaction(async () => {
+      const mediaFile = await this.filesService.createPhoto(
+        file,
         _currentUserId,
       );
-      return mediaFile;
-    }
-    if (basicProfile) {
-      try {
-        await this.createProfile(basicProfile, mediaFile);
-      } catch (error) {
-        profile = await this.profileModel.findOneById(_currentUserId);
-        if (!profile) {
-          await this.filesService.removeMediaFileAndCatch(mediaFile);
-          throw new NotFoundException(ERROR_MESSAGES['Profile does not exist']);
-        }
+      if (profile) {
         await this.filesService.updateProfileAfterCreatePhoto(
           mediaFile,
           _currentUserId,
         );
+        return mediaFile;
       }
-    }
-    return mediaFile;
+      if (basicProfile) {
+        try {
+          await this.createProfile(basicProfile, mediaFile);
+        } catch (error) {
+          profile = await this.profileModel.findOneById(_currentUserId);
+          if (profile) {
+            await this.filesService.updateProfileAfterCreatePhoto(
+              mediaFile,
+              _currentUserId,
+            );
+          }
+          await this.filesService.removeMediaFileAndCatch(mediaFile);
+          throw new NotFoundException(ERROR_MESSAGES['Profile does not exist']);
+        }
+      }
+      return mediaFile;
+    });
   }
 
   public async getMe(clientData: ClientData) {
