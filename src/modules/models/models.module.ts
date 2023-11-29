@@ -8,6 +8,7 @@ import { LikeModel } from './like.model';
 import { MatchModel } from './match.model';
 import { MediaFileModel } from './media-file.model';
 import { MessageModel } from './message.model';
+import { MongoConnection } from './mongo.connection';
 import { ProfileModel } from './profile.model';
 import { ProfileFilterModel } from './profile-filter.model';
 import {
@@ -122,6 +123,7 @@ import { ViewModel } from './view.model';
     TrashProfileFilterModel,
     TrashUserModel,
     TrashViewModel,
+    MongoConnection,
   ],
   controllers: [],
   providers: [
@@ -147,6 +149,8 @@ import { ViewModel } from './view.model';
     TrashProfileFilterModel,
     TrashUserModel,
     TrashViewModel,
+
+    MongoConnection,
   ],
 })
 export class ModelsModule {}
