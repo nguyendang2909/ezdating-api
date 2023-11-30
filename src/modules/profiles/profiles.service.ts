@@ -191,9 +191,7 @@ export class ProfilesService extends ProfilesCommonService {
       $set: {
         ...updateDto,
         ...(rawBirthday
-          ? {
-              birthday: this.getAndCheckValidBirthdayFromRaw(rawBirthday),
-            }
+          ? { birthday: this.getAndCheckValidBirthdayFromRaw(rawBirthday) }
           : {}),
         ...(longitude && latitude
           ? {

@@ -208,7 +208,7 @@ export class SignInService {
       _userId,
       refreshToken: refreshToken,
       expiresIn: moment()
-        .add(APP_CONFIG.REFRESH_TOKEN_EXPIRES, 'days')
+        .add(APP_CONFIG.REFRESH_TOKEN_EXPIRES_AS_DAYS, 'days')
         .toDate(),
       ...(deviceToken && devicePlatform
         ? { token: deviceToken, platform: devicePlatform }

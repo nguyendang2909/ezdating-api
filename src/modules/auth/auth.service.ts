@@ -69,7 +69,10 @@ export class AuthService extends ApiService {
       {
         $set: {
           refreshToken: newRefreshToken,
-          expiresIn: moment().add(APP_CONFIG.REFRESH_TOKEN_EXPIRES, 'days'),
+          expiresIn: moment().add(
+            APP_CONFIG.REFRESH_TOKEN_EXPIRES_AS_DAYS,
+            'days',
+          ),
         },
       },
     );
