@@ -1,11 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  Scope,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
@@ -17,12 +10,11 @@ import { UserModel } from '../models/user.model';
 import { LogoutDto } from './dto/logout.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class AuthService extends ApiService {
   constructor(
     private readonly signedDeviceModel: SignedDeviceModel,
     private readonly encryptionsUtil: EncryptionsUtil,
-    @Inject(REQUEST) private request: Request & { user: { sub: string } },
     private readonly userModel: UserModel,
   ) {
     super();
