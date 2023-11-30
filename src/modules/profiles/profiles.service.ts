@@ -92,18 +92,20 @@ export class ProfilesService extends ProfilesCommonService {
   }
 
   async createProfile(basicProfile: BasicProfile, mediaFile: MediaFile) {
-    await this.profileModel.createOne({
-      ...basicProfile,
-      mediaFiles: [
-        {
-          _id: mediaFile._id,
-          key: mediaFile.key,
-          type: mediaFile.type,
-        },
-      ],
-    });
-    await this.userModel.updateOneById(basicProfile._id, {
-      $set: { haveProfile: true },
+    await this.mongoConnection.withTransaction(async () => {
+      await this.profileModel.createOne({
+        ...basicProfile,
+        mediaFiles: [
+          {
+            _id: mediaFile._id,
+            key: mediaFile.key,
+            type: mediaFile.type,
+          },
+        ],
+      });
+      await this.userModel.updateOneById(basicProfile._id, {
+        $set: { haveProfile: true },
+      });
     });
     await this.basicProfileModel.deleteOne(basicProfile._id).catch((error) => {
       this.logger.error(
