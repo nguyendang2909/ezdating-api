@@ -35,7 +35,7 @@ export class MatchesHandler extends ApiCursorDateService {
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MATCHES;
   }
 
-  private readonly logger = new Logger(MatchesHandler.name);
+  logger = new Logger(MatchesHandler.name);
 
   async afterUnmatch({
     currentUserId,

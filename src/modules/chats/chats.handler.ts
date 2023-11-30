@@ -20,7 +20,7 @@ export class ChatsHandler extends DbService {
     super();
   }
 
-  private readonly logger = new Logger(ChatsHandler.name);
+  logger = new Logger(ChatsHandler.name);
 
   async handleAfterSendMessage({
     match,

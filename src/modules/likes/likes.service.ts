@@ -37,7 +37,7 @@ export class LikesService extends ApiCursorDateService {
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.LIKES;
   }
 
-  private readonly logger = new Logger(LikesService.name);
+  logger = new Logger(LikesService.name);
 
   public async send(
     payload: SendLikeDto,

@@ -42,7 +42,7 @@ export class ProfilesService extends ProfilesCommonService {
     super();
   }
 
-  private readonly logger = new Logger(ProfilesService.name);
+  logger = new Logger(ProfilesService.name);
 
   public async createBasic(payload: CreateBasicProfileDto, client: ClientData) {
     const { _currentUserId } = this.getClient(client);

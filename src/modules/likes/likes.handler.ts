@@ -28,7 +28,7 @@ export class LikesHandler extends DbService {
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.LIKES;
   }
 
-  private readonly logger = new Logger(LikesHandler.name);
+  logger = new Logger(LikesHandler.name);
 
   async afterSendLike({
     like,

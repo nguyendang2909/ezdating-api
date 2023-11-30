@@ -11,6 +11,7 @@ import {
   USER_STATUSES,
   WEEKLY_COINS,
 } from '../constants/data.constant';
+import { SignInDto } from '../modules/auth/dto';
 
 export type ValueOf<T> = T[keyof T];
 
@@ -50,3 +51,11 @@ export type Membership = ValueOf<typeof MEMBERSHIPS>;
 export type ResponseType = ValueOf<typeof RESPONSE_TYPES>;
 
 export type WeeklyCoin = (typeof WEEKLY_COINS)[number];
+
+export type SignInPayload = {
+  email?: string;
+  facebookId?: string;
+  phoneNumber?: string;
+};
+
+export type SignInPayloadWithToken = SignInPayload & SignInDto;

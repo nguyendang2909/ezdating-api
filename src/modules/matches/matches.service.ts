@@ -23,7 +23,7 @@ export class MatchesService extends ApiCursorDateService {
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MATCHES;
   }
 
-  private readonly logger = new Logger(MatchesService.name);
+  logger = new Logger(MatchesService.name);
 
   public async createOne(
     payload: CreateMatchDto,

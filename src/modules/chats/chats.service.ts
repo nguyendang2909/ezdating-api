@@ -25,7 +25,7 @@ export class ChatsService extends DbService {
     super();
   }
 
-  private readonly logger = new Logger(ChatsService.name);
+  logger = new Logger(ChatsService.name);
 
   public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
     const { matchId } = payload;

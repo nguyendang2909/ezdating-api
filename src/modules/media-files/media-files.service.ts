@@ -22,7 +22,7 @@ export class MediaFilesService extends ApiService {
     super();
   }
 
-  private logger = new Logger(MediaFilesService.name);
+  logger = new Logger(MediaFilesService.name);
 
   public async uploadPhoto(
     file: Express.Multer.File,

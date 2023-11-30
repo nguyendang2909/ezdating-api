@@ -47,7 +47,7 @@ export class ApiScript extends ProfilesCommonService {
     return this.api;
   }
 
-  private logger = new Logger(ApiScript.name);
+  logger = new Logger(ApiScript.name);
 
   async createProfile(options?: { gender?: Gender }) {
     const { data } = await this.api.post<{

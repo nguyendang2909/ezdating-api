@@ -15,6 +15,7 @@ import {
 
 import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
 import { USER_STATUSES } from '../../constants';
+import { SignInPayload } from '../../types';
 import { CommonModel } from './bases/common-model';
 import { User, UserDocument } from './schemas/user.schema';
 
@@ -51,14 +52,11 @@ export class UserModel extends CommonModel<User> {
 
   async createOne(doc: Partial<User>) {
     this.logger.log(`Create user with ${JSON.stringify(doc)}`);
-    const { phoneNumber, email, facebookId } = doc;
-    if (!phoneNumber && !email && !facebookId) {
-      throw new BadRequestException(
-        ERROR_MESSAGES[
-          'You should sign in by phone number, google or facebook'
-        ],
-      );
-    }
+    this.verifySignInPayload(doc);
+    return await this.create(doc);
+  }
+
+  async create(doc: Partial<User>) {
     const createResult = await this.model.create(doc);
     return createResult.toJSON();
   }
@@ -74,8 +72,7 @@ export class UserModel extends CommonModel<User> {
         message: ERROR_MESSAGES['User does not exist'],
       });
     }
-    const { status } = findResult;
-    if (status === USER_STATUSES.BANNED) {
+    if (findResult.status === USER_STATUSES.BANNED) {
       throw new BadRequestException({
         message: 'User has been banned',
       });
@@ -89,5 +86,34 @@ export class UserModel extends CommonModel<User> {
     options?: QueryOptions<User> | null,
   ) {
     return await this.findOneOrFail({ _id }, projection, options);
+  }
+
+  async findOneOrCreate(payload: SignInPayload) {
+    this.verifySignInPayload(payload);
+    const user = await this.model.findOne(payload);
+    if (user) {
+      return this.verifyValid(user);
+    }
+    return await this.create(payload);
+  }
+
+  verifyValid(user: User): User {
+    if (user.status === USER_STATUSES.BANNED) {
+      throw new BadRequestException({
+        message: 'User has been banned',
+      });
+    }
+    return user;
+  }
+
+  verifySignInPayload(payload: SignInPayload): SignInPayload {
+    if (!payload.phoneNumber && !payload.email && !payload.facebookId) {
+      throw new BadRequestException(
+        ERROR_MESSAGES[
+          'You should sign in by phone number, google or facebook'
+        ],
+      );
+    }
+    return payload;
   }
 }

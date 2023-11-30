@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class SignInWithPhoneNumberAndPasswordDto {
+import { SignInDto } from './sign-in.dto';
+
+export class SignInWithPhoneNumberAndPasswordDto extends SignInDto {
   @ApiProperty({ type: String, default: '+84971016191' })
   @IsNotEmpty()
   @IsString()

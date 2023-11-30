@@ -16,7 +16,7 @@ export class ChatsConnectionService extends DbService {
     super();
   }
 
-  private readonly logger = new Logger(ChatsConnectionService.name);
+  logger = new Logger(ChatsConnectionService.name);
 
   public async handleConnection(socket: Socket) {
     try {
