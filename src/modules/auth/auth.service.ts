@@ -4,7 +4,7 @@ import moment from 'moment';
 import { APP_CONFIG } from '../../app.config';
 import { ERROR_MESSAGES } from '../../commons/messages';
 import { ApiService } from '../../commons/services/api.service';
-import { EncryptionsUtil } from '../encryptions/encryptions.util';
+import { AccessTokensService, RefreshTokensService } from '../../libs';
 import { SignedDeviceModel } from '../models/signed-device.model';
 import { UserModel } from '../models/user.model';
 import { LogoutDto } from './dto/logout.dto';
@@ -14,8 +14,9 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 export class AuthService extends ApiService {
   constructor(
     private readonly signedDeviceModel: SignedDeviceModel,
-    private readonly encryptionsUtil: EncryptionsUtil,
     private readonly userModel: UserModel,
+    private readonly refreshTokensService: RefreshTokensService,
+    private readonly accessTokensService: AccessTokensService,
   ) {
     super();
   }
@@ -23,7 +24,7 @@ export class AuthService extends ApiService {
   public async logout(payload: LogoutDto) {
     const { refreshToken } = payload;
     const { id: currentUserId } =
-      this.encryptionsUtil.verifyRefreshToken(refreshToken);
+      this.refreshTokensService.verify(refreshToken);
     const _currentUserId = this.getObjectId(currentUserId);
     await this.signedDeviceModel.deleteOneOrFail({
       _userId: _currentUserId,
@@ -32,27 +33,27 @@ export class AuthService extends ApiService {
   }
 
   public async refreshAccessToken(payload: RefreshTokenDto) {
-    const { id: currentUserId } = this.encryptionsUtil.verifyRefreshToken(
+    const { id: currentUserId } = this.refreshTokensService.verify(
       payload.refreshToken,
     );
     const _currentUserId = this.getObjectId(currentUserId);
     const user = await this.userModel.findOneOrFail({
       _id: _currentUserId,
     });
-    const accessToken = this.encryptionsUtil.signAccessTokenFromUser(user);
+    const accessToken = this.accessTokensService.signFromUser(user);
     return { accessToken };
   }
 
   public async refreshToken(payload: RefreshTokenDto) {
     const { refreshToken: currentRefreshToken } = payload;
     const { id: currentUserId } =
-      this.encryptionsUtil.verifyRefreshToken(currentRefreshToken);
+      this.refreshTokensService.verify(currentRefreshToken);
     const _currentUserId = this.getObjectId(currentUserId);
     await this.userModel.findOneOrFail({ _id: _currentUserId });
     const loggedDevice = await this.signedDeviceModel.findOneOrFail({
       refreshToken: currentRefreshToken,
     });
-    const newRefreshToken = this.encryptionsUtil.signRefreshToken({
+    const newRefreshToken = this.refreshTokensService.sign({
       id: currentUserId,
       sub: currentUserId,
     });

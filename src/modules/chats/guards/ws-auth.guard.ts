@@ -4,13 +4,13 @@ import { WsException } from '@nestjs/websockets';
 import _ from 'lodash';
 import { Socket } from 'socket.io';
 
-import { EncryptionsUtil } from '../../encryptions/encryptions.util';
+import { AccessTokensService } from '../../../libs';
 
 @Injectable()
 export class WsAuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    private readonly encryptionsUtil: EncryptionsUtil,
+    private readonly accessTokensService: AccessTokensService,
   ) {}
 
   async canActivate(context: ExecutionContext) {
@@ -19,7 +19,7 @@ export class WsAuthGuard implements CanActivate {
     if (!token || !_.isString(token)) {
       throw new WsException({ status: 401, message: 'Unauthorized' });
     }
-    const decoded = this.encryptionsUtil.verifyAccessToken(token);
+    const decoded = this.accessTokensService.verify(token);
 
     client.handshake.user = decoded;
 

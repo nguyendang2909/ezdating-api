@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 
-import { FirebaseService } from '../../../libs';
+import {
+  AccessTokensService,
+  FirebaseService,
+  RefreshTokensService,
+} from '../../../libs';
 import { SignInPayload } from '../../../types';
-import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { ProfileModel, SignedDeviceModel, UserModel } from '../../models';
 import { SignInWithPhoneNumberDto } from '../dto';
 import { CommonSignInService } from './common-sign-in.service';
@@ -13,10 +16,17 @@ export class SignInPhoneNumberService extends CommonSignInService {
     protected readonly profileModel: ProfileModel,
     protected readonly userModel: UserModel,
     protected readonly signedDeviceModel: SignedDeviceModel,
-    protected readonly encryptionsUtil: EncryptionsUtil,
-    private readonly firebaseService: FirebaseService,
+    protected readonly firebaseService: FirebaseService,
+    protected readonly accessTokensService: AccessTokensService,
+    protected readonly refreshTokensService: RefreshTokensService,
   ) {
-    super(profileModel, userModel, signedDeviceModel, encryptionsUtil);
+    super(
+      userModel,
+      profileModel,
+      signedDeviceModel,
+      accessTokensService,
+      refreshTokensService,
+    );
   }
 
   async getSignInPayload(

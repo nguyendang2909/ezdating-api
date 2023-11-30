@@ -5,18 +5,19 @@ import mongoose from 'mongoose';
 import { APP_CONFIG } from '../../../app.config';
 import { CommonService } from '../../../commons';
 import { ERROR_MESSAGES } from '../../../commons/messages';
+import { AccessTokensService, RefreshTokensService } from '../../../libs';
 import { SignInPayload, SignInPayloadWithToken } from '../../../types';
-import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { ProfileModel, SignedDeviceModel, User, UserModel } from '../../models';
 import { SignInData } from '../auth.type';
 import { SignInDto } from '../dto';
 
 export class CommonSignInService extends CommonService {
   constructor(
-    protected readonly profileModel: ProfileModel,
     protected readonly userModel: UserModel,
+    protected readonly profileModel: ProfileModel,
     protected readonly signedDeviceModel: SignedDeviceModel,
-    protected readonly encryptionsUtil: EncryptionsUtil,
+    protected readonly accessTokensService: AccessTokensService,
+    protected readonly refreshTokensService: RefreshTokensService,
   ) {
     super();
   }
@@ -53,12 +54,8 @@ export class CommonSignInService extends CommonService {
   }
 
   createTokens(user: User) {
-    const userId = user._id.toString();
-    const accessToken = this.encryptionsUtil.signAccessTokenFromUser(user);
-    const refreshToken = this.encryptionsUtil.signRefreshToken({
-      id: userId,
-      sub: userId,
-    });
+    const accessToken = this.accessTokensService.signFromUser(user);
+    const refreshToken = this.refreshTokensService.signFromUser(user);
     return { accessToken, refreshToken };
   }
 

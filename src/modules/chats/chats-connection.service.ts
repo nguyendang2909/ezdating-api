@@ -4,13 +4,13 @@ import { Socket } from 'socket.io';
 
 import { DbService } from '../../commons/services/db.service';
 import { USER_STATUSES } from '../../constants';
-import { EncryptionsUtil } from '../encryptions/encryptions.util';
+import { AccessTokensService } from '../../libs';
 import { UserModel } from '../models/user.model';
 
 @Injectable()
 export class ChatsConnectionService extends DbService {
   constructor(
-    private readonly encryptionsUtil: EncryptionsUtil,
+    private readonly acessTokensService: AccessTokensService,
     private readonly userModel: UserModel,
   ) {
     super();
@@ -26,7 +26,7 @@ export class ChatsConnectionService extends DbService {
 
         return;
       }
-      const clientData = this.encryptionsUtil.verifyAccessToken(token);
+      const clientData = this.acessTokensService.verify(token);
       const { id: userId } = clientData;
       const _currentUserId = this.getObjectId(userId);
       const user = await this.userModel.findOneOrFail({ _id: _currentUserId });

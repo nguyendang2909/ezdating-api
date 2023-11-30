@@ -5,8 +5,8 @@ import moment from 'moment';
 import mongoose from 'mongoose';
 
 import { GENDERS, USER_ROLES, USER_STATUSES } from '../../constants';
+import { AccessTokensService } from '../../libs';
 import { RelationshipGoal } from '../../types';
-import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import {
   EmbeddedMediaFile,
   ProfileFilterModel,
@@ -24,7 +24,7 @@ export class ProfilesScript {
   constructor(
     private readonly profileModel: ProfileModel,
     private readonly userModel: UserModel,
-    private readonly encryptionsUtil: EncryptionsUtil,
+    private readonly acessTokensService: AccessTokensService,
     private readonly apiScript: ApiScript,
     private readonly stateModel: StateModel,
     private readonly profileFilterModel: ProfileFilterModel,
@@ -76,7 +76,7 @@ export class ProfilesScript {
             $set: { haveProfile: true },
           });
           await this.profileFilterModel.createOneFromProfile(profile);
-          const accessToken = this.encryptionsUtil.signAccessTokenFromUser({
+          const accessToken = this.acessTokensService.signFromUser({
             ...user,
             haveProfile: true,
           });

@@ -1,18 +1,34 @@
 import { Global, Logger, Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import firebaseAdmin from 'firebase-admin';
 import { OAuth2Client } from 'google-auth-library';
 import { Redis, RedisOptions } from 'ioredis';
 import Redlock from 'redlock';
 
+import { APP_CONFIG } from '../app.config';
 import { MODULE_INSTANCES } from '../constants';
+import { AccessTokensService } from './access-tokens.service';
 import { CacheService } from './cache.service';
 import { FilesService } from './files.service';
 import { FirebaseService } from './firebase.service';
 import { GoogleOAuthService } from './google-oauth.service';
+import { PasswordsService } from './password.service';
+import { RefreshTokensService } from './refresh-tokens.service';
 
 @Global()
 @Module({
+  imports: [
+    JwtModule.register({
+      secret: process.env.JWT_SECRET_KEY,
+      signOptions: {
+        expiresIn: APP_CONFIG.ACCESS_TOKEN_EXPIRES,
+      },
+    }),
+  ],
   providers: [
+    AccessTokensService,
+    RefreshTokensService,
+    PasswordsService,
     FilesService,
     {
       provide: MODULE_INSTANCES.REDIS,
@@ -97,6 +113,14 @@ import { GoogleOAuthService } from './google-oauth.service';
     FirebaseService,
     GoogleOAuthService,
   ],
-  exports: [FilesService, CacheService, FirebaseService, GoogleOAuthService],
+  exports: [
+    FilesService,
+    CacheService,
+    FirebaseService,
+    GoogleOAuthService,
+    AccessTokensService,
+    RefreshTokensService,
+    PasswordsService,
+  ],
 })
 export class LibsModule {}

@@ -12,7 +12,6 @@ import {
   RelationshipGoal,
   RelationshipStatus,
 } from '../../types';
-import { EncryptionsUtil } from '../encryptions/encryptions.util';
 import { Profile, ProfileModel, UserModel } from '../models';
 import { UpdateMyProfileDto } from '../profiles/dto';
 import { ProfilesCommonService } from '../profiles/profiles.common.service';
@@ -25,7 +24,6 @@ export class ApiScript extends ProfilesCommonService {
   constructor(
     private readonly profileModel: ProfileModel,
     private readonly userModel: UserModel,
-    private readonly encryptionsUtil: EncryptionsUtil,
   ) {
     super();
 

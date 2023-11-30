@@ -1,14 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { USER_ROLES } from '../../../constants';
-import { EncryptionsUtil } from '../../encryptions/encryptions.util';
+import { PasswordsService } from '../../../libs';
 import { UserModel } from '../../models/user.model';
 
 @Injectable()
 export class SignInInitService {
   constructor(
-    private readonly encryptionsUtil: EncryptionsUtil,
     private readonly userModel: UserModel,
+    private readonly passwordsService: PasswordsService,
   ) {}
 
   protected readonly logger = new Logger(SignInInitService.name);
@@ -22,7 +22,7 @@ export class SignInInitService {
       if (!existAdminUser && process.env.ADMIN_PASSWORD) {
         await this.userModel.createOne({
           phoneNumber,
-          password: this.encryptionsUtil.hash(process.env.ADMIN_PASSWORD),
+          password: this.passwordsService.hash(process.env.ADMIN_PASSWORD),
           role: USER_ROLES.ADMIN,
         });
       }

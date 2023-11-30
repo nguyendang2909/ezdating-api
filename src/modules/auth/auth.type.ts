@@ -5,17 +5,17 @@ export type ClientData = AccessTokenSignPayload & {
   iat: number;
 };
 
-export type AccessTokenSignPayload = {
-  haveProfile: boolean;
+export type TokenSignPayload = {
   id: string;
-  role: UserRole;
   sub: string;
 };
 
-export type RefreshTokenSignPayload = {
-  id: string;
-  sub: string;
+export type AccessTokenSignPayload = TokenSignPayload & {
+  haveProfile: boolean;
+  role: UserRole;
 };
+
+export type RefreshTokenSignPayload = TokenSignPayload;
 
 export type RefreshTokenPayload = {
   id: string;

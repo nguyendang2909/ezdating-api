@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { EncryptionsUtil } from '../../encryptions/encryptions.util';
+import { AccessTokensService } from '../../../libs';
 import { UserModel } from '../../models';
 import { AdminLoginDto } from './dto';
 
@@ -8,12 +8,12 @@ import { AdminLoginDto } from './dto';
 export class AdminAuthService {
   constructor(
     private readonly userModel: UserModel,
-    private readonly encryptionsUtil: EncryptionsUtil,
+    private readonly accessTokensService: AccessTokensService,
   ) {}
 
   async login(payload: AdminLoginDto) {
     const user = await this.userModel.findOneOrFail(payload);
-    const accessToken = this.encryptionsUtil.signAccessTokenFromUser(user);
+    const accessToken = this.accessTokensService.signFromUser(user);
     return {
       accessToken,
     };

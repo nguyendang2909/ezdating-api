@@ -1,8 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
-import { FirebaseService } from '../../../libs';
+import {
+  AccessTokensService,
+  FirebaseService,
+  PasswordsService,
+  RefreshTokensService,
+} from '../../../libs';
 import { SignInPayload } from '../../../types';
-import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { ProfileModel, SignedDeviceModel, UserModel } from '../../models';
 import { SignInWithPhoneNumberAndPasswordDto } from '../dto';
 import { CommonSignInService } from './common-sign-in.service';
@@ -10,13 +14,21 @@ import { CommonSignInService } from './common-sign-in.service';
 @Injectable()
 export class SignInPhoneNumberWithPasswordService extends CommonSignInService {
   constructor(
-    protected readonly profileModel: ProfileModel,
+    protected readonly firebaseService: FirebaseService,
     protected readonly userModel: UserModel,
     protected readonly signedDeviceModel: SignedDeviceModel,
-    protected readonly encryptionsUtil: EncryptionsUtil,
-    private readonly firebaseService: FirebaseService,
+    protected readonly profileModel: ProfileModel,
+    protected readonly accessTokensService: AccessTokensService,
+    protected readonly refreshTokensService: RefreshTokensService,
+    protected readonly passwordsService: PasswordsService,
   ) {
-    super(profileModel, userModel, signedDeviceModel, encryptionsUtil);
+    super(
+      userModel,
+      profileModel,
+      signedDeviceModel,
+      accessTokensService,
+      refreshTokensService,
+    );
   }
 
   async getSignInPayload(
@@ -27,7 +39,7 @@ export class SignInPhoneNumberWithPasswordService extends CommonSignInService {
     if (!user.password) {
       throw new BadRequestException('Try login with OTP!');
     }
-    this.encryptionsUtil.verifyMatchPassword(password, user.password);
+    this.passwordsService.verifyCompare(password, user.password);
     return { phoneNumber };
   }
 }

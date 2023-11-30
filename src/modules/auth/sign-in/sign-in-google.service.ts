@@ -1,8 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
-import { FirebaseService, GoogleOAuthService } from '../../../libs';
+import {
+  AccessTokensService,
+  GoogleOAuthService,
+  RefreshTokensService,
+} from '../../../libs';
 import { SignInPayload } from '../../../types';
-import { EncryptionsUtil } from '../../encryptions/encryptions.util';
 import { ProfileModel } from '../../models';
 import { SignedDeviceModel } from '../../models/signed-device.model';
 import { UserModel } from '../../models/user.model';
@@ -12,14 +15,20 @@ import { CommonSignInService } from './common-sign-in.service';
 @Injectable()
 export class SignInGoogleService extends CommonSignInService {
   constructor(
-    protected readonly encryptionsUtil: EncryptionsUtil,
-    protected readonly firebaseService: FirebaseService,
     protected readonly userModel: UserModel,
     protected readonly signedDeviceModel: SignedDeviceModel,
     protected readonly googleOauthService: GoogleOAuthService,
     protected readonly profileModel: ProfileModel,
+    protected readonly accessTokensService: AccessTokensService,
+    protected readonly refreshTokensService: RefreshTokensService,
   ) {
-    super(profileModel, userModel, signedDeviceModel, encryptionsUtil);
+    super(
+      userModel,
+      profileModel,
+      signedDeviceModel,
+      accessTokensService,
+      refreshTokensService,
+    );
   }
 
   async getSignInPayload(payload: SignInWithGoogleDto): Promise<SignInPayload> {
