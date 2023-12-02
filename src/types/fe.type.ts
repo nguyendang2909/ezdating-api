@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
-import { Like, Match, Message, Profile, User } from '../modules/models';
+import { Match, Message, Profile, User, View } from '../modules/models';
 import { MediaFile } from '../modules/models/schemas/media-file.schema';
 import {
   DevicePlatform,
@@ -156,7 +156,7 @@ export declare namespace ApiResponse {
 
   type Matches = PaginatedResponse<Match>;
 
-  type Likes = PaginatedResponse<Like>;
+  type Likes = PaginatedResponse<View>;
 
   type Profiles = PaginatedResponse<Profile>;
 

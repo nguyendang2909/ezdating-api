@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsMongoId, IsNotEmpty } from 'class-validator';
 
 export class SendLikeDto {
   @ApiProperty({ type: String })
   @IsNotEmpty()
-  @IsString()
+  @IsMongoId()
   targetUserId: string;
 }

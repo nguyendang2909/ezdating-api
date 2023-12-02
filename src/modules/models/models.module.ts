@@ -4,7 +4,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { BasicProfileModel } from './basic-profile.model';
 import { CoinAttendanceModel } from './coin-attendance.model';
 import { CountryModel } from './country.model';
-import { LikeModel } from './like.model';
 import { MatchModel } from './match.model';
 import { MediaFileModel } from './media-file.model';
 import { MessageModel } from './message.model';
@@ -20,8 +19,6 @@ import {
   ProfileFilterSchema,
   State,
   StateSchema,
-  TrashLike,
-  TrashLikeSchema,
   TrashMatch,
   TrashMatchSchema,
   TrashMediaFile,
@@ -34,14 +31,11 @@ import {
   TrashProfileSchema,
   TrashUser,
   TrashUserSchema,
-  TrashView,
-  TrashViewSchema,
 } from './schemas';
 import {
   CoinAttendance,
   CoinAttendanceSchema,
 } from './schemas/coin-attendance.schema';
-import { Like, LikeSchema } from './schemas/like.schema';
 import { Match, MatchSchema } from './schemas/match.schema';
 import { MediaFile, MediaFileSchema } from './schemas/media-file.schema';
 import { Message, MessageSchema } from './schemas/message.schema';
@@ -59,14 +53,12 @@ import { View, ViewSchema } from './schemas/view.schema';
 import { SignedDeviceModel } from './signed-device.model';
 import { StateModel } from './state.model';
 import {
-  TrashLikeModel,
   TrashMatchModel,
   TrashMediaFileModel,
   TrashMessageModel,
   TrashProfileFilterModel,
   TrashProfileModel,
   TrashUserModel,
-  TrashViewModel,
 } from './trash';
 import { UserModel } from './user.model';
 import { ViewModel } from './view.model';
@@ -78,7 +70,6 @@ import { ViewModel } from './view.model';
       { name: CoinAttendance.name, schema: CoinAttendanceSchema },
       { name: BasicProfile.name, schema: BasicProfileSchema },
       { name: Country.name, schema: CountrySchema },
-      { name: Like.name, schema: LikeSchema },
       { name: Match.name, schema: MatchSchema },
       { name: Message.name, schema: MessageSchema },
       { name: Profile.name, schema: ProfileSchema },
@@ -90,21 +81,18 @@ import { ViewModel } from './view.model';
       { name: PushNotification.name, schema: PushNotificationSchema },
       { name: MediaFile.name, schema: MediaFileSchema },
 
-      { name: TrashLike.name, schema: TrashLikeSchema },
       { name: TrashMatch.name, schema: TrashMatchSchema },
       { name: TrashMediaFile.name, schema: TrashMediaFileSchema },
       { name: TrashMessage.name, schema: TrashMessageSchema },
       { name: TrashProfile.name, schema: TrashProfileSchema },
       { name: TrashProfileFilter.name, schema: TrashProfileFilterSchema },
       { name: TrashUser.name, schema: TrashUserSchema },
-      { name: TrashView.name, schema: TrashViewSchema },
     ]),
   ],
   exports: [
     BasicProfileModel,
     CoinAttendanceModel,
     CountryModel,
-    LikeModel,
     MatchModel,
     MediaFileModel,
     MessageModel,
@@ -115,14 +103,12 @@ import { ViewModel } from './view.model';
     UserModel,
     ViewModel,
 
-    TrashLikeModel,
     TrashMatchModel,
     TrashMediaFileModel,
     TrashMessageModel,
     TrashProfileModel,
     TrashProfileFilterModel,
     TrashUserModel,
-    TrashViewModel,
     MongoConnection,
   ],
   controllers: [],
@@ -130,7 +116,6 @@ import { ViewModel } from './view.model';
     BasicProfileModel,
     CoinAttendanceModel,
     CountryModel,
-    LikeModel,
     MatchModel,
     MessageModel,
     ProfileModel,
@@ -141,14 +126,12 @@ import { ViewModel } from './view.model';
     ViewModel,
     MediaFileModel,
 
-    TrashLikeModel,
     TrashMatchModel,
     TrashMediaFileModel,
     TrashMessageModel,
     TrashProfileModel,
     TrashProfileFilterModel,
     TrashUserModel,
-    TrashViewModel,
 
     MongoConnection,
   ],

@@ -9,11 +9,9 @@ import {
   MessageModel,
   Profile,
   ProfileModel,
-  TrashLikeModel,
   TrashMatchModel,
   ViewModel,
 } from '../models';
-import { LikeModel } from '../models/like.model';
 import { MatchModel } from '../models/match.model';
 import { Match, MatchWithTargetProfile } from '../models/schemas/match.schema';
 import { MatchesPublisher } from './matches.publisher';
@@ -23,13 +21,11 @@ export class MatchesHandler extends ApiCursorDateService {
   constructor(
     private readonly matchModel: MatchModel,
     private readonly chatsGateway: ChatsGateway,
-    private readonly likeModel: LikeModel,
     private readonly profileModel: ProfileModel,
     private readonly messageModel: MessageModel,
     private readonly matchesPublisher: MatchesPublisher,
     private readonly viewModel: ViewModel,
     private readonly trashMatchModel: TrashMatchModel,
-    private readonly trashLikeModel: TrashLikeModel,
   ) {
     super();
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MATCHES;
@@ -56,42 +52,10 @@ export class MatchesHandler extends ApiCursorDateService {
       userOneId,
       userTwoId,
     });
-    try {
-      const existLike = await this.likeModel.findOne({
-        'profile._id': _currentUserId,
-        'targetProfile._id': _targetUserId,
-      });
-      if (existLike) {
-        await this.likeModel.deleteOne({
-          'profile._id': _currentUserId,
-          'targetProfile._id': _targetUserId,
-        });
-        await this.trashLikeModel.createOne(existLike);
-      }
-    } catch (error) {
-      this.logger.error(
-        `UNMATCH Delete like failed filter error: ${JSON.stringify(error)}`,
-      );
-    }
-    await this.likeModel
-      .updateOne(
-        { 'profile._id': _targetUserId, 'targetProfile._id': _currentUserId },
-        { $set: { isMatched: false } },
-      )
-      .catch((error) => {
-        this.logger.error(
-          `UNMATCH Update like from targetUser failed: ${JSON.stringify(
-            error,
-          )}`,
-        );
-      });
-
-    // TODO: queue
-    // this.matchesPublisher.publishUnmatched(match._id.toString());
     await this.viewModel
-      .updateOne(
+      .findOneAndUpdate(
         {
-          'profile.id': _currentUserId,
+          'profile._id': _currentUserId,
           'targetProfile._id': _targetUserId,
         },
         {
@@ -103,24 +67,21 @@ export class MatchesHandler extends ApiCursorDateService {
       )
       .catch((error) => {
         this.logger.error(
-          `UNMATCH Update view failed: ${JSON.stringify(error)}`,
+          `Failed to update like after unmatch  error: ${JSON.stringify(
+            error,
+          )}`,
         );
       });
     await this.viewModel
       .updateOne(
-        {
-          'profile.id': _targetUserId,
-          'targetProfile._id': _currentUserId,
-        },
-        {
-          $set: {
-            isMatched: false,
-          },
-        },
+        { 'profile._id': _targetUserId, 'targetProfile._id': _currentUserId },
+        { $set: { isMatched: false } },
       )
       .catch((error) => {
         this.logger.error(
-          `UNMATCH Update view failed: ${JSON.stringify(error)}`,
+          `Failed to update like from other to unmatch: ${JSON.stringify(
+            error,
+          )}`,
         );
       });
   }

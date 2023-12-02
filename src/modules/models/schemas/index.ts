@@ -2,7 +2,6 @@ export * from './basic-profile.schema';
 export * from './coin-attendance.schema';
 export * from './country.schema';
 export * from './embedded';
-export * from './like.schema';
 export * from './match.schema';
 export * from './message.schema';
 export * from './profile.schema';

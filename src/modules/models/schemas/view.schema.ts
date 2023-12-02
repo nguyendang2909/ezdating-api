@@ -15,10 +15,10 @@ export class View extends CommonSchema {
   targetProfile: EmbeddedProfile;
 
   @Prop({ type: Boolean, required: false, default: false })
-  isLiked?: boolean;
+  isLiked: boolean;
 
   @Prop({ type: Boolean, required: false, default: false })
-  isMatched?: boolean;
+  isMatched: boolean;
 }
 
 export const ViewSchema = SchemaFactory.createForClass(View);
@@ -38,18 +38,19 @@ ViewSchema.index(
   },
 );
 
-ViewSchema.index(
-  {
-    'profile._id': 1,
-    'targetProfile.state._id': 1,
-    isMatched: 1,
-    isLiked: 1,
-    createdAt: 1,
-  },
-  {
-    partialFilterExpression: {
-      isMatched: { $eq: false },
-      isLiked: { $eq: false },
-    },
-  },
-);
+ViewSchema.index({
+  'profile._id': 1,
+  'targetProfile.state._id': 1,
+  isMatched: 1,
+  isLiked: 1,
+  createdAt: 1,
+});
+
+ViewSchema.index({
+  'targetProfile._id': 1,
+  createdAt: 1,
+  'profile.birthday': 1,
+  isLiked: 1,
+  isMatched: 1,
+  'profile.gender': 1,
+});
