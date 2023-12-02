@@ -3,6 +3,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { APP_CONFIG } from '../../app.config';
 import { ApiCursorDateService } from '../../commons';
 import { ERROR_MESSAGES } from '../../commons/messages';
+import { Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { MatchModel, ProfileModel, View } from '../models';
 import { ViewModel } from '../models/view.model';
@@ -85,5 +86,9 @@ export class ViewsService extends ApiCursorDateService {
         message: ERROR_MESSAGES['You cannot view yourself'],
       });
     }
+  }
+
+  public getPagination(data: View[]): Pagination {
+    return this.getPaginationByField(data, 'createdAt');
   }
 }
