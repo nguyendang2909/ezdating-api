@@ -16,7 +16,6 @@ export class AuthController {
   @IsPublicEndpoint()
   public async logout(@Body() payload: LogoutDto) {
     const success = await this.authService.logout(payload);
-
     return {
       type: 'logout',
       success,

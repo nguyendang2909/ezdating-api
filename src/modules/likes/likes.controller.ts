@@ -2,7 +2,9 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { PaginatedResponse } from '../../types';
 import { ClientData } from '../auth/auth.type';
+import { View } from '../models';
 import { FindManyLikedMeDto } from './dto/find-user-like-me.dto';
 import { SendLikeDto } from './dto/send-like.dto';
 import { LikesService } from './likes.service';
@@ -28,8 +30,13 @@ export class LikesController {
   public async findManyLikedMe(
     @Query() queryParams: FindManyLikedMeDto,
     @Client() clientData: ClientData,
-  ) {
-    return await this.service.findManyLikedMe(queryParams, clientData);
+  ): Promise<PaginatedResponse<View>> {
+    const likes = await this.service.findManyLikedMe(queryParams, clientData);
+    return {
+      type: 'likedMe',
+      data: likes,
+      pagination: this.service.getPagination(likes),
+    };
   }
 
   @Get('/me/:id')

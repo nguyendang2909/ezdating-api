@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { RESPONSE_TYPES } from '../../constants';
 import { ClientData } from '../auth/auth.type';
 import { ReadMessageDto } from './dto';
 import { FindManyMessagesQuery } from './dto/find-many-messages.dto';
@@ -15,7 +16,7 @@ export class MessagesController {
     @Body() payload: ReadMessageDto,
     @Client() clientData: ClientData,
   ) {
-    return await this.messagesService.read(payload, clientData);
+    await this.messagesService.read(payload, clientData);
   }
 
   @Get()
@@ -28,7 +29,7 @@ export class MessagesController {
       clientData,
     );
     return {
-      type: 'messages',
+      type: RESPONSE_TYPES.DELETE_PHOTO,
       _matchId: queryParams.matchId,
       data: findResults,
       pagination: this.messagesService.getPagination(findResults),

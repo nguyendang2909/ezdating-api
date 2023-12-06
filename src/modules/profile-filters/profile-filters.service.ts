@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
 import { ApiService } from '../../commons';
-import { RESPONSE_TYPES } from '../../constants';
 import { ClientData } from '../auth/auth.type';
 import { ProfileFilterModel } from '../models';
 import { UpdateProfileFilterDto } from './dto';
@@ -22,9 +21,6 @@ export class ProfileFiltersService extends ApiService {
     const findResult = await this.profileFilterModel.findOneOrFailById(
       _currentUserId,
     );
-    return {
-      type: RESPONSE_TYPES.UPDATE_PROFILE_FILTER,
-      data: findResult,
-    };
+    return findResult;
   }
 }

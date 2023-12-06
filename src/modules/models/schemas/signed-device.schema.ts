@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
-import { APP_CONFIG } from '../../../app.config';
 import { CommonSchema } from '../../../commons/schemas.common';
 import { DEVICE_PLATFORMS } from '../../../constants';
 import { DevicePlatform } from '../../../types';
@@ -37,10 +36,3 @@ export const SignedDeviceSchema = SchemaFactory.createForClass(SignedDevice);
 SignedDeviceSchema.index({ _userId: 1 });
 
 SignedDeviceSchema.index({ _userId: 1, refreshToken: 'hashed' });
-
-SignedDeviceSchema.index(
-  { createdAt: 1 },
-  {
-    expireAfterSeconds: APP_CONFIG.REFRESH_TOKEN_EXPIRES_AS_DAYS * 24 * 60 * 60,
-  },
-);

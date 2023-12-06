@@ -85,9 +85,8 @@ export class ProfilesController {
         message: ERROR_MESSAGES['File does not exist'],
       });
     }
-
     return {
-      type: 'uploadPhoto',
+      type: RESPONSE_TYPES.UPLOAD_PHOTO,
       data: await this.service.uploadBasicPhoto(file, payload, clientData),
     };
   }
@@ -152,6 +151,9 @@ export class ProfilesController {
     @Param('id') id: string,
     @Client() client: ClientData,
   ) {
-    return await this.service.findOneOrFailById(id, client);
+    return {
+      type: RESPONSE_TYPES.PROFILE,
+      data: await this.service.findOneOrFailById(id, client),
+    };
   }
 }

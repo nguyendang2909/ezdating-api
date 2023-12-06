@@ -26,7 +26,7 @@ export class AuthService extends ApiService {
     const { id: currentUserId } =
       this.refreshTokensService.verify(refreshToken);
     const _currentUserId = this.getObjectId(currentUserId);
-    await this.signedDeviceModel.deleteOneOrFail({
+    await this.signedDeviceModel.deleteOne({
       _userId: _currentUserId,
       refreshToken,
     });

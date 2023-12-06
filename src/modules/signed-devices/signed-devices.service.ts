@@ -1,6 +1,5 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
-import { ERROR_MESSAGES } from '../../commons/messages';
 import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
 import { SignedDeviceModel } from '../models/signed-device.model';
@@ -12,34 +11,27 @@ export class SignedDevicesService extends ApiService {
     super();
   }
 
-  async update(payload: UpdateSignedDeviceDto, client: ClientData) {
+  async updateOne(payload: UpdateSignedDeviceDto, client: ClientData) {
     const { _currentUserId } = this.getClient(client);
-    const signedDevice = await this.signedDeviceModel.findOneOrFail(
-      {
-        _userId: _currentUserId,
-        refreshToken: payload.refreshToken,
-      },
-      {
-        _id: true,
-      },
-    );
-    const updateResult = await this.signedDeviceModel.model
-      .updateOne(
-        {
-          _id: signedDevice._id,
-        },
-        {
-          $set: {
-            token: payload.deviceToken,
-            platform: payload.devicePlatform,
-          },
-        },
-      )
-      .exec();
-    if (!updateResult.modifiedCount) {
-      throw new BadRequestException(
-        ERROR_MESSAGES['Update failed. Please try again.'],
-      );
+    const signedDevice = await this.signedDeviceModel.findOneOrFail({
+      _userId: _currentUserId,
+      refreshToken: payload.refreshToken,
+    });
+    if (
+      signedDevice.token === payload.deviceToken &&
+      signedDevice.platform === payload.devicePlatform
+    ) {
+      return;
     }
+    await this.signedDeviceModel.deleteMany({
+      deviceToken: payload.deviceToken,
+      devicePlatform: payload.devicePlatform,
+    });
+    await this.signedDeviceModel.updateOneOrFailById(signedDevice._id, {
+      $set: {
+        token: payload.deviceToken,
+        platform: payload.devicePlatform,
+      },
+    });
   }
 }

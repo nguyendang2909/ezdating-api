@@ -13,6 +13,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { APP_CONFIG } from '../../app.config';
 import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { RESPONSE_TYPES } from '../../constants';
 import { ClientData } from '../auth/auth.type';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
 import { MediaFilesService } from './media-files.service';
@@ -70,7 +71,7 @@ export class MediaFilesController {
     }
 
     return {
-      type: 'uploadPhoto',
+      type: RESPONSE_TYPES.UPLOAD_PHOTO,
       data: await this.mediaFilesService.uploadPhoto(file, payload, clientData),
     };
   }
@@ -81,7 +82,7 @@ export class MediaFilesController {
     @Client() clientData: ClientData,
   ) {
     return {
-      type: 'removeFileUpload',
+      type: RESPONSE_TYPES.DELETE_PHOTO,
       data: { success: await this.mediaFilesService.deleteOne(id, clientData) },
     };
   }

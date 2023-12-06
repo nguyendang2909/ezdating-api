@@ -84,12 +84,18 @@ export const MEMBERSHIPS = {
 export const RESPONSE_TYPES = {
   CONVERSATIONS: 'conversations',
   CREATE_BASIC_PROFILE: 'create_basic_profile',
+  CREATE_MATCH: 'create_match',
   DAILY_ATTENDANCE: 'daily_attendance',
+  DELETE_PHOTO: 'delete_photo',
   MATCH: 'match',
   MATCHES: 'matches',
   NEARBY_PROFILES: 'nearby_profiles',
   PROFILE: 'profile',
   PROFILES: 'profiles',
+  PROFILE_FILTER: 'profile_filter',
   SWIPE_PROFILES: 'swipe_profiles',
+  UNMATCH: 'unmatch',
+  UPDATE_DEVICE_TOKEN: 'update_device_token',
   UPDATE_PROFILE_FILTER: 'update_profile_filter',
+  UPLOAD_PHOTO: 'update_photo',
 };

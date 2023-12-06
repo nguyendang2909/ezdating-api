@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Patch } from '@nestjs/common';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { RESPONSE_TYPES } from '../../constants';
 import { ClientData } from '../auth/auth.type';
 import { UpdateProfileFilterDto } from './dto';
 import { ProfileFiltersService } from './profile-filters.service';
@@ -14,11 +15,14 @@ export class ProfileFiltersController {
     @Body() payload: UpdateProfileFilterDto,
     @Client() client: ClientData,
   ) {
-    return await this.service.updateMe(payload, client);
+    await this.service.updateMe(payload, client);
   }
 
   @Get('/me')
   async getMe(@Client() client: ClientData) {
-    return await this.service.getMe(client);
+    return {
+      type: RESPONSE_TYPES.PROFILE_FILTER,
+      data: await this.service.getMe(client),
+    };
   }
 }

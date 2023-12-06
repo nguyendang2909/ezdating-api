@@ -19,7 +19,7 @@ export class MatchesController {
     @Client() client: ClientData,
   ) {
     return {
-      type: 'createMatch',
+      type: RESPONSE_TYPES.CREATE_MATCH,
       data: await this.service.createOne(payload, client),
     };
   }
@@ -30,7 +30,7 @@ export class MatchesController {
     @Client() clientData: ClientData,
   ) {
     return {
-      type: 'unmatch',
+      type: RESPONSE_TYPES.UNMATCH,
       data: await this.service.unmatch(id, clientData),
     };
   }
@@ -42,7 +42,7 @@ export class MatchesController {
   ) {
     const findResults = await this.service.findMany(queryParams, clientData);
     return {
-      type: 'matches',
+      type: RESPONSE_TYPES.MATCHES,
       data: findResults,
       pagination: this.service.getPagination(findResults),
     };

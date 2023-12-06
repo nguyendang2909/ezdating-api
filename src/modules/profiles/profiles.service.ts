@@ -7,7 +7,6 @@ import {
 import mongoose, { UpdateQuery } from 'mongoose';
 
 import { ERROR_MESSAGES } from '../../commons/messages';
-import { RESPONSE_TYPES } from '../../constants';
 import { FilesService } from '../../libs';
 import { ClientData } from '../auth/auth.type';
 import { UploadPhotoDtoDto } from '../media-files/dto/upload-photo.dto';
@@ -172,10 +171,7 @@ export class ProfilesService extends ProfilesCommonService {
   async findOneOrFailById(id: string, _client: ClientData) {
     const _id = this.getObjectId(id);
     const findResult = await this.profileModel.findOneOrFailById(_id);
-    return {
-      type: RESPONSE_TYPES.PROFILE,
-      data: findResult,
-    };
+    return findResult;
   }
 
   public async updateMe(payload: UpdateMyProfileDto, client: ClientData) {

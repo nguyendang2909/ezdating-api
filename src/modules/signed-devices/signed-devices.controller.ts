@@ -1,6 +1,7 @@
 import { Body, Controller, Patch } from '@nestjs/common';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { RESPONSE_TYPES } from '../../constants';
 import { ClientData } from '../auth/auth.type';
 import { UpdateSignedDeviceDto } from './dto';
 import { SignedDevicesService } from './signed-devices.service';
@@ -14,9 +15,9 @@ export class SignedDevicesController {
     @Body() payload: UpdateSignedDeviceDto,
     @Client() client: ClientData,
   ) {
+    await this.service.updateOne(payload, client);
     return {
-      type: 'updateDeviceToken',
-      data: await this.service.update(payload, client),
+      type: RESPONSE_TYPES.UPDATE_DEVICE_TOKEN,
     };
   }
 }

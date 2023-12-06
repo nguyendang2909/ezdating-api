@@ -9,7 +9,7 @@ import moment from 'moment';
 import { APP_CONFIG } from '../../app.config';
 import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
 import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
-import { PaginatedResponse, Pagination } from '../../types';
+import { Pagination } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { ChatsGateway } from '../chats/chats.gateway';
 import { ProfileFilterModel, ProfileModel, View } from '../models';
@@ -96,7 +96,7 @@ export class LikesService extends ApiCursorDateService {
   public async findManyLikedMe(
     queryParams: FindManyLikedMeDto,
     clientData: ClientData,
-  ): Promise<PaginatedResponse<View>> {
+  ) {
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
     const { _next } = queryParams;
@@ -122,12 +122,7 @@ export class LikesService extends ApiCursorDateService {
         limit: this.limitRecordsPerQuery,
       },
     );
-
-    return {
-      type: 'likedMe',
-      data: findResults,
-      pagination: this.getPagination(findResults),
-    };
+    return findResults;
   }
 
   async findOneLikeMeById(id: string, client: ClientData) {
