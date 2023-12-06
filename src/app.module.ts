@@ -23,7 +23,6 @@ import { RolesGuard } from './modules/guards/roles.guard';
 import { HealthModule } from './modules/health/health.module';
 import { LikesModule } from './modules/likes/likes.module';
 import { MatchesModule } from './modules/matches/matches.module';
-import { MeModule } from './modules/me/me.module';
 import { MediaFilesModule } from './modules/media-files/media-files.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { ModelsModule } from './modules/models/models.module';
@@ -161,7 +160,6 @@ import { ViewsModule } from './modules/views/views.module';
     // JoiPipeModule.forRoot(),
     ModelsModule,
     AuthModule,
-    MeModule,
     UsersModule,
     ChatsModule,
     MatchesModule,

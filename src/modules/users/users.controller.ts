@@ -23,4 +23,12 @@ export class UsersController {
       data: await this.usersService.findMe(client),
     };
   }
+
+  // @Post('/me/deactivate')
+  // async deactivate(@Client() clientData: ClientData) {
+  //   return {
+  //     type: 'deactivate',
+  //     data: await this.usersService.deactivate(clientData),
+  //   };
+  // }
 }

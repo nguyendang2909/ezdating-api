@@ -3,12 +3,13 @@ import _ from 'lodash';
 
 import { ApiService } from '../../commons/services/api.service';
 import { ClientData } from '../auth/auth.type';
-import { User } from '../models';
+import { ProfileModel, User } from '../models';
 import { UserModel } from '../models/user.model';
 @Injectable()
 export class UsersService extends ApiService {
   constructor(
     private readonly userModel: UserModel, // private readonly stateModel: StateModel, // private readonly countryModel: CountryModel,
+    private readonly profileModel: ProfileModel,
   ) {
     super();
   }
@@ -18,6 +19,26 @@ export class UsersService extends ApiService {
     const user = await this.userModel.findOneOrFailById(_currentUserId);
     return _.omit(user, ['password']);
   }
+
+  // public async deactivate(clientData: ClientData) {
+  //   const _currentUserId = this.getObjectId(clientData.id);
+  //   await this.userModel.updateOneById(_currentUserId, {
+  //     $set: {
+  //       status: USER_STATUSES.DEACTIVATED,
+  //     },
+  //   });
+  //   const profile = await this.profileModel.findOne({
+  //     _id: _currentUserId,
+  //   });
+  //   if (profile) {
+  //     if (profile.mediaFiles) {
+  //       for (const mediaFile of profile.mediaFiles) {
+  //       }
+  //     }
+  //   }
+
+  //   // Move profile
+  // }
 
   // async findMany(
   //   queryParams: FindManyUsersQuery,
