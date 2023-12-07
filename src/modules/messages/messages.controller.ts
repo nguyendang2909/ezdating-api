@@ -1,39 +1,38 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 
+import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { RESPONSE_TYPES } from '../../constants';
+import { ClientData } from '../auth/auth.type';
+import { ReadMessageDto } from './dto';
+import { FindManyMessagesQuery } from './dto/find-many-messages.dto';
 import { MessagesService } from './messages.service';
 
 @Controller('messages')
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
-  // @Post()
-  // create(@Body() createMessageDto: CreateMessageDto) {
-  //   return this.messagesService.create(createMessageDto);
-  // }
+  @Post('/read')
+  public async read(
+    @Body() payload: ReadMessageDto,
+    @Client() clientData: ClientData,
+  ) {
+    await this.messagesService.read(payload, clientData);
+  }
 
-  // @Get()
-  // public async findMany(
-  //   @Query() queryParams: FindManyMessagesDto,
-  //   @UserId() userId: string,
-  // ) {
-  //   return {
-  //     type: 'messages',
-  //     data: await this.messagesService.findMany(queryParams, userId),
-  //   };
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.messagesService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateMessageDto: UpdateMessageDto) {
-  //   return this.messagesService.update(+id, updateMessageDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.messagesService.remove(+id);
-  // }
+  @Get()
+  public async findMany(
+    @Query() queryParams: FindManyMessagesQuery,
+    @Client() clientData: ClientData,
+  ) {
+    const findResults = await this.messagesService.findMany(
+      queryParams,
+      clientData,
+    );
+    return {
+      type: RESPONSE_TYPES.DELETE_PHOTO,
+      _matchId: queryParams.matchId,
+      data: findResults,
+      pagination: this.messagesService.getPagination(findResults),
+    };
+  }
 }

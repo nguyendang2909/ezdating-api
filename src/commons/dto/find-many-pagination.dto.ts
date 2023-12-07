@@ -1,11 +1,11 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumberString, IsOptional } from 'class-validator';
+// import { ApiPropertyOptional } from '@nestjs/swagger';
+// import { IsNumberString, IsOptional } from 'class-validator';
 
-import { FindManyDto } from './find-many.dto';
+// import { FindManyQuery } from './find-many.dto';
 
-export class FindManyPaginationDto extends FindManyDto {
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsNumberString()
-  page?: string;
-}
+// export class FindManyPaginationQuery extends FindManyQuery {
+//   @ApiPropertyOptional({ type: String })
+//   @IsOptional()
+//   @IsNumberString()
+//   page?: string;
+// }

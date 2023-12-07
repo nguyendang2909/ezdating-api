@@ -1,10 +1,10 @@
-import Joi from 'joi';
-import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString, Length } from 'class-validator';
 
-import { DEFAULT_VALIDATION_OPTIONS } from '../../../commons/dto/default-validation-options';
-
-@JoiSchemaOptions(DEFAULT_VALIDATION_OPTIONS)
 export class FindOneCountryParamsDto {
-  @JoiSchema(Joi.string().length(2).required())
+  @ApiProperty({ type: String, minLength: 2, maxLength: 2 })
+  @IsNotEmpty()
+  @IsString()
+  @Length(2)
   id: string;
 }

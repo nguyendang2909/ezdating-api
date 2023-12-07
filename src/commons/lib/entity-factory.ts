@@ -1,48 +1,30 @@
-import _ from 'lodash';
+// import _ from 'lodash';
 
-export class EntityFactory {
-  public static getEntityName(Entity: Record<string, any>): string {
-    const EntityName = Entity.name;
+// import { GetCursors, PaginationCursors } from '../constants/paginations';
 
-    return EntityName[0].toLowerCase() + EntityName.slice(1);
-  }
+// export class EntityFactory {
+//   // public static getEntityName(Entity: Record<string, any>): string {
+//   //   const EntityName = Entity.name;
 
-  public static getPagination({
-    page,
-    pageSize,
-  }: {
-    page?: string;
-    pageSize?: string;
-  }): { take: number; skip: number } {
-    const pageAsNumber = +(page || 1);
+//   //   return EntityName[0].toLowerCase() + EntityName.slice(1);
+//   // }
 
-    const pageSizeAsNumber = +(pageSize || 50);
+//   // public static getPagination({
+//   //   page,
+//   //   pageSize,
+//   // }: {
+//   //   page?: string;
+//   //   pageSize?: string;
+//   // }): { take: number; skip: number } {
+//   //   const pageAsNumber = +(page || 1);
 
-    const take = pageSizeAsNumber > 100 ? 100 : pageSizeAsNumber;
+//   //   const pageSizeAsNumber = +(pageSize || 50);
 
-    const skip = take * (pageAsNumber - 1);
+//   //   const take = pageSizeAsNumber > 100 ? 100 : pageSizeAsNumber;
 
-    return { take, skip };
-  }
+//   //   const skip = take * (pageAsNumber - 1);
 
-  public static encodeCursor(str: string): string {
-    return Buffer.from(str, 'utf-8').toString('base64');
-  }
+//   //   return { take, skip };
+//   // }
 
-  public static decodeCursor(str: string): string {
-    return Buffer.from(str, 'base64').toString('utf-8');
-  }
-
-  public static getCursor<T extends Record<string, any>[]>(
-    arr: T,
-    field?: string,
-  ): string | null {
-    const lastElement = _.last(arr) || {};
-    const cursorAsString = field ? lastElement[field] : lastElement.createdAt;
-    if (cursorAsString) {
-      return this.encodeCursor(cursorAsString);
-    }
-
-    return null;
-  }
-}
+// }

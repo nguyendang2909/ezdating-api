@@ -23,12 +23,12 @@ export class CountriesController {
     };
   }
 
-  @IsPublicEndpoint()
-  @Get(':id/states')
-  public async findStatesByCountry(@Param() params: FindOneCountryParamsDto) {
-    return {
-      type: 'states',
-      data: await this.countriesService.findCountryAndStates(params.id),
-    };
-  }
+  //   @IsPublicEndpoint()
+  //   @Get(':id/states')
+  //   public async findStatesByCountry(@Param() params: FindOneCountryParamsDto) {
+  //     return {
+  //       type: 'states',
+  //       data: await this.countriesService.findCountryAndStates(params.id),
+  //     };
+  //   }
 }

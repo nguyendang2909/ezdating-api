@@ -1,91 +1,79 @@
-import {
-  Inject,
-  Injectable,
-  Scope,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import moment from 'moment';
 
-import { TokenFactory } from '../../commons/lib/token-factory.lib';
-import { EncryptionsUtil } from '../encryptions/encryptions.util';
-import { LoggedDeviceEntity } from '../logged-devices/logged-device-entity.service';
-import { UserEntity } from '../users/users-entity.service';
-import { AccessTokenPayload } from './auth.type';
+import { APP_CONFIG } from '../../app.config';
+import { ERROR_MESSAGES } from '../../commons/messages';
+import { ApiService } from '../../commons/services/api.service';
+import { AccessTokensService, RefreshTokensService } from '../../libs';
+import { SignedDeviceModel } from '../models/signed-device.model';
+import { UserModel } from '../models/user.model';
+import { LogoutDto } from './dto/logout.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 
-@Injectable({ scope: Scope.REQUEST })
-export class AuthService {
+@Injectable()
+export class AuthService extends ApiService {
   constructor(
-    private readonly loggedDeviceEntity: LoggedDeviceEntity,
-    private readonly encryptionsUtil: EncryptionsUtil,
-    @Inject(REQUEST) private request: Request & { user: { sub: string } },
-    private readonly userEntity: UserEntity,
-  ) {}
+    private readonly signedDeviceModel: SignedDeviceModel,
+    private readonly userModel: UserModel,
+    private readonly refreshTokensService: RefreshTokensService,
+    private readonly accessTokensService: AccessTokensService,
+  ) {
+    super();
+  }
+
+  public async logout(payload: LogoutDto) {
+    const { refreshToken } = payload;
+    const { id: currentUserId } =
+      this.refreshTokensService.verify(refreshToken);
+    const _currentUserId = this.getObjectId(currentUserId);
+    await this.signedDeviceModel.deleteOne({
+      _userId: _currentUserId,
+      refreshToken,
+    });
+  }
 
   public async refreshAccessToken(payload: RefreshTokenDto) {
-    const accessTokenPayload = this.verifyAccessTokenFromRequest();
-    const { refreshToken } = payload;
-    const refreshTokenPayload =
-      this.encryptionsUtil.verifyRefreshToken(refreshToken);
-    const userId = accessTokenPayload.id;
-    if (userId !== refreshTokenPayload.id) {
-      throw new UnauthorizedException();
-    }
-    const accessToken = this.encryptionsUtil.signAccessToken({
-      sub: accessTokenPayload.id,
-      id: accessTokenPayload.id,
-      role: accessTokenPayload.role,
+    const { id: currentUserId } = this.refreshTokensService.verify(
+      payload.refreshToken,
+    );
+    const _currentUserId = this.getObjectId(currentUserId);
+    const user = await this.userModel.findOneOrFail({
+      _id: _currentUserId,
     });
-
+    const accessToken = this.accessTokensService.signFromUser(user);
     return { accessToken };
   }
 
   public async refreshToken(payload: RefreshTokenDto) {
-    const acessTokenPayload = this.verifyAccessTokenFromRequest();
     const { refreshToken: currentRefreshToken } = payload;
-    const refreshTokenPayload =
-      this.encryptionsUtil.verifyRefreshToken(currentRefreshToken);
-    const userId = acessTokenPayload.id;
-    if (userId !== refreshTokenPayload.id) {
-      throw new UnauthorizedException();
-    }
-    await this.userEntity.findOneOrFailById(userId);
-    const loggedDevice = await this.loggedDeviceEntity.findOneOrFail({
-      where: {
-        user: { id: userId },
-      },
+    const { id: currentUserId } =
+      this.refreshTokensService.verify(currentRefreshToken);
+    const _currentUserId = this.getObjectId(currentUserId);
+    await this.userModel.findOneOrFail({ _id: _currentUserId });
+    const loggedDevice = await this.signedDeviceModel.findOneOrFail({
+      refreshToken: currentRefreshToken,
     });
-    const refreshToken = this.encryptionsUtil.signRefreshToken({
-      id: userId,
-      sub: userId,
+    const newRefreshToken = this.refreshTokensService.sign({
+      id: currentUserId,
+      sub: currentUserId,
     });
-    const isUpdated = await this.loggedDeviceEntity.updateOneById(
-      loggedDevice.id,
+    const updateResult = await this.signedDeviceModel.updateOneById(
+      loggedDevice._id,
       {
-        refreshToken,
-        expiresIn: moment().add(90, 'days'),
+        $set: {
+          refreshToken: newRefreshToken,
+          expiresIn: moment().add(
+            APP_CONFIG.REFRESH_TOKEN_EXPIRES_AS_DAYS,
+            'days',
+          ),
+        },
       },
-      userId,
     );
-    if (!isUpdated) {
-      throw new UnauthorizedException();
+    if (!updateResult.modifiedCount) {
+      throw new UnauthorizedException({
+        message: ERROR_MESSAGES['Update refresh token failed'],
+      });
     }
-
-    return { refreshToken };
-  }
-
-  public verifyAccessTokenFromRequest(): AccessTokenPayload {
-    const currentAccessToken = TokenFactory.getAccessTokenFromHttpRequest(
-      this.request,
-    );
-    if (!currentAccessToken) {
-      throw new UnauthorizedException();
-    }
-
-    return this.encryptionsUtil.verifyAccessToken(currentAccessToken, {
-      ignoreExpiration: true,
-    });
+    return { refreshToken: newRefreshToken };
   }
 }

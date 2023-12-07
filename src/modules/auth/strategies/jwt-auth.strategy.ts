@@ -1,13 +1,14 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
+import { Types } from 'mongoose';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-import { UserEntity } from '../../users/users-entity.service';
-import { AccessTokenPayload } from '../auth.type';
+import { ProfileModel } from '../../models';
+import { ClientData } from '../auth.type';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(private userEntity: UserEntity) {
+  constructor(private profileModel: ProfileModel) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -15,17 +16,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(accessTokenPayload: AccessTokenPayload) {
-    const user = await this.userEntity
-      .findOneOrFailById(accessTokenPayload.id)
-      .catch(() => {
-        throw new UnauthorizedException();
-      });
-
-    await this.userEntity.updateOneById(user.id, {
-      lastActivatedAt: new Date(),
+  validate(accessTokenPayload: ClientData) {
+    this.profileModel.updateOneById(new Types.ObjectId(accessTokenPayload.id), {
+      $set: {
+        lastActivatedAt: new Date(),
+      },
     });
 
-    return user;
+    return accessTokenPayload;
   }
 }

@@ -1,27 +1,25 @@
-import { UserRole } from '../users/users.constant';
+import { UserRole } from '../../types';
 
-export type AccessTokenPayload = {
-  sub: string;
-  id: string;
-  role: UserRole;
-  iat: number;
+export type ClientData = AccessTokenSignPayload & {
   exp: number;
+  iat: number;
 };
 
-export type AccessTokenSignPayload = {
-  sub: string;
+export type TokenSignPayload = {
   id: string;
+  sub: string;
+};
+
+export type AccessTokenSignPayload = TokenSignPayload & {
+  haveProfile: boolean;
   role: UserRole;
 };
 
-export type RefreshTokenSignPayload = {
-  sub: string;
-  id: string;
-};
+export type RefreshTokenSignPayload = TokenSignPayload;
 
 export type RefreshTokenPayload = {
-  sub: string;
   id: string;
+  sub: string;
 };
 
 export type FindOneAuthUserConditions = {

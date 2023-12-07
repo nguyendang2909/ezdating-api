@@ -21,7 +21,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   async prepareException(
     exc: any,
-  ): Promise<{ status: number; json: Record<any, any> }> {
+  ): Promise<{ json: Record<any, any>; status: number }> {
     const error =
       exc instanceof HttpException
         ? exc
@@ -34,12 +34,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
       process.env.NODE_ENV === 'test' ||
       process.env.NODE_ENV === 'development'
     ) {
-      // tslint:disable-next-line: no-console
-      console.log('HttpExceptionFilter');
-      // tslint:disable-next-line: no-console
-      console.log('exc', exc);
-      // tslint:disable-next-line: no-console
-      console.log('error', error);
+      // // tslint:disable-next-line: no-console
+      // console.log('HttpExceptionFilter');
+      // // tslint:disable-next-line: no-console
+      // console.log('exc', exc);
+      // // tslint:disable-next-line: no-console
+      // console.log('error', error);
     }
 
     return { status, json };

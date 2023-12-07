@@ -1,48 +1,42 @@
-import { CurrentUser } from './modules/users/users.type';
+import { ClientData } from './modules/auth/auth.type';
 
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
-      // Node env
-      NODE_ENV: 'test' | 'development' | 'production' | 'staging';
-      // App
-      API_PORT: number;
-
-      //  Database
-      POSTGRES_DB_HOST: string;
-      POSTGRES_DB_PORT: string;
-      POSTGRES_DB_NAME: string;
-      POSTGRES_USER: string;
-      POSTGRES_PASS: string;
-
-      // // Google
-      // GOOGLE_CLIENT_ID: string;
-      // GOOGLE_CLIENT_SECRET: string;
-
-      // Firebase
-      FIREBASE_PROJECT_ID: string;
+      API_PORT: string;
+      AWS_ACCESS_KEY_ID: string;
+      AWS_BUCKET_NAME: string;
+      AWS_SECRET_ACCESS_KEY: string;
+      COUNTRY_STATE_CITY_API_KEY: string;
       FIREBASE_CLIENT_EMAIL: string;
       FIREBASE_PRIVATE_KEY: string;
-
-      // AWS
-      AWS_ACCESS_KEY_ID: string;
-      AWS_SECRET_ACCESS_KEY: string;
-      AWS_BUCKET_NAME: string;
-
-      // Auth
-      JWT_SECRET_KEY: string;
-      JWT_REFRESH_TOKEN_SECRET_KEY: string;
+      FIREBASE_PROJECT_ID: string;
+      GITHUB_WEBHOOK_SECRET_KEY: string;
+      GOOGLE_CLIENT_ID: string;
       HASH_SECRET_KEY: string;
-
-      // Country states city
-      COUNTRY_STATE_CITY_API_KEY: string;
+      JWT_REFRESH_TOKEN_SECRET_KEY: string;
+      JWT_SECRET_KEY: string;
+      MONGO_DB_AUTO_INDEX: string;
+      MONGO_DB_HOST: string;
+      MONGO_DB_NAME: string;
+      MONGO_DB_PASS: string;
+      MONGO_DB_PORT: string;
+      MONGO_DB_USER: string;
+      NODE_ENV: 'test' | 'development' | 'production' | 'staging';
+      POSTGRES_DB_HOST: string;
+      POSTGRES_DB_NAME: string;
+      POSTGRES_DB_PORT: string;
+      POSTGRES_PASS: string;
+      POSTGRES_USER: string;
+      REDIS_HOST: string;
+      REDIS_PORT: string;
     }
   }
 }
 
 declare module 'socket.io/dist/socket' {
   interface Handshake {
-    user: CurrentUser;
+    user: ClientData;
   }
 }
 

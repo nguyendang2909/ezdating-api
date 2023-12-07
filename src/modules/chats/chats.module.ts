@@ -1,20 +1,12 @@
 import { Module } from '@nestjs/common';
 
-import { EncryptionsModule } from '../encryptions/encryptions.module';
-import { MessagesModule } from '../messages/messages.module';
-import { RelationshipsModule } from '../relationships/relationships.module';
-import { UsersModule } from '../users/users.module';
 import { ChatsGateway } from './chats.gateway';
+import { ChatsHandler } from './chats.handler';
 import { ChatsService } from './chats.service';
-import { ChatsConnectionService } from './chats-connection.service ';
+import { ChatsConnectionService } from './chats-connection.service';
 
 @Module({
-  imports: [
-    EncryptionsModule,
-    UsersModule,
-    RelationshipsModule,
-    MessagesModule,
-  ],
-  providers: [ChatsGateway, ChatsService, ChatsConnectionService],
+  exports: [ChatsGateway],
+  providers: [ChatsGateway, ChatsService, ChatsConnectionService, ChatsHandler],
 })
 export class ChatsModule {}

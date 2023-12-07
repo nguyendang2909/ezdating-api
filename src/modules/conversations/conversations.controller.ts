@@ -1,13 +1,10 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 
-import {
-  CurrentUser,
-  UserId,
-} from '../../commons/decorators/current-user-id.decorator';
-import { FindManyMessagesByConversationIdDto } from '../messages/dto/find-many-messages.dto';
-import { User } from '../users/entities/user.entity';
+import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { RESPONSE_TYPES } from '../../constants';
+import { ClientData } from '../auth/auth.type';
 import { ConversationsService } from './conversations.service';
-import { FindManyConversations } from './dto/find-many-conversations.dto';
+import { FindManyConversationsQuery } from './dto/find-many-conversations.dto';
 
 @Controller('/conversations')
 export class ConversationsController {
@@ -15,25 +12,28 @@ export class ConversationsController {
 
   @Get('/')
   public async findMany(
-    @Query() queryParams: FindManyConversations,
-    @UserId() userId: string,
+    @Query() queryParams: FindManyConversationsQuery,
+    @Client() clientData: ClientData,
   ) {
-    return await this.conversationsService.findMany(queryParams, userId);
-  }
-
-  @Get('/:id/messages')
-  public async findManyMessages(
-    @Param('id') id: string,
-    @Query() queryParams: FindManyMessagesByConversationIdDto,
-    @CurrentUser() currentUser: User,
-  ) {
+    const findResults = await this.conversationsService.findMany(
+      queryParams,
+      clientData,
+    );
     return {
-      type: 'messageByConversation',
-      ...(await this.conversationsService.findManyMessagesByConversationId(
-        id,
-        queryParams,
-        currentUser,
-      )),
+      type: RESPONSE_TYPES.CONVERSATIONS,
+      data: findResults,
+      pagination: this.conversationsService.getPagination(findResults),
     };
   }
+
+  // @Get('/:id')
+  // public async findOneById(
+  //   @Param('id') id: string,
+  //   @Client() clientData: ClientData,
+  // ) {
+  //   return {
+  //     type: 'conversation',
+  //     data: await this.conversationsService.findOneOrFailById(id, clientData),
+  //   };
+  // }
 }

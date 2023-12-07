@@ -1,199 +1,412 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import _ from 'lodash';
-import { And, LessThan, Not } from 'typeorm';
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
-import { FindManyDatingUsersDto } from './dto/find-many-dating-users.dto';
-import { FindOneUserByIdDto } from './dto/find-one-user-by-id.dto';
-import { FindOneUserDto } from './dto/is-exist-user.dto';
-import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
-import { UpdateMyProfileBasicInfoDto } from './dto/update-profile-basic-info.dto';
-import { User } from './entities/user.entity';
-import { UserStatuses } from './users.constant';
-import { UserEntity } from './users-entity.service';
-
+import { ApiService } from '../../commons/services/api.service';
+import { ClientData } from '../auth/auth.type';
+import { ProfileModel, User } from '../models';
+import { UserModel } from '../models/user.model';
 @Injectable()
-export class UsersService {
-  constructor(private readonly userEntity: UserEntity) {}
-
-  public async findManyDating(
-    queryParams: FindManyDatingUsersDto,
-    currentUserId: string,
+export class UsersService extends ApiService {
+  constructor(
+    private readonly userModel: UserModel, // private readonly stateModel: StateModel, // private readonly countryModel: CountryModel,
+    private readonly profileModel: ProfileModel,
   ) {
-    const { cursor } = queryParams;
-    const whereId = cursor
-      ? And(Not(currentUserId), LessThan(cursor))
-      : Not(currentUserId);
-    const findResult = await this.userEntity.findMany({
-      where: {
-        id: whereId,
-        haveBasicInfo: true,
-        status: UserStatuses.activated,
-      },
-      relations: ['state', 'state.country'],
-      select: {
-        id: true,
-        birthday: true,
-        gender: true,
-        introduce: true,
-        location: true,
-        nickname: true,
-        state: {
-          id: true,
-          country: {
-            id: true,
-          },
-        },
-      },
-      order: {},
-    });
-
-    return { data: findResult, pagination: { cursor: {} } };
+    super();
   }
 
-  public async findManyNearby(
-    queryParams: FindManyDatingUsersDto,
-    currentUserId: string,
-  ): Promise<{ data: User[] }> {
-    const { cursor } = queryParams;
-    const whereId = cursor
-      ? And(Not(currentUserId), LessThan(cursor))
-      : Not(currentUserId);
-    const findResult = await this.userEntity.findMany({
-      where: {
-        id: whereId,
-        haveBasicInfo: true,
-        status: UserStatuses.activated,
-      },
-      select: {
-        id: true,
-      },
-    });
-    // const data = this.repository.find({
-    //   where: {
-    //   id: Raw(alias => ${alias} < ${id} and ${alias} in (${ids})),
-    //   },
-    //   });
-    return { data: findResult };
+  async findMe(client: ClientData): Promise<User> {
+    const { _currentUserId } = this.getClient(client);
+    const user = await this.userModel.findOneOrFailById(_currentUserId);
+    return _.omit(user, ['password']);
   }
 
-  public async findOne(
-    findOneUserDto: FindOneUserDto,
-    currentUserId: string,
-  ): Promise<Partial<User> | null> {
-    let phoneNumber = findOneUserDto.phoneNumber;
-    if (!phoneNumber) {
-      return null;
-    }
-    if (!phoneNumber.startsWith('+')) {
-      phoneNumber = `+${phoneNumber.trim()}`;
-    }
-    const findResult = await this.userEntity.findOne({
-      where: {
-        ...(phoneNumber ? { phoneNumber } : {}),
-      },
-      select: {
-        id: true,
-      },
-    });
+  // public async deactivate(clientData: ClientData) {
+  //   const _currentUserId = this.getObjectId(clientData.id);
+  //   await this.userModel.updateOneById(_currentUserId, {
+  //     $set: {
+  //       status: USER_STATUSES.DEACTIVATED,
+  //     },
+  //   });
+  //   const profile = await this.profileModel.findOne({
+  //     _id: _currentUserId,
+  //   });
+  //   if (profile) {
+  //     if (profile.mediaFiles) {
+  //       for (const mediaFile of profile.mediaFiles) {
+  //       }
+  //     }
+  //   }
 
-    return findResult;
-  }
+  //   // Move profile
+  // }
 
-  public async findOneOrFail(
-    findOneUserDto: FindOneUserDto,
-    currentUserId: string,
-  ) {
-    const findResult = await this.findOne(findOneUserDto, currentUserId);
-    if (!findResult) {
-      throw new NotFoundException('User not found!');
-    }
+  // async findMany(
+  //   queryParams: FindManyUsersQuery,
+  // ): Promise<PaginatedResponse<Record<string, any>>> {
+  //   const users = this.userModel.
+  // }
 
-    return findResult;
-  }
+  // public async findManySwipe(
+  //   queryParams: FindManyDatingUsersQuery,
+  //   clientData: ClientData,
+  // ) {
+  //   const { minDistance, excludedUserId } = queryParams;
+  //   const excludedUserIds =
+  //     excludedUserId && isArray(excludedUserId) ? excludedUserId : [];
+  //   const { id: currentUserId } = clientData;
+  //   const _currentUserId = this.getObjectId(currentUserId);
 
-  public async findOneById(
-    id: string,
-    findOneUserByIdDto: FindOneUserByIdDto,
-    currentUserId: string,
-  ) {
-    const findResult = await this.userEntity.findOne({
-      where: {
-        id,
-      },
-    });
+  //   const user = await this.userModel.findOneOrFail({
+  //     _id: _currentUserId,
+  //   });
 
-    return findResult;
-  }
+  //   const {
+  //     geolocation,
+  //     filterMaxAge,
+  //     filterMinAge,
+  //     filterMaxDistance,
+  //     filterGender,
+  //     gender,
+  //   } = user;
 
-  public async findOneOrFailById(
-    id: string,
-    findOneUserByIdDto: FindOneUserByIdDto,
-    currentUserId: string,
-  ) {
-    const findResult = await this.findOneById(
-      id,
-      findOneUserByIdDto,
-      currentUserId,
-    );
-    if (!findResult) {
-      throw new BadRequestException('User not found!');
-    }
-    const { status } = findResult;
-    if (!status || status === UserStatuses.banned) {
-      throw new BadRequestException({
-        message: 'User has been banned',
-        errorCode: 'USER_BANNED',
-      });
-    }
+  //   if (!user.geolocation) {
+  //     throw new BadRequestException();
+  //   }
 
-    return findResult;
-  }
+  //   if (
+  //     !geolocation?.coordinates[1] ||
+  //     !filterMaxAge ||
+  //     !filterMinAge ||
+  //     !gender ||
+  //     !filterGender ||
+  //     !filterMaxDistance
+  //   ) {
+  //     throw new BadRequestException({
+  //       message:
+  //         HttpErrorMessages[
+  //           'You do not have a basic info. Please complete it!'
+  //         ],
+  //     });
+  //   }
 
-  public async getProfile(currentUserId: string) {
-    const user = await this.userEntity.findOneOrFail({
-      where: {
-        id: currentUserId,
-      },
-      relations: {
-        uploadFiles: true,
-      },
-    });
+  //   const filterMaxBirthday = moment().subtract(filterMinAge, 'years').toDate();
+  //   const filterMinBirthday = moment().subtract(filterMaxAge, 'years').toDate();
 
-    return _.omit<User>(user, ['password']);
-  }
+  //   const users = await this.userModel.aggregate([
+  //     {
+  //       $geoNear: {
+  //         near: {
+  //           type: 'Point',
+  //           coordinates: [
+  //             geolocation.coordinates[0],
+  //             geolocation.coordinates[1],
+  //           ],
+  //         },
+  //         distanceField: 'distance',
+  //         ...(minDistance
+  //           ? {
+  //               minDistance: +minDistance,
+  //             }
+  //           : {}),
+  //         maxDistance: filterMaxDistance,
+  //         // distanceMultiplier: 0.001,
+  //         query: {
+  //           _id: {
+  //             ...(excludedUserIds.length
+  //               ? {
+  //                   $nin: [
+  //                     _currentUserId,
+  //                     ...excludedUserIds.map((item) => this.getObjectId(item)),
+  //                   ],
+  //                 }
+  //               : {
+  //                   $ne: _currentUserId,
+  //                 }),
+  //           },
+  //           status: {
+  //             $in: [UserStatuses.activated, UserStatuses.verified],
+  //           },
+  //           // lastActivatedAt: {
+  //           //   $gt: moment().subtract(7, 'd').toDate(),
+  //           // },
+  //           birthday: {
+  //             $gt: filterMinBirthday,
+  //             $lt: filterMaxBirthday,
+  //           },
+  //           gender: filterGender,
+  //         },
+  //       },
+  //     },
+  //     {
+  //       $sort: {
+  //         lastActivatedAt: -1,
+  //       },
+  //     },
+  //     { $limit: 20 },
+  //     {
+  //       $lookup: {
+  //         from: 'mediafiles',
+  //         let: {
+  //           userId: '$_id',
+  //         },
+  //         pipeline: [
+  //           {
+  //             $match: {
+  //               $expr: {
+  //                 $eq: ['$_userId', '$$userId'],
+  //               },
+  //             },
+  //           },
+  //           {
+  //             $limit: 6,
+  //           },
+  //           {
+  //             $project: {
+  //               _id: true,
+  //               location: true,
+  //             },
+  //           },
+  //         ],
+  //         as: 'mediaFiles',
+  //       },
+  //     },
+  //     {
+  //       $set: {
+  //         age: {
+  //           $dateDiff: {
+  //             startDate: '$birthday',
+  //             endDate: '$$NOW',
+  //             unit: 'year',
+  //           },
+  //         },
+  //       },
+  //     },
+  //     {
+  //       $project: {
+  //         age: 1,
+  //         distance: 1,
+  //         educationLevel: 1,
+  //         gender: 1,
+  //         height: 1,
+  //         introduce: 1,
+  //         jobTitle: 1,
+  //         languages: 1,
+  //         lastActivatedAt: 1,
+  //         mediaFiles: 1,
+  //         nickname: 1,
+  //         relationshipGoal: 1,
+  //         relationshipStatus: 1,
+  //         role: 1,
+  //         school: 1,
+  //         status: 1,
+  //         weight: 1,
+  //       },
+  //     },
+  //   ]);
 
-  public async updateProfile(
-    payload: UpdateMyProfileDto,
-    currentUserId: string,
-  ) {
-    const { ...updateDto } = payload;
-    const updateOptions: QueryDeepPartialEntity<User> = {
-      ...updateDto,
-    };
-    return await this.userEntity.updateOneById(currentUserId, updateOptions);
-  }
+  //   return {
+  //     type: 'swipeUsers',
+  //     data: users,
+  //   };
+  // }
 
-  public async updateProfileBasicInfo(
-    payload: UpdateMyProfileBasicInfoDto,
-    currentUserId: string,
-  ) {
-    const { stateId, ...updateDto } = payload;
-    const updateOptions: QueryDeepPartialEntity<User> = {
-      ...updateDto,
-      state: { id: stateId },
-      haveBasicInfo: true,
-    };
-    return await this.userEntity.updateOneById(currentUserId, updateOptions);
-  }
+  // public async findManyNearby(
+  //   queryParams: FindManyNearbyUsersQuery,
+  //   clientData: ClientData,
+  // ): Promise<PaginatedResponse<User>> {
+  //   const { excludedUserId, _next } = queryParams;
+  //   const excludedUserIds =
+  //     excludedUserId && isArray(excludedUserId) ? excludedUserId : [];
+  //   const cursor = _next ? JSON.parse(_next) : undefined;
+  //   const { id: currentUserId } = clientData;
+  //   const _currentUserId = this.userModel.getObjectId(currentUserId);
+  //   const {
+  //     geolocation,
+  //     filterMaxAge,
+  //     filterMinAge,
+  //     filterMaxDistance,
+  //     filterGender,
+  //     gender,
+  //   } = await this.userModel.findOneOrFail({
+  //     _id: _currentUserId,
+  //   });
 
-  public async deactivate(userId: string) {
-    return await this.userEntity.updateOneById(userId, {
-      status: UserStatuses.activated,
-    });
-  }
+  //   if (
+  //     !geolocation?.coordinates[1] ||
+  //     !filterMaxAge ||
+  //     !filterMinAge ||
+  //     !gender ||
+  //     !filterGender ||
+  //     !filterMaxDistance
+  //   ) {
+  //     throw new BadRequestException({
+  //       message:
+  //         HttpErrorMessages[
+  //           'You do not have a basic info. Please complete it!'
+  //         ],
+  //     });
+  //   }
+
+  //   if (cursor && cursor >= filterMaxDistance) {
+  //     return {
+  //       data: [],
+  //       type: 'nearbyUsers',
+  //       pagination: {
+  //         _next: null,
+  //       },
+  //     };
+  //   }
+
+  //   const filterMaxBirthday = moment().subtract(filterMinAge, 'years').toDate();
+  //   const filterMinBirthday = moment().subtract(filterMaxAge, 'years').toDate();
+
+  //   const users: User[] = await this.userModel.model
+  //     .aggregate([
+  //       {
+  //         $geoNear: {
+  //           near: {
+  //             type: 'Point',
+  //             coordinates: [
+  //               geolocation.coordinates[0],
+  //               geolocation.coordinates[1],
+  //             ],
+  //           },
+  //           distanceField: 'distance',
+  //           ...(cursor
+  //             ? {
+  //                 minDistance: cursor,
+  //               }
+  //             : {}),
+  //           maxDistance: filterMaxDistance,
+  //           // distanceMultiplier: 0.001,
+  //           query: {
+  //             _id: excludedUserIds.length
+  //               ? {
+  //                   $nin: [
+  //                     ...excludedUserIds.map((item) =>
+  //                       this.userModel.getObjectId(item),
+  //                     ),
+  //                     _currentUserId,
+  //                   ],
+  //                 }
+  //               : {
+  //                   $ne: _currentUserId,
+  //                 },
+  //             status: {
+  //               $in: [UserStatuses.activated, UserStatuses.verified],
+  //             },
+  //             // lastActivatedAt: {
+  //             //   $gt: moment().subtract(7, 'd').toDate(),
+  //             // },
+  //             birthday: {
+  //               $gt: filterMinBirthday,
+  //               $lt: filterMaxBirthday,
+  //             },
+  //             gender: filterGender,
+  //           },
+  //         },
+  //       },
+  //       {
+  //         $sort: {
+  //           distance: 1,
+  //         },
+  //       },
+  //       { $limit: 20 },
+  //       {
+  //         $lookup: {
+  //           from: 'mediafiles',
+  //           let: {
+  //             userId: '$_id',
+  //           },
+  //           pipeline: [
+  //             {
+  //               $match: {
+  //                 $expr: {
+  //                   $eq: ['$_userId', '$$userId'],
+  //                 },
+  //               },
+  //             },
+  //             {
+  //               $limit: 6,
+  //             },
+  //             {
+  //               $project: {
+  //                 _id: true,
+  //                 location: true,
+  //               },
+  //             },
+  //           ],
+  //           as: 'mediaFiles',
+  //         },
+  //       },
+  //       {
+  //         $set: {
+  //           age: {
+  //             $dateDiff: {
+  //               startDate: '$birthday',
+  //               endDate: '$$NOW',
+  //               unit: 'year',
+  //             },
+  //           },
+  //         },
+  //       },
+  //       {
+  //         $project: {
+  //           age: 1,
+  //           birthday: 1,
+  //           createdAt: 1,
+  //           distance: 1,
+  //           filterGender: 1,
+  //           filterMaxAge: 1,
+  //           filterMaxDistance: 1,
+  //           filterMinAge: 1,
+  //           gender: 1,
+  //           lastActivatedAt: 1,
+  //           mediaFiles: 1,
+  //           nickname: 1,
+  //           relationshipGoal: 1,
+  //           status: 1,
+  //         },
+  //       },
+  //     ])
+  //     .exec();
+
+  //   return {
+  //     type: 'nearbyUsers',
+  //     data: users,
+  //     pagination: {
+  //       _next: _.last(users)?.distance || null,
+  //     },
+  //   };
+  // }
+
+  // public async findOneById(targetUserId: string) {
+  //   const _targetUserId = this.getObjectId(targetUserId);
+  //   const findResult = await this.userModel.aggregate([
+  //     {
+  //       $match: {
+  //         _id: _targetUserId,
+  //       },
+  //     },
+  //     {
+  //       $limit: 1,
+  //     },
+  //     {
+  //       $set: {
+  //         age: {
+  //           $dateDiff: {
+  //             startDate: '$birthday',
+  //             endDate: '$$NOW',
+  //             unit: 'year',
+  //           },
+  //         },
+  //       },
+  //     },
+  //     {
+  //       $project: this.userModel.matchUserFields,
+  //     },
+  //   ]);
+
+  //   return findResult;
+  // }
 }

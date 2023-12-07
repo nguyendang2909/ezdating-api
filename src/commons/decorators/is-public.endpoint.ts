@@ -1,6 +1,6 @@
 import { SetMetadata } from '@nestjs/common';
 
-import { AppConfig } from '../../app.config';
+import { APP_CONFIG } from '../../app.config';
 
 export const IsPublicEndpoint = () =>
-  SetMetadata(AppConfig.PUBLIC_ENDPOINT_METADATA, true);
+  SetMetadata(APP_CONFIG.PUBLIC_ENDPOINT_METADATA, true);

@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { IsPublicEndpoint } from '../../commons/decorators/is-public.endpoint';
 import { AuthService } from './auth.service';
+import { LogoutDto } from './dto/logout.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('/auth')
@@ -10,6 +11,16 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 @ApiBearerAuth('JWT')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('/logout')
+  @IsPublicEndpoint()
+  public async logout(@Body() payload: LogoutDto) {
+    const success = await this.authService.logout(payload);
+    return {
+      type: 'logout',
+      success,
+    };
+  }
 
   @Post('/tokens/access-token')
   @IsPublicEndpoint()

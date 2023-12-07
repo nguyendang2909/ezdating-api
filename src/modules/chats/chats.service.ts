@@ -1,68 +1,125 @@
 import { Injectable, Logger } from '@nestjs/common';
-import moment from 'moment';
+import { Types } from 'mongoose';
 import { Socket } from 'socket.io';
 
-import { HttpErrorCodes } from '../../commons/erros/http-error-codes.constant';
-import { MessageEntity } from '../messages/message-entity.service';
-import { RelationshipEntity } from '../relationships/relationship-entity.service';
+import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
+import { DbService } from '../../commons/services/db.service';
+import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
+import { MatchModel } from '../models/match.model';
+import { MessageModel } from '../models/message.model';
+import { SignedDeviceModel } from '../models/signed-device.model';
+import { PushNotificationsService } from '../push-notifications/push-notifications.service';
+import { ChatsHandler } from './chats.handler';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
+import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 
 @Injectable()
-export class ChatsService {
+export class ChatsService extends DbService {
   constructor(
-    private readonly relationshipEntity: RelationshipEntity,
-    private readonly messageEntity: MessageEntity,
-  ) {}
+    private readonly matchModel: MatchModel,
+    private readonly messageModel: MessageModel,
+    private readonly signedDeviceModel: SignedDeviceModel,
+    private readonly pushNotificationsService: PushNotificationsService,
+    private chatsHandler: ChatsHandler,
+  ) {
+    super();
+  }
 
-  private readonly logger = new Logger(ChatsService.name);
+  logger = new Logger(ChatsService.name);
 
   public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
-    const { targetUserId, text, uuid } = payload;
+    const { matchId } = payload;
+    const { currentUserId, _currentUserId } = this.getClient(
+      socket.handshake.user,
+    );
+    const _matchId = this.getObjectId(matchId);
+    const match = await this.matchModel.findOne({
+      _id: _matchId,
+      ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
+    });
+    if (!match) {
+      this.logger.log(`SEND_MESSAGE matchId ${matchId} does not exist`);
+      socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
+        message: ERROR_MESSAGES['Match does not exist'],
+      });
+      return;
+    }
+    const message = await this.createMessage({
+      payload,
+      _currentUserId,
+      _matchId,
+    });
+    this.chatsHandler.handleAfterSendMessage({
+      match,
+      message,
+      socket,
+      currentUserId,
+    });
+  }
+
+  public async editMessage(payload: UpdateChatMessageDto, socket: Socket) {
+    const { id, text } = payload;
     const currentUserId = socket.handshake.user.id;
-    if (targetUserId === currentUserId) {
-      socket.emit('error', {
-        errorCode: HttpErrorCodes.CONFLICT_USER,
-        message: 'You cannot message yourself!',
-      });
-    }
-    const userIds = this.relationshipEntity.sortUserIds(
-      currentUserId,
-      targetUserId,
-    );
-    const relationshipId =
-      this.relationshipEntity.getIdFromSortedUserIds(userIds);
-    const existRelationship = this.relationshipEntity.findOneConversationById(
-      relationshipId,
-      currentUserId,
-    );
-    if (!existRelationship) {
-      socket.emit('error', {
-        errorCode: HttpErrorCodes.RELATIONSHIP_DOES_NOT_EXIST,
-        message: 'Relationship does not exist!',
-      });
-    }
-    const messageCreatedAt = moment().toDate();
-    const [message] = await Promise.all([
-      this.messageEntity.saveOne(
-        {
-          user: { id: currentUserId },
-          relationship: { id: relationshipId },
+    const _currentUserId = this.getObjectId(currentUserId);
+    const _id = this.getObjectId(id);
+    const editResult = await this.messageModel.findOneAndUpdate(
+      {
+        _id,
+        _userId: _currentUserId,
+      },
+      {
+        $set: {
           text,
-          uuid,
-          createdAt: messageCreatedAt,
+          isEdited: true,
         },
-        currentUserId,
-      ),
-      this.relationshipEntity.updateOneById(
-        relationshipId,
-        {
-          lastMessageAt: messageCreatedAt,
-          lastMessage: text,
-        },
-        currentUserId,
-      ),
-    ]);
-    socket.emit('updateMsg', message);
-    socket.to([currentUserId, targetUserId]).emit('msg', message);
+      },
+      {
+        new: true,
+      },
+    );
+    if (!editResult) {
+      socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
+        message: ERROR_MESSAGES['Update failed. Please try again.'],
+      });
+
+      return;
+    }
+    socket.emit(SOCKET_TO_CLIENT_EVENTS.UPDATE_SENT_MESSAGE, editResult);
+    if (!editResult._matchId) {
+      return;
+    }
+    const match = await this.matchModel.model
+      .findOne({ _id: editResult._matchId })
+      .lean()
+      .exec();
+    if (!match) {
+      return;
+    }
+    if (match && match.profileOne._id && match.profileTwo._id) {
+      socket
+        .to([match.profileOne._id.toString(), match.profileOne._id.toString()])
+        .emit(SOCKET_TO_CLIENT_EVENTS.EDIT_SENT_MESSAGE, editResult);
+    }
+  }
+
+  async createMessage({
+    payload,
+    _currentUserId,
+    _matchId,
+  }: {
+    _currentUserId: Types.ObjectId;
+    _matchId: Types.ObjectId;
+    payload: SendChatMessageDto;
+  }) {
+    const createPayload = {
+      _userId: _currentUserId,
+      _matchId,
+      text: payload.text,
+      uuid: payload.uuid,
+    };
+    this.logger.log(
+      `SEND_MESSAGE Create message payload: ${JSON.stringify(createPayload)}`,
+    );
+    return await this.messageModel.createOne(createPayload);
   }
 }

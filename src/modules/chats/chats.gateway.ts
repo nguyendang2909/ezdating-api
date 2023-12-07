@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -8,16 +8,14 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
+import { SOCKET_TO_SERVER_EVENTS } from '../../constants';
 import { ChatsService } from './chats.service';
-import { ChatsConnectionService } from './chats-connection.service ';
-import {
-  SendChatMessageDto,
-  SendChatMessageSchema,
-} from './dto/send-chat-message.dto';
+import { ChatsConnectionService } from './chats-connection.service';
+import { SendChatMessageDto } from './dto/send-chat-message.dto';
+import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { WsAuthGuard } from './guards/ws-auth.guard';
 
 @WebSocketGateway({
@@ -33,23 +31,38 @@ export class ChatsGateway
     private readonly chatsConnectionService: ChatsConnectionService,
   ) {}
 
-  @WebSocketServer() private readonly server!: Server;
+  @WebSocketServer() public readonly server: Server;
 
   private readonly logger = new Logger(ChatsGateway.name);
 
-  @SubscribeMessage('sendMsg')
+  @SubscribeMessage(SOCKET_TO_SERVER_EVENTS.SEND_MESSAGE)
   @UseGuards(WsAuthGuard)
-  // @UsePipes(new WsValidationPipe(SendChatMessageSchema))
-  public async create(
+  @UsePipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  )
+  public async sendMsg(
     @ConnectedSocket() socket: Socket,
     @MessageBody() payload: SendChatMessageDto,
   ) {
-    const { error } = SendChatMessageSchema.validate(payload);
-    if (error) {
-      this.logger.error(`Socket validation failed ${error}`);
-      throw new WsException('Validation failed');
-    }
     return await this.chatsService.sendMessage(payload, socket);
+  }
+
+  @SubscribeMessage(SOCKET_TO_SERVER_EVENTS.EDIT_MESSAGE)
+  @UseGuards(WsAuthGuard)
+  @UsePipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  )
+  public async editMessage(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() payload: UpdateChatMessageDto,
+  ) {
+    return await this.chatsService.editMessage(payload, socket);
   }
 
   public async handleConnection(socket: Socket) {
@@ -57,6 +70,7 @@ export class ChatsGateway
   }
 
   public async handleDisconnect(socket: Socket) {
+    socket.disconnect();
     this.logger.log(`Socket disconnected: ${socket.id}`);
   }
 

@@ -4,50 +4,24 @@ import { WsException } from '@nestjs/websockets';
 import _ from 'lodash';
 import { Socket } from 'socket.io';
 
-import { EncryptionsUtil } from '../../encryptions/encryptions.util';
-import { UserStatuses } from '../../users/users.constant';
-import { UserEntity } from '../../users/users-entity.service';
+import { AccessTokensService } from '../../../libs';
 
 @Injectable()
 export class WsAuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    private readonly encryptionsUtil: EncryptionsUtil,
-    private readonly userEntity: UserEntity,
+    private readonly accessTokensService: AccessTokensService,
   ) {}
 
   async canActivate(context: ExecutionContext) {
     const client = context.switchToWs().getClient<Socket>();
-    const authHeaders =
-      client.handshake.headers.authorization ||
-      client.handshake.headers.Authorization;
-
-    if (!authHeaders || !_.isString(authHeaders)) {
+    const token = client.handshake.query.token;
+    if (!token || !_.isString(token)) {
       throw new WsException({ status: 401, message: 'Unauthorized' });
     }
-    const token = authHeaders.split(' ')[1];
-    if (!token) {
-      throw new WsException({ status: 401, message: 'Unauthorized' });
-    }
-    const decoded = this.encryptionsUtil.verifyRefreshToken(token);
+    const decoded = this.accessTokensService.verify(token);
 
-    const user = await this.userEntity.findOneById(decoded.id);
-    if (!user) {
-      throw new WsException({
-        status: 404,
-        errorCode: 'USER_DOES_NOT_EXIST',
-        message: 'User does not exist!',
-      });
-    }
-    if (user.status === UserStatuses.banned) {
-      throw new WsException({
-        status: 403,
-        errorCode: 'YOU_HAS_BEEN_BANNED',
-        message: 'You have been banned!',
-      });
-    }
-
-    client.handshake.user = user;
+    client.handshake.user = decoded;
 
     // Add your custom authentication logic here
     // for example, call super.logIn(request) to establish a session.

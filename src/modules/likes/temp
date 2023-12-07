@@ -1,0 +1,80 @@
+ const findResults: LikeDocument[] = await this.likeModel.model
+      .aggregate([
+        {
+          $match: {
+            'targetProfile._id': _currentUserId,
+            isMatched: false,
+            ...(cursor
+              ? {
+                  createdAt: {
+                    $lt: cursor,
+                  },
+                }
+              : {}),
+          },
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+        { $limit: this.limitRecordsPerQuery },
+        {
+          $lookup: {
+            from: 'users',
+            let: {
+              userId: '$_userId',
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$_id', '$$userId'],
+                  },
+                },
+              },
+              {
+                $limit: 1,
+              },
+              {
+                $set: {
+                  age: {
+                    $dateDiff: {
+                      startDate: '$birthday',
+                      endDate: '$$NOW',
+                      unit: 'year',
+                    },
+                  },
+                },
+              },
+              {
+                $project: {
+                  _id: true,
+                  age: 1,
+                  filterGender: true,
+                  filterMaxAge: true,
+                  filterMaxDistance: true,
+                  filterMinAge: true,
+                  gender: true,
+                  introduce: true,
+                  lastActivatedAt: true,
+                  mediaFiles: true,
+                  nickname: true,
+                  relationshipGoal: true,
+                  status: true,
+                },
+              },
+            ],
+            as: 'users',
+          },
+        },
+        {
+          $project: {
+            createdAt: true,
+            user: {
+              $first: '$users',
+            },
+          },
+        },
+      ])
+      .exec();
