@@ -142,7 +142,7 @@ import { ViewsModule } from './modules/views/views.module';
         : { ttl: 10, limit: 1000 },
     ),
     MongooseModule.forRoot(
-      `${process.env.MONGO_DB_HOST}:${process.env.MONGO_DB_PORT}/?authSource=admin&readPreference=primary&directConnection=true`,
+      `${process.env.MONGO_DB_HOST}:${process.env.MONGO_DB_PORT}/${process.env.MONGO_DB_NAME}?directConnection=true`,
       {
         dbName: process.env.MONGO_DB_NAME,
         user: process.env.MONGO_DB_USER,
