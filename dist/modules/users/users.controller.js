@@ -16,6 +16,7 @@ exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const current_user_id_decorator_1 = require("../../commons/decorators/current-user-id.decorator");
+const is_public_endpoint_1 = require("../../commons/decorators/is-public.endpoint");
 const users_service_1 = require("./users.service");
 let UsersController = class UsersController {
     constructor(usersService) {
@@ -42,6 +43,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "findOneById", null);
 __decorate([
+    (0, is_public_endpoint_1.IsPublicEndpoint)(),
     (0, common_1.Get)('/deactivation'),
     __param(0, (0, current_user_id_decorator_1.Client)()),
     __metadata("design:type", Function),
