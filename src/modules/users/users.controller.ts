@@ -24,6 +24,14 @@ export class UsersController {
     };
   }
 
+  @Get('/deactivation')
+  async deactivateInfo(@Client() client: ClientData) {
+    return {
+      type: 'user',
+      data: 'Go to app to deactivate your account',
+    };
+  }
+
   // @Post('/me/deactivate')
   // async deactivate(@Client() clientData: ClientData) {
   //   return {
