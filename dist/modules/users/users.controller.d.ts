@@ -7,7 +7,7 @@ export declare class UsersController {
         type: string;
         data: import("../models").User;
     }>;
-    deactivateInfo(client: ClientData): Promise<{
+    deactivateInfo(): Promise<{
         type: string;
         data: string;
     }>;

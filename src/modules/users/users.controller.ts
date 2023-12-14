@@ -25,9 +25,9 @@ export class UsersController {
     };
   }
 
-  @IsPublicEndpoint()
   @Get('/deactivation')
-  async deactivateInfo(@Client() client: ClientData) {
+  @IsPublicEndpoint()
+  async deactivateInfo() {
     return {
       type: 'user',
       data: 'Go to app to deactivate your account',
