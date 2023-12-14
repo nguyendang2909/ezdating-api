@@ -24,7 +24,7 @@ export class UsersController {
     };
   }
 
-  @Get('/deactivate')
+  @Get('/deactivation')
   async deactivateInfo(@Client() client: ClientData) {
     return {
       type: 'user',
