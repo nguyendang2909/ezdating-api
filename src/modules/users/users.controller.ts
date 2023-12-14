@@ -2,6 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { IsPublicEndpoint } from '../../commons/decorators/is-public.endpoint';
 import { ClientData } from '../auth/auth.type';
 import { UsersService } from './users.service';
 
@@ -24,6 +25,7 @@ export class UsersController {
     };
   }
 
+  @IsPublicEndpoint()
   @Get('/deactivation')
   async deactivateInfo(@Client() client: ClientData) {
     return {
