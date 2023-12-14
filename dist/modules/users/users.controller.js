@@ -28,7 +28,7 @@ let UsersController = class UsersController {
             data: await this.usersService.findMe(client),
         };
     }
-    async deactivateInfo(client) {
+    async deactivateInfo() {
         return {
             type: 'user',
             data: 'Go to app to deactivate your account',
@@ -43,11 +43,10 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "findOneById", null);
 __decorate([
-    (0, is_public_endpoint_1.IsPublicEndpoint)(),
     (0, common_1.Get)('/deactivation'),
-    __param(0, (0, current_user_id_decorator_1.Client)()),
+    (0, is_public_endpoint_1.IsPublicEndpoint)(),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "deactivateInfo", null);
 UsersController = __decorate([
