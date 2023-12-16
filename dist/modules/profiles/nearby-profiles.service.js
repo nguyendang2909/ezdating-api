@@ -54,7 +54,7 @@ let NearbyProfilesService = class NearbyProfilesService extends profiles_common_
                     maxDistance: maxDistance,
                     query: {
                         lastActivatedAt: {
-                            $gt: (0, moment_1.default)().subtract(10, 'h').toDate(),
+                            $exists: true,
                         },
                         birthday: {
                             $gte: (0, moment_1.default)().subtract(profileFilter.maxAge, 'years').toDate(),
@@ -65,9 +65,7 @@ let NearbyProfilesService = class NearbyProfilesService extends profiles_common_
                 },
             },
             { $limit: this.limitRecordsPerQuery },
-            {
-                $project: this.profileModel.publicFields,
-            },
+            { $project: this.profileModel.publicFields },
         ]);
         return findResults;
     }

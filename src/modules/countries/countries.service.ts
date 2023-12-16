@@ -27,7 +27,7 @@ export class CountriesService {
   async onApplicationBootstrap() {
     // this.runRemove();
     // this.runMigration();
-    // this.setupLocations();
+    // this.setupCountries();
     // this.setupStates();
   }
 
