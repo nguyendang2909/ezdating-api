@@ -54,4 +54,9 @@ export class CreateBasicProfileDto {
   @IsOptional()
   @IsNumber()
   longitude?: number;
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  learningTarget?: string;
 }

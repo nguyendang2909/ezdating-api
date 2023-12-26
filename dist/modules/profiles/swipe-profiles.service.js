@@ -39,7 +39,7 @@ let SwipeProfilesService = class SwipeProfilesService extends profiles_common_se
         });
         const users = await this.profileModel.findMany({
             lastActivatedAt: {
-                $gt: (0, moment_1.default)().subtract(10, 'h').toDate(),
+                $exists: true,
             },
             birthday: {
                 $gte: (0, moment_1.default)().subtract(profileFilter.maxAge, 'years').toDate(),
@@ -48,7 +48,7 @@ let SwipeProfilesService = class SwipeProfilesService extends profiles_common_se
             _id: { $nin: excludedUserIds },
             gender: profileFilter.gender,
             'state._id': _stateId,
-        }, {}, { limit: this.limitRecordsPerQuery });
+        }, this.profileModel.publicFields, { limit: this.limitRecordsPerQuery });
         return users;
     }
     async getExcludedUserIds(profile, excludedUserId) {

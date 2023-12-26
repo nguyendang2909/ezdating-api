@@ -8,4 +8,5 @@ export declare class CreateBasicProfileDto {
     stateId: string;
     latitude?: number;
     longitude?: number;
+    learningTarget?: string;
 }

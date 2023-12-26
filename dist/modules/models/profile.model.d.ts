@@ -46,6 +46,7 @@ export declare class ProfileModel extends CommonModel<Profile> {
         jobTitle: number;
         languages: number;
         lastActivatedAt: number;
+        learningTarget: number;
         mediaFiles: {
             _id: number;
             key: number;
