@@ -45,6 +45,7 @@ let ProfileModel = class ProfileModel extends common_model_1.CommonModel {
             jobTitle: 1,
             languages: 1,
             lastActivatedAt: 1,
+            learningTarget: 1,
             mediaFiles: {
                 _id: 1,
                 key: 1,

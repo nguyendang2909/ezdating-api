@@ -94,6 +94,9 @@ export class Profile extends CommonSchema {
   @Prop({ type: Date, default: new Date() })
   lastActivatedAt: Date;
 
+  @Prop({ type: String })
+  learningTarget?: string;
+
   @Prop({ type: [EmbeddedMediaFileSchema], minlength: 1 })
   mediaFiles: EmbeddedMediaFile[];
 

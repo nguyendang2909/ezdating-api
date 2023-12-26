@@ -45,6 +45,7 @@ export declare class Profile extends CommonSchema {
     hideDistance: boolean;
     languages?: string[];
     lastActivatedAt: Date;
+    learningTarget?: string;
     mediaFiles: EmbeddedMediaFile[];
     membership: Membership;
     nickname: string;

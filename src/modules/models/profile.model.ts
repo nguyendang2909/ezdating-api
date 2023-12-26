@@ -40,6 +40,7 @@ export class ProfileModel extends CommonModel<Profile> {
     jobTitle: 1,
     languages: 1,
     lastActivatedAt: 1,
+    learningTarget: 1,
     mediaFiles: {
       _id: 1,
       key: 1,

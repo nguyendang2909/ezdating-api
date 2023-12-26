@@ -76,6 +76,10 @@ __decorate([
     __metadata("design:type", Date)
 ], Profile.prototype, "lastActivatedAt", void 0);
 __decorate([
+    (0, mongoose_1.Prop)({ type: String }),
+    __metadata("design:type", String)
+], Profile.prototype, "learningTarget", void 0);
+__decorate([
     (0, mongoose_1.Prop)({ type: [embedded_media_file_schema_1.EmbeddedMediaFileSchema], minlength: 1 }),
     __metadata("design:type", Array)
 ], Profile.prototype, "mediaFiles", void 0);
