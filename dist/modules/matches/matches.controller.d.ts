@@ -25,10 +25,12 @@
 /// <reference types="mongoose/types/inferschematype" />
 import { ClientData } from '../auth/auth.type';
 import { CreateMatchDto, FindManyMatchesQuery } from './dto';
-import { MatchesService } from './matches.service';
+import { MatchesReadService } from './services/matches-read.service';
+import { MatchesWriteService } from './services/matches-write.service';
 export declare class MatchesController {
-    private readonly service;
-    constructor(service: MatchesService);
+    private readonly writeService;
+    private readonly readService;
+    constructor(writeService: MatchesWriteService, readService: MatchesReadService);
     createOne(payload: CreateMatchDto, client: ClientData): Promise<{
         type: string;
         data: import("../models").MatchWithTargetProfile;

@@ -54,6 +54,14 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], BasicProfile.prototype, "geolocation", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: String }),
+    __metadata("design:type", String)
+], BasicProfile.prototype, "learningTarget", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: String }),
+    __metadata("design:type", String)
+], BasicProfile.prototype, "teachingSubject", void 0);
 BasicProfile = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], BasicProfile);

@@ -71,5 +71,11 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateBasicProfileDto.prototype, "learningTarget", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ type: String }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateBasicProfileDto.prototype, "teachingSubject", void 0);
 exports.CreateBasicProfileDto = CreateBasicProfileDto;
 //# sourceMappingURL=create-profile.dto.js.map

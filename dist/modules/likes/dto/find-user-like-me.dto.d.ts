@@ -1,3 +1,3 @@
 import { FindManyCursorQuery } from '../../../commons/dto/find-many-cursor.dto';
-export declare class FindManyLikedMeDto extends FindManyCursorQuery {
+export declare class FindManyLikedMeQuery extends FindManyCursorQuery {
 }

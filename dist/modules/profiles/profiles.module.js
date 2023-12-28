@@ -8,17 +8,28 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProfilesModule = void 0;
 const common_1 = require("@nestjs/common");
-const nearby_profiles_service_1 = require("./nearby-profiles.service");
 const profiles_controller_1 = require("./profiles.controller");
-const profiles_service_1 = require("./profiles.service");
-const swipe_profiles_service_1 = require("./swipe-profiles.service");
+const basic_profile_write_service_1 = require("./services/basic-profile-write.service");
+const nearby_profiles_service_1 = require("./services/nearby-profiles.service");
+const profiles_read_service_1 = require("./services/profiles-read.service");
+const profiles_read_me_service_1 = require("./services/profiles-read-me.service");
+const profiles_write_me_service_1 = require("./services/profiles-write-me.service");
+const swipe_profiles_service_1 = require("./services/swipe-profiles.service");
 let ProfilesModule = class ProfilesModule {
 };
 ProfilesModule = __decorate([
     (0, common_1.Module)({
         imports: [],
         controllers: [profiles_controller_1.ProfilesController],
-        providers: [profiles_service_1.ProfilesService, nearby_profiles_service_1.NearbyProfilesService, swipe_profiles_service_1.SwipeProfilesService],
+        providers: [
+            basic_profile_write_service_1.BasicProfileWriteService,
+            nearby_profiles_service_1.NearbyProfilesService,
+            profiles_read_me_service_1.ProfilesReadMeService,
+            profiles_read_service_1.ProfilesReadService,
+            profiles_write_me_service_1.ProfilesWriteMeService,
+            profiles_read_service_1.ProfilesReadService,
+            swipe_profiles_service_1.SwipeProfilesService,
+        ],
         exports: [],
     })
 ], ProfilesModule);

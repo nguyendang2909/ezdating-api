@@ -10,14 +10,14 @@ exports.ConversationsModule = void 0;
 const common_1 = require("@nestjs/common");
 const models_module_1 = require("../models/models.module");
 const conversations_controller_1 = require("./conversations.controller");
-const conversations_service_1 = require("./conversations.service");
+const conversations_read_service_1 = require("./services/conversations-read.service");
 let ConversationsModule = class ConversationsModule {
 };
 ConversationsModule = __decorate([
     (0, common_1.Module)({
         imports: [models_module_1.ModelsModule],
         controllers: [conversations_controller_1.ConversationsController],
-        providers: [conversations_service_1.ConversationsService],
+        providers: [conversations_read_service_1.ConversationsReadService],
     })
 ], ConversationsModule);
 exports.ConversationsModule = ConversationsModule;

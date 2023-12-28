@@ -18,29 +18,31 @@ const swagger_1 = require("@nestjs/swagger");
 const current_user_id_decorator_1 = require("../../commons/decorators/current-user-id.decorator");
 const find_user_like_me_dto_1 = require("./dto/find-user-like-me.dto");
 const send_like_dto_1 = require("./dto/send-like.dto");
-const likes_service_1 = require("./likes.service");
+const liked_me_read_service_1 = require("./services/liked-me-read-service");
+const likes_write_service_1 = require("./services/likes-write.service");
 let LikesController = class LikesController {
-    constructor(service) {
-        this.service = service;
+    constructor(likedMeReadService, writeService) {
+        this.likedMeReadService = likedMeReadService;
+        this.writeService = writeService;
     }
     async send(payload, clientData) {
         return {
             type: 'sendLike',
-            data: await this.service.send(payload, clientData),
+            data: await this.writeService.createOne(payload, clientData),
         };
     }
     async findManyLikedMe(queryParams, clientData) {
-        const likes = await this.service.findManyLikedMe(queryParams, clientData);
+        const likes = await this.likedMeReadService.findMany(queryParams, clientData);
         return {
             type: 'likedMe',
             data: likes,
-            pagination: this.service.getPagination(likes),
+            pagination: this.likedMeReadService.getPagination(likes),
         };
     }
     async findOneLikeMeById(id, client) {
         return {
             type: 'likeMe',
-            data: await this.service.findOneLikeMeById(id, client),
+            data: await this.likedMeReadService.findOneById(id, client),
         };
     }
 };
@@ -57,7 +59,7 @@ __decorate([
     __param(0, (0, common_1.Query)()),
     __param(1, (0, current_user_id_decorator_1.Client)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [find_user_like_me_dto_1.FindManyLikedMeDto, Object]),
+    __metadata("design:paramtypes", [find_user_like_me_dto_1.FindManyLikedMeQuery, Object]),
     __metadata("design:returntype", Promise)
 ], LikesController.prototype, "findManyLikedMe", null);
 __decorate([
@@ -72,7 +74,8 @@ LikesController = __decorate([
     (0, common_1.Controller)('/likes'),
     (0, swagger_1.ApiTags)('/likes'),
     (0, swagger_1.ApiBearerAuth)('JWT'),
-    __metadata("design:paramtypes", [likes_service_1.LikesService])
+    __metadata("design:paramtypes", [liked_me_read_service_1.LikedMeReadService,
+        likes_write_service_1.LikesWriteService])
 ], LikesController);
 exports.LikesController = LikesController;
 //# sourceMappingURL=likes.controller.js.map

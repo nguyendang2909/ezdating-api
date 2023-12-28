@@ -44,6 +44,12 @@ export class BasicProfile extends CommonSchema {
     },
   })
   geolocation?: MongoGeoLocation;
+
+  @Prop({ type: String })
+  learningTarget?: string;
+
+  @Prop({ type: String })
+  teachingSubject?: string;
 }
 
 export const BasicProfileSchema = SchemaFactory.createForClass(BasicProfile);

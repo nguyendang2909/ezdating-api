@@ -14,7 +14,7 @@ import {
 } from '../../types';
 import { Profile, ProfileModel, UserModel } from '../models';
 import { UpdateMyProfileDto } from '../profiles/dto';
-import { ProfilesCommonService } from '../profiles/profiles.common.service';
+import { ProfilesCommonService } from '../profiles/base/profiles.common.service';
 
 @Injectable()
 export class ApiScript extends ProfilesCommonService {

@@ -3,7 +3,7 @@ import moment from 'moment';
 import mongoose from 'mongoose';
 
 import { APP_CONFIG } from '../../../app.config';
-import { CommonService } from '../../../commons';
+import { ApiBaseService } from '../../../commons';
 import { ERROR_MESSAGES } from '../../../commons/messages';
 import { AccessTokensService, RefreshTokensService } from '../../../libs';
 import { SignInPayload, SignInPayloadWithToken } from '../../../types';
@@ -11,7 +11,7 @@ import { ProfileModel, SignedDeviceModel, User, UserModel } from '../../models';
 import { SignInData } from '../auth.type';
 import { SignInDto } from '../dto';
 
-export class CommonSignInService extends CommonService {
+export class CommonSignInService extends ApiBaseService {
   constructor(
     protected readonly userModel: UserModel,
     protected readonly profileModel: ProfileModel,

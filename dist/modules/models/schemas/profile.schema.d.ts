@@ -45,7 +45,6 @@ export declare class Profile extends CommonSchema {
     hideDistance: boolean;
     languages?: string[];
     lastActivatedAt: Date;
-    learningTarget?: string;
     mediaFiles: EmbeddedMediaFile[];
     membership: Membership;
     nickname: string;
@@ -56,6 +55,8 @@ export declare class Profile extends CommonSchema {
     state: EmbeddedState;
     weight?: number;
     distance?: string;
+    learningTarget?: string;
+    teachingSubject?: string;
 }
 export declare const ProfileSchema: import("mongoose").Schema<Profile, import("mongoose").Model<Profile, any, any, any, import("mongoose").Document<unknown, any, Profile> & Profile & Required<{
     _id: import("mongoose").Types.ObjectId;

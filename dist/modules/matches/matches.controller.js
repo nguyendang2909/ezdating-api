@@ -18,41 +18,43 @@ const swagger_1 = require("@nestjs/swagger");
 const current_user_id_decorator_1 = require("../../commons/decorators/current-user-id.decorator");
 const constants_1 = require("../../constants");
 const dto_1 = require("./dto");
-const matches_service_1 = require("./matches.service");
+const matches_read_service_1 = require("./services/matches-read.service");
+const matches_write_service_1 = require("./services/matches-write.service");
 let MatchesController = class MatchesController {
-    constructor(service) {
-        this.service = service;
+    constructor(writeService, readService) {
+        this.writeService = writeService;
+        this.readService = readService;
     }
     async createOne(payload, client) {
         return {
             type: constants_1.RESPONSE_TYPES.CREATE_MATCH,
-            data: await this.service.createOne(payload, client),
+            data: await this.writeService.createOne(payload, client),
         };
     }
     async unmatch(id, clientData) {
         return {
             type: constants_1.RESPONSE_TYPES.UNMATCH,
-            data: await this.service.unmatch(id, clientData),
+            data: await this.writeService.unmatch(id, clientData),
         };
     }
     async findMatched(queryParams, clientData) {
-        const findResults = await this.service.findMany(queryParams, clientData);
+        const findResults = await this.readService.findMany(queryParams, clientData);
         return {
             type: constants_1.RESPONSE_TYPES.MATCHES,
             data: findResults,
-            pagination: this.service.getPagination(findResults),
+            pagination: this.readService.getPagination(findResults),
         };
     }
     async findOneByTargetUserId(targetUserId, client) {
         return {
             type: constants_1.RESPONSE_TYPES.MATCH,
-            data: await this.service.findOneByTargetUserId(targetUserId, client),
+            data: await this.readService.findOneByTargetUserId(targetUserId, client),
         };
     }
     async findOneById(id, clientData) {
         return {
             type: constants_1.RESPONSE_TYPES.MATCH,
-            data: await this.service.findOneOrFailById(id, clientData),
+            data: await this.readService.findOneOrFailById(id, clientData),
         };
     }
 };
@@ -100,7 +102,8 @@ MatchesController = __decorate([
     (0, common_1.Controller)('/matches'),
     (0, swagger_1.ApiTags)('/matches'),
     (0, swagger_1.ApiBearerAuth)('JWT'),
-    __metadata("design:paramtypes", [matches_service_1.MatchesService])
+    __metadata("design:paramtypes", [matches_write_service_1.MatchesWriteService,
+        matches_read_service_1.MatchesReadService])
 ], MatchesController);
 exports.MatchesController = MatchesController;
 //# sourceMappingURL=matches.controller.js.map

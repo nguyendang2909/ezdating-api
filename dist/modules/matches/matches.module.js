@@ -16,7 +16,8 @@ const matches_consumer_1 = require("./matches.consumer");
 const matches_controller_1 = require("./matches.controller");
 const matches_handler_1 = require("./matches.handler");
 const matches_publisher_1 = require("./matches.publisher");
-const matches_service_1 = require("./matches.service");
+const matches_read_service_1 = require("./services/matches-read.service");
+const matches_write_service_1 = require("./services/matches-write.service");
 let MatchesModule = class MatchesModule {
 };
 MatchesModule = __decorate([
@@ -29,10 +30,11 @@ MatchesModule = __decorate([
         exports: [],
         controllers: [matches_controller_1.MatchesController],
         providers: [
-            matches_service_1.MatchesService,
             matches_publisher_1.MatchesPublisher,
             matches_handler_1.MatchesHandler,
             matches_consumer_1.MatchesConsumer,
+            matches_write_service_1.MatchesWriteService,
+            matches_read_service_1.MatchesReadService,
         ],
     })
 ], MatchesModule);
