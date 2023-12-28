@@ -2,8 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import moment from 'moment';
 
 import { APP_CONFIG } from '../../app.config';
+import { ApiBaseService } from '../../commons';
 import { ERROR_MESSAGES } from '../../commons/messages';
-import { ApiService } from '../../commons/services/api.service';
 import { AccessTokensService, RefreshTokensService } from '../../libs';
 import { SignedDeviceModel } from '../models/signed-device.model';
 import { UserModel } from '../models/user.model';
@@ -11,7 +11,7 @@ import { LogoutDto } from './dto/logout.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
-export class AuthService extends ApiService {
+export class AuthService extends ApiBaseService {
   constructor(
     private readonly signedDeviceModel: SignedDeviceModel,
     private readonly userModel: UserModel,

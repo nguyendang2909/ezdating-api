@@ -11,9 +11,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SignedDevicesService = void 0;
 const common_1 = require("@nestjs/common");
-const api_service_1 = require("../../commons/services/api.service");
+const api_update_me_base_service_1 = require("../../commons/services/api/api-update-me.base.service");
 const signed_device_model_1 = require("../models/signed-device.model");
-let SignedDevicesService = class SignedDevicesService extends api_service_1.ApiService {
+let SignedDevicesService = class SignedDevicesService extends api_update_me_base_service_1.ApiWriteMeService {
     constructor(signedDeviceModel) {
         super();
         this.signedDeviceModel = signedDeviceModel;

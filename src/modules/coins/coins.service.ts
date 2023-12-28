@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import moment from 'moment';
 import mongoose from 'mongoose';
 
-import { ApiService } from '../../commons';
+import { ApiBaseService } from '../../commons';
 import { WEEKLY_COINS } from '../../constants';
 import { WeeklyCoin } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { CoinAttendance, CoinAttendanceModel, UserModel } from '../models';
 
 @Injectable()
-export class CoinsService extends ApiService {
+export class CoinsService extends ApiBaseService {
   constructor(
     private readonly coinAttendanceModel: CoinAttendanceModel,
     private readonly userModel: UserModel,

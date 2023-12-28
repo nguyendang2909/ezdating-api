@@ -10,7 +10,8 @@ exports.MessagesModule = void 0;
 const common_1 = require("@nestjs/common");
 const models_module_1 = require("../models/models.module");
 const messages_controller_1 = require("./messages.controller");
-const messages_service_1 = require("./messages.service");
+const messages_read_service_1 = require("./services/messages-read.service");
+const messages_write_service_1 = require("./services/messages-write.service");
 let MessagesModule = class MessagesModule {
 };
 MessagesModule = __decorate([
@@ -18,7 +19,7 @@ MessagesModule = __decorate([
         imports: [models_module_1.ModelsModule],
         exports: [],
         controllers: [messages_controller_1.MessagesController],
-        providers: [messages_service_1.MessagesService],
+        providers: [messages_read_service_1.MessagesReadService, messages_write_service_1.MessagesWriteService],
     })
 ], MessagesModule);
 exports.MessagesModule = MessagesModule;

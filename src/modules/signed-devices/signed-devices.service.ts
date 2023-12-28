@@ -1,12 +1,17 @@
 import { Injectable } from '@nestjs/common';
 
-import { ApiService } from '../../commons/services/api.service';
+import { ApiWriteMeService } from '../../commons/services/api/api-update-me.base.service';
 import { ClientData } from '../auth/auth.type';
+import { SignedDevice } from '../models';
 import { SignedDeviceModel } from '../models/signed-device.model';
 import { UpdateSignedDeviceDto } from './dto/update-logged-device.dto';
 
 @Injectable()
-export class SignedDevicesService extends ApiService {
+export class SignedDevicesService extends ApiWriteMeService<
+  SignedDevice,
+  undefined,
+  UpdateSignedDeviceDto
+> {
   constructor(private readonly signedDeviceModel: SignedDeviceModel) {
     super();
   }

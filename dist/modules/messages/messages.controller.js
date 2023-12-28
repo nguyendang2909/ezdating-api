@@ -18,21 +18,23 @@ const current_user_id_decorator_1 = require("../../commons/decorators/current-us
 const constants_1 = require("../../constants");
 const dto_1 = require("./dto");
 const find_many_messages_dto_1 = require("./dto/find-many-messages.dto");
-const messages_service_1 = require("./messages.service");
+const messages_read_service_1 = require("./services/messages-read.service");
+const messages_write_service_1 = require("./services/messages-write.service");
 let MessagesController = class MessagesController {
-    constructor(messagesService) {
-        this.messagesService = messagesService;
+    constructor(readService, writeService) {
+        this.readService = readService;
+        this.writeService = writeService;
     }
     async read(payload, clientData) {
-        await this.messagesService.read(payload, clientData);
+        await this.writeService.read(payload, clientData);
     }
     async findMany(queryParams, clientData) {
-        const findResults = await this.messagesService.findMany(queryParams, clientData);
+        const findResults = await this.readService.findMany(queryParams, clientData);
         return {
             type: constants_1.RESPONSE_TYPES.DELETE_PHOTO,
             _matchId: queryParams.matchId,
             data: findResults,
-            pagination: this.messagesService.getPagination(findResults),
+            pagination: this.readService.getPagination(findResults),
         };
     }
 };
@@ -54,7 +56,8 @@ __decorate([
 ], MessagesController.prototype, "findMany", null);
 MessagesController = __decorate([
     (0, common_1.Controller)('messages'),
-    __metadata("design:paramtypes", [messages_service_1.MessagesService])
+    __metadata("design:paramtypes", [messages_read_service_1.MessagesReadService,
+        messages_write_service_1.MessagesWriteService])
 ], MessagesController);
 exports.MessagesController = MessagesController;
 //# sourceMappingURL=messages.controller.js.map

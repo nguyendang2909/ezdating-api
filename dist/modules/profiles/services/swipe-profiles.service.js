@@ -16,9 +16,9 @@ exports.SwipeProfilesService = void 0;
 const common_1 = require("@nestjs/common");
 const moment_1 = __importDefault(require("moment"));
 const app_config_1 = require("../../../app.config");
+const api_read_base_service_1 = require("../../../commons/services/api/api-read.base.service");
 const models_1 = require("../../models");
-const profiles_common_service_1 = require("../base/profiles.common.service");
-let SwipeProfilesService = class SwipeProfilesService extends profiles_common_service_1.ProfilesCommonService {
+let SwipeProfilesService = class SwipeProfilesService extends api_read_base_service_1.ApiReadService {
     constructor(profileModel, profileFilterModel, viewModel) {
         super();
         this.profileModel = profileModel;

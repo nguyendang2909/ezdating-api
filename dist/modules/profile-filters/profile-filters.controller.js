@@ -17,18 +17,20 @@ const common_1 = require("@nestjs/common");
 const current_user_id_decorator_1 = require("../../commons/decorators/current-user-id.decorator");
 const constants_1 = require("../../constants");
 const dto_1 = require("./dto");
-const profile_filters_service_1 = require("./profile-filters.service");
+const profile_filters_read_me_service_1 = require("./services/profile-filters-read-me.service");
+const profile_filters_write_me_service_1 = require("./services/profile-filters-write-me.service");
 let ProfileFiltersController = class ProfileFiltersController {
-    constructor(service) {
-        this.service = service;
+    constructor(readMeService, writeMeService) {
+        this.readMeService = readMeService;
+        this.writeMeService = writeMeService;
     }
     async update(payload, client) {
-        await this.service.updateMe(payload, client);
+        await this.writeMeService.updateOne(payload, client);
     }
     async getMe(client) {
         return {
             type: constants_1.RESPONSE_TYPES.PROFILE_FILTER,
-            data: await this.service.getMe(client),
+            data: await this.readMeService.findOne(client),
         };
     }
 };
@@ -49,7 +51,8 @@ __decorate([
 ], ProfileFiltersController.prototype, "getMe", null);
 ProfileFiltersController = __decorate([
     (0, common_1.Controller)('profile-filters'),
-    __metadata("design:paramtypes", [profile_filters_service_1.ProfileFiltersService])
+    __metadata("design:paramtypes", [profile_filters_read_me_service_1.ProfileFiltersReadMeService,
+        profile_filters_write_me_service_1.ProfileFiltersWriteMeService])
 ], ProfileFiltersController);
 exports.ProfileFiltersController = ProfileFiltersController;
 //# sourceMappingURL=profile-filters.controller.js.map

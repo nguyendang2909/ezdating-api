@@ -25,12 +25,12 @@
 /// <reference types="mongoose" />
 /// <reference types="mongoose/types/inferschematype" />
 import { Logger } from '@nestjs/common';
-import { ApiService } from '../../commons/services/api.service';
+import { ApiBaseService } from '../../commons';
 import { FilesService } from '../../libs/files.service';
 import { ClientData } from '../auth/auth.type';
 import { MediaFileModel, ProfileModel } from '../models';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
-export declare class MediaFilesService extends ApiService {
+export declare class MediaFilesService extends ApiBaseService {
     private readonly filesService;
     private readonly profileModel;
     private readonly mediaFileModel;

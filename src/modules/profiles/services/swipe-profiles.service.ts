@@ -3,6 +3,7 @@ import moment from 'moment';
 import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../../app.config';
+import { ApiReadService } from '../../../commons/services/api/api-read.base.service';
 import { ClientData } from '../../auth/auth.type';
 import {
   Profile,
@@ -10,18 +11,19 @@ import {
   ProfileModel,
   ViewModel,
 } from '../../models';
-import { ProfilesCommonService } from '../base/profiles.common.service';
 import { FindManySwipeProfilesQuery } from '../dto';
 
 @Injectable()
-export class SwipeProfilesService extends ProfilesCommonService {
+export class SwipeProfilesService extends ApiReadService<
+  Profile,
+  FindManySwipeProfilesQuery
+> {
   constructor(
     private readonly profileModel: ProfileModel,
     private readonly profileFilterModel: ProfileFilterModel,
     private readonly viewModel: ViewModel,
   ) {
     super();
-
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.SWIPE_USERS;
   }
 

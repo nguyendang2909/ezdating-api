@@ -18,7 +18,7 @@ const moment_1 = __importDefault(require("moment"));
 const commons_1 = require("../../commons");
 const constants_1 = require("../../constants");
 const models_1 = require("../models");
-let CoinsService = class CoinsService extends commons_1.ApiService {
+let CoinsService = class CoinsService extends commons_1.ApiBaseService {
     constructor(coinAttendanceModel, userModel) {
         super();
         this.coinAttendanceModel = coinAttendanceModel;
