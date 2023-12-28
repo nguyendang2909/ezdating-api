@@ -9,51 +9,30 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MessagesService = void 0;
+exports.MessagesReadService = void 0;
 const common_1 = require("@nestjs/common");
-const app_config_1 = require("../../app.config");
-const api_service_1 = require("../../commons/services/api.service");
-const match_model_1 = require("../models/match.model");
-const message_model_1 = require("../models/message.model");
-const user_model_1 = require("../models/user.model");
-let MessagesService = class MessagesService extends api_service_1.ApiService {
-    constructor(matchModel, userModel, messageModel) {
+const app_config_1 = require("../../../app.config");
+const api_read_base_service_1 = require("../../../commons/services/api/api-read.base.service");
+const utils_1 = require("../../../utils");
+const match_model_1 = require("../../models/match.model");
+const message_model_1 = require("../../models/message.model");
+let MessagesReadService = class MessagesReadService extends api_read_base_service_1.ApiReadService {
+    constructor(matchModel, messageModel, paginationUtil) {
         super();
         this.matchModel = matchModel;
-        this.userModel = userModel;
         this.messageModel = messageModel;
+        this.paginationUtil = paginationUtil;
         this.limitRecordsPerQuery = app_config_1.APP_CONFIG.PAGINATION_LIMIT.MESSAGES;
-    }
-    async read(payload, client) {
-        const { _currentUserId } = this.getClient(client);
-        const { matchId, lastMessageId } = payload;
-        const _lastMessageId = this.getObjectId(lastMessageId);
-        const _id = this.getObjectId(matchId);
-        await this.matchModel.updateOne({
-            _id,
-            _lastMessageId,
-            $or: [
-                { _userOneId: _currentUserId, userOneRead: false },
-                { _userOneId: _currentUserId, userTwoRead: false },
-            ],
-        }, {
-            $set: {
-                userOneRead: true,
-                userTwoRead: true,
-            },
-        });
     }
     async findMany(queryParams, clientData) {
         const { matchId, _next } = queryParams;
-        const cursor = _next ? this.getCursor(_next) : undefined;
+        const cursor = _next ? this.paginationUtil.getCursor(_next) : undefined;
         const _matchId = this.getObjectId(matchId);
-        const { id: currentUserId } = clientData;
-        const _currentUserId = this.getObjectId(currentUserId);
+        const { _currentUserId, currentUserId } = this.getClient(clientData);
         const existMatch = await this.matchModel.findOneOrFail(Object.assign({ _id: _matchId }, this.matchModel.queryUserOneOrUserTwo(_currentUserId)));
         const findResults = await this.messageModel.findMany(Object.assign({ _matchId }, (cursor ? { createdAt: { $lt: cursor } } : {})), {}, {
             sort: { createdAt: -1 },
             limit: this.limitRecordsPerQuery,
-            lean: true,
         });
         this.handleAfterFindManyMessages({
             _matchId,
@@ -63,7 +42,7 @@ let MessagesService = class MessagesService extends api_service_1.ApiService {
         return findResults;
     }
     getPagination(data) {
-        return this.getPaginationByField(data, '_id');
+        return this.paginationUtil.getPaginationByField(data, 'createdAt', this.limitRecordsPerQuery);
     }
     async handleAfterFindManyMessages({ _matchId, currentUserId, match, }) {
         const isUserOne = this.matchModel.isUserOne({
@@ -75,11 +54,11 @@ let MessagesService = class MessagesService extends api_service_1.ApiService {
         });
     }
 };
-MessagesService = __decorate([
+MessagesReadService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [match_model_1.MatchModel,
-        user_model_1.UserModel,
-        message_model_1.MessageModel])
-], MessagesService);
-exports.MessagesService = MessagesService;
-//# sourceMappingURL=messages.service.js.map
+        message_model_1.MessageModel,
+        utils_1.PaginationCursorDateUtil])
+], MessagesReadService);
+exports.MessagesReadService = MessagesReadService;
+//# sourceMappingURL=messages-read.service.js.map

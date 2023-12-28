@@ -23,11 +23,11 @@
 /// <reference types="mongoose/types/virtuals" />
 /// <reference types="mongoose/types/inferschematype" />
 import { Types } from 'mongoose';
+import { ApiReadService } from '../../../commons/services/api/api-read.base.service';
 import { ClientData } from '../../auth/auth.type';
 import { Profile, ProfileFilterModel, ProfileModel, ViewModel } from '../../models';
-import { ProfilesCommonService } from '../base/profiles.common.service';
 import { FindManySwipeProfilesQuery } from '../dto';
-export declare class SwipeProfilesService extends ProfilesCommonService {
+export declare class SwipeProfilesService extends ApiReadService<Profile, FindManySwipeProfilesQuery> {
     private readonly profileModel;
     private readonly profileFilterModel;
     private readonly viewModel;

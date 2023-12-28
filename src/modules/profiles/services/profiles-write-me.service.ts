@@ -18,7 +18,7 @@ export class ProfilesWriteMeService extends ApiWriteMeService<
     private readonly stateModel: StateModel,
     private readonly profilesUtil: ProfilesUtil,
   ) {
-    super(profileModel);
+    super();
   }
 
   public async updateOne(

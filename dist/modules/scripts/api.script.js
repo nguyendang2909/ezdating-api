@@ -21,10 +21,8 @@ const moment_1 = __importDefault(require("moment"));
 const constants_1 = require("../../constants");
 const fe_constants_1 = require("../../constants/fe.constants");
 const models_1 = require("../models");
-const profiles_common_service_1 = require("../profiles/base/profiles.common.service");
-let ApiScript = ApiScript_1 = class ApiScript extends profiles_common_service_1.ProfilesCommonService {
+let ApiScript = ApiScript_1 = class ApiScript {
     constructor(profileModel, userModel) {
-        super();
         this.profileModel = profileModel;
         this.userModel = userModel;
         this.logger = new common_1.Logger(ApiScript_1.name);

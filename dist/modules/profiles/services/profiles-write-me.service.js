@@ -27,7 +27,7 @@ const utils_1 = require("../../../utils");
 const models_1 = require("../../models");
 let ProfilesWriteMeService = class ProfilesWriteMeService extends api_update_me_base_service_1.ApiWriteMeService {
     constructor(profileModel, stateModel, profilesUtil) {
-        super(profileModel);
+        super();
         this.profileModel = profileModel;
         this.stateModel = stateModel;
         this.profilesUtil = profilesUtil;

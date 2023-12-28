@@ -1,51 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
 
-import { APP_CONFIG } from '../../app.config';
-import { ApiService } from '../../commons/services/api.service';
-import { Pagination } from '../../types';
-import { ClientData } from '../auth/auth.type';
-import { Match } from '../models';
-import { MatchModel } from '../models/match.model';
-import { MessageModel } from '../models/message.model';
-import { Message } from '../models/schemas/message.schema';
-import { UserModel } from '../models/user.model';
-import { ReadMessageDto } from './dto';
-import { FindManyMessagesQuery } from './dto/find-many-messages.dto';
+import { APP_CONFIG } from '../../../app.config';
+import { ApiReadService } from '../../../commons/services/api/api-read.base.service';
+import { Pagination } from '../../../types';
+import { PaginationCursorDateUtil } from '../../../utils';
+import { ClientData } from '../../auth/auth.type';
+import { Match } from '../../models';
+import { MatchModel } from '../../models/match.model';
+import { MessageModel } from '../../models/message.model';
+import { Message } from '../../models/schemas/message.schema';
+import { FindManyMessagesQuery } from '../dto/find-many-messages.dto';
 
 @Injectable()
-export class MessagesService extends ApiService {
+export class MessagesReadService extends ApiReadService<Message> {
   constructor(
     private readonly matchModel: MatchModel,
-    private readonly userModel: UserModel,
     private readonly messageModel: MessageModel,
+    private readonly paginationUtil: PaginationCursorDateUtil,
   ) {
     super();
 
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MESSAGES;
-  }
-
-  public async read(payload: ReadMessageDto, client: ClientData) {
-    const { _currentUserId } = this.getClient(client);
-    const { matchId, lastMessageId } = payload;
-    const _lastMessageId = this.getObjectId(lastMessageId);
-    const _id = this.getObjectId(matchId);
-    await this.matchModel.updateOne(
-      {
-        _id,
-        _lastMessageId,
-        $or: [
-          { _userOneId: _currentUserId, userOneRead: false },
-          { _userOneId: _currentUserId, userTwoRead: false },
-        ],
-      },
-      {
-        $set: {
-          userOneRead: true,
-          userTwoRead: true,
-        },
-      },
-    );
   }
 
   public async findMany(
@@ -53,10 +29,9 @@ export class MessagesService extends ApiService {
     clientData: ClientData,
   ): Promise<Message[]> {
     const { matchId, _next } = queryParams;
-    const cursor = _next ? this.getCursor(_next) : undefined;
+    const cursor = _next ? this.paginationUtil.getCursor(_next) : undefined;
     const _matchId = this.getObjectId(matchId);
-    const { id: currentUserId } = clientData;
-    const _currentUserId = this.getObjectId(currentUserId);
+    const { _currentUserId, currentUserId } = this.getClient(clientData);
     const existMatch = await this.matchModel.findOneOrFail({
       _id: _matchId,
       ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
@@ -70,7 +45,6 @@ export class MessagesService extends ApiService {
       {
         sort: { createdAt: -1 },
         limit: this.limitRecordsPerQuery,
-        lean: true,
       },
     );
     this.handleAfterFindManyMessages({
@@ -82,7 +56,11 @@ export class MessagesService extends ApiService {
   }
 
   public getPagination(data: Message[]): Pagination {
-    return this.getPaginationByField(data, '_id');
+    return this.paginationUtil.getPaginationByField(
+      data,
+      'createdAt',
+      this.limitRecordsPerQuery,
+    );
   }
 
   async handleAfterFindManyMessages({

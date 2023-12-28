@@ -16,12 +16,12 @@ exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const moment_1 = __importDefault(require("moment"));
 const app_config_1 = require("../../app.config");
+const commons_1 = require("../../commons");
 const messages_1 = require("../../commons/messages");
-const api_service_1 = require("../../commons/services/api.service");
 const libs_1 = require("../../libs");
 const signed_device_model_1 = require("../models/signed-device.model");
 const user_model_1 = require("../models/user.model");
-let AuthService = class AuthService extends api_service_1.ApiService {
+let AuthService = class AuthService extends commons_1.ApiBaseService {
     constructor(signedDeviceModel, userModel, refreshTokensService, accessTokensService) {
         super();
         this.signedDeviceModel = signedDeviceModel;

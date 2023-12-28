@@ -12,11 +12,11 @@ var MediaFilesService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MediaFilesService = void 0;
 const common_1 = require("@nestjs/common");
+const commons_1 = require("../../commons");
 const messages_1 = require("../../commons/messages");
-const api_service_1 = require("../../commons/services/api.service");
 const files_service_1 = require("../../libs/files.service");
 const models_1 = require("../models");
-let MediaFilesService = MediaFilesService_1 = class MediaFilesService extends api_service_1.ApiService {
+let MediaFilesService = MediaFilesService_1 = class MediaFilesService extends commons_1.ApiBaseService {
     constructor(filesService, profileModel, mediaFileModel) {
         super();
         this.filesService = filesService;
@@ -51,9 +51,7 @@ let MediaFilesService = MediaFilesService_1 = class MediaFilesService extends ap
             mediaFiles: { $size: { $gt: 1 } },
         }, {
             $pull: {
-                mediaFiles: {
-                    _id,
-                },
+                mediaFiles: { _id },
             },
         });
         if (updateResult.modifiedCount) {

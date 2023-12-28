@@ -14,10 +14,9 @@ import {
 } from '../../types';
 import { Profile, ProfileModel, UserModel } from '../models';
 import { UpdateMyProfileDto } from '../profiles/dto';
-import { ProfilesCommonService } from '../profiles/base/profiles.common.service';
 
 @Injectable()
-export class ApiScript extends ProfilesCommonService {
+export class ApiScript {
   baseUrl: string;
   api: AxiosInstance;
 
@@ -25,8 +24,6 @@ export class ApiScript extends ProfilesCommonService {
     private readonly profileModel: ProfileModel,
     private readonly userModel: UserModel,
   ) {
-    super();
-
     this.api = axios.create({
       baseURL: this.baseUrl,
     });

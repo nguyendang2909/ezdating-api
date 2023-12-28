@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import { ApiService } from '../../commons';
+import { ApiBaseService } from '../../commons';
 import { WeeklyCoin } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { CoinAttendance, CoinAttendanceModel, UserModel } from '../models';
-export declare class CoinsService extends ApiService {
+export declare class CoinsService extends ApiBaseService {
     private readonly coinAttendanceModel;
     private readonly userModel;
     constructor(coinAttendanceModel: CoinAttendanceModel, userModel: UserModel);

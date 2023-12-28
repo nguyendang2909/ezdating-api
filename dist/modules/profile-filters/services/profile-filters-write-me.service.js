@@ -9,28 +9,23 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProfileFiltersService = void 0;
+exports.ProfileFiltersWriteMeService = void 0;
 const common_1 = require("@nestjs/common");
-const commons_1 = require("../../commons");
-const models_1 = require("../models");
-let ProfileFiltersService = class ProfileFiltersService extends commons_1.ApiService {
+const api_update_me_base_service_1 = require("../../../commons/services/api/api-update-me.base.service");
+const models_1 = require("../../models");
+let ProfileFiltersWriteMeService = class ProfileFiltersWriteMeService extends api_update_me_base_service_1.ApiWriteMeService {
     constructor(profileFilterModel) {
         super();
         this.profileFilterModel = profileFilterModel;
     }
-    async updateMe(payload, client) {
+    async updateOne(payload, client) {
         const { _currentUserId } = this.getClient(client);
         await this.profileFilterModel.updateOneById(_currentUserId, payload);
     }
-    async getMe(client) {
-        const { _currentUserId } = this.getClient(client);
-        const findResult = await this.profileFilterModel.findOneOrFailById(_currentUserId);
-        return findResult;
-    }
 };
-ProfileFiltersService = __decorate([
+ProfileFiltersWriteMeService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [models_1.ProfileFilterModel])
-], ProfileFiltersService);
-exports.ProfileFiltersService = ProfileFiltersService;
-//# sourceMappingURL=profile-filters.service.js.map
+], ProfileFiltersWriteMeService);
+exports.ProfileFiltersWriteMeService = ProfileFiltersWriteMeService;
+//# sourceMappingURL=profile-filters-write-me.service.js.map

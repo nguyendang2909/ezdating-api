@@ -5,15 +5,15 @@ import {
   Logger,
 } from '@nestjs/common';
 
+import { ApiBaseService } from '../../commons';
 import { ERROR_MESSAGES } from '../../commons/messages';
-import { ApiService } from '../../commons/services/api.service';
 import { FilesService } from '../../libs/files.service';
 import { ClientData } from '../auth/auth.type';
 import { MediaFileModel, ProfileModel } from '../models';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
 
 @Injectable()
-export class MediaFilesService extends ApiService {
+export class MediaFilesService extends ApiBaseService {
   constructor(
     private readonly filesService: FilesService,
     private readonly profileModel: ProfileModel,
@@ -66,9 +66,7 @@ export class MediaFilesService extends ApiService {
       },
       {
         $pull: {
-          mediaFiles: {
-            _id,
-          },
+          mediaFiles: { _id },
         },
       },
     );
