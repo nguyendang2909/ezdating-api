@@ -1,4 +1,5 @@
 import {
+  Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
@@ -23,6 +24,7 @@ import { MongoConnection } from '../../models/mongo.connection';
 import { MediaFile } from '../../models/schemas/media-file.schema';
 import { CreateBasicProfileDto } from '../dto';
 
+@Injectable()
 export class BasicProfileWriteService extends ApiWriteService<
   BasicProfile | Profile,
   CreateBasicProfileDto
