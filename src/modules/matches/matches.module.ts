@@ -8,7 +8,8 @@ import { MatchesConsumer } from './matches.consumer';
 import { MatchesController } from './matches.controller';
 import { MatchesHandler } from './matches.handler';
 import { MatchesPublisher } from './matches.publisher';
-import { MatchesService } from './matches.service';
+import { MatchesReadService } from './services/matches-read.service';
+import { MatchesWriteService } from './services/matches-write.service';
 
 @Module({
   imports: [
@@ -19,10 +20,11 @@ import { MatchesService } from './matches.service';
   exports: [],
   controllers: [MatchesController],
   providers: [
-    MatchesService,
     MatchesPublisher,
     MatchesHandler,
     MatchesConsumer,
+    MatchesWriteService,
+    MatchesReadService,
   ],
 })
 export class MatchesModule {}

@@ -36,6 +36,8 @@ export declare class BasicProfile extends CommonSchema {
     relationshipGoal: RelationshipGoal;
     state: EmbeddedState;
     geolocation?: MongoGeoLocation;
+    learningTarget?: string;
+    teachingSubject?: string;
 }
 export declare const BasicProfileSchema: import("mongoose").Schema<BasicProfile, import("mongoose").Model<BasicProfile, any, any, any, import("mongoose").Document<unknown, any, BasicProfile> & BasicProfile & Required<{
     _id: import("mongoose").Types.ObjectId;

@@ -17,15 +17,15 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const current_user_id_decorator_1 = require("../../commons/decorators/current-user-id.decorator");
 const is_public_endpoint_1 = require("../../commons/decorators/is-public.endpoint");
-const users_service_1 = require("./users.service");
+const services_1 = require("./services");
 let UsersController = class UsersController {
-    constructor(usersService) {
-        this.usersService = usersService;
+    constructor(readMeService) {
+        this.readMeService = readMeService;
     }
-    async findOneById(client) {
+    async findMe(client) {
         return {
             type: 'user',
-            data: await this.usersService.findMe(client),
+            data: await this.readMeService.findOne(client),
         };
     }
     async deactivateInfo() {
@@ -41,7 +41,7 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], UsersController.prototype, "findOneById", null);
+], UsersController.prototype, "findMe", null);
 __decorate([
     (0, common_1.Get)('/deactivation'),
     (0, is_public_endpoint_1.IsPublicEndpoint)(),
@@ -53,7 +53,7 @@ UsersController = __decorate([
     (0, common_1.Controller)('users'),
     (0, swagger_1.ApiTags)('users'),
     (0, swagger_1.ApiBearerAuth)('JWT'),
-    __metadata("design:paramtypes", [users_service_1.UsersService])
+    __metadata("design:paramtypes", [services_1.UsersReadMeService])
 ], UsersController);
 exports.UsersController = UsersController;
 //# sourceMappingURL=users.controller.js.map

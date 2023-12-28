@@ -41,6 +41,7 @@ const scripts_module_1 = require("./modules/scripts/scripts.module");
 const signed_devices_module_1 = require("./modules/signed-devices/signed-devices.module");
 const users_module_1 = require("./modules/users/users.module");
 const views_module_1 = require("./modules/views/views.module");
+const utils_1 = require("./utils");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -73,6 +74,7 @@ AppModule = __decorate([
                 },
             }),
             models_module_1.ModelsModule,
+            utils_1.UtilsModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
             chats_module_1.ChatsModule,

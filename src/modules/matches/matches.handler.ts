@@ -1,35 +1,21 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
-import { APP_CONFIG } from '../../app.config';
-import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { ChatsGateway } from '../chats/chats.gateway';
-import {
-  MessageModel,
-  Profile,
-  ProfileModel,
-  TrashMatchModel,
-  ViewModel,
-} from '../models';
+import { Profile, ProfileModel, TrashMatchModel, ViewModel } from '../models';
 import { MatchModel } from '../models/match.model';
 import { Match, MatchWithTargetProfile } from '../models/schemas/match.schema';
-import { MatchesPublisher } from './matches.publisher';
 
 @Injectable()
-export class MatchesHandler extends ApiCursorDateService {
+export class MatchesHandler {
   constructor(
     private readonly matchModel: MatchModel,
     private readonly chatsGateway: ChatsGateway,
     private readonly profileModel: ProfileModel,
-    private readonly messageModel: MessageModel,
-    private readonly matchesPublisher: MatchesPublisher,
     private readonly viewModel: ViewModel,
     private readonly trashMatchModel: TrashMatchModel,
-  ) {
-    super();
-    this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MATCHES;
-  }
+  ) {}
 
   logger = new Logger(MatchesHandler.name);
 
@@ -40,7 +26,7 @@ export class MatchesHandler extends ApiCursorDateService {
     currentUserId: string;
     match: Match;
   }) {
-    const _currentUserId = this.getObjectId(currentUserId);
+    const _currentUserId = new mongoose.Types.ObjectId(currentUserId);
     const { profileOne, profileTwo } = match;
     const userOneId = profileOne._id.toString();
     const userTwoId = profileTwo._id.toString();

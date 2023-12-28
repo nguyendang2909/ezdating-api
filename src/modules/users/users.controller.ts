@@ -4,24 +4,19 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { IsPublicEndpoint } from '../../commons/decorators/is-public.endpoint';
 import { ClientData } from '../auth/auth.type';
-import { UsersService } from './users.service';
+import { UsersReadMeService } from './services';
 
 @Controller('users')
 @ApiTags('users')
 @ApiBearerAuth('JWT')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
-
-  // @Get('/')
-  // public async findMany(@Query() queryParams: FindManyNearbyUsersQuery) {
-  //   return await this.usersService.findMany(queryParams);
-  // }
+  constructor(private readonly readMeService: UsersReadMeService) {}
 
   @Get('/me')
-  async findOneById(@Client() client: ClientData) {
+  async findMe(@Client() client: ClientData) {
     return {
       type: 'user',
-      data: await this.usersService.findMe(client),
+      data: await this.readMeService.findOne(client),
     };
   }
 

@@ -18,23 +18,25 @@ const swagger_1 = require("@nestjs/swagger");
 const current_user_id_decorator_1 = require("../../commons/decorators/current-user-id.decorator");
 const dto_1 = require("./dto");
 const send_view_dto_1 = require("./dto/send-view.dto");
-const views_service_1 = require("./views.service");
+const views_read_service_1 = require("./services/views-read.service");
+const views_write_service_1 = require("./services/views-write.service");
 let ViewsController = class ViewsController {
-    constructor(service) {
-        this.service = service;
+    constructor(readService, writeService) {
+        this.readService = readService;
+        this.writeService = writeService;
     }
     async send(payload, clientData) {
         return {
             type: 'send_view',
-            data: await this.service.send(payload, clientData),
+            data: await this.writeService.send(payload, clientData),
         };
     }
     async findMany(queryParams, clientData) {
-        const findResults = await this.service.findMany(queryParams, clientData);
+        const findResults = await this.readService.findMany(queryParams, clientData);
         return {
             type: 'views',
             data: findResults,
-            pagination: this.service.getPagination(findResults),
+            pagination: this.readService.getPagination(findResults),
         };
     }
 };
@@ -58,7 +60,8 @@ ViewsController = __decorate([
     (0, common_1.Controller)('/views'),
     (0, swagger_1.ApiTags)('/views'),
     (0, swagger_1.ApiBearerAuth)('JWT'),
-    __metadata("design:paramtypes", [views_service_1.ViewsService])
+    __metadata("design:paramtypes", [views_read_service_1.ViewsReadService,
+        views_write_service_1.ViewsWriteService])
 ], ViewsController);
 exports.ViewsController = ViewsController;
 //# sourceMappingURL=views.controller.js.map

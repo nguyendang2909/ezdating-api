@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
 
 import { ModelsModule } from '../models/models.module';
+import { ViewsReadService } from './services/views-read.service';
+import { ViewsWriteService } from './services/views-write.service';
 import { ViewsController } from './views.controller';
-import { ViewsService } from './views.service';
 
 @Module({
   controllers: [ViewsController],
   exports: [],
   imports: [ModelsModule],
-  providers: [ViewsService],
+  providers: [ViewsReadService, ViewsWriteService],
 })
 export class ViewsModule {}

@@ -3,12 +3,14 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { RESPONSE_TYPES } from '../../constants';
 import { ClientData } from '../auth/auth.type';
-import { ConversationsService } from './conversations.service';
 import { FindManyConversationsQuery } from './dto/find-many-conversations.dto';
+import { ConversationsReadService } from './services/conversations-read.service';
 
 @Controller('/conversations')
 export class ConversationsController {
-  constructor(private readonly conversationsService: ConversationsService) {}
+  constructor(
+    private readonly conversationsService: ConversationsReadService,
+  ) {}
 
   @Get('/')
   public async findMany(

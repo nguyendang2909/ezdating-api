@@ -34,6 +34,7 @@ import { ScriptsModule } from './modules/scripts/scripts.module';
 import { LoggedDevicesModule } from './modules/signed-devices/signed-devices.module';
 import { UsersModule } from './modules/users/users.module';
 import { ViewsModule } from './modules/views/views.module';
+import { UtilsModule } from './utils';
 
 @Module({
   imports: [
@@ -159,6 +160,7 @@ import { ViewsModule } from './modules/views/views.module';
     }),
     // JoiPipeModule.forRoot(),
     ModelsModule,
+    UtilsModule,
     AuthModule,
     UsersModule,
     ChatsModule,

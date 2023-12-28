@@ -1,20 +1,16 @@
 import { Logger } from '@nestjs/common';
 import { Types } from 'mongoose';
-import { ApiCursorDateService } from '../../commons/services/api-cursor-date.service';
 import { ChatsGateway } from '../chats/chats.gateway';
-import { MessageModel, Profile, ProfileModel, TrashMatchModel, ViewModel } from '../models';
+import { Profile, ProfileModel, TrashMatchModel, ViewModel } from '../models';
 import { MatchModel } from '../models/match.model';
 import { Match, MatchWithTargetProfile } from '../models/schemas/match.schema';
-import { MatchesPublisher } from './matches.publisher';
-export declare class MatchesHandler extends ApiCursorDateService {
+export declare class MatchesHandler {
     private readonly matchModel;
     private readonly chatsGateway;
     private readonly profileModel;
-    private readonly messageModel;
-    private readonly matchesPublisher;
     private readonly viewModel;
     private readonly trashMatchModel;
-    constructor(matchModel: MatchModel, chatsGateway: ChatsGateway, profileModel: ProfileModel, messageModel: MessageModel, matchesPublisher: MatchesPublisher, viewModel: ViewModel, trashMatchModel: TrashMatchModel);
+    constructor(matchModel: MatchModel, chatsGateway: ChatsGateway, profileModel: ProfileModel, viewModel: ViewModel, trashMatchModel: TrashMatchModel);
     logger: Logger;
     afterUnmatch({ currentUserId, match, }: {
         currentUserId: string;

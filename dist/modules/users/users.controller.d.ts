@@ -1,9 +1,9 @@
 import { ClientData } from '../auth/auth.type';
-import { UsersService } from './users.service';
+import { UsersReadMeService } from './services';
 export declare class UsersController {
-    private readonly usersService;
-    constructor(usersService: UsersService);
-    findOneById(client: ClientData): Promise<{
+    private readonly readMeService;
+    constructor(readMeService: UsersReadMeService);
+    findMe(client: ClientData): Promise<{
         type: string;
         data: import("../models").User;
     }>;

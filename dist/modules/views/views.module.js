@@ -9,8 +9,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ViewsModule = void 0;
 const common_1 = require("@nestjs/common");
 const models_module_1 = require("../models/models.module");
+const views_read_service_1 = require("./services/views-read.service");
+const views_write_service_1 = require("./services/views-write.service");
 const views_controller_1 = require("./views.controller");
-const views_service_1 = require("./views.service");
 let ViewsModule = class ViewsModule {
 };
 ViewsModule = __decorate([
@@ -18,7 +19,7 @@ ViewsModule = __decorate([
         controllers: [views_controller_1.ViewsController],
         exports: [],
         imports: [models_module_1.ModelsModule],
-        providers: [views_service_1.ViewsService],
+        providers: [views_read_service_1.ViewsReadService, views_write_service_1.ViewsWriteService],
     })
 ], ViewsModule);
 exports.ViewsModule = ViewsModule;

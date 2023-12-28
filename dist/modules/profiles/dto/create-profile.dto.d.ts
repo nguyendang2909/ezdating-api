@@ -9,4 +9,5 @@ export declare class CreateBasicProfileDto {
     latitude?: number;
     longitude?: number;
     learningTarget?: string;
+    teachingSubject?: string;
 }

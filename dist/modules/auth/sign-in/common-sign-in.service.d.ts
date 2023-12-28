@@ -1,12 +1,12 @@
 import { Logger } from '@nestjs/common';
 import mongoose from 'mongoose';
-import { CommonService } from '../../../commons';
+import { ApiBaseService } from '../../../commons';
 import { AccessTokensService, RefreshTokensService } from '../../../libs';
 import { SignInPayload, SignInPayloadWithToken } from '../../../types';
 import { ProfileModel, SignedDeviceModel, User, UserModel } from '../../models';
 import { SignInData } from '../auth.type';
 import { SignInDto } from '../dto';
-export declare class CommonSignInService extends CommonService {
+export declare class CommonSignInService extends ApiBaseService {
     protected readonly userModel: UserModel;
     protected readonly profileModel: ProfileModel;
     protected readonly signedDeviceModel: SignedDeviceModel;

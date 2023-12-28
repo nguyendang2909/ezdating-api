@@ -16,8 +16,8 @@ exports.ConversationsController = void 0;
 const common_1 = require("@nestjs/common");
 const current_user_id_decorator_1 = require("../../commons/decorators/current-user-id.decorator");
 const constants_1 = require("../../constants");
-const conversations_service_1 = require("./conversations.service");
 const find_many_conversations_dto_1 = require("./dto/find-many-conversations.dto");
+const conversations_read_service_1 = require("./services/conversations-read.service");
 let ConversationsController = class ConversationsController {
     constructor(conversationsService) {
         this.conversationsService = conversationsService;
@@ -41,7 +41,7 @@ __decorate([
 ], ConversationsController.prototype, "findMany", null);
 ConversationsController = __decorate([
     (0, common_1.Controller)('/conversations'),
-    __metadata("design:paramtypes", [conversations_service_1.ConversationsService])
+    __metadata("design:paramtypes", [conversations_read_service_1.ConversationsReadService])
 ], ConversationsController);
 exports.ConversationsController = ConversationsController;
 //# sourceMappingURL=conversations.controller.js.map

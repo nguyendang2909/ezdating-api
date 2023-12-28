@@ -5,13 +5,17 @@ import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { RESPONSE_TYPES } from '../../constants';
 import { ClientData } from '../auth/auth.type';
 import { CreateMatchDto, FindManyMatchesQuery } from './dto';
-import { MatchesService } from './matches.service';
+import { MatchesReadService } from './services/matches-read.service';
+import { MatchesWriteService } from './services/matches-write.service';
 
 @Controller('/matches')
 @ApiTags('/matches')
 @ApiBearerAuth('JWT')
 export class MatchesController {
-  constructor(private readonly service: MatchesService) {}
+  constructor(
+    private readonly writeService: MatchesWriteService,
+    private readonly readService: MatchesReadService,
+  ) {}
 
   @Post('/')
   public async createOne(
@@ -20,7 +24,7 @@ export class MatchesController {
   ) {
     return {
       type: RESPONSE_TYPES.CREATE_MATCH,
-      data: await this.service.createOne(payload, client),
+      data: await this.writeService.createOne(payload, client),
     };
   }
 
@@ -31,7 +35,7 @@ export class MatchesController {
   ) {
     return {
       type: RESPONSE_TYPES.UNMATCH,
-      data: await this.service.unmatch(id, clientData),
+      data: await this.writeService.unmatch(id, clientData),
     };
   }
 
@@ -40,11 +44,14 @@ export class MatchesController {
     @Query() queryParams: FindManyMatchesQuery,
     @Client() clientData: ClientData,
   ) {
-    const findResults = await this.service.findMany(queryParams, clientData);
+    const findResults = await this.readService.findMany(
+      queryParams,
+      clientData,
+    );
     return {
       type: RESPONSE_TYPES.MATCHES,
       data: findResults,
-      pagination: this.service.getPagination(findResults),
+      pagination: this.readService.getPagination(findResults),
     };
   }
 
@@ -55,7 +62,7 @@ export class MatchesController {
   ) {
     return {
       type: RESPONSE_TYPES.MATCH,
-      data: await this.service.findOneByTargetUserId(targetUserId, client),
+      data: await this.readService.findOneByTargetUserId(targetUserId, client),
     };
   }
 
@@ -66,7 +73,7 @@ export class MatchesController {
   ) {
     return {
       type: RESPONSE_TYPES.MATCH,
-      data: await this.service.findOneOrFailById(id, clientData),
+      data: await this.readService.findOneOrFailById(id, clientData),
     };
   }
 }

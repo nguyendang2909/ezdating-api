@@ -59,4 +59,9 @@ export class CreateBasicProfileDto {
   @IsOptional()
   @IsString()
   learningTarget?: string;
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  teachingSubject?: string;
 }

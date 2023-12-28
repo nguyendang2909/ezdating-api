@@ -5,13 +5,17 @@ import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { ClientData } from '../auth/auth.type';
 import { FindManyViewsQuery } from './dto';
 import { SendViewDto } from './dto/send-view.dto';
-import { ViewsService } from './views.service';
+import { ViewsReadService } from './services/views-read.service';
+import { ViewsWriteService } from './services/views-write.service';
 
 @Controller('/views')
 @ApiTags('/views')
 @ApiBearerAuth('JWT')
 export class ViewsController {
-  constructor(private readonly service: ViewsService) {}
+  constructor(
+    private readonly readService: ViewsReadService,
+    private readonly writeService: ViewsWriteService,
+  ) {}
 
   @Post('/')
   public async send(
@@ -20,7 +24,7 @@ export class ViewsController {
   ) {
     return {
       type: 'send_view',
-      data: await this.service.send(payload, clientData),
+      data: await this.writeService.send(payload, clientData),
     };
   }
 
@@ -29,11 +33,14 @@ export class ViewsController {
     @Query() queryParams: FindManyViewsQuery,
     @Client() clientData: ClientData,
   ) {
-    const findResults = await this.service.findMany(queryParams, clientData);
+    const findResults = await this.readService.findMany(
+      queryParams,
+      clientData,
+    );
     return {
       type: 'views',
       data: findResults,
-      pagination: this.service.getPagination(findResults),
+      pagination: this.readService.getPagination(findResults),
     };
   }
 }

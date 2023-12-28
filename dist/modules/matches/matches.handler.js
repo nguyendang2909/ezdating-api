@@ -8,32 +8,29 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var MatchesHandler_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MatchesHandler = void 0;
 const common_1 = require("@nestjs/common");
-const app_config_1 = require("../../app.config");
-const api_cursor_date_service_1 = require("../../commons/services/api-cursor-date.service");
+const mongoose_1 = __importDefault(require("mongoose"));
 const constants_1 = require("../../constants");
 const chats_gateway_1 = require("../chats/chats.gateway");
 const models_1 = require("../models");
 const match_model_1 = require("../models/match.model");
-const matches_publisher_1 = require("./matches.publisher");
-let MatchesHandler = MatchesHandler_1 = class MatchesHandler extends api_cursor_date_service_1.ApiCursorDateService {
-    constructor(matchModel, chatsGateway, profileModel, messageModel, matchesPublisher, viewModel, trashMatchModel) {
-        super();
+let MatchesHandler = MatchesHandler_1 = class MatchesHandler {
+    constructor(matchModel, chatsGateway, profileModel, viewModel, trashMatchModel) {
         this.matchModel = matchModel;
         this.chatsGateway = chatsGateway;
         this.profileModel = profileModel;
-        this.messageModel = messageModel;
-        this.matchesPublisher = matchesPublisher;
         this.viewModel = viewModel;
         this.trashMatchModel = trashMatchModel;
         this.logger = new common_1.Logger(MatchesHandler_1.name);
-        this.limitRecordsPerQuery = app_config_1.APP_CONFIG.PAGINATION_LIMIT.MATCHES;
     }
     async afterUnmatch({ currentUserId, match, }) {
-        const _currentUserId = this.getObjectId(currentUserId);
+        const _currentUserId = new mongoose_1.default.Types.ObjectId(currentUserId);
         const { profileOne, profileTwo } = match;
         const userOneId = profileOne._id.toString();
         const userTwoId = profileTwo._id.toString();
@@ -92,8 +89,6 @@ MatchesHandler = MatchesHandler_1 = __decorate([
     __metadata("design:paramtypes", [match_model_1.MatchModel,
         chats_gateway_1.ChatsGateway,
         models_1.ProfileModel,
-        models_1.MessageModel,
-        matches_publisher_1.MatchesPublisher,
         models_1.ViewModel,
         models_1.TrashMatchModel])
 ], MatchesHandler);

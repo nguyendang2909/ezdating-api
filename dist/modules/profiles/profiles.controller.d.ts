@@ -1,3 +1,4 @@
+/// <reference types="multer" />
 /// <reference types="mongoose/types/aggregate" />
 /// <reference types="mongoose/types/callback" />
 /// <reference types="mongoose/types/collection" />
@@ -25,21 +26,33 @@
 /// <reference types="mongoose/types/inferschematype" />
 import { PaginatedResponse } from '../../types';
 import { ClientData } from '../auth/auth.type';
+import { UploadPhotoDtoDto } from '../media-files/dto/upload-photo.dto';
 import { Profile } from '../models';
 import { CreateBasicProfileDto, FindManyNearbyProfilesQuery, FindManySwipeProfilesQuery } from './dto';
-import { NearbyProfilesService } from './nearby-profiles.service';
-import { ProfilesService } from './profiles.service';
-import { SwipeProfilesService } from './swipe-profiles.service';
+import { BasicProfileWriteService } from './services/basic-profile-write.service';
+import { NearbyProfilesService } from './services/nearby-profiles.service';
+import { ProfilesReadService } from './services/profiles-read.service';
+import { ProfilesReadMeService } from './services/profiles-read-me.service';
+import { ProfilesWriteMeService } from './services/profiles-write-me.service';
+import { SwipeProfilesService } from './services/swipe-profiles.service';
 export declare class ProfilesController {
-    private readonly service;
+    private readonly readMeService;
+    private readonly basicProfileWriteService;
+    private readonly writeMeService;
     private readonly swipeProfilesService;
     private readonly nearbyProfilesService;
-    constructor(service: ProfilesService, swipeProfilesService: SwipeProfilesService, nearbyProfilesService: NearbyProfilesService);
+    private readonly profilesReadService;
+    constructor(readMeService: ProfilesReadMeService, basicProfileWriteService: BasicProfileWriteService, writeMeService: ProfilesWriteMeService, swipeProfilesService: SwipeProfilesService, nearbyProfilesService: NearbyProfilesService, profilesReadService: ProfilesReadService);
     createBasicProfile(payload: CreateBasicProfileDto, client: ClientData): Promise<{
         type: string;
         data: import("../models").BasicProfile;
     }>;
-    private uploadBasicPhoto;
+    uploadBasicPhoto(clientData: ClientData, payload: UploadPhotoDtoDto, file?: Express.Multer.File): Promise<{
+        type: string;
+        data: import("mongoose").FlattenMaps<import("mongoose").Document<unknown, {}, import("../models/schemas/media-file.schema").MediaFile> & import("../models/schemas/media-file.schema").MediaFile & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }>>;
+    }>;
     getProfile(clientData: ClientData): Promise<{
         type: string;
         data: Profile | import("../models").BasicProfile;

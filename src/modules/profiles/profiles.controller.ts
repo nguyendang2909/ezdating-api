@@ -28,18 +28,24 @@ import {
   FindManySwipeProfilesQuery,
   UpdateMyProfileDto,
 } from './dto';
-import { NearbyProfilesService } from './nearby-profiles.service';
-import { ProfilesService } from './profiles.service';
-import { SwipeProfilesService } from './swipe-profiles.service';
+import { BasicProfileWriteService } from './services/basic-profile-write.service';
+import { NearbyProfilesService } from './services/nearby-profiles.service';
+import { ProfilesReadService } from './services/profiles-read.service';
+import { ProfilesReadMeService } from './services/profiles-read-me.service';
+import { ProfilesWriteMeService } from './services/profiles-write-me.service';
+import { SwipeProfilesService } from './services/swipe-profiles.service';
 
 @Controller('/profiles')
 @ApiTags('/profiles')
 @ApiBearerAuth('JWT')
 export class ProfilesController {
   constructor(
-    private readonly service: ProfilesService,
+    private readonly readMeService: ProfilesReadMeService,
+    private readonly basicProfileWriteService: BasicProfileWriteService,
+    private readonly writeMeService: ProfilesWriteMeService,
     private readonly swipeProfilesService: SwipeProfilesService,
     private readonly nearbyProfilesService: NearbyProfilesService,
+    private readonly profilesReadService: ProfilesReadService,
   ) {}
 
   // * Me api
@@ -50,7 +56,7 @@ export class ProfilesController {
   ) {
     return {
       type: RESPONSE_TYPES.CREATE_BASIC_PROFILE,
-      data: await this.service.createBasic(payload, client),
+      data: await this.basicProfileWriteService.createOne(payload, client),
     };
   }
 
@@ -75,7 +81,7 @@ export class ProfilesController {
       },
     }),
   )
-  private async uploadBasicPhoto(
+  async uploadBasicPhoto(
     @Client() clientData: ClientData,
     @Body() payload: UploadPhotoDtoDto,
     @UploadedFile() file?: Express.Multer.File,
@@ -87,7 +93,11 @@ export class ProfilesController {
     }
     return {
       type: RESPONSE_TYPES.UPLOAD_PHOTO,
-      data: await this.service.uploadBasicPhoto(file, payload, clientData),
+      data: await this.basicProfileWriteService.uploadPhoto(
+        file,
+        payload,
+        clientData,
+      ),
     };
   }
 
@@ -95,7 +105,7 @@ export class ProfilesController {
   async getProfile(@Client() clientData: ClientData) {
     return {
       type: RESPONSE_TYPES.PROFILE,
-      data: await this.service.getMe(clientData),
+      data: await this.readMeService.findOne(clientData),
     };
   }
 
@@ -104,7 +114,7 @@ export class ProfilesController {
     @Body() payload: UpdateMyProfileDto,
     @Client() clientData: ClientData,
   ): Promise<void> {
-    await this.service.updateMe(payload, clientData);
+    await this.writeMeService.updateOne(payload, clientData);
   }
   // * End me api
 
@@ -153,7 +163,7 @@ export class ProfilesController {
   ) {
     return {
       type: RESPONSE_TYPES.PROFILE,
-      data: await this.service.findOneOrFailById(id, client),
+      data: await this.profilesReadService.findOneById(id, client),
     };
   }
 }

@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { AxiosInstance } from 'axios';
 import { ApiRequest, Gender } from '../../types';
 import { Profile, ProfileModel, UserModel } from '../models';
-import { ProfilesCommonService } from '../profiles/profiles.common.service';
+import { ProfilesCommonService } from '../profiles/base/profiles.common.service';
 export declare class ApiScript extends ProfilesCommonService {
     private readonly profileModel;
     private readonly userModel;

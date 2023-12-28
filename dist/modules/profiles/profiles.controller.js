@@ -23,19 +23,25 @@ const messages_1 = require("../../commons/messages");
 const constants_1 = require("../../constants");
 const upload_photo_dto_1 = require("../media-files/dto/upload-photo.dto");
 const dto_1 = require("./dto");
-const nearby_profiles_service_1 = require("./nearby-profiles.service");
-const profiles_service_1 = require("./profiles.service");
-const swipe_profiles_service_1 = require("./swipe-profiles.service");
+const basic_profile_write_service_1 = require("./services/basic-profile-write.service");
+const nearby_profiles_service_1 = require("./services/nearby-profiles.service");
+const profiles_read_service_1 = require("./services/profiles-read.service");
+const profiles_read_me_service_1 = require("./services/profiles-read-me.service");
+const profiles_write_me_service_1 = require("./services/profiles-write-me.service");
+const swipe_profiles_service_1 = require("./services/swipe-profiles.service");
 let ProfilesController = class ProfilesController {
-    constructor(service, swipeProfilesService, nearbyProfilesService) {
-        this.service = service;
+    constructor(readMeService, basicProfileWriteService, writeMeService, swipeProfilesService, nearbyProfilesService, profilesReadService) {
+        this.readMeService = readMeService;
+        this.basicProfileWriteService = basicProfileWriteService;
+        this.writeMeService = writeMeService;
         this.swipeProfilesService = swipeProfilesService;
         this.nearbyProfilesService = nearbyProfilesService;
+        this.profilesReadService = profilesReadService;
     }
     async createBasicProfile(payload, client) {
         return {
             type: constants_1.RESPONSE_TYPES.CREATE_BASIC_PROFILE,
-            data: await this.service.createBasic(payload, client),
+            data: await this.basicProfileWriteService.createOne(payload, client),
         };
     }
     async uploadBasicPhoto(clientData, payload, file) {
@@ -46,17 +52,17 @@ let ProfilesController = class ProfilesController {
         }
         return {
             type: constants_1.RESPONSE_TYPES.UPLOAD_PHOTO,
-            data: await this.service.uploadBasicPhoto(file, payload, clientData),
+            data: await this.basicProfileWriteService.uploadPhoto(file, payload, clientData),
         };
     }
     async getProfile(clientData) {
         return {
             type: constants_1.RESPONSE_TYPES.PROFILE,
-            data: await this.service.getMe(clientData),
+            data: await this.readMeService.findOne(clientData),
         };
     }
     async updateMe(payload, clientData) {
-        await this.service.updateMe(payload, clientData);
+        await this.writeMeService.updateOne(payload, clientData);
     }
     async findManySwipe(queryParams, clientData) {
         const profiles = await this.swipeProfilesService.findMany(queryParams, clientData);
@@ -80,7 +86,7 @@ let ProfilesController = class ProfilesController {
     async findOneById(id, client) {
         return {
             type: constants_1.RESPONSE_TYPES.PROFILE,
-            data: await this.service.findOneOrFailById(id, client),
+            data: await this.profilesReadService.findOneById(id, client),
         };
     }
 };
@@ -166,9 +172,12 @@ ProfilesController = __decorate([
     (0, common_1.Controller)('/profiles'),
     (0, swagger_1.ApiTags)('/profiles'),
     (0, swagger_1.ApiBearerAuth)('JWT'),
-    __metadata("design:paramtypes", [profiles_service_1.ProfilesService,
+    __metadata("design:paramtypes", [profiles_read_me_service_1.ProfilesReadMeService,
+        basic_profile_write_service_1.BasicProfileWriteService,
+        profiles_write_me_service_1.ProfilesWriteMeService,
         swipe_profiles_service_1.SwipeProfilesService,
-        nearby_profiles_service_1.NearbyProfilesService])
+        nearby_profiles_service_1.NearbyProfilesService,
+        profiles_read_service_1.ProfilesReadService])
 ], ProfilesController);
 exports.ProfilesController = ProfilesController;
 //# sourceMappingURL=profiles.controller.js.map

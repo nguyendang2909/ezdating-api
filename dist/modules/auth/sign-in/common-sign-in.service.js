@@ -20,7 +20,7 @@ const moment_1 = __importDefault(require("moment"));
 const app_config_1 = require("../../../app.config");
 const commons_1 = require("../../../commons");
 const messages_1 = require("../../../commons/messages");
-class CommonSignInService extends commons_1.CommonService {
+class CommonSignInService extends commons_1.ApiBaseService {
     constructor(userModel, profileModel, signedDeviceModel, accessTokensService, refreshTokensService) {
         super();
         this.userModel = userModel;
