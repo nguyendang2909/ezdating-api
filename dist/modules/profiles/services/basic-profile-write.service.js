@@ -1,4 +1,13 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __rest = (this && this.__rest) || function (s, e) {
     var t = {};
     for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
@@ -15,7 +24,11 @@ exports.BasicProfileWriteService = void 0;
 const common_1 = require("@nestjs/common");
 const commons_1 = require("../../../commons");
 const messages_1 = require("../../../commons/messages");
-class BasicProfileWriteService extends commons_1.ApiWriteService {
+const libs_1 = require("../../../libs");
+const utils_1 = require("../../../utils");
+const models_1 = require("../../models");
+const mongo_connection_1 = require("../../models/mongo.connection");
+let BasicProfileWriteService = class BasicProfileWriteService extends commons_1.ApiWriteService {
     constructor(basicProfileModel, profileModel, profileFilterModel, stateModel, profilesUtil, mongoConnection, userModel, filesService) {
         super();
         this.basicProfileModel = basicProfileModel;
@@ -118,6 +131,17 @@ class BasicProfileWriteService extends commons_1.ApiWriteService {
         }
         return { profile, basicProfile };
     }
-}
+};
+BasicProfileWriteService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [models_1.BasicProfileModel,
+        models_1.ProfileModel,
+        models_1.ProfileFilterModel,
+        models_1.StateModel,
+        utils_1.ProfilesUtil,
+        mongo_connection_1.MongoConnection,
+        models_1.UserModel,
+        libs_1.FilesService])
+], BasicProfileWriteService);
 exports.BasicProfileWriteService = BasicProfileWriteService;
 //# sourceMappingURL=basic-profile-write.service.js.map
