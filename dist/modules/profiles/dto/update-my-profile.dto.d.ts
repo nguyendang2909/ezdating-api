@@ -18,4 +18,6 @@ export declare class UpdateMyProfileDto {
     school?: string;
     weight: number;
     stateId?: string;
+    learningTarget?: string;
+    teachingSubject?: string;
 }
