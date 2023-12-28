@@ -130,5 +130,17 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateMyProfileDto.prototype, "stateId", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ type: String }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateMyProfileDto.prototype, "learningTarget", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ type: String }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateMyProfileDto.prototype, "teachingSubject", void 0);
 exports.UpdateMyProfileDto = UpdateMyProfileDto;
 //# sourceMappingURL=update-my-profile.dto.js.map

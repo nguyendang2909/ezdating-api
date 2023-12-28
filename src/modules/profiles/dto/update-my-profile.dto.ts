@@ -126,4 +126,14 @@ export class UpdateMyProfileDto {
   @IsOptional()
   @IsString()
   stateId?: string;
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  learningTarget?: string;
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  teachingSubject?: string;
 }
