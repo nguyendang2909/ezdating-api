@@ -137,11 +137,11 @@ import { UtilsModule } from './utils';
       ],
       // other options
     }),
-    ThrottlerModule.forRoot(
+    ThrottlerModule.forRoot([
       process.env.NODE_ENV === 'production'
         ? { ttl: 10, limit: 100 }
         : { ttl: 10, limit: 1000 },
-    ),
+    ]),
     MongooseModule.forRoot(
       `${process.env.MONGO_DB_HOST}:${process.env.MONGO_DB_PORT}/${process.env.MONGO_DB_NAME}?directConnection=true`,
       {

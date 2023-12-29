@@ -57,9 +57,11 @@ AppModule = __decorate([
                     }),
                 ],
             }),
-            throttler_1.ThrottlerModule.forRoot(process.env.NODE_ENV === 'production'
-                ? { ttl: 10, limit: 100 }
-                : { ttl: 10, limit: 1000 }),
+            throttler_1.ThrottlerModule.forRoot([
+                process.env.NODE_ENV === 'production'
+                    ? { ttl: 10, limit: 100 }
+                    : { ttl: 10, limit: 1000 },
+            ]),
             mongoose_1.MongooseModule.forRoot(`${process.env.MONGO_DB_HOST}:${process.env.MONGO_DB_PORT}/${process.env.MONGO_DB_NAME}?directConnection=true`, {
                 dbName: process.env.MONGO_DB_NAME,
                 user: process.env.MONGO_DB_USER,
