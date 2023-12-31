@@ -44,14 +44,8 @@ export class MediaFilesService extends ApiBaseService {
     const _id = this.getObjectId(id);
     const { _currentUserId } = this.getClient(client);
     const profile = await this.profileModel.findOneOrFail(
-      {
-        _id: _currentUserId,
-        'mediaFiles._id': _id,
-      },
-      {
-        _id: true,
-        key: true,
-      },
+      { _id: _currentUserId, 'mediaFiles._id': _id },
+      { _id: true, mediaFiles: true },
     );
     if (profile.mediaFiles.length <= 1) {
       throw new BadRequestException(
@@ -59,18 +53,10 @@ export class MediaFilesService extends ApiBaseService {
       );
     }
     const updateResult = await this.profileModel.updateOne(
-      {
-        _id: _currentUserId,
-        'mediaFiles._id': _id,
-        mediaFiles: { $size: { $gt: 1 } },
-      },
-      {
-        $pull: {
-          mediaFiles: { _id },
-        },
-      },
+      { _id: _currentUserId, 'mediaFiles._id': _id },
+      { $pull: { mediaFiles: { _id } } },
     );
-    if (updateResult.modifiedCount) {
+    if (!updateResult.modifiedCount) {
       throw new InternalServerErrorException();
     }
     await this.mediaFileModel
@@ -86,7 +72,9 @@ export class MediaFilesService extends ApiBaseService {
     // TODO: queue
     const mediaFile = profile.mediaFiles.find((e) => e._id.toString() === id);
     if (mediaFile && mediaFile.key) {
-      await this.filesService.removeOne(mediaFile.key);
+      await this.filesService.removeOne(mediaFile.key).catch((err) => {
+        this.logger.error(`Cannot delete file ${mediaFile.key}`, err.stack);
+      });
     }
   }
 }
