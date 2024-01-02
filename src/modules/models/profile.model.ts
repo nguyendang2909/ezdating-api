@@ -40,7 +40,10 @@ export class ProfileModel extends CommonModel<Profile> {
     jobTitle: 1,
     languages: 1,
     lastActivatedAt: 1,
+
+    // fake
     learningTarget: 1,
+
     mediaFiles: {
       _id: 1,
       key: 1,
@@ -52,6 +55,10 @@ export class ProfileModel extends CommonModel<Profile> {
     relationshipStatus: 1,
     school: 1,
     state: 1,
+
+    // fake
+    teachingSubject: 1,
+
     weight: 1,
   };
 

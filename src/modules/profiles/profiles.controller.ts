@@ -28,8 +28,10 @@ import {
   FindManySwipeProfilesQuery,
   UpdateMyProfileDto,
 } from './dto';
+import { FakeFindManyLearningProfilesQuery } from './dto/fake-find-many-learning-profiles';
+import { FakeLearningProfilesService } from './fakes/learning-profiles.service';
 import { BasicProfileWriteService } from './services/basic-profile-write.service';
-import { NearbyProfilesServiceFake } from './services/fakes/nearby-profiles.service.fake';
+import { NearbyProfilesService } from './services/nearby-profiles.service';
 import { ProfilesReadService } from './services/profiles-read.service';
 import { ProfilesReadMeService } from './services/profiles-read-me.service';
 import { ProfilesWriteMeService } from './services/profiles-write-me.service';
@@ -44,8 +46,9 @@ export class ProfilesController {
     private readonly basicProfileWriteService: BasicProfileWriteService,
     private readonly writeMeService: ProfilesWriteMeService,
     private readonly swipeProfilesService: SwipeProfilesService,
-    private readonly nearbyProfilesService: NearbyProfilesServiceFake,
     private readonly profilesReadService: ProfilesReadService,
+    private readonly nearbyProfilesService: NearbyProfilesService,
+    private readonly fakeLeaningProilesService: FakeLearningProfilesService,
   ) {}
 
   // * Me api
@@ -147,6 +150,20 @@ export class ProfilesController {
       type: RESPONSE_TYPES.NEARBY_PROFILES,
       data: findResults,
       pagination: this.nearbyProfilesService.getPagination(findResults),
+    };
+  }
+
+  @Get('/learning')
+  public async fakeLearning(
+    @Query() queryParams: FakeFindManyLearningProfilesQuery,
+    @Client() clientData: ClientData,
+  ) {
+    const findResults = await this.fakeLeaningProilesService.findMany(
+      queryParams,
+      clientData,
+    );
+    return {
+      data: findResults,
     };
   }
 
