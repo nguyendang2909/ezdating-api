@@ -9,6 +9,9 @@ export type UserDocument = HydratedDocument<User>;
 
 @Schema({ timestamps: true })
 export class User extends CommonSchema {
+  @Prop({ type: String })
+  appleId?: string;
+
   @Prop({ type: Number, default: 0 })
   coins: number;
 
