@@ -3,9 +3,11 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { IsPublicEndpoint } from '../../../commons/decorators/is-public.endpoint';
 import { SignInWithGoogleDto } from '../dto';
+import { SignInWithAppleDto } from '../dto/sign-in-with-apple.dto';
 import { SignInWithFacebookDto } from '../dto/sign-in-with-facebook.dto';
 import { SignInWithPhoneNumberDto } from '../dto/sign-in-with-phone-number.dto';
 import { SignInWithPhoneNumberAndPasswordDto } from '../dto/sign-in-with-phone-number-and-password.dto';
+import { SignInAppleService } from './sign-in-apple.service';
 import { SignInFacebookService } from './sign-in-facebook.service';
 import { SignInGoogleService } from './sign-in-google.service';
 import { SignInPhoneNumberService } from './sign-in-phone-number.service';
@@ -20,6 +22,7 @@ export class SignInController {
     private readonly signInFacebookService: SignInFacebookService,
     private readonly signInGoogleService: SignInGoogleService,
     private readonly signInPhoneNumberWithPasswordService: SignInPhoneNumberWithPasswordService,
+    private readonly signInAppleService: SignInAppleService,
   ) {}
 
   @Post('/phone-number')
@@ -48,6 +51,15 @@ export class SignInController {
     return {
       type: 'sigInWithFacebook',
       data: await this.signInFacebookService.signIn(payload),
+    };
+  }
+
+  @Post('/apple')
+  @IsPublicEndpoint()
+  async signInWithApple(@Body() payload: SignInWithAppleDto) {
+    return {
+      type: 'signInWithApple',
+      data: await this.signInAppleService.signIn(payload),
     };
   }
 
