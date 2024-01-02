@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 
+import { FakeLearningProfilesService } from './fakes/learning-profiles.service';
 import { ProfilesController } from './profiles.controller';
 import { BasicProfileWriteService } from './services/basic-profile-write.service';
-import { NearbyProfilesServiceFake } from './services/fakes/nearby-profiles.service.fake';
 import { NearbyProfilesService } from './services/nearby-profiles.service';
 import { ProfilesReadService } from './services/profiles-read.service';
 import { ProfilesReadMeService } from './services/profiles-read-me.service';
@@ -20,7 +20,7 @@ import { SwipeProfilesService } from './services/swipe-profiles.service';
     ProfilesWriteMeService,
     ProfilesReadService,
     SwipeProfilesService,
-    NearbyProfilesServiceFake,
+    FakeLearningProfilesService,
   ],
   exports: [],
 })
