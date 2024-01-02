@@ -4,6 +4,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { SignInController } from './sign-in/sign-in.controller';
 import { SignInInitService } from './sign-in/sign-in.init';
+import { SignInAppleService } from './sign-in/sign-in-apple.service';
 import { SignInFacebookService } from './sign-in/sign-in-facebook.service';
 import { SignInGoogleService } from './sign-in/sign-in-google.service';
 import { SignInPhoneNumberService } from './sign-in/sign-in-phone-number.service';
@@ -20,6 +21,7 @@ import { JwtStrategy } from './strategies/jwt-auth.strategy';
     SignInGoogleService,
     SignInPhoneNumberService,
     SignInPhoneNumberWithPasswordService,
+    SignInAppleService,
   ],
 })
 export class AuthModule {}

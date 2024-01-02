@@ -70,15 +70,13 @@ export class CommonSignInService extends ApiBaseService {
   } & SignInDto) {
     if (deviceToken && devicePlatform) {
       return await this.signedDeviceModel.findOneAndUpdate(
-        { token: deviceToken },
+        { token: deviceToken, platform: devicePlatform },
         {
           _userId,
           refreshToken: refreshToken,
           expiresIn: moment()
             .add(APP_CONFIG.REFRESH_TOKEN_EXPIRES_AS_DAYS, 'days')
             .toDate(),
-          token: deviceToken,
-          platform: devicePlatform,
         },
         {
           new: true,

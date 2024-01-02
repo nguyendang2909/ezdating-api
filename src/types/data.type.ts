@@ -53,6 +53,7 @@ export type ResponseType = ValueOf<typeof RESPONSE_TYPES>;
 export type WeeklyCoin = (typeof WEEKLY_COINS)[number];
 
 export type SignInPayload = {
+  appleId?: string;
   email?: string;
   facebookId?: string;
   phoneNumber?: string;
