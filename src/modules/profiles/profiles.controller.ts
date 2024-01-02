@@ -29,7 +29,7 @@ import {
   UpdateMyProfileDto,
 } from './dto';
 import { BasicProfileWriteService } from './services/basic-profile-write.service';
-import { NearbyProfilesService } from './services/nearby-profiles.service';
+import { NearbyProfilesServiceFake } from './services/fakes/nearby-profiles.service.fake';
 import { ProfilesReadService } from './services/profiles-read.service';
 import { ProfilesReadMeService } from './services/profiles-read-me.service';
 import { ProfilesWriteMeService } from './services/profiles-write-me.service';
@@ -44,7 +44,7 @@ export class ProfilesController {
     private readonly basicProfileWriteService: BasicProfileWriteService,
     private readonly writeMeService: ProfilesWriteMeService,
     private readonly swipeProfilesService: SwipeProfilesService,
-    private readonly nearbyProfilesService: NearbyProfilesService,
+    private readonly nearbyProfilesService: NearbyProfilesServiceFake,
     private readonly profilesReadService: ProfilesReadService,
   ) {}
 
