@@ -50,6 +50,10 @@ import {
 } from './schemas/signed-device.schema';
 import { User, UserSchema } from './schemas/user.schema';
 import { View, ViewSchema } from './schemas/view.schema';
+import {
+  ViolationReport,
+  ViolationReportSchema,
+} from './schemas/violation-report.schema';
 import { SignedDeviceModel } from './signed-device.model';
 import { StateModel } from './state.model';
 import {
@@ -62,6 +66,7 @@ import {
 } from './trash';
 import { UserModel } from './user.model';
 import { ViewModel } from './view.model';
+import { ViolationReportModel } from './violation-report.model';
 
 @Global()
 @Module({
@@ -80,6 +85,7 @@ import { ViewModel } from './view.model';
       { name: View.name, schema: ViewSchema },
       { name: PushNotification.name, schema: PushNotificationSchema },
       { name: MediaFile.name, schema: MediaFileSchema },
+      { name: ViolationReport.name, schema: ViolationReportSchema },
 
       { name: TrashMatch.name, schema: TrashMatchSchema },
       { name: TrashMediaFile.name, schema: TrashMediaFileSchema },
@@ -102,6 +108,7 @@ import { ViewModel } from './view.model';
     StateModel,
     UserModel,
     ViewModel,
+    ViolationReportModel,
 
     TrashMatchModel,
     TrashMediaFileModel,
@@ -125,6 +132,7 @@ import { ViewModel } from './view.model';
     UserModel,
     ViewModel,
     MediaFileModel,
+    ViolationReportModel,
 
     TrashMatchModel,
     TrashMediaFileModel,

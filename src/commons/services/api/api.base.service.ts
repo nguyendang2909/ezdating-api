@@ -1,4 +1,4 @@
-import { InternalServerErrorException } from '@nestjs/common';
+import { NotImplementedException } from '@nestjs/common';
 import mongoose from 'mongoose';
 
 import { ClientData } from '../../../modules/auth/auth.type';
@@ -17,6 +17,6 @@ export class ApiBaseService extends CommonService {
   }
 
   throwNotImplemented(): any {
-    throw new InternalServerErrorException(ERROR_MESSAGES['Not implemented']);
+    throw new NotImplementedException(ERROR_MESSAGES['Not implemented']);
   }
 }

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument, SchemaTypes } from 'mongoose';
 
 import { CommonSchema } from '../../../commons/schemas.common';
 import { USER_ROLES, USER_STATUSES } from '../../../constants';
@@ -37,6 +37,12 @@ export class User extends CommonSchema {
 
   @Prop({ type: Number, enum: USER_STATUSES, default: USER_STATUSES.ACTIVATED })
   status: UserStatus;
+
+  @Prop({ type: [SchemaTypes.ObjectId] })
+  _blockedIds?: mongoose.Types.ObjectId[];
+
+  @Prop({ type: [SchemaTypes.ObjectId] })
+  _blockedByIds?: mongoose.Types.ObjectId[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

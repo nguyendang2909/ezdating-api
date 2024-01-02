@@ -47,6 +47,8 @@ export const ERROR_MESSAGES = {
   'You already got attendance today': 'You already got attendance today',
   'You already like this person': 'You already like this person',
   'You are already got matched': 'You are already got matched',
+  'You can only block maximum 100 users':
+    'You can only block maximum 100 users',
   'You can only upload 6 media files': 'You can only upload 6 media files',
   'You cannot find yourself': 'You can not find yourself',
   'You cannot like yourself': 'You can not like yourself',

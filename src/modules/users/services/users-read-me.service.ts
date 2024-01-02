@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import _ from 'lodash';
 
 import { ApiReadMeService } from '../../../commons/services/api/api-read-me.base.service';
 import { ClientData } from '../../auth/auth.type';
@@ -13,7 +12,10 @@ export class UsersReadMeService extends ApiReadMeService<User> {
 
   async findOne(client: ClientData): Promise<User> {
     const { _currentUserId } = this.getClient(client);
-    const user = await this.userModel.findOneOrFailById(_currentUserId);
-    return _.omit(user, ['password']);
+    const user = await this.userModel.findOneOrFailById(_currentUserId, {
+      password: false,
+      _blockedByIds: false,
+    });
+    return user;
   }
 }

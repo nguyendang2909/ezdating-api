@@ -34,6 +34,7 @@ import { ScriptsModule } from './modules/scripts/scripts.module';
 import { LoggedDevicesModule } from './modules/signed-devices/signed-devices.module';
 import { UsersModule } from './modules/users/users.module';
 import { ViewsModule } from './modules/views/views.module';
+import { ViolationReportsModule } from './modules/violation-reports/volation-reports.module';
 import { UtilsModule } from './utils';
 
 @Module({
@@ -182,6 +183,7 @@ import { UtilsModule } from './utils';
     ScriptsModule,
     ProfileFiltersModule,
     CountriesModule,
+    ViolationReportsModule,
     // StatesModule,
 
     // CoinsModule,
