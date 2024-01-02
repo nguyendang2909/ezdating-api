@@ -107,7 +107,12 @@ export class UserModel extends CommonModel<User> {
   }
 
   verifySignInPayload(payload: SignInPayload): SignInPayload {
-    if (!payload.phoneNumber && !payload.email && !payload.facebookId) {
+    if (
+      !payload.phoneNumber &&
+      !payload.email &&
+      !payload.facebookId &&
+      !payload.appleId
+    ) {
       throw new BadRequestException(
         ERROR_MESSAGES[
           'You should sign in by phone number, google or facebook'
