@@ -1,9 +1,6 @@
-import { InternalServerErrorException } from '@nestjs/common';
-
 import { APP_CONFIG } from '../../../app.config';
 import { ClientData } from '../../../modules/auth/auth.type';
 import { Pagination } from '../../../types';
-import { ERROR_MESSAGES } from '../../messages';
 import { ApiBaseService } from './api.base.service';
 
 export class ApiReadService<
@@ -24,7 +21,7 @@ export class ApiReadService<
   }
 
   public getPagination(data: unknown[]): Pagination {
-    throw new InternalServerErrorException(ERROR_MESSAGES['Not implemented']);
+    throw this.throwNotImplemented();
   }
 
   // public getPaginationByField<T>(

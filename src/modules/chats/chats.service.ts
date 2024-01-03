@@ -2,25 +2,23 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { Socket } from 'socket.io';
 
+import { SocketBaseService } from '../../commons';
 import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
-import { DbService } from '../../commons/services/db.service';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
 import { SignedDeviceModel } from '../models/signed-device.model';
 import { PushNotificationsService } from '../push-notifications/push-notifications.service';
-import { ChatsHandler } from './chats.handler';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 
 @Injectable()
-export class ChatsService extends DbService {
+export class ChatsService extends SocketBaseService {
   constructor(
     private readonly matchModel: MatchModel,
     private readonly messageModel: MessageModel,
     private readonly signedDeviceModel: SignedDeviceModel,
     private readonly pushNotificationsService: PushNotificationsService,
-    private chatsHandler: ChatsHandler,
   ) {
     super();
   }

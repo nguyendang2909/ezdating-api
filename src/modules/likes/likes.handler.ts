@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { APP_CONFIG } from '../../app.config';
-import { DbService } from '../../commons';
+import { ApiBaseService } from '../../commons';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { ChatsGateway } from '../chats/chats.gateway';
 import { MatchWithTargetProfile, Profile, ProfileModel } from '../models';
@@ -10,7 +10,7 @@ import { ViewModel } from '../models/view.model';
 import { PushNotificationsService } from '../push-notifications/push-notifications.service';
 
 @Injectable()
-export class LikesHandler extends DbService {
+export class LikesHandler extends ApiBaseService {
   constructor(
     private readonly chatsGateway: ChatsGateway,
     private readonly matchModel: MatchModel,
@@ -19,8 +19,6 @@ export class LikesHandler extends DbService {
     private readonly pushNotificationsService: PushNotificationsService,
   ) {
     super();
-
-    this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.LIKES;
   }
 
   logger = new Logger(LikesHandler.name);

@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 
 import { ChatsGateway } from './chats.gateway';
-import { ChatsHandler } from './chats.handler';
 import { ChatsService } from './chats.service';
 import { ChatsConnectionService } from './chats-connection.service';
 import { ChatsSendMessageService } from './services/chats-send-message.service';
@@ -12,7 +11,6 @@ import { ChatsSendMessageService } from './services/chats-send-message.service';
     ChatsGateway,
     ChatsService,
     ChatsConnectionService,
-    ChatsHandler,
     ChatsSendMessageService,
   ],
 })

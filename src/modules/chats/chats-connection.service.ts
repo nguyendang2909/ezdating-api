@@ -2,13 +2,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import _ from 'lodash';
 import { Socket } from 'socket.io';
 
-import { DbService } from '../../commons/services/db.service';
+import { SocketBaseService } from '../../commons';
 import { USER_STATUSES } from '../../constants';
 import { AccessTokensService } from '../../libs';
 import { UserModel } from '../models/user.model';
 
 @Injectable()
-export class ChatsConnectionService extends DbService {
+export class ChatsConnectionService extends SocketBaseService {
   constructor(
     private readonly acessTokensService: AccessTokensService,
     private readonly userModel: UserModel,
