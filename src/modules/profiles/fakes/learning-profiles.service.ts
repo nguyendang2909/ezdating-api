@@ -25,14 +25,14 @@ export class FakeLearningProfilesService extends ApiFindManyBaseService {
     client: ClientData,
   ): Promise<Profile[]> {
     const { _currentUserId } = this.getClient(client);
-    const findResults = await this.profileModel.findMany([
+    const findResults = await this.profileModel.findMany(
       {
         _id: { $ne: _currentUserId },
         teachingSubject: queryParams.teachingSubject,
       },
+      this.profileModel.publicFields,
       { $limit: this.limitRecordsPerQuery },
-      { $project: this.profileModel.publicFields },
-    ]);
+    );
     return findResults;
   }
 }
