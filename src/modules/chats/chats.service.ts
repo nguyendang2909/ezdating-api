@@ -27,36 +27,6 @@ export class ChatsService extends DbService {
 
   logger = new Logger(ChatsService.name);
 
-  public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
-    const { matchId } = payload;
-    const { currentUserId, _currentUserId } = this.getClient(
-      socket.handshake.user,
-    );
-    const _matchId = this.getObjectId(matchId);
-    const match = await this.matchModel.findOne({
-      _id: _matchId,
-      ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
-    });
-    if (!match) {
-      this.logger.log(`SEND_MESSAGE matchId ${matchId} does not exist`);
-      socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
-        message: ERROR_MESSAGES['Match does not exist'],
-      });
-      return;
-    }
-    const message = await this.createMessage({
-      payload,
-      _currentUserId,
-      _matchId,
-    });
-    this.chatsHandler.handleAfterSendMessage({
-      match,
-      message,
-      socket,
-      currentUserId,
-    });
-  }
-
   public async editMessage(payload: UpdateChatMessageDto, socket: Socket) {
     const { id, text } = payload;
     const currentUserId = socket.handshake.user.id;

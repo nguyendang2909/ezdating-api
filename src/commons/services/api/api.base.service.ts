@@ -1,15 +1,10 @@
 import { NotImplementedException } from '@nestjs/common';
-import mongoose from 'mongoose';
 
 import { ClientData } from '../../../modules/auth/auth.type';
 import { ERROR_MESSAGES } from '../../messages';
-import { CommonService } from '../common.service';
+import { DbBaseService } from '../db/db.base.service';
 
-export class ApiBaseService extends CommonService {
-  public getObjectId(id: string): mongoose.Types.ObjectId {
-    return new mongoose.Types.ObjectId(id);
-  }
-
+export class ApiBaseService extends DbBaseService {
   getClient(client: ClientData) {
     const { id: currentUserId } = client;
     const _currentUserId = this.getObjectId(currentUserId);

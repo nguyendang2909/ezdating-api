@@ -14,7 +14,6 @@ export class DbService extends CommonService {
   getClient(client: ClientData) {
     const { id: currentUserId } = client;
     const _currentUserId = this.getObjectId(currentUserId);
-
     return { currentUserId, _currentUserId };
   }
 }

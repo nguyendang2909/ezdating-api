@@ -6,10 +6,10 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build": "nest build -b swc",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "dev": "cross-env NODE_ENV=development nest start --watch",
+    "dev": "cross-env NODE_ENV=development nest start --watch --type-check",
     "debug": "nest start --debug --watch",
     "prod": "cross-env NODE_ENV=production node dist/main",
     "staging": "cross-env NODE_ENV=staging node dist/main",

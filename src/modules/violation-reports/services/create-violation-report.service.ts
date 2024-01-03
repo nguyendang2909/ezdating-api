@@ -7,10 +7,7 @@ import { ViolationReportModel } from '../../models/violation-report.model';
 import { CreateVolationReportDto } from '../dto/create-volation-report.dto';
 
 @Injectable()
-export class CreateViolationReportService extends ApiCreateBaseService<
-  ViolationReport,
-  CreateVolationReportDto
-> {
+export class CreateViolationReportService extends ApiCreateBaseService {
   constructor(private readonly violationReportModel: ViolationReportModel) {
     super();
   }

@@ -17,6 +17,7 @@ import { ChatsConnectionService } from './chats-connection.service';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { WsAuthGuard } from './guards/ws-auth.guard';
+import { ChatsSendMessageService } from './services/chats-send-message.service';
 
 @WebSocketGateway({
   namespace: '/chats',
@@ -29,6 +30,7 @@ export class ChatsGateway
   constructor(
     private readonly chatsService: ChatsService,
     private readonly chatsConnectionService: ChatsConnectionService,
+    private readonly chatsSendMessageService: ChatsSendMessageService,
   ) {}
 
   @WebSocketServer() public readonly server: Server;
@@ -47,7 +49,7 @@ export class ChatsGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() payload: SendChatMessageDto,
   ) {
-    return await this.chatsService.sendMessage(payload, socket);
+    return await this.chatsSendMessageService.run(payload, socket);
   }
 
   @SubscribeMessage(SOCKET_TO_SERVER_EVENTS.EDIT_MESSAGE)
