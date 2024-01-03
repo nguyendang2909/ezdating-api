@@ -2,60 +2,28 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { Socket } from 'socket.io';
 
+import { SocketBaseService } from '../../commons';
 import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
-import { DbService } from '../../commons/services/db.service';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
 import { MatchModel } from '../models/match.model';
 import { MessageModel } from '../models/message.model';
 import { SignedDeviceModel } from '../models/signed-device.model';
 import { PushNotificationsService } from '../push-notifications/push-notifications.service';
-import { ChatsHandler } from './chats.handler';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 
 @Injectable()
-export class ChatsService extends DbService {
+export class ChatsService extends SocketBaseService {
   constructor(
     private readonly matchModel: MatchModel,
     private readonly messageModel: MessageModel,
     private readonly signedDeviceModel: SignedDeviceModel,
     private readonly pushNotificationsService: PushNotificationsService,
-    private chatsHandler: ChatsHandler,
   ) {
     super();
   }
 
   logger = new Logger(ChatsService.name);
-
-  public async sendMessage(payload: SendChatMessageDto, socket: Socket) {
-    const { matchId } = payload;
-    const { currentUserId, _currentUserId } = this.getClient(
-      socket.handshake.user,
-    );
-    const _matchId = this.getObjectId(matchId);
-    const match = await this.matchModel.findOne({
-      _id: _matchId,
-      ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
-    });
-    if (!match) {
-      this.logger.log(`SEND_MESSAGE matchId ${matchId} does not exist`);
-      socket.emit(SOCKET_TO_CLIENT_EVENTS.ERROR, {
-        message: ERROR_MESSAGES['Match does not exist'],
-      });
-      return;
-    }
-    const message = await this.createMessage({
-      payload,
-      _currentUserId,
-      _matchId,
-    });
-    this.chatsHandler.handleAfterSendMessage({
-      match,
-      message,
-      socket,
-      currentUserId,
-    });
-  }
 
   public async editMessage(payload: UpdateChatMessageDto, socket: Socket) {
     const { id, text } = payload;

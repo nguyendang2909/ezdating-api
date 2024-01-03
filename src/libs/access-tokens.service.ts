@@ -1,15 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 
-import { CommonTokensService } from '../commons/services/common-token.service';
 import { AccessTokenSignPayload, ClientData } from '../modules/auth/auth.type';
 import { User } from '../modules/models';
 
 @Injectable()
-export class AccessTokensService extends CommonTokensService {
-  constructor(private readonly jwtService: JwtService) {
-    super();
-  }
+export class AccessTokensService {
+  constructor(private readonly jwtService: JwtService) {}
 
   public sign(authJwtPayload: AccessTokenSignPayload): string {
     return this.jwtService.sign(authJwtPayload);

@@ -1,5 +1,7 @@
 import { Logger } from '@nestjs/common';
 
+const logger = new Logger('Service');
+
 export class CommonService {
-  protected readonly logger = new Logger('Service');
+  protected readonly logger = logger;
 }

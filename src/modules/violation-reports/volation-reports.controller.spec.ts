@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { VolationReportsController } from './volation-reports.controller';
+
 import { VolationReportsService } from './services/create-violation-report.service';
+import { VolationReportsController } from './volation-reports.controller';
 
 describe('VolationReportsController', () => {
   let controller: VolationReportsController;
@@ -11,7 +12,9 @@ describe('VolationReportsController', () => {
       providers: [VolationReportsService],
     }).compile();
 
-    controller = module.get<VolationReportsController>(VolationReportsController);
+    controller = module.get<VolationReportsController>(
+      VolationReportsController,
+    );
   });
 
   it('should be defined', () => {

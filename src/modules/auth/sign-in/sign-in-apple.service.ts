@@ -39,7 +39,7 @@ export class SignInAppleService extends CommonSignInService {
     const { header } = decodedJwt;
     const kid = header.kid;
     const publicKey = (await this.getKey(kid!)).getPublicKey();
-    const { sub, email } = jwt.verify(token, publicKey);
+    const { sub } = jwt.verify(token, publicKey);
     if (!sub) {
       throw new BadRequestException();
     }
