@@ -4,7 +4,7 @@ import { WsException } from '@nestjs/websockets';
 import _ from 'lodash';
 import { Socket } from 'socket.io';
 
-import { AccessTokensService } from '../../../libs';
+import { AccessTokensService } from '../../libs';
 
 @Injectable()
 export class WsAuthGuard implements CanActivate {

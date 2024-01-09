@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import mongoose, { Types } from 'mongoose';
 
+import { ChatsGateway } from '../../chats/chats.gateway';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
-import { ChatsGateway } from '../chats/chats.gateway';
 import { Profile, ProfileModel, TrashMatchModel, ViewModel } from '../models';
 import { MatchModel } from '../models/match.model';
 import { Match, MatchWithTargetProfile } from '../models/schemas/match.schema';

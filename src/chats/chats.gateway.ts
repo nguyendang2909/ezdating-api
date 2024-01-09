@@ -11,7 +11,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-import { SOCKET_TO_SERVER_EVENTS } from '../../constants';
+import { SOCKET_TO_SERVER_EVENTS } from '../constants';
 import { ChatsService } from './chats.service';
 import { ChatsConnectionService } from './chats-connection.service';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';

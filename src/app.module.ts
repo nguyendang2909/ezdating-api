@@ -13,7 +13,6 @@ import winston from 'winston';
 
 import { AdminAuthModule } from './api/admin/admin-auth/admin-auth.module';
 import { AuthModule } from './api/auth/auth.module';
-import { ChatsModule } from './api/chats/chats.module';
 import { ConversationsModule } from './api/conversations/conversations.module';
 import { CountriesModule } from './api/countries/countries.module';
 import { JwtAuthGuard } from './api/guards/jwt.guard';
@@ -34,6 +33,7 @@ import { UsersModule } from './api/users/users.module';
 import { ViewsModule } from './api/views/views.module';
 import { ViolationReportsModule } from './api/violation-reports/volation-reports.module';
 import { APP_CONFIG } from './app.config';
+import { ChatsModule } from './chats/chats.module';
 import { LibsModule } from './libs/libs.module';
 import { UtilsModule } from './utils';
 

@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { APP_CONFIG } from '../../app.config';
+import { ChatsGateway } from '../../chats/chats.gateway';
 import { ApiBaseService } from '../../commons';
 import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
-import { ChatsGateway } from '../chats/chats.gateway';
 import { MatchWithTargetProfile, Profile, ProfileModel } from '../models';
 import { MatchModel } from '../models/match.model';
 import { ViewModel } from '../models/view.model';

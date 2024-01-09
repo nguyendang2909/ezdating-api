@@ -1,8 +1,8 @@
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 
+import { ChatsModule } from '../../chats/chats.module';
 import { BULL_QUEUE_EVENTS } from '../../constants';
-import { ChatsModule } from '../chats/chats.module';
 import { ModelsModule } from '../models/models.module';
 import { MatchesConsumer } from './matches.consumer';
 import { MatchesController } from './matches.controller';

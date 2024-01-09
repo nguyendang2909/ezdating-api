@@ -2,13 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { Socket } from 'socket.io';
 
-import { SocketBaseService } from '../../commons';
-import { ERROR_MESSAGES } from '../../commons/messages/error-messages.constant';
-import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
-import { MatchModel } from '../models/match.model';
-import { MessageModel } from '../models/message.model';
-import { SignedDeviceModel } from '../models/signed-device.model';
-import { PushNotificationsService } from '../push-notifications/push-notifications.service';
+import { MatchModel, MessageModel, SignedDeviceModel } from '../api/models';
+import { PushNotificationsService } from '../api/push-notifications/push-notifications.service';
+import { ERROR_MESSAGES, SocketBaseService } from '../commons';
+import { SOCKET_TO_CLIENT_EVENTS } from '../constants';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 

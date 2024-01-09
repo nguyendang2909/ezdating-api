@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { ChatsModule } from '../chats/chats.module';
+import { ChatsModule } from '../../chats/chats.module';
 import { ModelsModule } from '../models/models.module';
 import { LikesController } from './likes.controller';
 import { LikesHandler } from './likes.handler';
