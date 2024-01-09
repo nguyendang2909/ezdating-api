@@ -2,10 +2,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import axios from 'axios';
 
 import { AccessTokensService, RefreshTokensService } from '../../../libs';
+import { ProfileModel } from '../../../models';
+import { SignedDeviceModel } from '../../../models/signed-device.model';
+import { UserModel } from '../../../models/user.model';
 import { SignInPayload } from '../../../types';
-import { ProfileModel } from '../../models';
-import { SignedDeviceModel } from '../../models/signed-device.model';
-import { UserModel } from '../../models/user.model';
 import { SignInWithFacebookDto } from '../dto/sign-in-with-facebook.dto';
 import { CommonSignInService } from './common-sign-in.service';
 

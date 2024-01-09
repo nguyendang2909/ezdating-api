@@ -7,8 +7,8 @@ import {
 import { ERROR_MESSAGES } from '../../../commons/messages';
 import { ApiUpdateBaseService } from '../../../commons/services/api/api-update.base.service';
 import { ClientData } from '../../auth/auth.type';
-import { User, UserModel } from '../../models';
-import { MongoConnection } from '../../models/mongo.connection';
+import { User, UserModel } from '../../../models';
+import { MongoConnection } from '../../../models/mongo.connection';
 import { BlockUserDto } from '../dto/block-user.dto';
 
 @Injectable()

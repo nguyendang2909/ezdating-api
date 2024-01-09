@@ -7,7 +7,7 @@ import {
   BasicProfileModel,
   Profile,
   ProfileModel,
-} from '../../models';
+} from '../../../models';
 
 @Injectable()
 export class ProfilesReadMeService extends ApiReadMeService<

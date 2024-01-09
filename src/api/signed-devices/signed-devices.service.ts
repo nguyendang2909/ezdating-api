@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 
 import { ApiWriteMeService } from '../../commons/services/api/api-update-me.base.service';
 import { ClientData } from '../auth/auth.type';
-import { SignedDevice } from '../models';
-import { SignedDeviceModel } from '../models/signed-device.model';
+import { SignedDevice } from '../../models';
+import { SignedDeviceModel } from '../../models/signed-device.model';
 import { UpdateSignedDeviceDto } from './dto/update-logged-device.dto';
 
 @Injectable()

@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 import { ApiWriteService } from '../../../commons';
 import { ClientData } from '../../auth/auth.type';
-import { MatchModel, MatchWithTargetProfile, ProfileModel } from '../../models';
+import { MatchModel, MatchWithTargetProfile, ProfileModel } from '../../../models';
 import { CreateMatchDto } from '../dto';
 import { MatchesHandler } from '../matches.handler';
 

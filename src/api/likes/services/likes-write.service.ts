@@ -7,7 +7,7 @@ import {
 import { ApiWriteService } from '../../../commons';
 import { ERROR_MESSAGES } from '../../../commons/messages';
 import { ClientData } from '../../auth/auth.type';
-import { MatchModel, ProfileModel, View, ViewModel } from '../../models';
+import { MatchModel, ProfileModel, View, ViewModel } from '../../../models';
 import { SendLikeDto } from '../dto/send-like.dto';
 import { LikesHandler } from '../likes.handler';
 

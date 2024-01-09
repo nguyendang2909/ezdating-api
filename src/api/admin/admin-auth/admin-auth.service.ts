@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { AccessTokensService } from '../../../libs';
-import { UserModel } from '../../models';
+import { UserModel } from '../../../models';
 import { AdminLoginDto } from './dto';
 
 @Injectable()

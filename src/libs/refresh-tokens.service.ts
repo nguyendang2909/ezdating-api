@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { RefreshTokenPayload } from '../api/auth/auth.type';
-import { User } from '../api/models';
 import { APP_CONFIG } from '../app.config';
+import { User } from '../models';
 
 @Injectable()
 export class RefreshTokensService {

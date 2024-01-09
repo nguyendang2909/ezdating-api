@@ -12,7 +12,7 @@ import {
   RelationshipGoal,
   RelationshipStatus,
 } from '../../types';
-import { Profile, ProfileModel, UserModel } from '../models';
+import { Profile, ProfileModel, UserModel } from '../../models';
 import { UpdateMyProfileDto } from '../profiles/dto';
 
 @Injectable()

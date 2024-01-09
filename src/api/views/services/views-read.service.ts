@@ -5,7 +5,7 @@ import { ApiReadService } from '../../../commons/services/api/api-read.base.serv
 import { Pagination } from '../../../types';
 import { PaginationCursorDateUtil } from '../../../utils';
 import { ClientData } from '../../auth/auth.type';
-import { View, ViewModel } from '../../models';
+import { View, ViewModel } from '../../../models';
 import { FindManyViewsQuery } from '../dto';
 
 @Injectable()

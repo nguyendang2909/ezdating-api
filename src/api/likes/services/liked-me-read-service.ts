@@ -6,7 +6,7 @@ import { ApiReadService } from '../../../commons/services/api/api-read.base.serv
 import { Pagination } from '../../../types';
 import { PaginationCursorDateUtil } from '../../../utils';
 import { ClientData } from '../../auth/auth.type';
-import { ProfileFilterModel, View, ViewModel } from '../../models';
+import { ProfileFilterModel, View, ViewModel } from '../../../models';
 import { FindManyLikedMeQuery } from '../dto/find-user-like-me.dto';
 
 @Injectable()

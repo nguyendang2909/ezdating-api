@@ -3,7 +3,7 @@ import async from 'async';
 import Axios from 'axios';
 import fs from 'fs';
 
-import { Country, CountryModel, StateModel } from '../models';
+import { Country, CountryModel, StateModel } from '../../models';
 import {
   StateOfStatesResponse,
   StateResponse,

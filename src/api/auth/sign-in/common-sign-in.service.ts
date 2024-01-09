@@ -6,8 +6,13 @@ import { APP_CONFIG } from '../../../app.config';
 import { ApiBaseService } from '../../../commons';
 import { ERROR_MESSAGES } from '../../../commons/messages';
 import { AccessTokensService, RefreshTokensService } from '../../../libs';
+import {
+  ProfileModel,
+  SignedDeviceModel,
+  User,
+  UserModel,
+} from '../../../models';
 import { SignInPayload, SignInPayloadWithToken } from '../../../types';
-import { ProfileModel, SignedDeviceModel, User, UserModel } from '../../models';
 import { SignInData } from '../auth.type';
 import { SignInDto } from '../dto';
 

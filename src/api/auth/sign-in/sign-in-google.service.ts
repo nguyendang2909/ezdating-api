@@ -5,10 +5,10 @@ import {
   GoogleOAuthService,
   RefreshTokensService,
 } from '../../../libs';
+import { ProfileModel } from '../../../models';
+import { SignedDeviceModel } from '../../../models/signed-device.model';
+import { UserModel } from '../../../models/user.model';
 import { SignInPayload } from '../../../types';
-import { ProfileModel } from '../../models';
-import { SignedDeviceModel } from '../../models/signed-device.model';
-import { UserModel } from '../../models/user.model';
 import { SignInWithGoogleDto } from '../dto';
 import { CommonSignInService } from './common-sign-in.service';
 

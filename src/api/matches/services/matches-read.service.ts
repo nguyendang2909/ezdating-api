@@ -11,7 +11,7 @@ import {
   MatchModel,
   MatchWithTargetProfile,
   ProfileModel,
-} from '../../models';
+} from '../../../models';
 import { FindManyMatchesQuery } from '../dto';
 import { MatchesHandler } from '../matches.handler';
 

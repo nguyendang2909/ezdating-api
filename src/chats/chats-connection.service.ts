@@ -2,10 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import _ from 'lodash';
 import { Socket } from 'socket.io';
 
-import { UserModel } from '../api/models';
 import { SocketBaseService } from '../commons';
 import { USER_STATUSES } from '../constants';
 import { AccessTokensService } from '../libs';
+import { UserModel } from '../models';
 
 @Injectable()
 export class ChatsConnectionService extends SocketBaseService {

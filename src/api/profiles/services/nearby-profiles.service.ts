@@ -8,7 +8,7 @@ import { Pagination } from '../../../types';
 import { ProfilesUtil } from '../../../utils';
 import { PaginationCursorNumberUtil } from '../../../utils/paginations/pagination-cursor-number.util';
 import { ClientData } from '../../auth/auth.type';
-import { Profile, ProfileFilterModel, ProfileModel } from '../../models';
+import { Profile, ProfileFilterModel, ProfileModel } from '../../../models';
 import { FindManyNearbyProfilesQuery } from '../dto';
 
 @Injectable()

@@ -21,7 +21,7 @@ import { RESPONSE_TYPES, USER_ROLES } from '../../constants';
 import { PaginatedResponse } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { UploadPhotoDtoDto } from '../media-files/dto/upload-photo.dto';
-import { Profile } from '../models';
+import { Profile } from '../../models';
 import {
   CreateBasicProfileDto,
   FindManyNearbyProfilesQuery,

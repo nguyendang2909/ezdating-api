@@ -6,7 +6,7 @@ import { ApiBaseService } from '../../commons';
 import { WEEKLY_COINS } from '../../constants';
 import { WeeklyCoin } from '../../types';
 import { ClientData } from '../auth/auth.type';
-import { CoinAttendance, CoinAttendanceModel, UserModel } from '../models';
+import { CoinAttendance, CoinAttendanceModel, UserModel } from '../../models';
 
 @Injectable()
 export class CoinsService extends ApiBaseService {

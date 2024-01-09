@@ -3,7 +3,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ApiWriteService } from '../../../commons';
 import { ERROR_MESSAGES } from '../../../commons/messages';
 import { ClientData } from '../../auth/auth.type';
-import { MatchModel, ProfileModel, View, ViewModel } from '../../models';
+import { MatchModel, ProfileModel, View, ViewModel } from '../../../models';
 import { SendViewDto } from '../dto';
 
 @Injectable()

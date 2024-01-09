@@ -6,8 +6,8 @@ import {
   PasswordsService,
   RefreshTokensService,
 } from '../../../libs';
+import { ProfileModel, SignedDeviceModel, UserModel } from '../../../models';
 import { SignInPayload } from '../../../types';
-import { ProfileModel, SignedDeviceModel, UserModel } from '../../models';
 import { SignInWithPhoneNumberAndPasswordDto } from '../dto';
 import { CommonSignInService } from './common-sign-in.service';
 

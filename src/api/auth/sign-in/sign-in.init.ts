@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { USER_ROLES } from '../../../constants';
 import { PasswordsService } from '../../../libs';
-import { UserModel } from '../../models/user.model';
+import { UserModel } from '../../../models/user.model';
 
 @Injectable()
 export class SignInInitService {

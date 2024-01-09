@@ -10,7 +10,7 @@ import {
   ProfileFilterModel,
   ProfileModel,
   ViewModel,
-} from '../../models';
+} from '../../../models';
 import { FindManySwipeProfilesQuery } from '../dto';
 
 @Injectable()

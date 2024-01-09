@@ -5,7 +5,7 @@ import { ApiFindManyBaseService } from '../../../commons/services/api/api-find-m
 import { ProfilesUtil } from '../../../utils';
 import { PaginationCursorNumberUtil } from '../../../utils/paginations/pagination-cursor-number.util';
 import { ClientData } from '../../auth/auth.type';
-import { Profile, ProfileFilterModel, ProfileModel } from '../../models';
+import { Profile, ProfileFilterModel, ProfileModel } from '../../../models';
 import { FakeFindManyLearningProfilesQuery } from '../dto/fake-find-many-learning-profiles';
 
 @Injectable()

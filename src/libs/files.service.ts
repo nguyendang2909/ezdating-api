@@ -8,14 +8,14 @@ import mongoose from 'mongoose';
 import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 
-import { MediaFileModel, ProfileModel } from '../api/models';
-import { MediaFile } from '../api/models/schemas/media-file.schema';
 import { ERROR_MESSAGES } from '../commons/messages';
 import { MEDIA_FILE_TYPES } from '../constants';
 import {
   FILE_UPLOAD_FOLDERS,
   FILE_UPLOAD_FOLDERS_ARR,
 } from '../constants/common.constants';
+import { MediaFileModel, ProfileModel } from '../models';
+import { MediaFile } from '../models/schemas/media-file.schema';
 
 @Injectable()
 export class FilesService {

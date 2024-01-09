@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { StateModel } from '../models';
+import { StateModel } from '../../models';
 import { FindAllStatesByCountryIso2Query } from './dto';
 
 @Injectable()

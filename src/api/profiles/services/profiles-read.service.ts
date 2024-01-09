@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { ApiReadService } from '../../../commons/services/api/api-read.base.service';
 import { ClientData } from '../../auth/auth.type';
-import { BasicProfile, Profile, ProfileModel } from '../../models';
+import { BasicProfile, Profile, ProfileModel } from '../../../models';
 import { CreateBasicProfileDto } from '../dto';
 
 @Injectable()

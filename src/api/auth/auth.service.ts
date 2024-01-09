@@ -5,8 +5,8 @@ import { APP_CONFIG } from '../../app.config';
 import { ApiBaseService } from '../../commons';
 import { ERROR_MESSAGES } from '../../commons/messages';
 import { AccessTokensService, RefreshTokensService } from '../../libs';
-import { SignedDeviceModel } from '../models/signed-device.model';
-import { UserModel } from '../models/user.model';
+import { SignedDeviceModel } from '../../models/signed-device.model';
+import { UserModel } from '../../models/user.model';
 import { LogoutDto } from './dto/logout.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 

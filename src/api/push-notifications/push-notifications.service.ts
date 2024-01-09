@@ -9,9 +9,9 @@ import {
   SendPushNotificationContent,
   SendPushNotificationPayload,
 } from '../../types';
-import { Profile } from '../models';
-import { SignedDevice } from '../models/schemas/signed-device.schema';
-import { SignedDeviceModel } from '../models/signed-device.model';
+import { Profile } from '../../models';
+import { SignedDevice } from '../../models/schemas/signed-device.schema';
+import { SignedDeviceModel } from '../../models/signed-device.model';
 import { AndroidPushNotificationsService } from './android-push-notifications.service';
 import { IosPushNotificationsService } from './ios-push-notifications.service';
 

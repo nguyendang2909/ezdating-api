@@ -9,7 +9,7 @@ import { ApiBaseService } from '../../commons';
 import { ERROR_MESSAGES } from '../../commons/messages';
 import { FilesService } from '../../libs/files.service';
 import { ClientData } from '../auth/auth.type';
-import { MediaFileModel, ProfileModel } from '../models';
+import { MediaFileModel, ProfileModel } from '../../models';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
 
 @Injectable()

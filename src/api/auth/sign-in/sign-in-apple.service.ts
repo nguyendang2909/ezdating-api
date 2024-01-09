@@ -3,10 +3,10 @@ import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 
 import { AccessTokensService, RefreshTokensService } from '../../../libs';
+import { ProfileModel } from '../../../models';
+import { SignedDeviceModel } from '../../../models/signed-device.model';
+import { UserModel } from '../../../models/user.model';
 import { SignInPayload } from '../../../types';
-import { ProfileModel } from '../../models';
-import { SignedDeviceModel } from '../../models/signed-device.model';
-import { UserModel } from '../../models/user.model';
 import { SignInWithAppleDto } from '../dto/sign-in-with-apple.dto';
 import { CommonSignInService } from './common-sign-in.service';
 

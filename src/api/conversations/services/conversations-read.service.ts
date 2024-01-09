@@ -5,11 +5,11 @@ import { ApiReadService } from '../../../commons/services/api/api-read.base.serv
 import { Pagination } from '../../../types';
 import { PaginationCursorStringUtil } from '../../../utils';
 import { ClientData } from '../../auth/auth.type';
-import { MatchModel } from '../../models/match.model';
+import { MatchModel } from '../../../models/match.model';
 import {
   Match,
   MatchWithTargetProfile,
-} from '../../models/schemas/match.schema';
+} from '../../../models/schemas/match.schema';
 import { FindManyConversationsQuery } from '../dto/find-many-conversations.dto';
 
 @Injectable()

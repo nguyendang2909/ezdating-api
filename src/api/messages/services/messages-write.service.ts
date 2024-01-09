@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { ApiBaseService } from '../../../commons';
 import { ClientData } from '../../auth/auth.type';
-import { MatchModel } from '../../models/match.model';
+import { MatchModel } from '../../../models/match.model';
 import { ReadMessageDto } from '../dto';
 
 @Injectable()

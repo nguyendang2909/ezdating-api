@@ -13,7 +13,7 @@ import {
   ProfileModel,
   StateModel,
   UserModel,
-} from '../models';
+} from '../../models';
 import { ApiScript } from './api.script';
 
 @Injectable()

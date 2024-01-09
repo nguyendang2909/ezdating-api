@@ -22,7 +22,6 @@ import { LikesModule } from './api/likes/likes.module';
 import { MatchesModule } from './api/matches/matches.module';
 import { MediaFilesModule } from './api/media-files/media-files.module';
 import { MessagesModule } from './api/messages/messages.module';
-import { ModelsModule } from './api/models/models.module';
 import { ProfileFiltersModule } from './api/profile-filters/profile-filters.module';
 import { ProfilesModule } from './api/profiles/profiles.module';
 import { PushNotificationsModule } from './api/push-notifications/push-notifications.module';
@@ -35,6 +34,7 @@ import { ViolationReportsModule } from './api/violation-reports/volation-reports
 import { APP_CONFIG } from './app.config';
 import { ChatsModule } from './chats/chats.module';
 import { LibsModule } from './libs/libs.module';
+import { ModelsModule } from './models/models.module';
 import { UtilsModule } from './utils';
 
 @Module({

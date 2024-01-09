@@ -4,7 +4,7 @@ import { Job } from 'bull';
 
 import { CommonConsumer } from '../../commons/consumers/common.consumer';
 import { BULL_QUEUE_EVENTS } from '../../constants';
-import { MessageModel } from '../models';
+import { MessageModel } from '../../models';
 
 @Processor({ name: BULL_QUEUE_EVENTS.MATCHES })
 export class MatchesConsumer extends CommonConsumer {

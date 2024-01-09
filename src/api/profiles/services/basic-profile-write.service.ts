@@ -19,9 +19,9 @@ import {
   ProfileModel,
   StateModel,
   UserModel,
-} from '../../models';
-import { MongoConnection } from '../../models/mongo.connection';
-import { MediaFile } from '../../models/schemas/media-file.schema';
+} from '../../../models';
+import { MongoConnection } from '../../../models/mongo.connection';
+import { MediaFile } from '../../../models/schemas/media-file.schema';
 import { CreateBasicProfileDto } from '../dto';
 
 @Injectable()
