@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
-import { CommonSchema } from '../../commons/schemas.common';
+import { CommonSchema } from './bases/schemas.common';
 
 export type PushNotificationDocument = HydratedDocument<PushNotification>;
 

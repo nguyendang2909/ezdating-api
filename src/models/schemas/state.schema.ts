@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-import { CommonSchema } from '../../commons/schemas.common';
+import { CommonSchema } from './bases/schemas.common';
 import {
   EmbeddedCountry,
   EmbeddedCountrySchema,
