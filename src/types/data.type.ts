@@ -1,3 +1,4 @@
+import { SignInDto } from '../api/auth/dto';
 import {
   DEVICE_PLATFORMS,
   EDUCATION_LEVELS,
@@ -11,7 +12,6 @@ import {
   USER_STATUSES,
   WEEKLY_COINS,
 } from '../constants/data.constant';
-import { SignInDto } from '../modules/auth/dto';
 
 export type ValueOf<T> = T[keyof T];
 

@@ -1,4 +1,4 @@
-import { ClientData } from '../../../modules/auth/auth.type';
+import { ClientData } from '../../../api/auth/auth.type';
 import { ApiBaseService } from './api.base.service';
 
 export class ApiWriteService<

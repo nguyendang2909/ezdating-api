@@ -1,6 +1,6 @@
 import { NotImplementedException } from '@nestjs/common';
 
-import { ClientData } from '../../../modules/auth/auth.type';
+import { ClientData } from '../../../api/auth/auth.type';
 import { ERROR_MESSAGES } from '../../messages';
 import { DbBaseService } from '../db/db.base.service';
 

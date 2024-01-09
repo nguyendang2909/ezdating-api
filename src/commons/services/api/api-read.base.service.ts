@@ -1,5 +1,5 @@
+import { ClientData } from '../../../api/auth/auth.type';
 import { APP_CONFIG } from '../../../app.config';
-import { ClientData } from '../../../modules/auth/auth.type';
 import { Pagination } from '../../../types';
 import { ApiBaseService } from './api.base.service';
 

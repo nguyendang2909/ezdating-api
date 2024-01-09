@@ -123,6 +123,7 @@ export class BasicProfileWriteService extends ApiWriteService<
     client: ClientData,
   ) {
     const { _currentUserId } = this.getClient(client);
+    // eslint-disable-next-line prefer-const
     let { profile, basicProfile } = await this.tryFindProfileAndBasicProfile(
       _currentUserId,
     );

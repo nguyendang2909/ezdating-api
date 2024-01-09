@@ -27,9 +27,9 @@ import { ErrorMessage } from '../../../types';
 
 export class CommonModel<
   TRawDocType,
-  TQueryHelpers = {},
-  TInstanceMethods = {},
-  TVirtuals = {},
+  TQueryHelpers = object,
+  TInstanceMethods = object,
+  TVirtuals = object,
   THydratedDocumentType = HydratedDocument<
     TRawDocType,
     TVirtuals & TInstanceMethods,
@@ -183,7 +183,7 @@ export class CommonModel<
       IfAny<
         TRawDocType,
         any,
-        Document<unknown, {}, TRawDocType> & Require_id<TRawDocType>
+        Document<unknown, object, TRawDocType> & Require_id<TRawDocType>
       >
     >,
     options?:
@@ -205,7 +205,7 @@ export class CommonModel<
       IfAny<
         TRawDocType,
         any,
-        Document<unknown, {}, TRawDocType> & Require_id<TRawDocType>
+        Document<unknown, object, TRawDocType> & Require_id<TRawDocType>
       >
     >,
     options?:
