@@ -8,7 +8,7 @@ export function IsBiggerOrEqual(
   property: string,
   validationOptions?: ValidationOptions,
 ) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'is_more_than',
       target: object.constructor,

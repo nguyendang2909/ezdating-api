@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 
+import { MongoGeoLocation } from '../models';
 import { ERROR_MESSAGES } from '../commons/messages';
 import { DATE_FORMATS } from '../constants';
-import { MongoGeoLocation } from '../modules/models';
 import { BaseUtil } from './bases/base.util';
 
 @Injectable()

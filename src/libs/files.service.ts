@@ -14,8 +14,8 @@ import {
   FILE_UPLOAD_FOLDERS,
   FILE_UPLOAD_FOLDERS_ARR,
 } from '../constants/common.constants';
-import { MediaFileModel, ProfileModel } from '../modules/models';
-import { MediaFile } from '../modules/models/schemas/media-file.schema';
+import { MediaFileModel, ProfileModel } from '../models';
+import { MediaFile } from '../models/schemas/media-file.schema';
 
 @Injectable()
 export class FilesService {

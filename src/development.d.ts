@@ -1,4 +1,4 @@
-import { ClientData } from './modules/auth/auth.type';
+import { ClientData } from './api/auth/auth.type';
 
 declare global {
   namespace NodeJS {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
-import { Match, Message, Profile, User, View } from '../modules/models';
-import { MediaFile } from '../modules/models/schemas/media-file.schema';
+import { Match, Message, Profile, User, View } from '../models';
+import { MediaFile } from '../models/schemas/media-file.schema';
 import {
   DevicePlatform,
   Gender,
