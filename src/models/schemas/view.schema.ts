@@ -39,11 +39,9 @@ ViewSchema.index(
 );
 
 ViewSchema.index({
+  _id: 1,
   'profile._id': 1,
   'targetProfile.state._id': 1,
-  isMatched: 1,
-  isLiked: 1,
-  createdAt: 1,
 });
 
 ViewSchema.index({

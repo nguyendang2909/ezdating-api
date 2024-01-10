@@ -4,11 +4,11 @@ import moment from 'moment';
 import { APP_CONFIG } from '../../../app.config';
 import { ERROR_MESSAGES } from '../../../commons/messages';
 import { ApiReadService } from '../../../commons/services/api/api-read.base.service';
+import { Profile, ProfileFilterModel, ProfileModel } from '../../../models';
 import { Pagination } from '../../../types';
 import { ProfilesUtil } from '../../../utils';
 import { PaginationCursorNumberUtil } from '../../../utils/paginations/pagination-cursor-number.util';
 import { ClientData } from '../../auth/auth.type';
-import { Profile, ProfileFilterModel, ProfileModel } from '../../../models';
 import { FindManyNearbyProfilesQuery } from '../dto';
 
 @Injectable()

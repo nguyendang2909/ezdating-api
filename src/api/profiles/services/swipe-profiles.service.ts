@@ -4,13 +4,13 @@ import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../../app.config';
 import { ApiReadService } from '../../../commons/services/api/api-read.base.service';
-import { ClientData } from '../../auth/auth.type';
 import {
   Profile,
   ProfileFilterModel,
   ProfileModel,
   ViewModel,
 } from '../../../models';
+import { ClientData } from '../../auth/auth.type';
 import { FindManySwipeProfilesQuery } from '../dto';
 
 @Injectable()
@@ -81,11 +81,9 @@ export class SwipeProfilesService extends ApiReadService<
       {
         'profile._id': profile._id,
         'targetProfile.state._id': profile.state?._id,
-        isMatched: false,
-        isLiked: false,
       },
       { 'targetProfile._id': 1 },
-      { limit: 1000 },
+      { limit: 1000, sort: { _id: -1 } },
     );
     excludedUserIds.push(...views.map((e) => e.targetProfile._id));
     return excludedUserIds;
