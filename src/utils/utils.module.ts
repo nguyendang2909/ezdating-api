@@ -1,5 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 
+import { CoinAttendancesUtil } from './coin-attendances.util';
+import { MatchesUtil } from './matches.util';
 import {
   PaginationCursorDateUtil,
   PaginationCursorNumberUtil,
@@ -7,6 +9,7 @@ import {
   PaginationCursorStringUtil,
 } from './paginations';
 import { ProfilesUtil } from './profiles.util';
+import { UsersUtil } from './users.util';
 
 @Global()
 @Module({
@@ -17,6 +20,9 @@ import { ProfilesUtil } from './profiles.util';
     PaginationCursorDateUtil,
     PaginationCursorObjectIdUtil,
     PaginationCursorNumberUtil,
+    UsersUtil,
+    MatchesUtil,
+    CoinAttendancesUtil,
   ],
   controllers: [],
   providers: [
@@ -25,6 +31,9 @@ import { ProfilesUtil } from './profiles.util';
     PaginationCursorDateUtil,
     PaginationCursorObjectIdUtil,
     PaginationCursorNumberUtil,
+    UsersUtil,
+    MatchesUtil,
+    CoinAttendancesUtil,
   ],
 })
 export class UtilsModule {}

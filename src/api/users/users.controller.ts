@@ -6,7 +6,7 @@ import { IsPublicEndpoint } from '../../commons/decorators/is-public.endpoint';
 import { ClientData } from '../auth/auth.type';
 import { BlockUserDto } from './dto/block-user.dto';
 import { UsersReadMeService } from './services';
-import { UsersBlockService } from './services/users-block.service';
+import { UsersWriteService } from './services/users.write.service';
 
 @Controller('users')
 @ApiTags('users')
@@ -14,14 +14,14 @@ import { UsersBlockService } from './services/users-block.service';
 export class UsersController {
   constructor(
     private readonly readMeService: UsersReadMeService,
-    private readonly blockService: UsersBlockService,
+    private readonly usersWriteService: UsersWriteService,
   ) {}
 
   @Post('/blocks')
   async block(payload: BlockUserDto, @Client() client: ClientData) {
     return {
       type: 'block_user',
-      data: await this.blockService.run(payload, client),
+      data: await this.usersWriteService.block(payload, client),
     };
   }
 
@@ -29,7 +29,7 @@ export class UsersController {
   async unblock(payload: BlockUserDto, @Client() client: ClientData) {
     return {
       type: 'block_user',
-      data: await this.blockService.run(payload, client),
+      data: await this.usersWriteService.unblock(payload, client),
     };
   }
 

@@ -1,25 +1,23 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { APP_CONFIG } from '../../app.config';
-import { ChatsGateway } from '../../chats/chats.gateway';
-import { ApiBaseService } from '../../commons';
-import { SOCKET_TO_CLIENT_EVENTS } from '../../constants';
-import { MatchWithTargetProfile, Profile, ProfileModel } from '../../models';
-import { MatchModel } from '../../models/match.model';
-import { ViewModel } from '../../models/view.model';
-import { PushNotificationsService } from '../push-notifications/push-notifications.service';
+import { PushNotificationsService } from '../api/push-notifications/push-notifications.service';
+import { APP_CONFIG } from '../app.config';
+import { ChatsGateway } from '../chats/chats.gateway';
+import { MatchModel, Profile, ProfileModel, ViewModel } from '../models';
+import { MatchesUtil } from '../utils';
+import { MatchesSocketEventHandler } from './events';
 
 @Injectable()
-export class LikesHandler extends ApiBaseService {
+export class LikesHandler {
   constructor(
     private readonly chatsGateway: ChatsGateway,
     private readonly matchModel: MatchModel,
     private readonly viewModel: ViewModel,
     private readonly profileModel: ProfileModel,
     private readonly pushNotificationsService: PushNotificationsService,
-  ) {
-    super();
-  }
+    private readonly matchesUtil: MatchesUtil,
+    private readonly matchesSocketEventHandler: MatchesSocketEventHandler,
+  ) {}
 
   logger = new Logger(LikesHandler.name);
 
@@ -39,16 +37,16 @@ export class LikesHandler extends ApiBaseService {
         profileOne,
         profileTwo,
       });
-      this.emitMatchToUser(
+      this.matchesSocketEventHandler.emitMatchToUser(
         profileOne._id.toString(),
-        this.matchModel.formatOneWithTargetProfile(createdMatch, true),
+        this.matchesUtil.formatOneWithTargetProfile(createdMatch, true),
       );
-      this.emitMatchToUser(
+      this.matchesSocketEventHandler.emitMatchToUser(
         profileTwo._id.toString(),
-        this.matchModel.formatOneWithTargetProfile(createdMatch, false),
+        this.matchesUtil.formatOneWithTargetProfile(createdMatch, false),
       );
       // Push notification
-      const isUserOne = this.matchModel.isUserOne({
+      const isUserOne = this.matchesUtil.isUserOne({
         currentUserId,
         userOneId: profileOne._id.toString(),
       });
@@ -59,16 +57,5 @@ export class LikesHandler extends ApiBaseService {
         title: APP_CONFIG.APP_TITLE,
       });
     }
-  }
-
-  emitMatchToUser(userId: string, payload: MatchWithTargetProfile) {
-    this.logger.log(
-      `SOCKET_EVENT Emit "${
-        SOCKET_TO_CLIENT_EVENTS.MATCH
-      }" userId: ${JSON.stringify(userId)} payload: ${JSON.stringify(payload)}`,
-    );
-    this.chatsGateway.server
-      .to(userId)
-      .emit(SOCKET_TO_CLIENT_EVENTS.MATCH, payload);
   }
 }

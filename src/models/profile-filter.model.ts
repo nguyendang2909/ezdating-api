@@ -6,6 +6,7 @@ import { APP_CONFIG } from '../app.config';
 import { ERROR_MESSAGES } from '../commons/messages/error-messages.constant';
 import { GENDERS } from '../constants';
 import { Gender } from '../types';
+import { ProfilesUtil } from '../utils';
 import { CommonModel } from './bases/common-model';
 import { ProfileModel } from './profile.model';
 import {
@@ -21,6 +22,7 @@ export class ProfileFilterModel extends CommonModel<ProfileFilter> {
     @InjectModel(ProfileFilter.name)
     readonly model: Model<ProfileFilterDocument>,
     readonly profileModel: ProfileModel,
+    private readonly profilesUtil: ProfilesUtil,
   ) {
     super();
     this.conflictMessage = ERROR_MESSAGES['Profile filter already exists'];
@@ -38,7 +40,7 @@ export class ProfileFilterModel extends CommonModel<ProfileFilter> {
   }
 
   async createOneFromProfile(profile: Profile | BasicProfile) {
-    const age = this.profileModel.getAgeFromBirthday(profile.birthday);
+    const age = this.profilesUtil.getAgeFromBirthday(profile.birthday);
     return await this.createOne({
       _id: profile._id,
       gender: this.getFilterGender(profile.gender),

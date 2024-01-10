@@ -4,15 +4,17 @@ import mongoose from 'mongoose';
 
 import { ApiBaseService } from '../../commons';
 import { WEEKLY_COINS } from '../../constants';
-import { WeeklyCoin } from '../../types';
-import { ClientData } from '../auth/auth.type';
 import { CoinAttendance, CoinAttendanceModel, UserModel } from '../../models';
+import { WeeklyCoin } from '../../types';
+import { CoinAttendancesUtil } from '../../utils';
+import { ClientData } from '../auth/auth.type';
 
 @Injectable()
 export class CoinsService extends ApiBaseService {
   constructor(
     private readonly coinAttendanceModel: CoinAttendanceModel,
     private readonly userModel: UserModel,
+    private readonly coinAttendancesUtil: CoinAttendancesUtil,
   ) {
     super();
   }
@@ -37,7 +39,7 @@ export class CoinsService extends ApiBaseService {
       isReceivedAttendance: !!newestAttendance,
       data: newestAttendance
         ? attendances
-        : this.coinAttendanceModel.getByStartDays(attendances),
+        : this.coinAttendancesUtil.getByStartDays(attendances),
     };
   }
 
@@ -65,7 +67,7 @@ export class CoinsService extends ApiBaseService {
       return { data: lastCoinAttendance, isReceivedAttendance: false };
     }
     const nextReceivedDayIndex =
-      this.coinAttendanceModel.getNextReceivedDayIndexFromValue(
+      this.coinAttendancesUtil.getNextReceivedDayIndexFromValue(
         lastCoinAttendance.value,
       );
     return {
@@ -75,7 +77,7 @@ export class CoinsService extends ApiBaseService {
         receivedDate: todayDate,
         receivedDateIndex: nextReceivedDayIndex,
         value:
-          this.coinAttendanceModel.getValueFromReceivedDayIndex(
+          this.coinAttendancesUtil.getValueFromReceivedDayIndex(
             nextReceivedDayIndex,
           ),
       }),

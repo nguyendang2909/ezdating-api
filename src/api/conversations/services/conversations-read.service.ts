@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 
 import { APP_CONFIG } from '../../../app.config';
 import { ApiReadService } from '../../../commons/services/api/api-read.base.service';
-import { Pagination } from '../../../types';
-import { PaginationCursorStringUtil } from '../../../utils';
-import { ClientData } from '../../auth/auth.type';
 import { MatchModel } from '../../../models/match.model';
 import {
   Match,
   MatchWithTargetProfile,
 } from '../../../models/schemas/match.schema';
+import { Pagination } from '../../../types';
+import { MatchesUtil, PaginationCursorStringUtil } from '../../../utils';
+import { ClientData } from '../../auth/auth.type';
 import { FindManyConversationsQuery } from '../dto/find-many-conversations.dto';
 
 @Injectable()
@@ -17,6 +17,7 @@ export class ConversationsReadService extends ApiReadService<MatchWithTargetProf
   constructor(
     private readonly matchModel: MatchModel,
     protected readonly paginationUtil: PaginationCursorStringUtil,
+    private readonly matchesUtil: MatchesUtil,
   ) {
     super();
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.CONVERSATIONS;
@@ -42,7 +43,7 @@ export class ConversationsReadService extends ApiReadService<MatchWithTargetProf
         limit: this.limitRecordsPerQuery,
       },
     );
-    return this.matchModel.formatManyWithTargetProfile(
+    return this.matchesUtil.formatManyWithTargetProfile(
       findResults,
       currentUserId,
     );

@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import _ from 'lodash';
 
 import { ApiWriteService } from '../../../commons';
+import { MatchesHandler } from '../../../handlers/matches.handler';
+import {
+  MatchModel,
+  MatchWithTargetProfile,
+  ProfileModel,
+} from '../../../models';
 import { ClientData } from '../../auth/auth.type';
-import { MatchModel, MatchWithTargetProfile, ProfileModel } from '../../../models';
 import { CreateMatchDto } from '../dto';
-import { MatchesHandler } from '../matches.handler';
 
 @Injectable()
 export class MatchesWriteService extends ApiWriteService<
@@ -67,7 +71,7 @@ export class MatchesWriteService extends ApiWriteService<
       _id,
       ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
     });
-    this.matchesHandler.afterUnmatch({
+    this.matchesHandler.handleAfterUnmatch({
       match: existMatch,
       currentUserId,
     });

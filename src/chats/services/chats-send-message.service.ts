@@ -12,6 +12,7 @@ import {
   MessageModel,
   SignedDeviceModel,
 } from '../../models';
+import { MatchesUtil } from '../../utils';
 import { SendChatMessageDto } from '../dto/send-chat-message.dto';
 
 @Injectable()
@@ -21,6 +22,7 @@ export class ChatsSendMessageService extends SocketBaseService {
     private readonly messageModel: MessageModel,
     private readonly signedDeviceModel: SignedDeviceModel,
     private readonly pushNotificationsService: PushNotificationsService,
+    private readonly matchesUtil: MatchesUtil,
   ) {
     super();
   }
@@ -90,7 +92,7 @@ export class ChatsSendMessageService extends SocketBaseService {
     const { profileOne, profileTwo } = match;
     const userOneId = profileOne._id.toString();
     const userTwoId = profileTwo._id.toString();
-    const isUserOne = this.matchModel.isUserOne({ currentUserId, userOneId });
+    const isUserOne = this.matchesUtil.isUserOne({ currentUserId, userOneId });
     this.matchModel
       .updateOneById(match._id, {
         $set: {
@@ -118,7 +120,7 @@ export class ChatsSendMessageService extends SocketBaseService {
       }" to: ${JSON.stringify(emitRoomIds)} payload: ${message}`,
     );
     socket.to(emitRoomIds).emit(SOCKET_TO_CLIENT_EVENTS.NEW_MESSAGE, message);
-    const { _targetUserId } = this.matchModel.getTargetUserId({
+    const { _targetUserId } = this.matchesUtil.getTargetUserId({
       currentUserId,
       userOneId,
       userTwoId,

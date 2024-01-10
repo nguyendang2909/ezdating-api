@@ -33,6 +33,7 @@ import { ViewsModule } from './api/views/views.module';
 import { ViolationReportsModule } from './api/violation-reports/volation-reports.module';
 import { APP_CONFIG } from './app.config';
 import { ChatsModule } from './chats/chats.module';
+import { HandlersModule } from './handlers';
 import { LibsModule } from './libs/libs.module';
 import { ModelsModule } from './models/models.module';
 import { UtilsModule } from './utils';
@@ -161,6 +162,7 @@ import { UtilsModule } from './utils';
     }),
     // JoiPipeModule.forRoot(),
     ModelsModule,
+    HandlersModule,
     UtilsModule,
     AuthModule,
     UsersModule,
