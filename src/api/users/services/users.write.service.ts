@@ -1,9 +1,10 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 import { ApiWriteService } from '../../../commons';
-import { User, UserModel } from '../../../models';
+import { MatchesHandler } from '../../../handlers/matches.handler';
+import { MatchModel, User, UserModel } from '../../../models';
 import { MongoConnection } from '../../../models/mongo.connection';
-import { UsersUtil } from '../../../utils';
+import { MatchesUtil, UsersUtil } from '../../../utils';
 import { ClientData } from '../../auth/auth.type';
 import { BlockUserDto } from '../dto/block-user.dto';
 
@@ -13,6 +14,9 @@ export class UsersWriteService extends ApiWriteService<User> {
     private readonly userModel: UserModel,
     private readonly usersUtil: UsersUtil,
     private readonly mongoConnection: MongoConnection,
+    private readonly matchesHandler: MatchesHandler,
+    private readonly matchModel: MatchModel,
+    private readonly matchUtl: MatchesUtil,
   ) {
     super();
   }
@@ -46,6 +50,10 @@ export class UsersWriteService extends ApiWriteService<User> {
         );
         throw new InternalServerErrorException();
       });
+    await this.matchesHandler.unmatchIfExist({
+      currentUserId,
+      targetUserId: payload.targetUserId,
+    });
   }
 
   public async unblock(

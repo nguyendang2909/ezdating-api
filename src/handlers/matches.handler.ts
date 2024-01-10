@@ -108,4 +108,34 @@ export class MatchesHandler {
       profileTwo,
     });
   }
+
+  async unmatchIfExist({
+    currentUserId,
+    targetUserId,
+  }: {
+    currentUserId: string;
+    targetUserId: string;
+  }) {
+    const { _userOneId, _userTwoId } = this.matchesUtil.getSortedUserIds({
+      currentUserId,
+      targetUserId,
+    });
+    const existMatch = await this.matchModel.findOneOrFail({
+      'profileOne._id': _userOneId,
+      'profileTwo._id': _userTwoId,
+    });
+    if (existMatch) {
+      await this.handleUnmatch(existMatch, currentUserId);
+    }
+  }
+
+  async handleUnmatch(match: Match, currentUserId: string) {
+    await this.matchModel.deleteOneOrFail({
+      _id: match._id,
+    });
+    this.handleAfterUnmatch({
+      match: match,
+      currentUserId,
+    });
+  }
 }

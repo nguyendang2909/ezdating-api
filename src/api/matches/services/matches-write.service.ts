@@ -60,23 +60,16 @@ export class MatchesWriteService extends ApiWriteService<
     const _id = this.getObjectId(id);
     const { id: currentUserId } = clientData;
     const _currentUserId = this.getObjectId(currentUserId);
-    const existMatch = await this.matchModel.findOneOrFail({
+    const match = await this.matchModel.findOneOrFail({
       _id,
       $or: [
         { 'profileOne._id': _currentUserId },
         { 'profileTwo._id': _currentUserId },
       ],
     });
-    await this.matchModel.deleteOneOrFail({
-      _id,
-      ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
-    });
-    this.matchesHandler.handleAfterUnmatch({
-      match: existMatch,
-      currentUserId,
-    });
+    await this.matchesHandler.handleUnmatch(match, currentUserId);
     return {
-      _id: existMatch._id,
+      _id: match._id,
     };
   }
 }
