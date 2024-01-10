@@ -2,13 +2,13 @@ import { Module } from '@nestjs/common';
 
 import { ModelsModule } from '../../models/models.module';
 import { UsersReadMeService } from './services';
-import { UsersWriteService } from './services/users.write.service';
+import { UsersWriteMeService } from './services/users.write-me.service';
 import { UsersController } from './users.controller';
 
 @Module({
   imports: [ModelsModule],
   exports: [],
   controllers: [UsersController],
-  providers: [UsersReadMeService, UsersWriteService],
+  providers: [UsersReadMeService, UsersWriteMeService],
 })
 export class UsersModule {}

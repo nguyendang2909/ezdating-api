@@ -18,10 +18,10 @@ import { Client } from '../../commons/decorators/current-user-id.decorator';
 import { RequireRoles } from '../../commons/decorators/require-roles.decorator';
 import { ERROR_MESSAGES } from '../../commons/messages';
 import { RESPONSE_TYPES, USER_ROLES } from '../../constants';
+import { Profile } from '../../models';
 import { PaginatedResponse } from '../../types';
 import { ClientData } from '../auth/auth.type';
 import { UploadPhotoDtoDto } from '../media-files/dto/upload-photo.dto';
-import { Profile } from '../../models';
 import {
   CreateBasicProfileDto,
   FindManyNearbyProfilesQuery,

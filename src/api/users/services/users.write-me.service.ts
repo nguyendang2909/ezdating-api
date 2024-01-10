@@ -1,15 +1,29 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
-import { ApiWriteService } from '../../../commons';
+import { ApiWriteMeService } from '../../../commons';
 import { MatchesHandler } from '../../../handlers/matches.handler';
-import { MatchModel, User, UserModel } from '../../../models';
+import { FilesService } from '../../../libs';
+import {
+  BasicProfileModel,
+  CoinAttendanceModel,
+  MatchModel,
+  MediaFileModel,
+  MessageModel,
+  ProfileFilterModel,
+  ProfileModel,
+  SignedDeviceModel,
+  User,
+  UserModel,
+  ViewModel,
+  ViolationReportModel,
+} from '../../../models';
 import { MongoConnection } from '../../../models/mongo.connection';
 import { MatchesUtil, UsersUtil } from '../../../utils';
 import { ClientData } from '../../auth/auth.type';
 import { BlockUserDto } from '../dto/block-user.dto';
 
 @Injectable()
-export class UsersWriteService extends ApiWriteService<User> {
+export class UsersWriteMeService extends ApiWriteMeService<User> {
   constructor(
     private readonly userModel: UserModel,
     private readonly usersUtil: UsersUtil,
@@ -17,6 +31,16 @@ export class UsersWriteService extends ApiWriteService<User> {
     private readonly matchesHandler: MatchesHandler,
     private readonly matchModel: MatchModel,
     private readonly matchUtl: MatchesUtil,
+    private readonly profileModel: ProfileModel,
+    private readonly profileFilterModel: ProfileFilterModel,
+    private readonly messageModel: MessageModel,
+    private readonly coinAttendanceModel: CoinAttendanceModel,
+    private readonly mediaFileModel: MediaFileModel,
+    private readonly basicProfileModel: BasicProfileModel,
+    private readonly signedDeviceModel: SignedDeviceModel,
+    private readonly viewModel: ViewModel,
+    private readonly violationReportModel: ViolationReportModel,
+    private readonly filesService: FilesService,
   ) {
     super();
   }
@@ -91,5 +115,33 @@ export class UsersWriteService extends ApiWriteService<User> {
         );
         throw new InternalServerErrorException();
       });
+  }
+
+  async delete(client: ClientData) {
+    const { _currentUserId } = this.getClient(client);
+    await this.userModel.deleteOne({ _id: _currentUserId });
+    const [matches, mediaFiles] = await Promise.all([
+      this.matchModel.findManyByUserId(_currentUserId, {
+        _id: true,
+      }),
+      this.mediaFileModel.findMany({
+        _userId: _currentUserId,
+      }),
+    ]);
+    await Promise.all([
+      this.basicProfileModel.deleteOneById(_currentUserId),
+      this.profileModel.deleteOneById(_currentUserId),
+      this.profileFilterModel.deleteOneById(_currentUserId),
+      this.coinAttendanceModel.deleteManyByUserId(_currentUserId),
+      this.signedDeviceModel.deleteManyByUserId(_currentUserId),
+      this.viewModel.deleteManyByUserId(_currentUserId),
+      this.violationReportModel.deleteMany({
+        $or: [{ _userId: _currentUserId }, { _targetUserId: _currentUserId }],
+      }),
+      this.matchModel.deleteManyByUserId(_currentUserId),
+      this.messageModel.deleteManyByMatches(matches),
+      this.mediaFileModel.deleteManyByUserId(_currentUserId),
+      this.filesService.removeManyByMediaFiles(mediaFiles),
+    ]);
   }
 }

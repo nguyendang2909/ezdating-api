@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model, ProjectionType, QueryOptions } from 'mongoose';
 import { Types } from 'mongoose';
 
 import { ERROR_MESSAGES } from '../commons/messages/error-messages.constant';
@@ -25,5 +25,27 @@ export class MatchModel extends CommonModel<Match> {
         { 'profileTwo._id': _currentUserId },
       ],
     };
+  }
+
+  async findManyByUserId(
+    _userId: mongoose.Types.ObjectId,
+    projection?: ProjectionType<Match> | null | undefined,
+    options?: QueryOptions<Match> | null | undefined,
+  ) {
+    return await this.findMany(
+      { $or: [{ 'profileOne._id': _userId }, { 'profileTwo._id': _userId }] },
+      projection,
+      options,
+    );
+  }
+
+  deleteManyByUserId(
+    _userId: mongoose.Types.ObjectId,
+    options?: QueryOptions<Match>,
+  ) {
+    return this.model.deleteMany(
+      { $or: [{ 'profileOne._id': _userId }, { 'profileTwo._id': _userId }] },
+      options,
+    );
   }
 }

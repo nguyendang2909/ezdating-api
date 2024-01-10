@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import async from 'async';
 import { S3 } from 'aws-sdk';
 import mongoose from 'mongoose';
 import sharp from 'sharp';
@@ -85,6 +86,26 @@ export class FilesService {
         Key: filePath,
       })
       .promise();
+  }
+
+  public async removeMany(filePaths: string[], limit = 6) {
+    return async.eachLimit(filePaths, limit, async (filePath) => {
+      try {
+        await this.removeOne(filePath);
+      } catch (err) {
+        this.logger.error(`Error when remove file from S3: ${filePath}`);
+      }
+    });
+  }
+
+  public async removeManyByMediaFiles(mediaFiles: MediaFile[], limit = 6) {
+    return async.eachLimit(mediaFiles, limit, async (mediaFile) => {
+      try {
+        await this.removeOne(mediaFile.key);
+      } catch (err) {
+        this.logger.error(`Error when remove file from S3: ${mediaFile.key}`);
+      }
+    });
   }
 
   public async removeOneAndCatch(photo: S3.ManagedUpload.SendData) {
