@@ -9,8 +9,17 @@ export type UserDocument = HydratedDocument<User>;
 
 @Schema({ timestamps: true })
 export class User extends CommonSchema {
+  @Prop({ type: [SchemaTypes.ObjectId] })
+  _blockedIds?: mongoose.Types.ObjectId[];
+
+  @Prop({ type: [SchemaTypes.ObjectId] })
+  _blockedByIds?: mongoose.Types.ObjectId[];
+
   @Prop({ type: String })
   appleId?: string;
+
+  @Prop({ type: String })
+  bannedReason?: string;
 
   @Prop({ type: Number, default: 0 })
   coins: number;
@@ -40,12 +49,6 @@ export class User extends CommonSchema {
 
   @Prop({ type: Number, enum: USER_STATUSES, default: USER_STATUSES.ACTIVATED })
   status: UserStatus;
-
-  @Prop({ type: [SchemaTypes.ObjectId] })
-  _blockedIds?: mongoose.Types.ObjectId[];
-
-  @Prop({ type: [SchemaTypes.ObjectId] })
-  _blockedByIds?: mongoose.Types.ObjectId[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

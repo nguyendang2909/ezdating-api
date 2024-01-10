@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 import { ApiWriteMeService } from '../../../commons';
+import { USER_STATUSES } from '../../../constants';
 import { MatchesHandler } from '../../../handlers/matches.handler';
 import { FilesService } from '../../../libs';
 import {
@@ -48,12 +49,15 @@ export class UsersWriteMeService extends ApiWriteMeService<User> {
   public async block(payload: BlockUserDto, client: ClientData): Promise<void> {
     const { _currentUserId, currentUserId } = this.getClient(client);
     const _targetUserId = this.getObjectId(payload.targetUserId);
-    const [currentUser] = await Promise.all([
+    const [currentUser, targetUser] = await Promise.all([
       this.userModel.findOneOrFailById(_currentUserId, {
         _id: true,
         _blockedIds: true,
       }),
-      this.userModel.findOneOrFailById(_targetUserId, { _id: true }),
+      this.userModel.findOneOrFailById(_targetUserId, {
+        _id: true,
+        _blockedByIds: true,
+      }),
     ]);
     this.usersUtil.verifyCanBlock(currentUser);
     await this.mongoConnection
@@ -64,6 +68,16 @@ export class UsersWriteMeService extends ApiWriteMeService<User> {
           }),
           this.userModel.updateOneById(_currentUserId, {
             $addToSet: { _blockedByIds: _currentUserId },
+            $set: {
+              ...(targetUser._blockedByIds &&
+              targetUser._blockedByIds?.length > 99
+                ? {
+                    status: USER_STATUSES.BANNED,
+                    bannedReason:
+                      'You receive too many blocks from other members',
+                  }
+                : {}),
+            },
           }),
         ]);
       })
