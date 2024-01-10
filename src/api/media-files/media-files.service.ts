@@ -8,8 +8,9 @@ import {
 import { ApiBaseService } from '../../commons';
 import { ERROR_MESSAGES } from '../../commons/messages';
 import { FilesService } from '../../libs/files.service';
-import { ClientData } from '../auth/auth.type';
 import { MediaFileModel, ProfileModel } from '../../models';
+import { ProfilesUtil } from '../../utils';
+import { ClientData } from '../auth/auth.type';
 import { UploadPhotoDtoDto } from './dto/upload-photo.dto';
 
 @Injectable()
@@ -18,6 +19,7 @@ export class MediaFilesService extends ApiBaseService {
     private readonly filesService: FilesService,
     private readonly profileModel: ProfileModel,
     private readonly mediaFileModel: MediaFileModel,
+    private readonly profilesUtil: ProfilesUtil,
   ) {
     super();
   }
@@ -31,7 +33,7 @@ export class MediaFilesService extends ApiBaseService {
   ) {
     const { _currentUserId } = this.getClient(client);
     const profile = await this.profileModel.findOneOrFailById(_currentUserId);
-    this.profileModel.verifyCanUploadFiles(profile);
+    this.profilesUtil.verifyCanUploadFiles(profile);
     const mediaFile = await this.filesService.createPhoto(file, _currentUserId);
     await this.filesService.updateProfileAfterCreatePhoto(
       mediaFile,

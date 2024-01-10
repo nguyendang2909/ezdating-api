@@ -3,17 +3,17 @@ import _ from 'lodash';
 
 import { APP_CONFIG } from '../../../app.config';
 import { ApiReadService } from '../../../commons/services/api/api-read.base.service';
-import { Pagination } from '../../../types';
-import { PaginationCursorDateUtil } from '../../../utils';
-import { ClientData } from '../../auth/auth.type';
+import { MatchesHandler } from '../../../handlers/matches.handler';
 import {
   Match,
   MatchModel,
   MatchWithTargetProfile,
   ProfileModel,
 } from '../../../models';
+import { Pagination } from '../../../types';
+import { MatchesUtil, PaginationCursorDateUtil } from '../../../utils';
+import { ClientData } from '../../auth/auth.type';
 import { FindManyMatchesQuery } from '../dto';
-import { MatchesHandler } from '../matches.handler';
 
 @Injectable()
 export class MatchesReadService extends ApiReadService<
@@ -25,6 +25,7 @@ export class MatchesReadService extends ApiReadService<
     private readonly profileModel: ProfileModel,
     private readonly matchesHandler: MatchesHandler,
     protected readonly paginationUtil: PaginationCursorDateUtil,
+    private readonly matchesUtil: MatchesUtil,
   ) {
     super();
     this.limitRecordsPerQuery = APP_CONFIG.PAGINATION_LIMIT.MATCHES;
@@ -46,7 +47,7 @@ export class MatchesReadService extends ApiReadService<
       {},
       { sort: { createdAt: -1 }, limit: this.limitRecordsPerQuery },
     );
-    return this.matchModel.formatManyWithTargetProfile(
+    return this.matchesUtil.formatManyWithTargetProfile(
       findResults,
       currentUserId,
     );
@@ -59,7 +60,7 @@ export class MatchesReadService extends ApiReadService<
       _id,
       ...this.matchModel.queryUserOneOrUserTwo(_currentUserId),
     });
-    const isUserOne = this.matchModel.isUserOne({
+    const isUserOne = this.matchesUtil.isUserOne({
       currentUserId,
       userOneId: match.profileOne._id.toString(),
     });
@@ -68,7 +69,11 @@ export class MatchesReadService extends ApiReadService<
         match.profileOne._id,
         match.profileTwo._id,
       );
-    this.matchesHandler.afterFindOneMatch({ match, profileOne, profileTwo });
+    this.matchesHandler.handleAfterFindOneMatch({
+      match,
+      profileOne,
+      profileTwo,
+    });
     return {
       ..._.omit(match, ['profileOne', 'profileTwo']),
       targetProfile: isUserOne ? profileTwo : profileOne,
@@ -77,7 +82,7 @@ export class MatchesReadService extends ApiReadService<
 
   async findOneByTargetUserId(targetUserId: string, client: ClientData) {
     const { _userOneId, _userTwoId, isUserOne } =
-      this.matchModel.getSortedUserIds({
+      this.matchesUtil.getSortedUserIds({
         currentUserId: client.id,
         targetUserId,
       });
@@ -88,7 +93,11 @@ export class MatchesReadService extends ApiReadService<
         'profileTwo._id': _userTwoId,
       }),
     ]);
-    this.matchesHandler.afterFindOneMatch({ match, profileOne, profileTwo });
+    this.matchesHandler.handleAfterFindOneMatch({
+      match,
+      profileOne,
+      profileTwo,
+    });
     return {
       ..._.omit(match, ['profileOne', 'profileTwo']),
       targetProfile: isUserOne ? profileTwo : profileOne,

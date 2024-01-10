@@ -8,9 +8,6 @@ import mongoose from 'mongoose';
 import { ApiWriteService } from '../../../commons';
 import { ERROR_MESSAGES } from '../../../commons/messages';
 import { FilesService } from '../../../libs';
-import { ProfilesUtil } from '../../../utils';
-import { ClientData } from '../../auth/auth.type';
-import { UploadPhotoDtoDto } from '../../media-files/dto/upload-photo.dto';
 import {
   BasicProfile,
   BasicProfileModel,
@@ -22,6 +19,9 @@ import {
 } from '../../../models';
 import { MongoConnection } from '../../../models/mongo.connection';
 import { MediaFile } from '../../../models/schemas/media-file.schema';
+import { ProfilesUtil } from '../../../utils';
+import { ClientData } from '../../auth/auth.type';
+import { UploadPhotoDtoDto } from '../../media-files/dto/upload-photo.dto';
 import { CreateBasicProfileDto } from '../dto';
 
 @Injectable()
@@ -128,7 +128,7 @@ export class BasicProfileWriteService extends ApiWriteService<
       _currentUserId,
     );
     if (profile) {
-      this.profileModel.verifyCanUploadFiles(profile);
+      this.profilesUtil.verifyCanUploadFiles(profile);
     }
     return await this.mongoConnection.withTransaction(async () => {
       const mediaFile = await this.filesService.createPhoto(

@@ -2,8 +2,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { ApiWriteService } from '../../../commons';
 import { ERROR_MESSAGES } from '../../../commons/messages';
-import { ClientData } from '../../auth/auth.type';
 import { MatchModel, ProfileModel, View, ViewModel } from '../../../models';
+import { MatchesUtil } from '../../../utils';
+import { ClientData } from '../../auth/auth.type';
 import { SendViewDto } from '../dto';
 
 @Injectable()
@@ -12,6 +13,7 @@ export class ViewsWriteService extends ApiWriteService<View, SendViewDto> {
     private readonly viewModel: ViewModel,
     private readonly profileModel: ProfileModel,
     private readonly matchModel: MatchModel,
+    private readonly matchesUtil: MatchesUtil,
   ) {
     super();
   }
@@ -33,7 +35,7 @@ export class ViewsWriteService extends ApiWriteService<View, SendViewDto> {
         _currentUserId,
         _targetUserId,
       );
-    const isUserOne = this.matchModel.isUserOne({
+    const isUserOne = this.matchesUtil.isUserOne({
       currentUserId,
       userOneId: profileOne._id.toString(),
     });

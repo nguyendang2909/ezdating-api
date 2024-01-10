@@ -1,5 +1,8 @@
+export * from './coin-attendances.util';
+export * from './matches.util';
 export * from './paginations';
 export * from './profiles.util';
+export * from './users.util';
 export * from './utils.module';
 export * from './validators';
 

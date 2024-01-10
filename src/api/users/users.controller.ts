@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Delete, Get, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
@@ -6,7 +6,7 @@ import { IsPublicEndpoint } from '../../commons/decorators/is-public.endpoint';
 import { ClientData } from '../auth/auth.type';
 import { BlockUserDto } from './dto/block-user.dto';
 import { UsersReadMeService } from './services';
-import { UsersBlockService } from './services/users-block.service';
+import { UsersWriteMeService } from './services/users.write-me.service';
 
 @Controller('users')
 @ApiTags('users')
@@ -14,14 +14,14 @@ import { UsersBlockService } from './services/users-block.service';
 export class UsersController {
   constructor(
     private readonly readMeService: UsersReadMeService,
-    private readonly blockService: UsersBlockService,
+    private readonly usersWriteMeService: UsersWriteMeService,
   ) {}
 
   @Post('/blocks')
   async block(payload: BlockUserDto, @Client() client: ClientData) {
     return {
       type: 'block_user',
-      data: await this.blockService.run(payload, client),
+      data: await this.usersWriteMeService.block(payload, client),
     };
   }
 
@@ -29,7 +29,7 @@ export class UsersController {
   async unblock(payload: BlockUserDto, @Client() client: ClientData) {
     return {
       type: 'block_user',
-      data: await this.blockService.run(payload, client),
+      data: await this.usersWriteMeService.unblock(payload, client),
     };
   }
 
@@ -50,11 +50,11 @@ export class UsersController {
     };
   }
 
-  // @Post('/me/deactivate')
-  // async deactivate(@Client() clientData: ClientData) {
-  //   return {
-  //     type: 'deactivate',
-  //     data: await this.usersService.deactivate(clientData),
-  //   };
-  // }
+  @Delete('/me')
+  async delete(@Client() clientData: ClientData) {
+    return {
+      type: 'deleteUser',
+      data: await this.usersWriteMeService.delete(clientData),
+    };
+  }
 }

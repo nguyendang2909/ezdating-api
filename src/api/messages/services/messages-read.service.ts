@@ -3,13 +3,13 @@ import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../../app.config';
 import { ApiReadService } from '../../../commons/services/api/api-read.base.service';
-import { Pagination } from '../../../types';
-import { PaginationCursorDateUtil } from '../../../utils';
-import { ClientData } from '../../auth/auth.type';
 import { Match } from '../../../models';
 import { MatchModel } from '../../../models/match.model';
 import { MessageModel } from '../../../models/message.model';
 import { Message } from '../../../models/schemas/message.schema';
+import { Pagination } from '../../../types';
+import { MatchesUtil, PaginationCursorDateUtil } from '../../../utils';
+import { ClientData } from '../../auth/auth.type';
 import { FindManyMessagesQuery } from '../dto/find-many-messages.dto';
 
 @Injectable()
@@ -18,6 +18,7 @@ export class MessagesReadService extends ApiReadService<Message> {
     private readonly matchModel: MatchModel,
     private readonly messageModel: MessageModel,
     private readonly paginationUtil: PaginationCursorDateUtil,
+    private readonly matchesUtil: MatchesUtil,
   ) {
     super();
 
@@ -72,7 +73,7 @@ export class MessagesReadService extends ApiReadService<Message> {
     currentUserId: string;
     match: Match;
   }) {
-    const isUserOne = this.matchModel.isUserOne({
+    const isUserOne = this.matchesUtil.isUserOne({
       currentUserId,
       userOneId: match.profileOne._id.toString(),
     });
