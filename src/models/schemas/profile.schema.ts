@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-import { CommonSchema } from './bases/schemas.common';
 import {
   EDUCATION_LEVELS,
   GENDERS,
@@ -16,6 +15,7 @@ import {
   RelationshipGoal,
   RelationshipStatus,
 } from '../../types';
+import { CommonSchema } from './bases/schemas.common';
 import {
   EmbeddedMediaFile,
   EmbeddedMediaFileSchema,
