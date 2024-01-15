@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { BasicProfileModel } from './basic-profile.model';
 import { CoinAttendanceModel } from './coin-attendance.model';
 import { CountryModel } from './country.model';
+import { CourseCategoryModel } from './course-category.model';
 import { MatchModel } from './match.model';
 import { MediaFileModel } from './media-file.model';
 import { MessageModel } from './message.model';
@@ -15,6 +16,8 @@ import {
   BasicProfileSchema,
   Country,
   CountrySchema,
+  CourseCategory,
+  CourseCategorySchema,
   ProfileFilter,
   ProfileFilterSchema,
   State,
@@ -93,6 +96,7 @@ import { ViolationReportModel } from './violation-report.model';
       { name: TrashProfile.name, schema: TrashProfileSchema },
       { name: TrashProfileFilter.name, schema: TrashProfileFilterSchema },
       { name: TrashUser.name, schema: TrashUserSchema },
+      { name: CourseCategory.name, schema: CourseCategorySchema },
     ]),
   ],
   exports: [
@@ -109,6 +113,7 @@ import { ViolationReportModel } from './violation-report.model';
     UserModel,
     ViewModel,
     ViolationReportModel,
+    CourseCategoryModel,
 
     TrashMatchModel,
     TrashMediaFileModel,
@@ -133,6 +138,7 @@ import { ViolationReportModel } from './violation-report.model';
     ViewModel,
     MediaFileModel,
     ViolationReportModel,
+    CourseCategoryModel,
 
     TrashMatchModel,
     TrashMediaFileModel,

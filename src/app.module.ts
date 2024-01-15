@@ -15,6 +15,7 @@ import { AdminAuthModule } from './api/admin/admin-auth/admin-auth.module';
 import { AuthModule } from './api/auth/auth.module';
 import { ConversationsModule } from './api/conversations/conversations.module';
 import { CountriesModule } from './api/countries/countries.module';
+import { CourseCategoriesModule } from './api/course-categories/course-categories.module';
 import { JwtAuthGuard } from './api/guards/jwt.guard';
 import { RolesGuard } from './api/guards/roles.guard';
 import { HealthModule } from './api/health/health.module';
@@ -186,6 +187,7 @@ import { UtilsModule } from './utils';
     ProfileFiltersModule,
     CountriesModule,
     ViolationReportsModule,
+    CourseCategoriesModule,
     // StatesModule,
 
     // CoinsModule,

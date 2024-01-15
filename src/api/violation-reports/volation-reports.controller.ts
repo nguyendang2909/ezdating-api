@@ -15,7 +15,7 @@ export class ViolationReportsController {
     @Client() client: ClientData,
   ) {
     return {
-      type: 'violationReport',
+      type: 'violation_report',
       data: this.createService.run(payload, client),
     };
   }

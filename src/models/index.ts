@@ -3,6 +3,7 @@ export * from './bases/common-model';
 export * from './basic-profile.model';
 export * from './coin-attendance.model';
 export * from './country.model';
+export * from './course-category.model';
 export * from './match.model';
 export * from './media-file.model';
 export * from './message.model';

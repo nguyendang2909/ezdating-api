@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { WebSocketServer } from '@nestjs/websockets';
 import mongoose from 'mongoose';
-import { Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 
 import { PushNotificationsService } from '../../api/push-notifications/push-notifications.service';
 import { ERROR_MESSAGES, SocketBaseService } from '../../commons';
@@ -26,6 +27,8 @@ export class ChatsSendMessageService extends SocketBaseService {
   ) {
     super();
   }
+
+  @WebSocketServer() public readonly server: Server;
 
   logger = new Logger(ChatsSendMessageService.name);
 

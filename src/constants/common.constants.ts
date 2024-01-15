@@ -32,3 +32,5 @@ export const FILE_UPLOAD_FOLDERS_ARR: string[] =
 export const REGEXS = {
   BIRTHDAY: /^\d{4}(-)(((0)[0-9])|((1)[0-2]))(-)([0-2][0-9]|(3)[0-1])$/i,
 };
+
+export const COURSE_CATEGORIES = [{ title: 'English', tag: 'english' }];

@@ -1,6 +1,7 @@
 export * from './basic-profile.schema';
 export * from './coin-attendance.schema';
 export * from './country.schema';
+export * from './course-category.schema';
 export * from './embedded';
 export * from './match.schema';
 export * from './message.schema';
