@@ -7,6 +7,7 @@ import async from 'async';
 import { S3 } from 'aws-sdk';
 import mongoose from 'mongoose';
 import sharp from 'sharp';
+import { Stream } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ERROR_MESSAGES } from '../commons/messages';
@@ -48,6 +49,20 @@ export class FilesService {
         ACL: 'public-read',
       })
       .promise();
+  }
+
+  uploadVideoStream() {
+    const pass = new Stream.PassThrough();
+    return {
+      writeStream: pass,
+      upload: this.s3
+        .upload({
+          Bucket: this.awsBucketName,
+          Key: `${FILE_UPLOAD_FOLDERS.VIDEOS}/${uuidv4()}.mp4`,
+          Body: pass,
+        })
+        .promise(),
+    };
   }
 
   async createPhoto(

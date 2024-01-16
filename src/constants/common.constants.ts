@@ -24,6 +24,7 @@ export const BULL_QUEUE_JOBS = {
 
 export const FILE_UPLOAD_FOLDERS = {
   PHOTOS: 'photos',
+  VIDEOS: 'videos',
 } as const;
 
 export const FILE_UPLOAD_FOLDERS_ARR: string[] =

@@ -4,7 +4,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { BasicProfileModel } from './basic-profile.model';
 import { CoinAttendanceModel } from './coin-attendance.model';
 import { CountryModel } from './country.model';
+import { CourseModel } from './course.model';
 import { CourseCategoryModel } from './course-category.model';
+import { LessionModel } from './lesson.model';
 import { MatchModel } from './match.model';
 import { MediaFileModel } from './media-file.model';
 import { MessageModel } from './message.model';
@@ -16,8 +18,12 @@ import {
   BasicProfileSchema,
   Country,
   CountrySchema,
+  Course,
   CourseCategory,
   CourseCategorySchema,
+  CourseSchema,
+  Lession,
+  LessonSchema,
   ProfileFilter,
   ProfileFilterSchema,
   State,
@@ -89,6 +95,9 @@ import { ViolationReportModel } from './violation-report.model';
       { name: PushNotification.name, schema: PushNotificationSchema },
       { name: MediaFile.name, schema: MediaFileSchema },
       { name: ViolationReport.name, schema: ViolationReportSchema },
+      { name: CourseCategory.name, schema: CourseCategorySchema },
+      { name: Course.name, schema: CourseSchema },
+      { name: Lession.name, schema: LessonSchema },
 
       { name: TrashMatch.name, schema: TrashMatchSchema },
       { name: TrashMediaFile.name, schema: TrashMediaFileSchema },
@@ -96,7 +105,6 @@ import { ViolationReportModel } from './violation-report.model';
       { name: TrashProfile.name, schema: TrashProfileSchema },
       { name: TrashProfileFilter.name, schema: TrashProfileFilterSchema },
       { name: TrashUser.name, schema: TrashUserSchema },
-      { name: CourseCategory.name, schema: CourseCategorySchema },
     ]),
   ],
   exports: [
@@ -114,6 +122,8 @@ import { ViolationReportModel } from './violation-report.model';
     ViewModel,
     ViolationReportModel,
     CourseCategoryModel,
+    CourseModel,
+    LessionModel,
 
     TrashMatchModel,
     TrashMediaFileModel,
@@ -139,6 +149,8 @@ import { ViolationReportModel } from './violation-report.model';
     MediaFileModel,
     ViolationReportModel,
     CourseCategoryModel,
+    CourseModel,
+    LessionModel,
 
     TrashMatchModel,
     TrashMediaFileModel,

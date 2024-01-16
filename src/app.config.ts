@@ -2,6 +2,11 @@ export const APP_CONFIG = {
   ACCESS_TOKEN_EXPIRES: '60m',
   APP_NAME: 'Research',
   APP_TITLE: 'EZ Dating',
+  FILE: {
+    VIDEO: {
+      MAX_UPLOAD_SIZE: 100 * 1024 * 1024,
+    },
+  },
   PAGINATION_LIMIT: {
     CONVERSATIONS: 20,
     DEFAULT: 20,

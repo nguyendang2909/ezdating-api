@@ -73,7 +73,7 @@ export interface IApiBaseService {
     client: ClientData,
   ): Promise<{ data: Record<string, any>[]; pagination: Pagination }>;
 
-  findOneById(id: string, client: ClientData): Promise<Record<string, any>>;
+  findOneById?(id: string, client: ClientData): Promise<Record<string, any>>;
 
   updateOneById?(
     id: string,

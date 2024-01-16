@@ -16,9 +16,11 @@ import { AuthModule } from './api/auth/auth.module';
 import { ConversationsModule } from './api/conversations/conversations.module';
 import { CountriesModule } from './api/countries/countries.module';
 import { CourseCategoriesModule } from './api/course-categories/course-categories.module';
+import { CoursesModule } from './api/courses/courses.module';
 import { JwtAuthGuard } from './api/guards/jwt.guard';
 import { RolesGuard } from './api/guards/roles.guard';
 import { HealthModule } from './api/health/health.module';
+import { LessonsModule } from './api/lessons/lessons.module';
 import { LikesModule } from './api/likes/likes.module';
 import { MatchesModule } from './api/matches/matches.module';
 import { MediaFilesModule } from './api/media-files/media-files.module';
@@ -188,6 +190,8 @@ import { UtilsModule } from './utils';
     CountriesModule,
     ViolationReportsModule,
     CourseCategoriesModule,
+    CoursesModule,
+    LessonsModule,
     // StatesModule,
 
     // CoinsModule,

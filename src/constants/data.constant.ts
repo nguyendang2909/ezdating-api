@@ -99,3 +99,10 @@ export const RESPONSE_TYPES = {
   UPDATE_PROFILE_FILTER: 'update_profile_filter',
   UPLOAD_PHOTO: 'update_photo',
 };
+
+export const LESSION_TYPES = {
+  // File = 'file',
+  TEST: 'test',
+  TEXT: 'text',
+  VIDEO: 'video',
+} as const;

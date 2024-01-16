@@ -3,6 +3,7 @@ import {
   DEVICE_PLATFORMS,
   EDUCATION_LEVELS,
   GENDERS,
+  LESSION_TYPES,
   MEDIA_FILE_TYPES,
   MEMBERSHIPS,
   RELATIONSHIP_GOALS,
@@ -60,3 +61,5 @@ export type SignInPayload = {
 };
 
 export type SignInPayloadWithToken = SignInPayload & SignInDto;
+
+export type LessionType = (typeof LESSION_TYPES)[keyof typeof LESSION_TYPES];
