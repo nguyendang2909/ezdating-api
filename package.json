@@ -21,7 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "lint:fix": "eslint --fix --ext ts .",
     "prepare": "husky install",
-    "checkTs": "tsc --noEmit"
+    "checkTs": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@commitlint/cli": "^18.4.4",
@@ -127,6 +127,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
+      "yarn checkTs",
       "yarn lint"
     ],
     "*.{md,json}": [
