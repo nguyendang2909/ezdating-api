@@ -2,8 +2,9 @@
 
 import { Types } from 'mongoose';
 
+import { ClientData } from '../api/auth/auth.type';
 import { ERROR_MESSAGES } from '../commons/messages';
-import { DevicePlatform } from './data.type';
+import { DevicePlatform, Pagination } from './data.type';
 
 export type MongoDocument<T> = T & {
   _id: Types.ObjectId;
@@ -58,3 +59,25 @@ export type ErrorMessage = (typeof ERROR_MESSAGES)[keyof typeof ERROR_MESSAGES];
 export type SendPushNotificationByProfileOptions = {
   recentActive?: boolean;
 };
+
+export interface IApiBaseService {
+  createOne?(
+    payload: Record<string, any>,
+    client: ClientData,
+  ): Promise<Record<string, any>>;
+
+  deleteOneById?(id: string, client: ClientData): Promise<void>;
+
+  findMany?(
+    queryParams: Record<string, any>,
+    client: ClientData,
+  ): Promise<{ data: Record<string, any>[]; pagination: Pagination }>;
+
+  findOneById(id: string, client: ClientData): Promise<Record<string, any>>;
+
+  updateOneById?(
+    id: string,
+    payload: Record<string, any>,
+    client: ClientData,
+  ): Promise<void>;
+}

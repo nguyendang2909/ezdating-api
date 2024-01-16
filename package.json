@@ -127,8 +127,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
-      "yarn checkTs",
-      "yarn run eslint --fix"
+      "yarn lint"
     ],
     "*.{md,json}": [
       "prettier --write"

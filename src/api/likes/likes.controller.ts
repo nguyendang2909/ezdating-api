@@ -2,9 +2,9 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Client } from '../../commons/decorators/current-user-id.decorator';
+import { View } from '../../models';
 import { PaginatedResponse } from '../../types';
 import { ClientData } from '../auth/auth.type';
-import { View } from '../../models';
 import { FindManyLikedMeQuery } from './dto/find-user-like-me.dto';
 import { SendLikeDto } from './dto/send-like.dto';
 import { LikedMeReadService } from './services/liked-me-read-service';

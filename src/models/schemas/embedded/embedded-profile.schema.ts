@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-import { CommonEmbeddedSchema } from '../bases/schemas.common';
 import { GENDERS } from '../../../constants';
 import { Gender } from '../../../types';
+import { CommonEmbeddedSchema } from '../bases/schemas.common';
 import {
   EmbeddedMediaFile,
   EmbeddedMediaFileSchema,

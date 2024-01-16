@@ -23,36 +23,4 @@ export class ApiReadService<
   public getPagination(data: unknown[]): Pagination {
     throw this.throwNotImplemented();
   }
-
-  // public getPaginationByField<T>(
-  //   data: T[],
-  //   field: keyof T | (keyof T)[],
-  // ): Pagination {
-  //   return this.paginationUtil.getPaginationByField(
-  //     data,
-  //     field,
-  //     this.limitRecordsPerQuery,
-  //   );
-  // }
-
-  // public decodeToString(value: string): string {
-  //   return Buffer.from(value, 'base64').toString('utf-8');
-  // }
-
-  // public decodeToObj<T extends Record<string, any>>(value: string): T {
-  //   const decoded = this.decodeToString(value);
-  //   try {
-  //     const obj = JSON.parse(decoded) as T;
-  //     if (!_.isObject(obj)) {
-  //       throw new BadRequestException(
-  //         ERROR_MESSAGES['Input data was not correct'],
-  //       );
-  //     }
-  //     return obj;
-  //   } catch (err) {
-  //     throw new BadRequestException(
-  //       ERROR_MESSAGES['Input data was not correct'],
-  //     );
-  //   }
-  // }
 }

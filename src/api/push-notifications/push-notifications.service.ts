@@ -4,14 +4,14 @@ import { Types } from 'mongoose';
 
 import { APP_CONFIG } from '../../app.config';
 import { DEVICE_PLATFORMS } from '../../constants';
+import { Profile } from '../../models';
+import { SignedDevice } from '../../models/schemas/signed-device.schema';
+import { SignedDeviceModel } from '../../models/signed-device.model';
 import {
   SendPushNotificationByProfileOptions,
   SendPushNotificationContent,
   SendPushNotificationPayload,
 } from '../../types';
-import { Profile } from '../../models';
-import { SignedDevice } from '../../models/schemas/signed-device.schema';
-import { SignedDeviceModel } from '../../models/signed-device.model';
 import { AndroidPushNotificationsService } from './android-push-notifications.service';
 import { IosPushNotificationsService } from './ios-push-notifications.service';
 

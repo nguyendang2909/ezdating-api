@@ -6,7 +6,6 @@ import mongoose from 'mongoose';
 
 import { GENDERS, USER_ROLES, USER_STATUSES } from '../../constants';
 import { AccessTokensService } from '../../libs';
-import { RelationshipGoal } from '../../types';
 import {
   EmbeddedMediaFile,
   ProfileFilterModel,
@@ -14,6 +13,7 @@ import {
   StateModel,
   UserModel,
 } from '../../models';
+import { RelationshipGoal } from '../../types';
 import { ApiScript } from './api.script';
 
 @Injectable()

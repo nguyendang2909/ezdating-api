@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-import { CommonSchema } from './bases/schemas.common';
 import { GENDERS, RELATIONSHIP_GOALS } from '../../constants';
 import { Gender, RelationshipGoal } from '../../types';
+import { CommonSchema } from './bases/schemas.common';
 
 export type ProfileFilterDocument = HydratedDocument<ProfileFilter>;
 

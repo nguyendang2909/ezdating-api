@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
 import { ApiBaseService } from '../../../commons';
-import { ClientData } from '../../auth/auth.type';
 import { MatchModel } from '../../../models/match.model';
+import { ClientData } from '../../auth/auth.type';
 import { ReadMessageDto } from '../dto';
 
 @Injectable()

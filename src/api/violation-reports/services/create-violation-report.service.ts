@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 
 import { ApiCreateBaseService } from '../../../commons/services/api/api-create.base.service';
-import { ClientData } from '../../auth/auth.type';
 import { ViolationReport } from '../../../models/schemas/violation-report.schema';
 import { ViolationReportModel } from '../../../models/violation-report.model';
+import { ClientData } from '../../auth/auth.type';
 import { CreateVolationReportDto } from '../dto/create-volation-report.dto';
 
 @Injectable()

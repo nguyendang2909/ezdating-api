@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 
 import { APP_CONFIG } from '../../../app.config';
 import { ApiReadService } from '../../../commons/services/api/api-read.base.service';
+import { View, ViewModel } from '../../../models';
 import { Pagination } from '../../../types';
 import { PaginationCursorDateUtil } from '../../../utils';
 import { ClientData } from '../../auth/auth.type';
-import { View, ViewModel } from '../../../models';
 import { FindManyViewsQuery } from '../dto';
 
 @Injectable()

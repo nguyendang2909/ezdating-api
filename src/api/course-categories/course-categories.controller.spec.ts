@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { CourseCategoriesController } from './course-categories.controller';
 import { CourseCategoriesService } from './course-categories.service';
 
@@ -11,7 +12,9 @@ describe('CourseCategoriesController', () => {
       providers: [CourseCategoriesService],
     }).compile();
 
-    controller = module.get<CourseCategoriesController>(CourseCategoriesController);
+    controller = module.get<CourseCategoriesController>(
+      CourseCategoriesController,
+    );
   });
 
   it('should be defined', () => {

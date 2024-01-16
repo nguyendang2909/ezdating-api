@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 
 import { APP_CONFIG } from '../../../app.config';
 import { ApiFindManyBaseService } from '../../../commons/services/api/api-find-many.base.service';
+import { Profile, ProfileFilterModel, ProfileModel } from '../../../models';
 import { ProfilesUtil } from '../../../utils';
 import { PaginationCursorNumberUtil } from '../../../utils/paginations/pagination-cursor-number.util';
 import { ClientData } from '../../auth/auth.type';
-import { Profile, ProfileFilterModel, ProfileModel } from '../../../models';
 import { FakeFindManyLearningProfilesQuery } from '../dto/fake-find-many-learning-profiles';
 
 @Injectable()

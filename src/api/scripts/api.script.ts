@@ -5,6 +5,7 @@ import moment from 'moment';
 
 import { GENDERS } from '../../constants';
 import { API_ENDPOINTS } from '../../constants/fe.constants';
+import { Profile, ProfileModel, UserModel } from '../../models';
 import {
   ApiRequest,
   EducationLevel,
@@ -12,7 +13,6 @@ import {
   RelationshipGoal,
   RelationshipStatus,
 } from '../../types';
-import { Profile, ProfileModel, UserModel } from '../../models';
 import { UpdateMyProfileDto } from '../profiles/dto';
 
 @Injectable()

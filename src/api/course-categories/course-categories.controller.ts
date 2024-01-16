@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 
 import { CourseCategoriesService } from './course-categories.service';
 
@@ -9,12 +9,12 @@ export class CourseCategoriesController {
   ) {}
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.courseCategoriesService.findAll();
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.courseCategoriesService.findOne(+id);
-  // }
+  @Get('/:id')
+  async findOneById(@Param('id') id: string) {
+    return await this.courseCategoriesService.findOneById(id);
+  }
 }

@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 
 import { ApiReadMeService } from '../../../commons/services/api/api-read-me.base.service';
-import { ClientData } from '../../auth/auth.type';
 import {
   BasicProfile,
   BasicProfileModel,
   Profile,
   ProfileModel,
 } from '../../../models';
+import { ClientData } from '../../auth/auth.type';
 
 @Injectable()
 export class ProfilesReadMeService extends ApiReadMeService<

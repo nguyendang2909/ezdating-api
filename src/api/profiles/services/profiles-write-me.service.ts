@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { UpdateQuery } from 'mongoose';
 
 import { ApiWriteMeService } from '../../../commons/services/api/api-update-me.base.service';
+import { Profile, ProfileModel, StateModel } from '../../../models';
 import { ProfilesUtil } from '../../../utils';
 import { ClientData } from '../../auth/auth.type';
-import { Profile, ProfileModel, StateModel } from '../../../models';
 import { UpdateMyProfileDto } from '../dto';
 
 @Injectable()
